@@ -1,0 +1,32 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  title: string;
+  client: string;
+  industry: string;
+  services: string[];
+  href: string;
+}
+
+const { title, client, industry, services, href } = Astro.props;
+---
+
+<a href={href} class="glass-card corner-brackets group block p-6">
+  <p class="eyebrow">{industry}</p>
+  <h3 class="mt-2 font-display text-lg font-semibold text-(--color-text)">{title}</h3>
+  <p class="mt-1 text-sm text-(--color-text-muted)">{client}</p>
+  <div class="mt-4 flex flex-wrap gap-2">
+    {services.map((s) => (
+      <span class="pill pill-low">{s}</span>
+    ))}
+  </div>
+  <span class="mt-4 inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)">
+    Read case study
+    <Icon
+      name="lucide:arrow-right"
+      class="size-3.5 transition-transform group-hover:translate-x-1"
+      aria-hidden="true"
+    />
+  </span>
+</a>

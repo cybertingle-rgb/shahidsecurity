@@ -1,0 +1,26 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  icon: string;
+}
+
+const { title, description, href, icon } = Astro.props;
+---
+
+<a href={href} class="glass-card corner-brackets group block p-6">
+  <Icon name={icon} class="size-8 text-(--color-neon)" aria-hidden="true" />
+  <h3 class="mt-4 font-display text-lg font-semibold text-(--color-text)">{title}</h3>
+  <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{description}</p>
+  <span class="mt-4 inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)">
+    Learn more
+    <Icon
+      name="lucide:arrow-right"
+      class="size-3.5 transition-transform group-hover:translate-x-1"
+      aria-hidden="true"
+    />
+  </span>
+</a>

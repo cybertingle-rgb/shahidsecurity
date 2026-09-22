@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /contact/thanks/
+
+Sitemap: https://shahidiqbal.com/sitemap-index.xml

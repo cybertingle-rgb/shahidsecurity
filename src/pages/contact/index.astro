@@ -1,0 +1,108 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import ContactForm from '@/components/ContactForm.astro';
+import { Icon } from 'astro-icon/components';
+import { site, mailtoLink, whatsappLink } from '@/lib/site';
+import { breadcrumbSchema } from '@/lib/schema';
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Contact', path: '/contact/' },
+  ]),
+];
+
+const cards = [
+  {
+    icon: 'lucide:message-circle',
+    label: 'WhatsApp / Call',
+    value: site.phoneDisplay,
+    href: whatsappLink("Hi, I'd like to talk about my security."),
+  },
+  {
+    icon: 'lucide:mail',
+    label: 'Email',
+    value: site.email,
+    href: mailtoLink(),
+  },
+  {
+    icon: 'lucide:map-pin',
+    label: 'Location',
+    value: `${site.address.displayLine} — serving clients remotely across Pakistan and worldwide`,
+  },
+  {
+    icon: 'lucide:clock',
+    label: 'Hours',
+    value: site.hours.display,
+  },
+];
+---
+
+<BaseLayout
+  title="Talk to a Security Expert"
+  description="Tell us what you're worried about. We reply within 24 hours on working days. For emergencies, WhatsApp is fastest."
+  path="/contact/"
+  jsonLd={jsonLd}
+  ogImage="/og/contact.png"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Contact', path: '/contact/' },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="// contact"
+      title="Talk to a security expert"
+      intro="Tell us what you're worried about. We reply within 24 hours on working days. For emergencies (active hack, ransomware), WhatsApp is fastest."
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.3fr]">
+      <div class="space-y-4">
+        {cards.map((card) => (
+          <div class="glass-card p-5">
+            <div class="flex items-center gap-2 font-mono text-xs text-(--color-text-muted)">
+              <Icon name={card.icon} class="size-4 text-(--color-neon)" aria-hidden="true" />
+              {card.label}
+            </div>
+            {card.href ? (
+              <a href={card.href} class="mt-2 block text-(--color-text) hover:text-(--color-neon)">
+                {card.value}
+              </a>
+            ) : (
+              <p class="mt-2 text-(--color-text)">{card.value}</p>
+            )}
+          </div>
+        ))}
+        <p class="text-xs text-(--color-text-muted)">
+          Registered office: {site.registeredAddress.full}
+        </p>
+      </div>
+
+      <div class="glass-card corner-brackets p-6 sm:p-8">
+        <p
+          id="contact-form-error"
+          hidden
+          class="mb-4 rounded-md border border-(--color-danger) bg-(--color-danger)/10 p-3 text-sm text-(--color-danger)"
+          role="alert"
+        >
+          Something went wrong sending your message. Please try again or WhatsApp us.
+        </p>
+        <ContactForm />
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<script>
+  if (new URLSearchParams(window.location.search).get('error') === '1') {
+    document.getElementById('contact-form-error')?.removeAttribute('hidden');
+  }
+</script>

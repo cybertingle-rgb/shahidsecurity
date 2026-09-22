@@ -1,0 +1,17 @@
+# Astro / Node
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+npm-debug.log*
+pnpm-debug.log*
+
+# PHP
+php/vendor/
+shahid-security-config.php
+shahid-security-data/
+
+# Editor / OS
+.DS_Store
+*.swp

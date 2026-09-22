@@ -1,0 +1,40 @@
+---
+import Button from './Button.astro';
+import { whatsappLink } from '@/lib/site';
+
+interface Props {
+  title: string;
+  text: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+}
+
+const {
+  title,
+  text,
+  primaryLabel = 'Book a free consultation',
+  primaryHref = '/book/',
+} = Astro.props;
+---
+
+<div class="glass-card corner-brackets relative overflow-hidden p-10 text-center sm:p-14">
+  <div class="cta-glow pointer-events-none absolute inset-0 opacity-40"></div>
+  <div class="relative">
+    <h2 class="font-display text-2xl font-semibold text-(--color-text) sm:text-3xl">{title}</h2>
+    <p class="mx-auto mt-3 max-w-xl text-(--color-text-muted)">{text}</p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <Button href={primaryHref} variant="primary">
+        {primaryLabel}
+      </Button>
+      <Button href={whatsappLink("Hi, I'd like to talk about my security.")} variant="secondary">
+        WhatsApp us
+      </Button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cta-glow {
+    background: radial-gradient(60% 60% at 50% 0%, var(--color-neon-dim), transparent 70%);
+  }
+</style>

@@ -1,0 +1,12 @@
+{
+  "name": "shahid-security/contact-handler",
+  "description": "PHPMailer dependency for the Shahid Security contact form handler (public/api/contact.php).",
+  "type": "project",
+  "require": {
+    "php": ">=8.1",
+    "phpmailer/phpmailer": "^6.9"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

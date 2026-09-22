@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import Button from '@/components/Button.astro';
+---
+
+<BaseLayout
+  title="Page Not Found"
+  description="This page doesn't exist — it may have moved."
+  path="/404/"
+  noindex
+>
+  <Section class="pt-24 text-center">
+    <picture>
+      <source srcset="/brand/logo-stacked-dark-bg-sm.webp" type="image/webp" />
+      <img
+        src="/brand/logo-stacked-dark-bg-sm.png"
+        alt="Shahid Security"
+        width="320"
+        height="502"
+        class="mx-auto h-28 w-auto opacity-80"
+      />
+    </picture>
+    <p class="eyebrow mt-8">// 404</p>
+    <h1 class="mt-4 font-display text-3xl font-semibold text-(--color-text) sm:text-4xl">
+      <span class="font-mono text-(--color-neon)">$</span> cd /page-not-found
+    </h1>
+    <p class="mx-auto mt-4 max-w-md text-(--color-text-muted)">
+      That path doesn't resolve to anything on this system. It may have moved, or the link is out of
+      date.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <Button href="/" variant="primary">
+        Back to home
+      </Button>
+      <Button href="/contact/" variant="secondary">
+        Contact us
+      </Button>
+    </div>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import Prose from '@/components/Prose.astro';
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('legal', 'terms');
+if (!entry) throw new Error('Missing legal/terms.mdx entry');
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description="Terms governing engagements with Shahid Security."
+  path="/terms/"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: entry.data.title, path: '/terms/' },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="// legal"
+      title={entry.data.title}
+      intro={`Last updated ${entry.data.updatedAt.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}`}
+    />
+  </Section>
+  <Section class="pt-0">
+    <Prose>
+      <Content />
+    </Prose>
+  </Section>
+</BaseLayout>

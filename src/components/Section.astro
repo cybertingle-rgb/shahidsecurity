@@ -1,0 +1,18 @@
+---
+interface Props {
+  class?: string;
+  id?: string;
+  bordered?: boolean;
+}
+
+const { class: className, id, bordered = false } = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={['py-16 sm:py-24', bordered && 'border-t border-(--color-border)', className]}
+>
+  <div class="container-page">
+    <slot />
+  </div>
+</section>

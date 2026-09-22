@@ -1,0 +1,6 @@
+dist/
+.astro/
+node_modules/
+php/vendor/
+public/og/
+pnpm-lock.yaml
