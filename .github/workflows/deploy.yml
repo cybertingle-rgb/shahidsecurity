@@ -34,6 +34,19 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Debug secret shape (no values printed)
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          P: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          echo "DEPLOY_HOST length: ${#H}"
+          echo "DEPLOY_USER length: ${#U}"
+          echo "DEPLOY_PORT length: ${#P}"
+          [[ "$H" =~ ^[A-Za-z0-9.-]+$ ]] && echo "DEPLOY_HOST format: OK" || echo "DEPLOY_HOST format: INVALID (has unexpected chars)"
+          [[ "$U" =~ ^[A-Za-z0-9_-]+$ ]] && echo "DEPLOY_USER format: OK" || echo "DEPLOY_USER format: INVALID (has unexpected chars)"
+          [[ "$P" =~ ^[0-9]+$ ]] && echo "DEPLOY_PORT format: OK" || echo "DEPLOY_PORT format: INVALID (has unexpected chars)"
+
       - name: Deploy dist/ over SSH
         uses: easingthemes/ssh-deploy@v6
         with:
