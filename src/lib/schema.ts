@@ -27,7 +27,7 @@ export function organizationSchema() {
     },
     areaServed: 'Worldwide',
     openingHours: `${site.hours.days.slice(0, 2)}-${site.hours.days.slice(-3, -1)} ${site.hours.open}-${site.hours.close}`,
-    sameAs: [site.social.facebook, site.social.instagram, site.social.x],
+    sameAs: [site.social.facebook, site.social.instagram, site.social.x, site.social.linkedin],
   };
 }
 
@@ -105,5 +105,6 @@ export function personSchema() {
     jobTitle: 'Founder & Security Consultant',
     worksFor: { '@id': `${site.url}/#organization` },
     url: absoluteUrl('/about/'),
+    sameAs: [site.social.linkedin, site.social.x],
   };
 }

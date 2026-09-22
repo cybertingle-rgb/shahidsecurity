@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /contact/thanks/
+Disallow: /book/thanks/
 
 Sitemap: https://shahidiqbal.com/sitemap-index.xml
