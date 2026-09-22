@@ -1,0 +1,132 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import ProcessSteps from '@/components/ProcessSteps.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import Prose from '@/components/Prose.astro';
+import { Icon } from 'astro-icon/components';
+import { getCollection, render } from 'astro:content';
+import { serviceSchema, faqSchema, breadcrumbSchema } from '@/lib/schema';
+
+export async function getStaticPaths() {
+  const services = await getCollection('services');
+  return services.map((service) => ({
+    params: { slug: service.id },
+    props: { service },
+  }));
+}
+
+const { service } = Astro.props;
+const { Content } = await render(service);
+const path = `/services/${service.id}/`;
+
+const jsonLd: object[] = [
+  serviceSchema({ name: service.data.title, description: service.data.shortDescription, path }),
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Services', path: '/services/' },
+    { name: service.data.title, path },
+  ]),
+];
+const faq = faqSchema(service.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title={service.data.seoTitle}
+  description={service.data.seoDescription}
+  path={path}
+  jsonLd={jsonLd}
+  ogImage={`/og/service-${service.id}.png`}
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Services', path: '/services/' },
+        { name: service.data.title, path },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow={`// ${String(service.data.order).padStart(2, '0')} ${service.data.group.toUpperCase()}`}
+      title={service.data.title}
+      intro={service.data.shortDescription}
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-12 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <Prose>
+          <Content />
+        </Prose>
+
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">
+          What's included
+        </h2>
+        <ul class="mt-4 space-y-2">
+          {service.data.included.map((item) => (
+            <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+              <Icon
+                name="lucide:check"
+                class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)"
+                aria-hidden="true"
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">What you get</h2>
+        <ul class="mt-4 space-y-2">
+          {service.data.deliverables.map((item) => (
+            <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+              <Icon
+                name="lucide:file-check-2"
+                class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)"
+                aria-hidden="true"
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        {service.data.faqs.length > 0 && (
+          <>
+            <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={service.data.faqs} />
+            </div>
+          </>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Who it's for</h2>
+        <ul class="mt-4 space-y-2">
+          {service.data.whoItsFor.map((item) => (
+            <li class="text-sm text-(--color-text-muted)">{item}</li>
+          ))}
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// PROCESS" title="How this engagement works" />
+    <div class="mt-10">
+      <ProcessSteps steps={service.data.process} />
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand
+      title="Ready to talk through your scope?"
+      text="Book a free consultation. No obligation, no pressure."
+    />
+  </Section>
+</BaseLayout>

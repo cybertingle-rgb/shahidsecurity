@@ -1,0 +1,110 @@
+---
+const lines = [
+  { prompt: true, text: 'nmap -sV target.example' },
+  { prompt: false, text: 'PORT     STATE  SERVICE    VERSION' },
+  { prompt: false, text: '22/tcp   open   ssh        OpenSSH 8.9' },
+  { prompt: false, text: '443/tcp  open   https       nginx 1.24 (outdated)' },
+  { prompt: false, text: '8080/tcp open   http-proxy  exposed admin panel' },
+  { prompt: false, text: '[+] 3 vulnerabilities found — report ready' },
+];
+---
+
+<div
+  class="terminal-window glass-card overflow-hidden p-0 font-mono text-xs sm:text-sm"
+  aria-hidden="true"
+>
+  <div class="flex items-center gap-2 border-b border-(--color-border) bg-(--color-bg-elevated) px-4 py-3">
+    <span class="size-2.5 rounded-full bg-(--color-danger)/70"></span>
+    <span class="size-2.5 rounded-full bg-(--color-warn)/70"></span>
+    <span class="size-2.5 rounded-full bg-(--color-neon)/70"></span>
+    <span class="ml-3 text-(--color-text-muted)">shahid@security:~$</span>
+  </div>
+  <div class="terminal-body relative min-h-52 p-4 sm:min-h-56 sm:p-6">
+    <pre class="terminal-static whitespace-pre-wrap text-(--color-text-muted)">{lines
+      .map((l) => (l.prompt ? `shahid@security:~$ ${l.text}` : l.text))
+      .join('\n')}</pre>
+    <pre class="terminal-typed absolute inset-0 whitespace-pre-wrap p-4 text-(--color-neon-soft) sm:p-6"></pre>
+  </div>
+</div>
+
+<style>
+  .terminal-typed {
+    display: none;
+  }
+  .terminal-window.is-animated .terminal-static {
+    display: none;
+  }
+  .terminal-window.is-animated .terminal-typed {
+    display: block;
+  }
+  .terminal-typed .cursor {
+    display: inline-block;
+    width: 0.55em;
+    background: var(--color-neon);
+    margin-left: 1px;
+  }
+</style>
+
+<script>
+  const lines = [
+    { prompt: true, text: 'nmap -sV target.example' },
+    { prompt: false, text: 'PORT     STATE  SERVICE    VERSION' },
+    { prompt: false, text: '22/tcp   open   ssh        OpenSSH 8.9' },
+    { prompt: false, text: '443/tcp  open   https       nginx 1.24 (outdated)' },
+    { prompt: false, text: '8080/tcp open   http-proxy  exposed admin panel' },
+    { prompt: false, text: '[+] 3 vulnerabilities found — report ready' },
+  ];
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function initTerminal(el: Element) {
+    const typedEl = el.querySelector<HTMLElement>('.terminal-typed');
+    if (!typedEl || prefersReducedMotion) return;
+
+    el.classList.add('is-animated');
+    let lineIndex = 0;
+    let charIndex = 0;
+    let output = '';
+
+    function tick() {
+      if (lineIndex >= lines.length) return;
+      const line = lines[lineIndex];
+      const full = line.prompt ? `shahid@security:~$ ${line.text}` : line.text;
+
+      if (charIndex <= full.length) {
+        const current = output + full.slice(0, charIndex);
+        typedEl!.innerHTML =
+          escapeHtml(current) + '<span class="cursor-blink cursor">&nbsp;</span>';
+        charIndex++;
+        setTimeout(tick, line.prompt ? 35 : 12);
+      } else {
+        output += full + '\n';
+        lineIndex++;
+        charIndex = 0;
+        setTimeout(tick, 220);
+      }
+    }
+
+    function escapeHtml(str: string) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    tick();
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          initTerminal(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.3 },
+  );
+
+  document.querySelectorAll('.terminal-window').forEach((el) => observer.observe(el));
+</script>

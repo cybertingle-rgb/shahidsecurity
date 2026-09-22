@@ -1,0 +1,42 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import CalEmbed from '@/components/CalEmbed.astro';
+import { breadcrumbSchema } from '@/lib/schema';
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Book a Consultation', path: '/book/' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Book a Free 30-Minute Consultation"
+  description="Pick a time that suits you. We'll discuss your setup, your concerns, and the most sensible next step. No obligation."
+  path="/book/"
+  jsonLd={jsonLd}
+  ogImage="/og/book.png"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Book a Consultation', path: '/book/' },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="// book"
+      title="Book a free 30-minute consultation"
+      intro="Pick a time that suits you. We'll discuss your setup, your concerns, and the most sensible next step. No obligation."
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <CalEmbed />
+  </Section>
+</BaseLayout>

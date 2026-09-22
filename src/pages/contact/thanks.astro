@@ -1,0 +1,31 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import Button from '@/components/Button.astro';
+---
+
+<BaseLayout
+  title="Message Sent"
+  description="Thanks for reaching out to Shahid Security. We reply within 24 hours on working days."
+  path="/contact/thanks/"
+  noindex
+>
+  <Section class="pt-24 text-center">
+    <p class="eyebrow">// message sent</p>
+    <h1 class="mt-4 font-display text-3xl font-semibold text-(--color-text) sm:text-4xl">
+      Thanks — we've got your message.
+    </h1>
+    <p class="mx-auto mt-4 max-w-xl text-(--color-text-muted)">
+      We reply within 24 hours on working days. For urgent incidents, WhatsApp us and we'll get back
+      to you faster.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <Button href="/" variant="primary">
+        Back to home
+      </Button>
+      <Button href="/book/" variant="secondary">
+        Book a consultation instead
+      </Button>
+    </div>
+  </Section>
+</BaseLayout>

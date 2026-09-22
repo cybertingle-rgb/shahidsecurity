@@ -1,0 +1,5 @@
+Contact: mailto:info@shahidiqbal.com
+Expires: 2027-09-22T00:00:00.000Z
+Policy: https://shahidiqbal.com/responsible-disclosure/
+Preferred-Languages: en
+Canonical: https://shahidiqbal.com/.well-known/security.txt

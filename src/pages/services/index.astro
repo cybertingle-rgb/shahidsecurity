@@ -1,0 +1,70 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import CTABand from '@/components/CTABand.astro';
+import { getCollection } from 'astro:content';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const security = services.filter((s) => s.data.group === 'security');
+const build = services.filter((s) => s.data.group === 'build');
+---
+
+<BaseLayout
+  title="Cybersecurity Services in Pakistan"
+  description="Everything we offer is scoped to your business size and budget. Every engagement starts with written authorisation and an NDA."
+  path="/services/"
+  ogImage="/og/services.png"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Services', path: '/services/' },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="> services"
+      title="Cybersecurity services"
+      intro="Everything we offer is scoped to your business size and budget. Every engagement starts with written authorisation and an NDA."
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <h2 class="eyebrow mb-6">// Security</h2>
+    <div id="security" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {security.map((s) => (
+        <ServiceCard
+          title={s.data.title}
+          description={s.data.shortDescription}
+          href={`/services/${s.id}/`}
+          icon={s.data.icon}
+        />
+      ))}
+    </div>
+  </Section>
+
+  <Section class="pt-0">
+    <h2 class="eyebrow mb-6">// Build</h2>
+    <div id="build" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {build.map((s) => (
+        <ServiceCard
+          title={s.data.title}
+          description={s.data.shortDescription}
+          href={`/services/${s.id}/`}
+          icon={s.data.icon}
+        />
+      ))}
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand
+      title="Not sure which service you need?"
+      text="Book a free consultation. We'll help you scope it — no obligation."
+    />
+  </Section>
+</BaseLayout>

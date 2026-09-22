@@ -1,0 +1,23 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Item {
+  icon: string;
+  text: string;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs text-(--color-text-muted)">
+  {items.map((item) => (
+    <li class="flex items-center gap-1.5">
+      <Icon name={item.icon} class="size-3.5 text-(--color-neon)" aria-hidden="true" />
+      {item.text}
+    </li>
+  ))}
+</ul>

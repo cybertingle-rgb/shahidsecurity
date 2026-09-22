@@ -1,0 +1,37 @@
+---
+import { Icon } from 'astro-icon/components';
+import { breadcrumbSchema } from '@/lib/schema';
+
+interface Crumb {
+  name: string;
+  path: string;
+}
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+const schema = breadcrumbSchema(items);
+---
+
+<nav aria-label="Breadcrumb" class="mb-8">
+  <ol class="flex flex-wrap items-center gap-2 font-mono text-xs text-(--color-text-muted)">
+    {items.map((item, index) => (
+      <li class="flex items-center gap-2">
+        {index > 0 && <Icon name="lucide:chevron-right" class="size-3" aria-hidden="true" />}
+        {index === items.length - 1 ? (
+          <span class="text-(--color-neon)" aria-current="page">
+            {item.name}
+          </span>
+        ) : (
+          <a href={item.path} class="hover:text-(--color-neon)">
+            {item.name}
+          </a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)}></script>

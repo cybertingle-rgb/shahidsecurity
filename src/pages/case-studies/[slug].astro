@@ -1,0 +1,96 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import CTABand from '@/components/CTABand.astro';
+import { getCollection, render } from 'astro:content';
+import { breadcrumbSchema } from '@/lib/schema';
+
+export async function getStaticPaths() {
+  const caseStudies = await getCollection('caseStudies', ({ data }) => !data.draft);
+  return caseStudies.map((cs) => ({
+    params: { slug: cs.id },
+    props: { cs },
+  }));
+}
+
+const { cs } = Astro.props;
+const { Content } = await render(cs);
+const path = `/case-studies/${cs.id}/`;
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Case Studies', path: '/case-studies/' },
+    { name: cs.data.title, path },
+  ]),
+];
+---
+
+<BaseLayout title={cs.data.title} description={cs.data.challenge} path={path} jsonLd={jsonLd}>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Case Studies', path: '/case-studies/' },
+        { name: cs.data.title, path },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow={cs.data.industry}
+      title={cs.data.title}
+      intro={cs.data.client}
+    />
+    <div class="mt-4 flex flex-wrap gap-2">
+      {cs.data.services.map((s) => (
+        <span class="pill pill-low">{s}</span>
+      ))}
+    </div>
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-10">
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">The challenge</h2>
+          <p class="mt-3 text-(--color-text-muted) leading-relaxed">{cs.data.challenge}</p>
+        </div>
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">What we did</h2>
+          <ul class="mt-3 space-y-2">
+            {cs.data.approach.map((item) => (
+              <li class="text-(--color-text-muted)">{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Result</h2>
+          <ul class="mt-3 space-y-2">
+            {cs.data.results.map((item) => (
+              <li class="text-(--color-neon-soft)">{item}</li>
+            ))}
+          </ul>
+        </div>
+        <Content />
+      </div>
+      <aside>
+        {cs.data.quote && cs.data.quote.permissionConfirmed && (
+          <blockquote class="glass-card corner-brackets p-6 italic text-(--color-text)">
+            “{cs.data.quote.text}”
+            <footer class="mt-4 not-italic font-mono text-xs text-(--color-text-muted)">
+              {cs.data.quote.author}, {cs.data.quote.role}
+            </footer>
+          </blockquote>
+        )}
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand
+      title="Want results like these?"
+      text="Book a free consultation and let's talk through your setup."
+    />
+  </Section>
+</BaseLayout>

@@ -1,0 +1,164 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const nav = [
+  { label: 'Services', href: '/services/' },
+  { label: 'Case Studies', href: '/case-studies/' },
+  { label: 'About', href: '/about/' },
+  { label: 'Blog', href: '/blog/' },
+  { label: 'Contact', href: '/contact/' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 transition-colors duration-300"
+  data-scrolled="false"
+>
+  <div class="container-page flex h-16 items-center justify-between">
+    <a href="/" class="flex items-center" aria-label="Shahid Security home">
+      <picture>
+        <source srcset="/brand/logo-horizontal-dark-bg-nav.webp" type="image/webp" />
+        <img
+          src="/brand/logo-horizontal-dark-bg-nav.png"
+          alt="Shahid Security"
+          width="340"
+          height="162"
+          class="h-8 w-auto sm:h-10"
+        />
+      </picture>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'tap-target font-mono text-sm transition-colors hover:text-(--color-neon)',
+            currentPath.startsWith(item.href) ? 'text-(--color-neon)' : 'text-(--color-text-muted)',
+          ]}
+          aria-current={currentPath.startsWith(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="hidden md:block">
+      <a href="/book/" class="btn btn-primary text-xs px-4 py-2">
+        Book a consultation
+      </a>
+    </div>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      class="md:hidden flex items-center justify-center size-11 text-(--color-text)"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Open menu"
+    >
+      <Icon name="lucide:menu" class="size-6" aria-hidden="true" />
+    </button>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="md:hidden fixed inset-0 top-16 bg-(--color-bg)/98 backdrop-blur-sm border-t border-(--color-border) hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Mobile menu"
+  >
+    <nav class="container-page flex flex-col gap-1 py-6" aria-label="Mobile">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class="font-mono text-lg py-3 border-b border-(--color-border) text-(--color-text)"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a href="/book/" class="btn btn-primary mt-6 w-full">
+        Book a consultation
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  #site-header {
+    background: transparent;
+  }
+  #site-header[data-scrolled='true'] {
+    background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border);
+  }
+</style>
+
+<script>
+  const header = document.getElementById('site-header');
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  const onScroll = () => {
+    if (!header) return;
+    header.dataset.scrolled = window.scrollY > 8 ? 'true' : 'false';
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  let focusables: HTMLElement[] = [];
+  let lastFocused: HTMLElement | null = null;
+
+  function openMenu() {
+    if (!menu || !toggle) return;
+    menu.classList.remove('hidden');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close menu');
+    lastFocused = document.activeElement as HTMLElement;
+    focusables = Array.from(menu.querySelectorAll<HTMLElement>('a, button'));
+    focusables[0]?.focus();
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    if (!menu || !toggle) return;
+    menu.classList.add('hidden');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    document.body.style.overflow = '';
+    lastFocused?.focus();
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    if (isOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  menu?.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMenu();
+      return;
+    }
+    if (e.key === 'Tab' && focusables.length > 0) {
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
+</script>

@@ -1,0 +1,133 @@
+# Shahid Security — Apache configuration for Hostinger shared hosting.
+# Upload the contents of dist/ (which includes this file) to public_html.
+
+# -----------------------------------------------------------------------------
+# Rewrite rules, in order:
+#   1. Force HTTPS
+#   2. 301s from the old WordPress URLs (patterns accept an optional trailing
+#      slash so these fire in a single hop, before the generic trailing-slash
+#      rule below would otherwise force a redirect-then-redirect)
+#   3. 410 Gone for old WordPress admin surfaces
+#   4. Generic trailing-slash enforcement for everything else
+# -----------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  RewriteRule ^about-us/?$ /about/ [R=301,L]
+  RewriteRule ^contact-us/?$ /contact/ [R=301,L]
+  RewriteRule ^appointment/?$ /book/ [R=301,L]
+  RewriteRule ^services-1/?$ /services/ [R=301,L]
+  RewriteRule ^service/?$ /services/ [R=301,L]
+
+  RewriteRule ^service/network-security/?$ /services/network-cloud-security/ [R=301,L]
+  RewriteRule ^service/data-encryption/?$ /services/network-cloud-security/ [R=301,L]
+  RewriteRule ^service/identity-access/?$ /services/network-cloud-security/ [R=301,L]
+  RewriteRule ^service/security-configuration/?$ /services/network-cloud-security/ [R=301,L]
+  RewriteRule ^service/security-monitoring/?$ /services/monitoring-training/ [R=301,L]
+  RewriteRule ^service/backup-recovery/?$ /services/incident-response/ [R=301,L]
+
+  RewriteRule ^portfolio(/.*)?$ /case-studies/ [R=301,L]
+  RewriteRule ^blog-standard/?$ /blog/ [R=301,L]
+  RewriteRule ^tag(/.*)?$ /blog/ [R=301,L]
+
+  RewriteRule ^business-cyber-defense-2025-the-zero-day-challenge/?$ /blog/ [R=301,L]
+  RewriteRule ^latest-zero-day-vulnerabilities-every-business-should-know/?$ /blog/ [R=301,L]
+  RewriteRule ^phishing-scams-on-the-rise-how-to-protect-your-team/?$ /blog/ [R=301,L]
+
+  # Old WordPress admin surfaces — gone, not redirected (410 Gone)
+  RewriteRule ^wp-admin(/.*)?$ - [G,L]
+  RewriteRule ^wp-login\.php$ - [G,L]
+  RewriteRule ^xmlrpc\.php$ - [G,L]
+
+  # Add a trailing slash to anything else that isn't a real file and doesn't
+  # already have one (matches Astro's trailingSlash: 'always' output).
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} !(.*)/$
+  RewriteCond %{REQUEST_URI} !\.(css|js|mjs|png|jpg|jpeg|webp|avif|svg|gif|ico|json|xml|txt|woff2?|map|pdf)$ [NC]
+  RewriteRule ^(.*)$ /$1/ [L,R=301]
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Custom 404
+# -----------------------------------------------------------------------------
+ErrorDocument 404 /404.html
+ErrorDocument 410 /404.html
+
+# -----------------------------------------------------------------------------
+# Security headers
+#
+# Content-Security-Policy is intentionally NOT set here. Astro's built-in CSP
+# feature (astro.config.mjs -> security.csp) computes a sha256 hash for every
+# inline <script>/<style> at build time and emits a per-page
+# <meta http-equiv="content-security-policy"> tag with those hashes plus the
+# external origins we allow (Cloudflare Turnstile, Cal.com). That gives us a
+# strict script-src with NO 'unsafe-inline' — something a static host with no
+# per-request nonce can't otherwise achieve. Setting a second, looser CSP here
+# would only make the effective policy more permissive AND risk conflicting
+# with the hashes, so we leave it to Astro. X-Frame-Options below covers the
+# one meaningful directive a <meta> CSP can't express (frame-ancestors).
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "DENY"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Caching
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "^_astro/.*\.(js|css|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <If "%{REQUEST_URI} =~ m#^/_astro/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  <If "%{REQUEST_URI} =~ m#^/brand/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Compression
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Access control: deny dotfiles and PHP execution except the contact handler
+# -----------------------------------------------------------------------------
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "\.php$">
+  Require all denied
+</FilesMatch>
+<Files "contact.php">
+  Require all granted
+</Files>
+
+Options -Indexes
