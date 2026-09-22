@@ -1,0 +1,32 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import Button from '@/components/Button.astro';
+import { whatsappLink } from '@/lib/site';
+---
+
+<BaseLayout
+  title="Request Sent"
+  description="Thanks for requesting a consultation with Shahid Security. We'll confirm by phone or WhatsApp."
+  path="/book/thanks/"
+  noindex
+>
+  <Section class="pt-24 text-center">
+    <p class="eyebrow">// request sent</p>
+    <h1 class="mt-4 font-display text-3xl font-semibold text-(--color-text) sm:text-4xl">
+      Thanks — we've got your request.
+    </h1>
+    <p class="mx-auto mt-4 max-w-xl text-(--color-text-muted)">
+      This confirms your preferred time was sent — we'll reply by phone or WhatsApp to confirm it
+      works on our end.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <Button href="/" variant="primary">
+        Back to home
+      </Button>
+      <Button href={whatsappLink('Hi, I just requested a consultation time.')} variant="secondary">
+        WhatsApp us now
+      </Button>
+    </div>
+  </Section>
+</BaseLayout>

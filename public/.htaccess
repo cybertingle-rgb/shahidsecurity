@@ -129,5 +129,8 @@ ErrorDocument 410 /404.html
 <Files "contact.php">
   Require all granted
 </Files>
+<Files "book.php">
+  Require all granted
+</Files>
 
 Options -Indexes

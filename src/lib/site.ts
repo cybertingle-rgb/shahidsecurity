@@ -15,15 +15,15 @@ export const site = {
   phone: '1101011011101110000000111110010110001110',
   phoneDisplay: '1101011011101110000000111110010110001110',
   whatsappNumber: '1101011011101110000000111110010110001110',
-  // Public-facing location shown on the Contact page.
-  // [FILL IN: confirm which location to show publicly; defaulting to the registered
-  // office until Shahid confirms a real Islamabad presence — see TODO-CONTENT.md]
+  // Public-facing location shown on the Contact page. Kept deliberately general
+  // (no unconfirmed specific city) — the registered office below is the exact
+  // legal address, used on invoices/legal pages instead.
   address: {
     locality: 'Khanewal',
     region: 'Punjab',
     country: 'PK',
     countryName: 'Pakistan',
-    displayLine: '[FILL IN: confirm public-facing location]',
+    displayLine: 'Pakistan',
   },
   // Registered office — used in JSON-LD, footer legal line and invoices, not the hero/contact cards.
   registeredAddress: {
@@ -46,10 +46,9 @@ export const site = {
     facebook: 'https://facebook.com/shahidsecurityofficial',
     instagram: 'https://instagram.com/shahidsecurity',
     x: 'https://x.com/shahidsecurity',
+    linkedin: 'https://www.linkedin.com/in/shahidlooper',
   },
-  cal: {
-    link: import.meta.env.PUBLIC_CAL_LINK ?? '',
-  },
+  founderExperienceSince: 2020,
 } as const;
 
 export function whatsappLink(message?: string) {

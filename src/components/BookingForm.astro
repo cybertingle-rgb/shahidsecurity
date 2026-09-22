@@ -1,0 +1,238 @@
+---
+import { site } from '@/lib/site';
+
+function generateSlots(open: string, close: string, stepMinutes: number, durationMinutes: number) {
+  const [openH, openM] = open.split(':').map(Number);
+  const [closeH, closeM] = close.split(':').map(Number);
+  const openTotal = openH * 60 + openM;
+  const closeTotal = closeH * 60 + closeM;
+  const slots: string[] = [];
+  for (let t = openTotal; t + durationMinutes <= closeTotal; t += stepMinutes) {
+    const h = Math.floor(t / 60)
+      .toString()
+      .padStart(2, '0');
+    const m = (t % 60).toString().padStart(2, '0');
+    slots.push(`${h}:${m}`);
+  }
+  return slots;
+}
+
+const slots = generateSlots(site.hours.open, site.hours.close, 30, 30);
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
+<form id="booking-form" action="/api/book.php" method="POST" novalidate class="space-y-5">
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label for="bk-date" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
+        Preferred date *
+      </label>
+      <input
+        id="bk-date"
+        name="date"
+        type="date"
+        required
+        aria-describedby="bk-date-error"
+        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+      />
+      <p
+        id="bk-date-error"
+        class="mt-1 text-xs text-(--color-danger) empty:hidden"
+        role="alert"
+      ></p>
+    </div>
+    <div>
+      <label for="bk-time" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
+        Preferred time (PKT) *
+      </label>
+      <select
+        id="bk-time"
+        name="time"
+        required
+        aria-describedby="bk-time-error"
+        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+      >
+        <option value="" selected disabled>
+          Select a time
+        </option>
+        {slots.map((s) => (
+          <option value={s}>{s}</option>
+        ))}
+      </select>
+      <p
+        id="bk-time-error"
+        class="mt-1 text-xs text-(--color-danger) empty:hidden"
+        role="alert"
+      ></p>
+    </div>
+  </div>
+
+  <p class="text-xs text-(--color-text-muted)">{site.hours.display} — Sundays closed.</p>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label for="bk-name" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
+        Name *
+      </label>
+      <input
+        id="bk-name"
+        name="name"
+        type="text"
+        required
+        autocomplete="name"
+        aria-describedby="bk-name-error"
+        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+      />
+      <p
+        id="bk-name-error"
+        class="mt-1 text-xs text-(--color-danger) empty:hidden"
+        role="alert"
+      ></p>
+    </div>
+    <div>
+      <label for="bk-country" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
+        Country *
+      </label>
+      <input
+        id="bk-country"
+        name="country"
+        type="text"
+        required
+        autocomplete="country-name"
+        aria-describedby="bk-country-error"
+        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+      />
+      <p
+        id="bk-country-error"
+        class="mt-1 text-xs text-(--color-danger) empty:hidden"
+        role="alert"
+      ></p>
+    </div>
+  </div>
+
+  <div>
+    <label for="bk-phone" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
+      Phone / WhatsApp *
+    </label>
+    <input
+      id="bk-phone"
+      name="phone"
+      type="tel"
+      required
+      autocomplete="tel"
+      aria-describedby="bk-phone-error"
+      class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+    />
+    <p id="bk-phone-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+  </div>
+
+  <p class="text-xs text-(--color-text-muted)">
+    This confirms a request, not a booking — we'll reply by phone/WhatsApp to confirm the exact
+    time.
+  </p>
+
+  <!-- Honeypot -->
+  <div class="absolute -left-[9999px] top-auto" aria-hidden="true">
+    <label for="bk-website">Leave this field empty</label>
+    <input id="bk-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <input type="hidden" name="ts" id="bk-ts" value="" />
+
+  {turnstileSiteKey && (
+    <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark" />
+  )}
+
+  <div>
+    <button type="submit" id="booking-submit" class="btn btn-primary w-full sm:w-auto">
+      Request this time
+    </button>
+    <p id="booking-status" class="mt-3 text-sm" role="status" aria-live="polite"></p>
+  </div>
+</form>
+
+<script>
+  const form = document.getElementById('booking-form') as HTMLFormElement | null;
+  const tsField = document.getElementById('bk-ts') as HTMLInputElement | null;
+  const dateField = document.getElementById('bk-date') as HTMLInputElement | null;
+  const statusEl = document.getElementById('booking-status');
+  const submitBtn = document.getElementById('booking-submit') as HTMLButtonElement | null;
+
+  if (tsField) tsField.value = String(Date.now());
+
+  // Bound the date picker to "today" through +60 days, computed client-side
+  // so it's always accurate regardless of when the static page was built.
+  if (dateField) {
+    const toISO = (d: Date) => d.toISOString().slice(0, 10);
+    const today = new Date();
+    const max = new Date();
+    max.setDate(max.getDate() + 60);
+    dateField.min = toISO(today);
+    dateField.max = toISO(max);
+  }
+
+  let turnstileLoaded = false;
+  function loadTurnstile() {
+    if (turnstileLoaded || !document.querySelector('.cf-turnstile')) return;
+    turnstileLoaded = true;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+  form?.addEventListener('focusin', loadTurnstile, { once: true });
+  form?.addEventListener('pointerdown', loadTurnstile, { once: true });
+
+  function clearErrors() {
+    form?.querySelectorAll('[role="alert"]').forEach((el) => (el.textContent = ''));
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrors();
+    if (!form) return;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+    }
+    if (statusEl) statusEl.textContent = '';
+
+    try {
+      const formData = new FormData(form);
+      const res = await fetch('/api/book.php', {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' },
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        form.reset();
+        window.location.href = '/book/thanks/';
+        return;
+      }
+
+      if (data?.fieldErrors) {
+        for (const [field, message] of Object.entries(data.fieldErrors)) {
+          const el = document.getElementById(`bk-${field}-error`);
+          if (el) el.textContent = message as string;
+        }
+      }
+      if (statusEl) {
+        statusEl.textContent =
+          data?.message || 'Something went wrong. Please try again or WhatsApp us.';
+        statusEl.className = 'mt-3 text-sm text-(--color-danger)';
+      }
+    } catch {
+      if (statusEl) {
+        statusEl.textContent = 'Network error. Please try again or WhatsApp us.';
+        statusEl.className = 'mt-3 text-sm text-(--color-danger)';
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request this time';
+      }
+    }
+  });
+</script>

@@ -1,0 +1,131 @@
+---
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+// Resolved relative to the project root (process.cwd()) rather than
+// import.meta.url — the latter points at wherever Vite relocates this
+// component's compiled output during the production build, not its source.
+const shieldSvg = readFileSync(path.join(process.cwd(), 'public/brand/shield-icon.svg'), 'utf8');
+const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
+---
+
+<div id="preloader" role="presentation" aria-hidden="true">
+  <div class="preloader-shield-wrap">
+    <svg viewBox="0 0 1024 1024" class="preloader-shield" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#00bf63" fill-rule="evenodd" d={shieldPath}></path>
+    </svg>
+  </div>
+  <p class="preloader-status font-mono">
+    <span class="preloader-status-text">INITIALIZING SECURE SESSION</span>
+    <span class="cursor-blink">█</span>
+  </p>
+</div>
+
+<style>
+  #preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    background: var(--color-bg);
+    transition: opacity 300ms ease;
+  }
+
+  #preloader.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .preloader-shield-wrap {
+    width: 88px;
+    height: 88px;
+    clip-path: inset(100% 0 0 0);
+    animation: shield-reveal 700ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
+  }
+
+  .preloader-shield {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 10px rgba(0, 191, 99, 0.7));
+    animation: shield-pulse 1.4s ease-in-out infinite;
+  }
+
+  .preloader-status {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--color-neon);
+    opacity: 0;
+    animation: status-fade-in 400ms ease forwards 500ms;
+  }
+
+  @keyframes shield-reveal {
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes shield-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 8px rgba(0, 191, 99, 0.6));
+    }
+    50% {
+      transform: scale(1.06);
+      filter: drop-shadow(0 0 18px rgba(0, 191, 99, 0.9));
+    }
+  }
+
+  @keyframes status-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preloader-shield-wrap {
+      clip-path: inset(0 0 0 0);
+      animation: none;
+    }
+    .preloader-shield {
+      animation: none;
+    }
+    .preloader-status {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  const preloader = document.getElementById('preloader');
+
+  function hidePreloader() {
+    if (!preloader) return;
+    preloader.classList.add('is-hidden');
+    setTimeout(() => preloader.remove(), 350);
+  }
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const minDisplay = prefersReducedMotion ? 0 : 500;
+  const start = Date.now();
+
+  function finish() {
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, minDisplay - elapsed);
+    setTimeout(hidePreloader, remaining);
+  }
+
+  if (document.readyState === 'complete') {
+    finish();
+  } else {
+    window.addEventListener('load', finish, { once: true });
+  }
+
+  // Safety net: never let this block the page indefinitely.
+  setTimeout(hidePreloader, 2000);
+</script>

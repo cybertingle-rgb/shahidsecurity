@@ -2,7 +2,7 @@
 
 Astro + TypeScript + Tailwind v4 rebuild of shahidiqbal.com. Static-first, dark
 neon-green "ethical hacker" design, deployed as static files to **Hostinger
-shared hosting**, with a small PHP script handling the contact form.
+shared hosting**, with small PHP scripts handling the contact and booking forms.
 
 ## Stack
 
@@ -11,7 +11,7 @@ shared hosting**, with a small PHP script handling the contact form.
 - MDX + Astro Content Collections (Zod schemas) for services, case studies, blog, legal pages
 - `astro-icon` (Lucide icons, inline SVG)
 - Self-hosted variable fonts via Fontsource (Inter, Space Grotesk, JetBrains Mono) — no Google Fonts
-- Contact form: plain PHP (`public/api/contact.php`) + PHPMailer over Hostinger SMTP
+- Contact + booking forms: plain PHP (`public/api/contact.php`, `public/api/book.php`) + PHPMailer over Hostinger SMTP
 - Package manager: pnpm
 
 ## Local development
@@ -21,11 +21,11 @@ pnpm install
 pnpm dev
 ```
 
-The dev server runs at `http://localhost:4321`. The contact form's PHP
-endpoint (`/api/contact.php`) is **not** executed by `astro dev` (it's a plain
-PHP script, not an Astro API route) — to test it locally, build first and
-serve the output with PHP's built-in server, which behaves close enough to
-Hostinger for testing:
+The dev server runs at `http://localhost:4321`. The PHP endpoints
+(`/api/contact.php`, `/api/book.php`) are **not** executed by `astro dev`
+(they're plain PHP scripts, not Astro API routes) — to test them locally,
+build first and serve the output with PHP's built-in server, which behaves
+close enough to Hostinger for testing:
 
 ```bash
 pnpm build
@@ -44,15 +44,14 @@ same command you run locally.
 
 ## Environment variables
 
-See `.env.example`. Only two variables exist, and both are **public** (baked
-into the static HTML/JS at build time — nothing secret goes here):
+See `.env.example`. Only one variable exists, and it's **public** (baked into
+the static HTML/JS at build time — nothing secret goes here):
 
-| Variable                    | Purpose                                                                                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PUBLIC_CAL_LINK`           | Cal.com booking link embedded on `/book/`. Leave empty to show a fallback message instead.                                                                      |
-| `PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key for the contact form widget. Leave empty to skip rendering the widget (server-side verification is then skipped too — see below). |
+| Variable                    | Purpose                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key for the contact/booking form widgets. Leave empty to skip rendering the widget (server-side verification is then skipped too — see below). |
 
-Everything else the contact form needs (SMTP credentials, the Turnstile
+Everything else both forms need (SMTP credentials, the Turnstile
 **secret** key, the destination inbox) lives in a PHP config file that is
 deployed **outside** `public_html` — see [`php/README.md`](php/README.md) and
 [`php/config-template/shahid-security-config.php`](php/config-template/shahid-security-config.php).
@@ -143,7 +142,7 @@ http-equiv="content-security-policy">` tag by Astro's built-in CSP feature
   every inline `<script>`/`<style>` Astro bundles. This gives a strict
   `script-src` with **no** `'unsafe-inline'` on pure static hosting, which
   has no server to mint a per-request nonce. The only allowed external
-  origins are Cloudflare Turnstile and Cal.com. See the comment above
+  origin is Cloudflare Turnstile. See the comment above
   `security.csp` in `astro.config.mjs` and above the (deliberately absent)
   CSP line in `public/.htaccess` for why it isn't set twice.
 - Remaining security headers (HSTS, `X-Content-Type-Options`,
@@ -157,13 +156,18 @@ http-equiv="content-security-policy">` tag by Astro's built-in CSP feature
   both should report an A/A+ given the headers above. (Note: `frame-ancestors`
   can't be set via a `<meta>` CSP, so `X-Frame-Options: DENY` in `.htaccess`
   covers that directive instead.)
-- The contact form (`public/api/contact.php`): validates and sanitises every
-  field server-side, rejects header-injection attempts, checks a honeypot
-  field and a minimum time-to-submit, verifies Cloudflare Turnstile
-  server-side (skipped, not bypassed, when no secret key is configured),
-  rate-limits per IP via a file-based token bucket, and never logs message
-  bodies. It fails safely (generic error, no crash) if its config file or the
-  PHPMailer dependency is missing — see `php/README.md`.
+- The contact and booking forms (`public/api/contact.php`, `public/api/book.php`):
+  both validate and sanitise every field server-side, reject header-injection
+  attempts, check a honeypot field and a minimum time-to-submit, verify
+  Cloudflare Turnstile server-side (skipped, not bypassed, when no secret key
+  is configured), rate-limit per IP via a file-based token bucket (separate
+  buckets per form), and never log message bodies. Both fail safely (generic
+  error, no crash) if the shared config file or the PHPMailer dependency is
+  missing — see `php/README.md`. Note the booking form is a "request a time"
+  form, not a live-availability calendar — there's no database tracking
+  existing bookings (this site has none, by design), so it can't prevent
+  double-booking automatically; each request is emailed for manual
+  confirmation.
 - `pnpm audit` before deploying; `.github/dependabot.yml` keeps npm,
   Composer (`php/`) and GitHub Actions dependencies current automatically.
 
@@ -201,7 +205,7 @@ re-run similar checks after future changes.
    `public_html` → upload a zip of `dist/`'s contents → extract in place (or
    use an SFTP client to sync `dist/` → `public_html`). Confirm hosting type
    is "Custom PHP/HTML website" so `.htaccess` and `.php` files are honoured.
-3. **Set up the contact form's PHP dependency and config**, one directory
+3. **Set up the contact/booking forms' shared PHP dependency and config**, one directory
    **above** `public_html` (never inside it) — full steps in
    [`php/README.md`](php/README.md):
    ```bash
@@ -247,7 +251,7 @@ staging) site and reports any that don't 301/410 as expected. Run this
 
 ```
 src/
-  components/     shared Astro components (Header, Footer, ContactForm, ...)
+  components/     shared Astro components (Header, Footer, ContactForm, BookingForm, ...)
   layouts/        BaseLayout.astro (SEO meta, JSON-LD, skip link, header/footer)
   pages/          routes
   content/{services,caseStudies,blog,legal}/   MDX content
@@ -258,7 +262,7 @@ public/
   .htaccess, robots.txt, site.webmanifest, favicons
   brand/          logo/favicon assets from the brand kit
   og/             generated Open Graph images (build output, not hand-edited)
-  api/contact.php the contact form handler
+  api/contact.php, api/book.php   the contact and booking form handlers
   .well-known/security.txt
 php/
   composer.json, README.md, config-template/   PHPMailer + the config template
