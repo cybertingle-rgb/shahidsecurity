@@ -53,12 +53,22 @@ Pakistan`) remains the exact legal address used in the footer and legal
 
 ## Legal pages (`/privacy/`, `/terms/`, `/responsible-disclosure/`)
 
-Still first drafts, not legal advice — have a lawyer review before treating
-them as final, especially:
+All three are now full, section-by-section policies (not stubs), but they're
+still first drafts, not legal advice — have a lawyer review before treating
+them as final. What's explicitly flagged inline as `[FILL IN]`:
 
-- **Privacy Policy**: confirm the actual data retention period.
-- **Terms of Service**: the liability-limits paragraph is an explicit
-  placeholder; also confirm the cross-border jurisdiction clause.
+- **Privacy Policy §4**: the exact data retention periods for enquiries that
+  don't lead to work, and for client records — a sensible default (≤12
+  months for dead enquiries) is suggested inline, but confirm the real
+  number.
+- **Terms of Service §9 (Limitation of liability)** and **§10
+  (Indemnification)**: these need a lawyer to draft actual liability caps,
+  exclusions and mutual indemnification language appropriate to security
+  testing work — don't rely on their current placeholder wording as if it
+  were a real limit.
+- **Terms of Service §13 (Governing law and disputes)**: confirm the
+  dispute-resolution mechanism (courts vs. arbitration) for clients outside
+  Pakistan, if you take on cross-border work regularly.
 - **Responsible Disclosure**: confirm whether a paid bug bounty program will
   ever exist (currently states no).
 

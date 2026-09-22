@@ -3,29 +3,86 @@ title: Responsible Disclosure
 updatedAt: 2026-01-01
 ---
 
-As a security company, we hold ourselves to the same standard we ask of others. If you believe you've found a security vulnerability in shahidiqbal.com or our systems, we want to know about it.
+As a security company, we hold ourselves to the same standard we ask of
+others. If you believe you've found a security vulnerability in
+shahidiqbal.com or our own systems, we want to know about it — and we'll
+treat your report seriously and in good faith.
+
+## Scope
+
+This policy covers:
+
+- shahidiqbal.com and its subdomains
+- Our own email and hosting infrastructure, to the extent testing it doesn't
+  affect third parties (e.g. our hosting provider's shared infrastructure)
+
+This policy does **not** cover systems belonging to our clients. If you find
+a vulnerability in a system operated by one of our clients, please contact
+that organisation directly — we're not authorised to receive or act on
+reports about systems we don't control.
 
 ## How to report
 
 Email **[info@shahidiqbal.com](mailto:info@shahidiqbal.com)** with:
 
-- A description of the vulnerability and its potential impact
-- Steps to reproduce it, including any proof-of-concept code
-- The URL, endpoint or system affected
+- A clear description of the vulnerability and its potential impact
+- Steps to reproduce it, including any proof-of-concept code or screenshots
+- The specific URL, endpoint or system affected
+- Your preferred contact method for follow-up questions
 
-Our machine-readable disclosure policy is also published at [`/.well-known/security.txt`](/.well-known/security.txt).
+Our machine-readable disclosure policy is also published at
+[`/.well-known/security.txt`](/.well-known/security.txt) per RFC 9116.
 
-## What we ask
+## What we ask (safe harbour)
 
-- Give us a reasonable amount of time to investigate and fix an issue before disclosing it publicly.
-- Avoid accessing, modifying or deleting data that isn't yours.
-- Don't run automated scanners against our production site without contacting us first.
-- Don't perform testing that could degrade service for other users (no denial-of-service testing).
+If you make a good-faith effort to comply with this policy while researching
+and reporting a vulnerability, we will not pursue legal action against you
+for that research. Specifically, please:
+
+- Give us a reasonable amount of time to investigate and fix an issue before
+  disclosing it publicly — we suggest at least 90 days, longer for complex
+  issues.
+- Only interact with accounts and data you own, or that we've explicitly
+  authorised for testing.
+- Avoid accessing, modifying, downloading or deleting data that isn't yours.
+- Don't run automated vulnerability scanners against our production site
+  without contacting us first — a quick manual check is fine.
+- Don't perform any testing that could degrade service for other users,
+  including denial-of-service or resource-exhaustion testing.
+- Don't attempt social engineering, phishing, or physical-access attacks
+  against our team, contractors or infrastructure.
+- Don't publicly disclose a vulnerability before we've confirmed it's fixed
+  or the agreed disclosure window has passed.
+
+## Out of scope
+
+The following generally aren't actionable findings under this policy unless
+they demonstrate a genuine, exploitable risk:
+
+- Missing security headers or cookie flags with no demonstrated impact
+- Reports generated purely by automated scanners without manual verification
+- Issues requiring physical access to a device
+- Social engineering against our team or contractors
+- Denial-of-service or resource-exhaustion findings
+- Vulnerabilities in third-party services we use but don't operate (report
+  those to the third party directly)
 
 ## What you can expect from us
 
-- An acknowledgement of your report within a reasonable timeframe.
-- Honest communication about whether the issue is confirmed and how we plan to address it.
-- Credit, if you'd like it, once the issue is resolved.
+- An acknowledgement of your report within a reasonable timeframe —
+  typically a few business days.
+- Honest communication about whether the issue is confirmed, its severity,
+  and how we plan to address it.
+- Credit in any public disclosure or changelog, if you'd like it — or
+  anonymity, if you'd prefer.
+- No legal action for research conducted in good faith and in line with this
+  policy.
 
-We do not currently operate a paid bug bounty program. [FILL IN: update this if that changes.]
+## Bug bounty
+
+We do not currently operate a paid bug bounty program. [FILL IN: update this
+if that changes — note any reward structure here once decided.]
+
+## Contact
+
+[info@shahidiqbal.com](mailto:info@shahidiqbal.com) · +92 311 6234126
