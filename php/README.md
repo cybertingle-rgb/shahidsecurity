@@ -32,6 +32,29 @@ Upload this whole `php/` folder (including `vendor/`) to the directory **one lev
 `public_html` differently (e.g. under `domains/shahidiqbal.com/public_html`), edit the
 `SITE_PARENT_DIR_LEVELS` constant at the top of `contact.php` to match.
 
+## Gated report downloads
+
+`public/api/report-download.php` and `public/api/report-file.php` serve the "request the
+full report" flow on case study pages (e.g. `/case-studies/iot-smart-campus-threat-analysis/`).
+The actual PDF files live outside `public_html` too, alongside this folder:
+
+```
+/home/<hostinger-user>/
+├── public_html/
+├── php/
+│   ├── vendor/
+│   └── protected/
+│       └── reports/
+│           └── iot-smart-campus-thesis.pdf   ← upload manually, not part of the git repo
+└── shahid-security-config.php
+```
+
+Add a new report by (1) dropping the PDF into `php/protected/reports/`, and (2) adding its
+slug to the `ALLOWED_REPORTS` map in both `report-download.php` and `report-file.php` — the
+slug is never taken from user input beyond that allowlist lookup, so there's no path
+traversal risk. Download tokens (minted after a visitor submits the gate form) live in
+`shahid-security-data/report-tokens/` and expire after 48 hours.
+
 ## Config file
 
 Copy `config-template/shahid-security-config.php` to the location above, fill in real

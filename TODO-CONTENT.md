@@ -40,10 +40,22 @@ Pakistan`) remains the exact legal address used in the footer and legal
 
 - The "Proof section" from the original brief (case studies, testimonials)
   is still replaced with "Why work with us," since no real, permissioned
-  case studies or testimonials exist yet. Add real ones to
-  `src/content/caseStudies/*.mdx` (see README "Adding a case study") and
-  this section can be restored. `/case-studies/` stays in its "coming soon"
-  state (and out of the sitemap) until at least one exists.
+  client testimonials exist yet.
+- `/case-studies/` now has one real entry —
+  `src/content/caseStudies/iot-smart-campus-threat-analysis.mdx`, Shahid's
+  own BS CS final year project (a full on-path attack chain built and
+  executed against a self-designed smart-campus IoT system). It renders as
+  a flip-through report (`ReportFlipbook.astro`) with a gated download for
+  the full PDF. **`publishedAt: 2019-06-15` is an estimate** based on the
+  "BSCSF-15" intake code (Fall 2015 + a 4-year BS) — confirm the actual
+  submission date and correct it if wrong.
+- **Deployment step needed**: the actual thesis PDF is not in this repo (by
+  design — see `php/README.md` "Gated report downloads"). Upload it to
+  `php/protected/reports/iot-smart-campus-thesis.pdf` on the server
+  (outside `public_html`, alongside `php/vendor/`) or the gated download
+  button will 500. Ask Claude for the file — it was sent separately.
+- Add more real case studies the same way and this section can be restored
+  to a full "Proof" section with testimonials once some exist.
 
 ## Blog (`/blog/`)
 
