@@ -1,0 +1,413 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { ReportPage } from '@/lib/reports/iot-smart-campus-report';
+
+interface Props {
+  reportSlug: string;
+  reportTitle: string;
+  pages: ReportPage[];
+}
+
+const { reportSlug, reportTitle, pages } = Astro.props;
+const dialogId = `report-gate-${reportSlug}`;
+
+const purposes = [
+  'Recruiter / hiring review',
+  'Academic or research reference',
+  'Client due-diligence',
+  'Personal interest',
+  'Other',
+];
+---
+
+<div class="report-flipbook" data-flipbook data-report-slug={reportSlug}>
+  <div class="flipbook-frame corner-brackets">
+    <div class="flipbook-stage">
+      {pages.map((page, i) => (
+        <article class="flipbook-page" data-page-index={i}>
+          <div class="flipbook-face flipbook-face-front">
+            <div class="flipbook-page-scroll">
+              {page.kind === 'cover' && (
+                <div class="flipbook-cover">
+                  <p class="eyebrow">{page.tag}</p>
+                  <h3 class="mt-4 font-display text-2xl font-semibold text-(--color-text) sm:text-3xl">
+                    {page.title}
+                  </h3>
+                  <p class="mt-4 text-(--color-text-muted)">{page.subtitle}</p>
+                  <p class="mt-8 font-mono text-xs text-(--color-text-muted)">{page.meta}</p>
+                </div>
+              )}
+              {page.kind === 'section' && (
+                <div>
+                  <h3 class="font-display text-lg font-semibold text-(--color-neon-soft)">
+                    {page.heading}
+                  </h3>
+                  <div class="mt-4 space-y-4">
+                    {page.paragraphs.map((p) => (
+                      <p class="text-sm leading-relaxed text-(--color-text-muted)">{p}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {page.kind === 'list' && (
+                <div>
+                  <h3 class="font-display text-lg font-semibold text-(--color-neon-soft)">
+                    {page.heading}
+                  </h3>
+                  {page.intro && <p class="mt-2 text-sm text-(--color-text-muted)">{page.intro}</p>}
+                  <ul class="mt-4 space-y-2.5">
+                    {page.items.map((item) => (
+                      <li class="flex gap-2 text-sm leading-relaxed text-(--color-text)">
+                        <span class="mt-1 shrink-0 text-(--color-neon)" aria-hidden="true">
+                          ▸
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {page.kind === 'matrix' && (
+                <div>
+                  <h3 class="font-display text-lg font-semibold text-(--color-neon-soft)">
+                    {page.heading}
+                  </h3>
+                  {page.intro && <p class="mt-2 text-sm text-(--color-text-muted)">{page.intro}</p>}
+                  <div class="mt-4 space-y-2">
+                    {page.rows.map((row) => (
+                      <div class="rounded-md border border-(--color-border) p-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                          <span class="font-mono text-xs font-semibold text-(--color-text)">
+                            {row.type}
+                          </span>
+                          <span
+                            class:list={[
+                              'pill',
+                              row.level === 'Extremely High' || row.level === 'High'
+                                ? 'pill-high'
+                                : row.level.includes('Medium')
+                                  ? 'pill-medium'
+                                  : 'pill-low',
+                            ]}
+                          >
+                            {row.level}
+                          </span>
+                        </div>
+                        <p class="mt-1.5 text-xs text-(--color-text-muted)">{row.note}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {page.kind === 'cta' && (
+                <div class="flex h-full flex-col">
+                  <h3 class="font-display text-lg font-semibold text-(--color-neon-soft)">
+                    {page.heading}
+                  </h3>
+                  <div class="mt-4 space-y-4">
+                    {page.paragraphs.map((p) => (
+                      <p class="text-sm leading-relaxed text-(--color-text-muted)">{p}</p>
+                    ))}
+                  </div>
+                  <div class="mt-6">
+                    <button
+                      type="button"
+                      class="btn btn-primary w-full sm:w-auto"
+                      data-open-report-gate
+                    >
+                      <Icon name="lucide:file-lock-2" class="size-4" aria-hidden="true" />
+                      {page.buttonLabel}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <div class="flipbook-face flipbook-face-back" aria-hidden="true">
+            <Icon name="lucide:shield-check" class="flipbook-watermark-icon" aria-hidden="true" />
+            <span class="flipbook-watermark-text">SHAHID SECURITY</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <div class="flipbook-controls">
+    <button type="button" class="btn btn-secondary" data-flip-prev aria-label="Previous page">
+      <Icon name="lucide:chevron-left" class="size-4" aria-hidden="true" />
+      Prev
+    </button>
+    <div class="flipbook-progress">
+      <span class="font-mono text-xs text-(--color-text-muted)">
+        Page <span data-flip-current>1</span> / {pages.length}
+      </span>
+      <div class="flipbook-dots" role="presentation">
+        {pages.map((_, i) => (
+          <span class="flipbook-dot" data-dot-index={i}></span>
+        ))}
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary" data-flip-next aria-label="Next page">
+      Next
+      <Icon name="lucide:chevron-right" class="size-4" aria-hidden="true" />
+    </button>
+  </div>
+</div>
+
+<dialog id={dialogId} class="report-gate-dialog" aria-labelledby={`${dialogId}-title`}>
+  <div class="report-gate-inner corner-brackets">
+    <button type="button" class="report-gate-close" data-close-report-gate aria-label="Close">
+      <Icon name="lucide:x" class="size-5" aria-hidden="true" />
+    </button>
+
+    <div data-gate-form-panel>
+      <p class="eyebrow">// access request</p>
+      <h3
+        id={`${dialogId}-title`}
+        class="mt-2 font-display text-xl font-semibold text-(--color-text)"
+      >
+        Get the full report
+      </h3>
+      <p class="mt-2 text-sm text-(--color-text-muted)">
+        {reportTitle} — tell us a little about why you'd like it, and we'll unlock the download.
+      </p>
+
+      <form class="mt-6 space-y-4" data-report-gate-form novalidate>
+        <input type="hidden" name="slug" value={reportSlug} />
+        <div>
+          <label
+            for={`${dialogId}-email`}
+            class="mb-1.5 block font-mono text-xs text-(--color-text-muted)"
+          >
+            Email *
+          </label>
+          <input
+            id={`${dialogId}-email`}
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            aria-describedby={`${dialogId}-email-error`}
+            class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+          />
+          <p
+            id={`${dialogId}-email-error`}
+            class="mt-1 text-xs text-(--color-danger) empty:hidden"
+            role="alert"
+          ></p>
+        </div>
+        <div>
+          <label
+            for={`${dialogId}-purpose`}
+            class="mb-1.5 block font-mono text-xs text-(--color-text-muted)"
+          >
+            Purpose *
+          </label>
+          <select
+            id={`${dialogId}-purpose`}
+            name="purpose"
+            required
+            class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+          >
+            <option value="" selected disabled>
+              Select one…
+            </option>
+            {purposes.map((p) => (
+              <option value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label
+            for={`${dialogId}-details`}
+            class="mb-1.5 block font-mono text-xs text-(--color-text-muted)"
+          >
+            What would you like to use it for? *
+          </label>
+          <textarea
+            id={`${dialogId}-details`}
+            name="details"
+            rows="3"
+            required
+            aria-describedby={`${dialogId}-details-error`}
+            class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+          ></textarea>
+          <p
+            id={`${dialogId}-details-error`}
+            class="mt-1 text-xs text-(--color-danger) empty:hidden"
+            role="alert"
+          ></p>
+        </div>
+
+        <!-- Honeypot -->
+        <div class="absolute -left-[9999px] top-auto" aria-hidden="true">
+          <label for={`${dialogId}-website`}>Leave this field empty</label>
+          <input
+            id={`${dialogId}-website`}
+            name="website"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+        <input type="hidden" name="ts" class="report-gate-ts" value="" />
+
+        <button type="submit" class="btn btn-primary w-full">
+          Unlock download
+        </button>
+        <p class="report-gate-status text-sm" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <div data-gate-success-panel hidden>
+      <p class="eyebrow">// access granted</p>
+      <h3 class="mt-2 font-display text-xl font-semibold text-(--color-text)">
+        Your download is ready
+      </h3>
+      <p class="mt-2 text-sm text-(--color-text-muted)">
+        If it doesn't start automatically, use the button below.
+      </p>
+      <a data-gate-download-link href="#" class="btn btn-primary mt-6 w-full" download>
+        <Icon name="lucide:download" class="size-4" aria-hidden="true" />
+        Download the report
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-flipbook]').forEach((root) => {
+    const pages = Array.from(root.querySelectorAll<HTMLElement>('.flipbook-page'));
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-flip-prev]');
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-flip-next]');
+    const currentEl = root.querySelector('[data-flip-current]');
+    const dots = Array.from(root.querySelectorAll<HTMLElement>('.flipbook-dot'));
+    const total = pages.length;
+    let current = 0;
+
+    function render() {
+      pages.forEach((page, i) => {
+        const flipped = i < current;
+        page.classList.toggle('is-flipped', flipped);
+        page.style.zIndex = String(flipped ? i + 1 : total - i);
+      });
+      dots.forEach((dot, i) => dot.classList.toggle('is-active', i === current));
+      if (currentEl) currentEl.textContent = String(current + 1);
+      if (prevBtn) prevBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.disabled = current === total - 1;
+    }
+
+    function goTo(index: number) {
+      current = Math.max(0, Math.min(total - 1, index));
+      render();
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') goTo(current + 1);
+      if (e.key === 'ArrowLeft') goTo(current - 1);
+    });
+    root.setAttribute('tabindex', '0');
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const stage = root.querySelector('.flipbook-stage');
+    stage?.addEventListener(
+      'pointerdown',
+      (e) => {
+        touchStartX = (e as PointerEvent).clientX;
+        touchStartY = (e as PointerEvent).clientY;
+      },
+      { passive: true },
+    );
+    stage?.addEventListener(
+      'pointerup',
+      (e) => {
+        const dx = (e as PointerEvent).clientX - touchStartX;
+        const dy = (e as PointerEvent).clientY - touchStartY;
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) goTo(current + 1);
+          else goTo(current - 1);
+        }
+      },
+      { passive: true },
+    );
+
+    render();
+
+    // ---- Gated download dialog ------------------------------------------
+    const slug = root.dataset.reportSlug ?? '';
+    const dialog = document.getElementById(`report-gate-${slug}`) as HTMLDialogElement | null;
+    const openBtn = root.querySelector<HTMLButtonElement>('[data-open-report-gate]');
+    openBtn?.addEventListener('click', () => dialog?.showModal());
+
+    dialog
+      ?.querySelectorAll('[data-close-report-gate]')
+      .forEach((btn) => btn.addEventListener('click', () => dialog.close()));
+    dialog?.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    const tsField = dialog?.querySelector<HTMLInputElement>('.report-gate-ts');
+    if (tsField) tsField.value = String(Date.now());
+
+    const form = dialog?.querySelector<HTMLFormElement>('[data-report-gate-form]');
+    const statusEl = dialog?.querySelector<HTMLElement>('.report-gate-status');
+    const formPanel = dialog?.querySelector<HTMLElement>('[data-gate-form-panel]');
+    const successPanel = dialog?.querySelector<HTMLElement>('[data-gate-success-panel]');
+    const downloadLink = dialog?.querySelector<HTMLAnchorElement>('[data-gate-download-link]');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      form.querySelectorAll('[role="alert"]').forEach((el) => (el.textContent = ''));
+      if (statusEl) statusEl.textContent = '';
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Checking…';
+      }
+
+      try {
+        const formData = new FormData(form);
+        const res = await fetch('/api/report-download.php', {
+          method: 'POST',
+          body: formData,
+          headers: { Accept: 'application/json' },
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data?.success && data?.downloadUrl) {
+          if (formPanel) formPanel.hidden = true;
+          if (successPanel) successPanel.hidden = false;
+          if (downloadLink) downloadLink.href = data.downloadUrl;
+          window.location.href = data.downloadUrl;
+          return;
+        }
+
+        if (data?.fieldErrors) {
+          for (const [field, message] of Object.entries(data.fieldErrors)) {
+            const el = dialog?.querySelector(`#${dialog.id}-${field}-error`);
+            if (el) el.textContent = message as string;
+          }
+        }
+        if (statusEl) {
+          statusEl.textContent = data?.message || 'Something went wrong. Please try again.';
+          statusEl.className = 'report-gate-status text-sm text-(--color-danger)';
+        }
+      } catch {
+        if (statusEl) {
+          statusEl.textContent = 'Network error. Please try again.';
+          statusEl.className = 'report-gate-status text-sm text-(--color-danger)';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Unlock download';
+        }
+      }
+    });
+  });
+</script>

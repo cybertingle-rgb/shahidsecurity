@@ -371,6 +371,182 @@
   .divider-scan.is-visible::after {
     animation: scan-sweep 1.2s ease-out forwards;
   }
+
+  /* ---- Report flipbook (ReportFlipbook.astro) -----------------------
+     Kept in the global sheet rather than the component's own scoped
+     <style> block: Astro code-splits an MDX-rendered component's scoped
+     styles into a separate inlined chunk that its CSP auto-hasher doesn't
+     pick up, so the browser silently blocks it. Global styles ride the
+     already-hashed main stylesheet on every page instead. */
+  .report-flipbook {
+    outline: none;
+  }
+
+  .flipbook-frame {
+    position: relative;
+    max-width: 34rem;
+    margin-inline: auto;
+    padding: 0.5rem;
+    background: color-mix(in oklab, var(--color-surface) 88%, transparent);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+  }
+
+  .flipbook-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    perspective: 1800px;
+  }
+
+  .flipbook-page {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    transform: rotateY(0deg);
+    transition: transform 750ms cubic-bezier(0.645, 0.045, 0.355, 1);
+    border-radius: 0.5rem;
+    box-shadow: 4px 0 24px -8px rgba(0, 0, 0, 0.6);
+  }
+
+  .flipbook-page.is-flipped {
+    transform: rotateY(-180deg);
+  }
+
+  .flipbook-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .flipbook-face-front {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+  }
+
+  .flipbook-page-scroll {
+    height: 100%;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  .flipbook-face-back {
+    transform: rotateY(180deg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    opacity: 0.5;
+  }
+
+  .flipbook-watermark-icon {
+    width: 3rem;
+    height: 3rem;
+    color: var(--color-neon);
+  }
+
+  .flipbook-watermark-text {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--color-text-muted);
+  }
+
+  .flipbook-cover {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .flipbook-controls {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .flipbook-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .flipbook-dots {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .flipbook-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: var(--color-border-strong);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+
+  .flipbook-dot.is-active {
+    background: var(--color-neon);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flipbook-page {
+      transition: none;
+    }
+  }
+
+  /* ---- Report download-gate dialog ----------------------------------- */
+  .report-gate-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    max-width: 28rem;
+    width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  .report-gate-dialog::backdrop {
+    background: rgba(5, 7, 10, 0.8);
+    backdrop-filter: blur(4px);
+  }
+
+  .report-gate-inner {
+    position: relative;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    box-shadow: 0 0 48px -12px color-mix(in oklab, var(--color-neon-soft) 35%, transparent);
+  }
+
+  .report-gate-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: var(--color-text-muted);
+    padding: 0.4rem;
+    border-radius: 0.375rem;
+  }
+
+  .report-gate-close:hover {
+    color: var(--color-neon);
+  }
 }
 
 @keyframes scan-sweep {

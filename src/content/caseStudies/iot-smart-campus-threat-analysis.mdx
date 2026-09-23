@@ -1,0 +1,38 @@
+---
+title: 'Threats & Attacks on an IoT-Based Smart Campus System'
+client: 'Independent Research — Qarshi University, Lahore'
+industry: 'Higher Education / IoT Security Research'
+services:
+  - 'Penetration Testing'
+  - 'IoT Security Assessment'
+  - 'Threat Modeling'
+challenge: >-
+  Smart campuses connect parking, libraries, ID cards, attendance and exams onto one
+  IoT network — a single flat attack surface if nothing authenticates who's actually
+  on it. This project set out to design that architecture, then attack it, to find out
+  exactly how far a single compromised device could reach.
+approach:
+  - 'Designed a smart-campus IoT architecture (Raspberry Pi + Arduino sensor nodes) covering parking, library, ID card, attendance, exams and timetable systems.'
+  - 'Modelled the threat surface against a six-layer security framework: physical, network, data, service, application and management.'
+  - 'Built and executed a full on-path attack chain inside an isolated academic lab: ARP spoofing → traffic interception → DNS spoofing → content substitution → script injection → HTTPS downgrade.'
+results:
+  - 'Demonstrated that a single compromised device is enough to pivot into an entire smart-campus network segment.'
+  - 'Identified unauthenticated ARP and DNS resolution — not the sensors or cloud backend — as the true root-cause layer.'
+  - 'Produced a full threat-and-mitigation matrix mapping every attack type to a concrete countermeasure.'
+publishedAt: 2019-06-15
+draft: false
+---
+
+import ReportFlipbook from '@/components/ReportFlipbook.astro';
+import { iotSmartCampusReportPages } from '@/lib/reports/iot-smart-campus-report';
+
+## Read the report
+
+Flip through the summary below, or request the full write-up — methodology, the
+complete six-layer analysis and the technical walkthrough of every attack stage.
+
+<ReportFlipbook
+  reportSlug="iot-smart-campus"
+  reportTitle="Threats & Attacks on an IoT-Based Smart Campus System"
+  pages={iotSmartCampusReportPages}
+/>

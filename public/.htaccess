@@ -132,5 +132,11 @@ ErrorDocument 410 /404.html
 <Files "book.php">
   Require all granted
 </Files>
+<Files "report-download.php">
+  Require all granted
+</Files>
+<Files "report-file.php">
+  Require all granted
+</Files>
 
 Options -Indexes
