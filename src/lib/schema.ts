@@ -86,10 +86,9 @@ export function blogPostingSchema(opts: {
     url: absoluteUrl(opts.path),
     datePublished: opts.publishedAt.toISOString(),
     dateModified: (opts.updatedAt ?? opts.publishedAt).toISOString(),
-    author: {
-      '@type': 'Person',
-      name: opts.author,
-    },
+    author: opts.author.includes(site.founder.split(' ').pop()!)
+      ? { '@id': `${site.url}/about/#person` }
+      : { '@type': 'Person', name: opts.author },
     publisher: { '@id': `${site.url}/#organization` },
   };
 }
