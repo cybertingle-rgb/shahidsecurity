@@ -5,6 +5,7 @@ import Footer from '@/components/Footer.astro';
 import WhatsAppButton from '@/components/WhatsAppButton.astro';
 import Preloader from '@/components/Preloader.astro';
 import AmbientDoodles from '@/components/AmbientDoodles.astro';
+import PandaMascot from '@/components/PandaMascot.astro';
 import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
 import { translations } from '@/lib/i18n';
@@ -88,5 +89,6 @@ const allJsonLd = [organizationSchema(), ...jsonLd];
     </main>
     <Footer />
     {!hideWhatsApp && <WhatsAppButton />}
+    <PandaMascot />
   </body>
 </html>
