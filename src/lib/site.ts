@@ -44,7 +44,7 @@ export const site = {
   },
   social: {
     facebook: 'https://facebook.com/shahidsecurityofficial',
-    instagram: 'https://instagram.com/shahidsecurity',
+    instagram: 'https://www.instagram.com/shahidsecurityofficial',
     x: 'https://x.com/shahidsecurity',
     linkedin: 'https://www.linkedin.com/in/shahidlooper',
   },

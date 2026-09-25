@@ -77,23 +77,55 @@
     overflow: hidden;
   }
 
+  /* Visible at every viewport size (mobile included), scaling up with
+     the screen. On narrow screens it's a small, low-opacity strip right
+     at the edge — enough presence to read as ambient decoration without
+     ever covering real content, since there's no real "gutter" on
+     mobile the way there is once the page's 1200px content column stops
+     filling the viewport. */
   .ambient-doodle {
-    display: none;
+    display: block;
     position: fixed;
     top: 50%;
-    width: 140px;
-    height: 407px;
+    width: 30px;
+    height: 87px;
     transform: translateY(-50%);
     color: var(--color-neon);
-    opacity: 0.3;
+    opacity: 0.16;
   }
 
-  /* Only show once the gutter beyond the 1200px content column is wide
-     enough (with margin) to hold the doodle without overlapping content
-     that fills the full column width, like service/industry card grids. */
+  @media (min-width: 640px) {
+    .ambient-doodle {
+      width: 55px;
+      height: 160px;
+      opacity: 0.2;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .ambient-doodle {
+      width: 85px;
+      height: 247px;
+      opacity: 0.24;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .ambient-doodle {
+      width: 115px;
+      height: 335px;
+      opacity: 0.28;
+    }
+  }
+
+  /* Only reaches full size once the gutter beyond the 1200px content
+     column is wide enough to hold it without overlapping full-width
+     content like service/industry card grids. */
   @media (min-width: 1560px) {
     .ambient-doodle {
-      display: block;
+      width: 140px;
+      height: 407px;
+      opacity: 0.3;
     }
   }
 

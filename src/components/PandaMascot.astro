@@ -1,0 +1,276 @@
+---
+// A small wandering panda mascot, fixed to the viewport, present on every
+// page. Only one static artwork pose was supplied (no walk-cycle frames),
+// so "walking" is simulated with position changes + a horizontal flip for
+// direction + a continuous idle bob, rather than swapping sprite frames.
+// Clicking it plays a happy bounce + floating hearts reaction.
+---
+
+<button
+  type="button"
+  class="panda-mascot"
+  data-panda-mascot
+  aria-label="Say hi to the Shahid Security panda"
+>
+  <span class="panda-reaction" data-panda-hearts aria-hidden="true"></span>
+  <picture>
+    <source srcset="/brand/panda-mascot.webp" type="image/webp" />
+    <img
+      src="/brand/panda-mascot.png"
+      alt=""
+      width="320"
+      height="321"
+      class="panda-img"
+      data-panda-img
+      draggable="false"
+    />
+  </picture>
+</button>
+
+<style>
+  .panda-mascot {
+    position: fixed;
+    left: 5%;
+    bottom: 8px;
+    z-index: 35;
+    width: 46px;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition:
+      left 4s ease-in-out,
+      bottom 4s ease-in-out;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+  }
+
+  @media (min-width: 640px) {
+    .panda-mascot {
+      width: 84px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .panda-mascot {
+      width: 104px;
+    }
+  }
+
+  .panda-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: panda-bob 1.8s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+
+  .panda-mascot.is-facing-left .panda-img {
+    transform: scaleX(-1);
+  }
+
+  .panda-mascot.is-facing-left .panda-img {
+    animation: panda-bob-flipped 1.8s ease-in-out infinite;
+  }
+
+  @keyframes panda-bob {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-6px) rotate(2deg);
+    }
+  }
+
+  @keyframes panda-bob-flipped {
+    0%,
+    100% {
+      transform: scaleX(-1) translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: scaleX(-1) translateY(-6px) rotate(2deg);
+    }
+  }
+
+  .panda-mascot.is-clicked .panda-img {
+    animation: panda-hop 700ms ease-out;
+  }
+
+  .panda-mascot.is-clicked.is-facing-left .panda-img {
+    animation: panda-hop-flipped 700ms ease-out;
+  }
+
+  @keyframes panda-hop {
+    0% {
+      transform: translateY(0) rotate(0) scale(1);
+    }
+    30% {
+      transform: translateY(-22px) rotate(-8deg) scale(1.08);
+    }
+    55% {
+      transform: translateY(0) rotate(6deg) scale(1.05);
+    }
+    100% {
+      transform: translateY(0) rotate(0) scale(1);
+    }
+  }
+
+  @keyframes panda-hop-flipped {
+    0% {
+      transform: scaleX(-1) translateY(0) rotate(0) scale(1);
+    }
+    30% {
+      transform: scaleX(-1) translateY(-22px) rotate(8deg) scale(1.08);
+    }
+    55% {
+      transform: scaleX(-1) translateY(0) rotate(-6deg) scale(1.05);
+    }
+    100% {
+      transform: scaleX(-1) translateY(0) rotate(0) scale(1);
+    }
+  }
+
+  .panda-reaction {
+    position: absolute;
+    top: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.25rem;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .panda-reaction.is-active {
+    animation: panda-hearts-float 1.1s ease-out forwards;
+  }
+
+  @keyframes panda-hearts-float {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 0) scale(0.6);
+    }
+    20% {
+      opacity: 1;
+      transform: translate(-50%, -0.5rem) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -2.5rem) scale(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panda-mascot {
+      transition: none;
+    }
+    .panda-img {
+      animation: none;
+    }
+    .panda-mascot.is-clicked .panda-img,
+    .panda-mascot.is-clicked.is-facing-left .panda-img {
+      animation: none;
+    }
+    .panda-reaction.is-active {
+      animation: panda-hearts-fade 900ms ease-out forwards;
+    }
+  }
+
+  @keyframes panda-hearts-fade {
+    0% {
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const mascot = document.querySelector<HTMLElement>('[data-panda-mascot]');
+  const hearts = document.querySelector<HTMLElement>('[data-panda-hearts]');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const RIGHT_RESERVED_PX = 110; // keep clear of the WhatsApp button
+  const EDGE_MARGIN_PX = 8;
+  // A small fixed range, not a viewport-height percentage: on short mobile
+  // screens a percentage-based range pushed the mascot up into the hero's
+  // buttons and text. It only ever needs to hug the true bottom edge.
+  const MAX_BOTTOM_PX = 24;
+
+  function mascotWidth() {
+    return mascot?.getBoundingClientRect().width ?? 46;
+  }
+
+  function randomSpot() {
+    const w = mascotWidth();
+    const maxLeft = window.innerWidth - w - RIGHT_RESERVED_PX;
+    const minLeft = EDGE_MARGIN_PX;
+    const left = Math.max(minLeft, Math.random() * Math.max(minLeft, maxLeft));
+    const bottom = EDGE_MARGIN_PX + Math.random() * MAX_BOTTOM_PX;
+    return { left, bottom };
+  }
+
+  let currentLeft = 0;
+  let wanderTimer = 0;
+
+  function wander() {
+    if (!mascot) return;
+    const { left, bottom } = randomSpot();
+    mascot.classList.toggle('is-facing-left', left < currentLeft);
+    currentLeft = left;
+    mascot.style.left = `${left}px`;
+    mascot.style.bottom = `${bottom}px`;
+  }
+
+  function scheduleWander() {
+    const delay = 4000 + Math.random() * 4000;
+    wanderTimer = window.setTimeout(() => {
+      wander();
+      scheduleWander();
+    }, delay);
+  }
+
+  if (mascot) {
+    const rect = mascot.getBoundingClientRect();
+    currentLeft = rect.left;
+
+    if (!prefersReducedMotion) {
+      // First move shortly after load, then keep wandering.
+      window.setTimeout(wander, 1500);
+      scheduleWander();
+      window.addEventListener('resize', () => {
+        // Keep it within bounds after a viewport resize.
+        const w = mascotWidth();
+        const maxLeft = window.innerWidth - w - RIGHT_RESERVED_PX;
+        if (currentLeft > maxLeft) {
+          currentLeft = Math.max(EDGE_MARGIN_PX, maxLeft);
+          mascot.style.left = `${currentLeft}px`;
+        }
+      });
+    }
+
+    mascot.addEventListener('click', () => {
+      mascot.classList.remove('is-clicked');
+      // Force reflow so the animation can restart on rapid re-clicks.
+      void mascot.offsetWidth;
+      mascot.classList.add('is-clicked');
+
+      if (hearts) {
+        hearts.textContent = '💚 ✨';
+        hearts.classList.remove('is-active');
+        void hearts.offsetWidth;
+        hearts.classList.add('is-active');
+      }
+
+      window.clearTimeout(wanderTimer);
+      if (!prefersReducedMotion) {
+        window.setTimeout(scheduleWander, 1500);
+      }
+    });
+  }
+</script>
