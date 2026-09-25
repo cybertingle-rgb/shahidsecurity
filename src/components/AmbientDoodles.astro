@@ -1,13 +1,18 @@
 ---
-// Decorative circuit-trace doodles for the empty side gutters of the hero
-// section on wide screens (hidden below xl, where that gutter doesn't
-// exist). Purely cosmetic: aria-hidden, pointer-events limited to the glow
-// layer only so it never blocks clicks on real content.
+// Persistent decorative circuit-trace doodles for the empty side gutters
+// that exist on any page once the viewport is wide enough that the
+// 1200px content column ('--container-content' in global.css) doesn't
+// fill it. Rendered once, site-wide, from BaseLayout. Fixed to the
+// viewport (not tied to page length or any one section) so it's present
+// on every page and every scroll position. Purely cosmetic: aria-hidden,
+// pointer-events limited to the glow layer only so it never blocks
+// clicks on real content, and it never renders below the width where its
+// own footprint would start overlapping the 1200px content column.
 ---
 
-<div class="hero-doodles" aria-hidden="true">
+<div class="ambient-doodles" aria-hidden="true">
   <svg
-    class="hero-doodle hero-doodle-left"
+    class="ambient-doodle ambient-doodle-left"
     viewBox="0 0 220 640"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -34,7 +39,7 @@
   </svg>
 
   <svg
-    class="hero-doodle hero-doodle-right"
+    class="ambient-doodle ambient-doodle-right"
     viewBox="0 0 220 640"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -60,39 +65,43 @@
     <circle class="doodle-pulse" cx="130" cy="60" r="3"></circle>
   </svg>
 
-  <div class="hero-doodle-glow" data-hero-glow></div>
+  <div class="ambient-doodle-glow" data-ambient-glow></div>
 </div>
 
 <style>
-  .hero-doodles {
-    position: absolute;
+  .ambient-doodles {
+    position: fixed;
     inset: 0;
+    z-index: 1;
     pointer-events: none;
     overflow: hidden;
   }
 
-  .hero-doodle {
+  .ambient-doodle {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 50%;
-    width: 220px;
-    height: 640px;
+    width: 140px;
+    height: 407px;
     transform: translateY(-50%);
     color: var(--color-neon);
-    opacity: 0.35;
+    opacity: 0.3;
   }
 
-  @media (min-width: 1280px) {
-    .hero-doodle {
+  /* Only show once the gutter beyond the 1200px content column is wide
+     enough (with margin) to hold the doodle without overlapping content
+     that fills the full column width, like service/industry card grids. */
+  @media (min-width: 1560px) {
+    .ambient-doodle {
       display: block;
     }
   }
 
-  .hero-doodle-left {
+  .ambient-doodle-left {
     left: 0;
   }
 
-  .hero-doodle-right {
+  .ambient-doodle-right {
     right: 0;
   }
 
@@ -132,11 +141,11 @@
     animation: doodle-travel 6s linear infinite;
   }
 
-  .hero-doodle-left .doodle-pulse {
+  .ambient-doodle-left .doodle-pulse {
     offset-path: path('M0 40 H90 V140 H40 V240 H120 V320 H60 V420 H140 V520 H80 V600 H180');
   }
 
-  .hero-doodle-right .doodle-pulse {
+  .ambient-doodle-right .doodle-pulse {
     offset-path: path('M220 60 H130 V160 H180 V260 H100 V340 H160 V440 H80 V540 H140 V620 H40');
   }
 
@@ -169,8 +178,8 @@
     }
   }
 
-  .hero-doodle-glow {
-    position: absolute;
+  .ambient-doodle-glow {
+    position: fixed;
     inset: 0;
     opacity: 0;
     background: radial-gradient(
@@ -182,7 +191,7 @@
     transition: opacity 200ms ease;
   }
 
-  .hero-doodle-glow.is-active {
+  .ambient-doodle-glow.is-active {
     opacity: 1;
   }
 
@@ -198,21 +207,18 @@
 </style>
 
 <script>
-  const root = document.querySelector<HTMLElement>('.hero-doodles');
-  const glow = document.querySelector<HTMLElement>('[data-hero-glow]');
-  const heroSection = root?.closest('section');
+  const glow = document.querySelector<HTMLElement>('[data-ambient-glow]');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (heroSection && glow && !prefersReducedMotion) {
-    heroSection.addEventListener('pointermove', (e) => {
-      const rect = heroSection.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
+  if (glow && !prefersReducedMotion) {
+    window.addEventListener('pointermove', (e) => {
+      const x = (e.clientX / window.innerWidth) * 100;
+      const y = (e.clientY / window.innerHeight) * 100;
       glow.style.setProperty('--mx', `${x}%`);
       glow.style.setProperty('--my', `${y}%`);
       glow.classList.add('is-active');
     });
-    heroSection.addEventListener('pointerleave', () => {
+    document.addEventListener('pointerleave', () => {
       glow.classList.remove('is-active');
     });
   }

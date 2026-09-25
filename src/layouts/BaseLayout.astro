@@ -4,6 +4,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import WhatsAppButton from '@/components/WhatsAppButton.astro';
 import Preloader from '@/components/Preloader.astro';
+import AmbientDoodles from '@/components/AmbientDoodles.astro';
 import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
 import { translations } from '@/lib/i18n';
@@ -76,6 +77,7 @@ const allJsonLd = [organizationSchema(), ...jsonLd];
   </head>
   <body>
     <Preloader />
+    <AmbientDoodles />
     <a href="#main-content" class="skip-link">
       Skip to content
     </a>
