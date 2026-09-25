@@ -1,0 +1,219 @@
+---
+// Decorative circuit-trace doodles for the empty side gutters of the hero
+// section on wide screens (hidden below xl, where that gutter doesn't
+// exist). Purely cosmetic: aria-hidden, pointer-events limited to the glow
+// layer only so it never blocks clicks on real content.
+---
+
+<div class="hero-doodles" aria-hidden="true">
+  <svg
+    class="hero-doodle hero-doodle-left"
+    viewBox="0 0 220 640"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+  >
+    <path
+      class="doodle-trace"
+      d="M0 40 H90 V140 H40 V240 H120 V320 H60 V420 H140 V520 H80 V600 H180"
+      stroke="currentColor"
+      stroke-width="2"
+    ></path>
+    <path
+      class="doodle-trace doodle-trace-alt"
+      d="M0 300 H50 V180 H150 V80"
+      stroke="currentColor"
+      stroke-width="2"
+    ></path>
+    <circle class="doodle-node" cx="90" cy="40" r="5"></circle>
+    <circle class="doodle-node" cx="40" cy="240" r="4"></circle>
+    <circle class="doodle-node" cx="120" cy="320" r="5"></circle>
+    <circle class="doodle-node" cx="140" cy="520" r="4"></circle>
+    <circle class="doodle-node" cx="180" cy="600" r="5"></circle>
+    <circle class="doodle-node" cx="150" cy="80" r="4"></circle>
+    <circle class="doodle-pulse" cx="90" cy="40" r="3"></circle>
+  </svg>
+
+  <svg
+    class="hero-doodle hero-doodle-right"
+    viewBox="0 0 220 640"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+  >
+    <path
+      class="doodle-trace"
+      d="M220 60 H130 V160 H180 V260 H100 V340 H160 V440 H80 V540 H140 V620 H40"
+      stroke="currentColor"
+      stroke-width="2"
+    ></path>
+    <path
+      class="doodle-trace doodle-trace-alt"
+      d="M220 320 H170 V200 H70 V100"
+      stroke="currentColor"
+      stroke-width="2"
+    ></path>
+    <circle class="doodle-node" cx="130" cy="60" r="5"></circle>
+    <circle class="doodle-node" cx="180" cy="260" r="4"></circle>
+    <circle class="doodle-node" cx="100" cy="340" r="5"></circle>
+    <circle class="doodle-node" cx="80" cy="540" r="4"></circle>
+    <circle class="doodle-node" cx="40" cy="620" r="5"></circle>
+    <circle class="doodle-node" cx="70" cy="100" r="4"></circle>
+    <circle class="doodle-pulse" cx="130" cy="60" r="3"></circle>
+  </svg>
+
+  <div class="hero-doodle-glow" data-hero-glow></div>
+</div>
+
+<style>
+  .hero-doodles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .hero-doodle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    width: 220px;
+    height: 640px;
+    transform: translateY(-50%);
+    color: var(--color-neon);
+    opacity: 0.35;
+  }
+
+  @media (min-width: 1280px) {
+    .hero-doodle {
+      display: block;
+    }
+  }
+
+  .hero-doodle-left {
+    left: 0;
+  }
+
+  .hero-doodle-right {
+    right: 0;
+  }
+
+  .doodle-trace {
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+
+  .doodle-trace-alt {
+    opacity: 0.6;
+  }
+
+  .doodle-node {
+    fill: var(--color-neon-soft);
+    filter: drop-shadow(0 0 4px currentColor);
+    animation: doodle-node-pulse 3s ease-in-out infinite;
+  }
+
+  .doodle-node:nth-of-type(2) {
+    animation-delay: 0.4s;
+  }
+  .doodle-node:nth-of-type(3) {
+    animation-delay: 0.8s;
+  }
+  .doodle-node:nth-of-type(4) {
+    animation-delay: 1.2s;
+  }
+  .doodle-node:nth-of-type(5) {
+    animation-delay: 1.6s;
+  }
+  .doodle-node:nth-of-type(6) {
+    animation-delay: 2s;
+  }
+
+  .doodle-pulse {
+    fill: var(--color-neon-soft);
+    offset-rotate: 0deg;
+    animation: doodle-travel 6s linear infinite;
+  }
+
+  .hero-doodle-left .doodle-pulse {
+    offset-path: path('M0 40 H90 V140 H40 V240 H120 V320 H60 V420 H140 V520 H80 V600 H180');
+  }
+
+  .hero-doodle-right .doodle-pulse {
+    offset-path: path('M220 60 H130 V160 H180 V260 H100 V340 H160 V440 H80 V540 H140 V620 H40');
+  }
+
+  @keyframes doodle-travel {
+    from {
+      offset-distance: 0%;
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    95% {
+      opacity: 1;
+    }
+    to {
+      offset-distance: 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes doodle-node-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+      r: 4;
+    }
+    50% {
+      opacity: 1;
+      r: 5.5;
+    }
+  }
+
+  .hero-doodle-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: radial-gradient(
+      circle 220px at var(--mx, 50%) var(--my, 50%),
+      color-mix(in oklab, var(--color-neon-soft) 30%, transparent),
+      transparent 70%
+    );
+    mix-blend-mode: screen;
+    transition: opacity 200ms ease;
+  }
+
+  .hero-doodle-glow.is-active {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .doodle-node,
+    .doodle-pulse {
+      animation: none;
+    }
+    .doodle-pulse {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.hero-doodles');
+  const glow = document.querySelector<HTMLElement>('[data-hero-glow]');
+  const heroSection = root?.closest('section');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (heroSection && glow && !prefersReducedMotion) {
+    heroSection.addEventListener('pointermove', (e) => {
+      const rect = heroSection.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      glow.style.setProperty('--mx', `${x}%`);
+      glow.style.setProperty('--my', `${y}%`);
+      glow.classList.add('is-active');
+    });
+    heroSection.addEventListener('pointerleave', () => {
+      glow.classList.remove('is-active');
+    });
+  }
+</script>

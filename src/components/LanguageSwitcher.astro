@@ -61,7 +61,9 @@ import { SUPPORTED_LOCALES, localeMeta } from '@/lib/i18n';
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
-    min-width: 9rem;
+    min-width: 10rem;
+    max-height: 18rem;
+    overflow-y: auto;
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-border-strong);
     border-radius: 0.5rem;
@@ -99,8 +101,21 @@ import { SUPPORTED_LOCALES, localeMeta } from '@/lib/i18n';
   // styles) not to catch every such chunk, causing a silent CSP block. The
   // handful of constants below are duplicated from src/lib/i18n.ts rather
   // than imported, to keep this whole script as one inline, hashed unit.
-  type Locale = 'en' | 'ar' | 'pt';
-  const SUPPORTED_LOCALES: Locale[] = ['en', 'ar', 'pt'];
+  type Locale = 'en' | 'ar' | 'ur' | 'hi' | 'zh' | 'es' | 'fr' | 'de' | 'pt' | 'ru' | 'tr' | 'id';
+  const SUPPORTED_LOCALES: Locale[] = [
+    'en',
+    'ar',
+    'ur',
+    'hi',
+    'zh',
+    'es',
+    'fr',
+    'de',
+    'pt',
+    'ru',
+    'tr',
+    'id',
+  ];
   const DEFAULT_LOCALE: Locale = 'en';
 
   const STORAGE_KEY = 'shahid-lang';
@@ -111,8 +126,34 @@ import { SUPPORTED_LOCALES, localeMeta } from '@/lib/i18n';
 
   // Kept in sync with src/lib/i18n.ts's localeMeta — duplicated here so the
   // client script has no runtime import of non-type values to bundle awkwardly.
-  const FLAGS: Record<Locale, string> = { en: '🇬🇧', ar: '🇸🇦', pt: '🇵🇹' };
-  const LABELS: Record<Locale, string> = { en: 'English', ar: 'العربية', pt: 'Português' };
+  const FLAGS: Record<Locale, string> = {
+    en: '🇬🇧',
+    ar: '🇸🇦',
+    ur: '🇵🇰',
+    hi: '🇮🇳',
+    zh: '🇨🇳',
+    es: '🇪🇸',
+    fr: '🇫🇷',
+    de: '🇩🇪',
+    pt: '🇵🇹',
+    ru: '🇷🇺',
+    tr: '🇹🇷',
+    id: '🇮🇩',
+  };
+  const LABELS: Record<Locale, string> = {
+    en: 'English',
+    ar: 'العربية',
+    ur: 'اردو',
+    hi: 'हिन्दी',
+    zh: '中文',
+    es: 'Español',
+    fr: 'Français',
+    de: 'Deutsch',
+    pt: 'Português',
+    ru: 'Русский',
+    tr: 'Türkçe',
+    id: 'Bahasa Indonesia',
+  };
 
   interface LocaleChoice {
     locale: Locale;
