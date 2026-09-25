@@ -109,29 +109,67 @@ import { SUPPORTED_LOCALES, localeMeta } from '@/lib/i18n';
     ? JSON.parse(dictEl.textContent || '{}')
     : ({} as Record<Locale, Record<string, string>>);
 
-  function detectLocale(): Locale {
+  // Kept in sync with src/lib/i18n.ts's localeMeta — duplicated here so the
+  // client script has no runtime import of non-type values to bundle awkwardly.
+  const FLAGS: Record<Locale, string> = { en: '🇬🇧', ar: '🇸🇦', pt: '🇵🇹' };
+  const LABELS: Record<Locale, string> = { en: 'English', ar: 'العربية', pt: 'Português' };
+
+  interface LocaleChoice {
+    locale: Locale;
+    flag: string;
+  }
+
+  // Builds an accurate country flag emoji from any ISO 3166-1 alpha-2 region
+  // code (e.g. "PK" -> 🇵🇰, "BR" -> 🇧🇷) using the Unicode Regional Indicator
+  // Symbol trick — covers any region the browser reports, not just a
+  // hardcoded handful, so the flag matches the visitor's actual locale
+  // (e.g. an "en-PK" browser shows 🇵🇰, not a generic English flag).
+  function regionFlagEmoji(region: string): string | null {
+    if (!/^[A-Za-z]{2}$/.test(region)) return null;
+    const codePoints = [...region.toUpperCase()].map((c) => 0x1f1e6 + (c.charCodeAt(0) - 65));
+    return String.fromCodePoint(...codePoints);
+  }
+
+  // Auto-detection always picks the visitor's browser LANGUAGE (default:
+  // English) — never their country/geo-IP, which a static site can't read
+  // anyway. The flag shown alongside it is a separate, cosmetic detail: it
+  // reflects whatever region tag came with that language (e.g. "ar-AE"),
+  // falling back to a sensible default flag if the browser didn't supply
+  // one or reported something we can't render as a flag.
+  function detectLocaleChoice(): LocaleChoice {
     const langs =
       navigator.languages && navigator.languages.length
         ? navigator.languages
         : [navigator.language];
     for (const raw of langs) {
-      const base = raw.slice(0, 2).toLowerCase();
+      const [langPart, regionPart] = raw.split('-');
+      const base = langPart.toLowerCase();
       if ((SUPPORTED_LOCALES as readonly string[]).includes(base)) {
-        return base as Locale;
+        const locale = base as Locale;
+        const flag = regionPart ? regionFlagEmoji(regionPart) : null;
+        return { locale, flag: flag ?? FLAGS[locale] };
       }
     }
-    return DEFAULT_LOCALE;
+    return { locale: DEFAULT_LOCALE, flag: FLAGS[DEFAULT_LOCALE] };
   }
 
-  function currentLocale(): Locale {
+  function currentLocaleChoice(): LocaleChoice {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && (SUPPORTED_LOCALES as readonly string[]).includes(stored)) {
-      return stored as Locale;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed && (SUPPORTED_LOCALES as readonly string[]).includes(parsed.locale)) {
+          const locale = parsed.locale as Locale;
+          return { locale, flag: parsed.flag || FLAGS[locale] };
+        }
+      } catch {
+        // Ignore a corrupted/legacy stored value and fall through to detection.
+      }
     }
-    return detectLocale();
+    return detectLocaleChoice();
   }
 
-  function applyLocale(locale: Locale) {
+  function applyLocale({ locale, flag }: LocaleChoice) {
     const strings = dictionary[locale] ?? dictionary[DEFAULT_LOCALE];
     document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
       const key = el.dataset.i18n;
@@ -141,10 +179,10 @@ import { SUPPORTED_LOCALES, localeMeta } from '@/lib/i18n';
     });
 
     document.querySelectorAll<HTMLElement>('[data-lang-flag]').forEach((el) => {
-      el.textContent = localeMetaFlag(locale);
+      el.textContent = flag;
     });
     document.querySelectorAll<HTMLElement>('[data-lang-current-label]').forEach((el) => {
-      el.textContent = localeMetaLabel(locale);
+      el.textContent = LABELS[locale];
     });
     document.querySelectorAll<HTMLElement>('[data-locale]').forEach((li) => {
       li.classList.toggle('is-active', li.dataset.locale === locale);
@@ -154,26 +192,19 @@ import { SUPPORTED_LOCALES, localeMeta } from '@/lib/i18n';
     document.dispatchEvent(new CustomEvent('shahid:locale-change', { detail: { locale } }));
   }
 
-  // Kept in sync with src/lib/i18n.ts's localeMeta — duplicated here so the
-  // client script has no runtime import of non-type values to bundle awkwardly.
-  const FLAGS: Record<Locale, string> = { en: '🇬🇧', ar: '🇸🇦', pt: '🇵🇹' };
-  const LABELS: Record<Locale, string> = { en: 'English', ar: 'العربية', pt: 'Português' };
-  function localeMetaFlag(locale: Locale) {
-    return FLAGS[locale];
-  }
-  function localeMetaLabel(locale: Locale) {
-    return LABELS[locale];
-  }
-
+  // A manual pick from the dropdown carries no region information (the
+  // visitor chose a language, not a country), so it always uses that
+  // language's default flag.
   function setLocale(locale: Locale) {
-    localStorage.setItem(STORAGE_KEY, locale);
-    applyLocale(locale);
+    const choice: LocaleChoice = { locale, flag: FLAGS[locale] };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(choice));
+    applyLocale(choice);
   }
 
   // Apply immediately on every page load, before wiring up any single
   // switcher instance (there's only one in the header, but this keeps the
   // logic independent of how many switcher widgets exist on a page).
-  applyLocale(currentLocale());
+  applyLocale(currentLocaleChoice());
 
   document.querySelectorAll<HTMLElement>('[data-lang-switcher]').forEach((root) => {
     const trigger = root.querySelector<HTMLButtonElement>('[data-lang-trigger]');

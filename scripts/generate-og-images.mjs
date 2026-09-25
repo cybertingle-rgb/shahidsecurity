@@ -81,8 +81,9 @@ async function renderOgImage(title, outPath) {
 
 async function main() {
   const pages = [
-    { slug: 'home', title: 'Find the gaps before attackers do.' },
+    { slug: 'home', title: 'Cybersecurity Assessment, Penetration Testing & Security Engineering' },
     { slug: 'services', title: 'Cybersecurity services' },
+    { slug: 'industries', title: 'Security scoped to your industry' },
     { slug: 'about', title: 'About Shahid Security' },
     { slug: 'contact', title: 'Talk to a security expert' },
     { slug: 'book', title: 'Book a free 30-minute consultation' },

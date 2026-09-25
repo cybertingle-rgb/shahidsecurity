@@ -18,6 +18,7 @@ export const localeMeta: Record<Locale, { label: string; flag: string; dir: 'ltr
 export const translations: Record<Locale, Record<string, string>> = {
   en: {
     'nav.services': 'Services',
+    'nav.industries': 'Industries',
     'nav.caseStudies': 'Case Studies',
     'nav.about': 'About',
     'nav.blog': 'Blog',
@@ -38,6 +39,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'footer.link.softwareDevelopment': 'Software Development',
     'footer.link.aiAutomation': 'AI Automation',
     'footer.link.about': 'About',
+    'footer.link.industries': 'Industries',
     'footer.link.caseStudies': 'Case Studies',
     'footer.link.blog': 'Blog',
     'footer.link.contact': 'Contact',
@@ -52,6 +54,7 @@ export const translations: Record<Locale, Record<string, string>> = {
   },
   ar: {
     'nav.services': 'الخدمات',
+    'nav.industries': 'الصناعات',
     'nav.caseStudies': 'دراسات الحالة',
     'nav.about': 'من نحن',
     'nav.blog': 'المدونة',
@@ -72,6 +75,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'footer.link.softwareDevelopment': 'تطوير البرمجيات',
     'footer.link.aiAutomation': 'أتمتة الذكاء الاصطناعي',
     'footer.link.about': 'من نحن',
+    'footer.link.industries': 'الصناعات',
     'footer.link.caseStudies': 'دراسات الحالة',
     'footer.link.blog': 'المدونة',
     'footer.link.contact': 'اتصل بنا',
@@ -86,6 +90,7 @@ export const translations: Record<Locale, Record<string, string>> = {
   },
   pt: {
     'nav.services': 'Serviços',
+    'nav.industries': 'Indústrias',
     'nav.caseStudies': 'Estudos de Caso',
     'nav.about': 'Sobre',
     'nav.blog': 'Blog',
@@ -106,6 +111,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'footer.link.softwareDevelopment': 'Desenvolvimento de Software',
     'footer.link.aiAutomation': 'Automação com IA',
     'footer.link.about': 'Sobre',
+    'footer.link.industries': 'Indústrias',
     'footer.link.caseStudies': 'Estudos de Caso',
     'footer.link.blog': 'Blog',
     'footer.link.contact': 'Contato',
