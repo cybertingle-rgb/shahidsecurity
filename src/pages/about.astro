@@ -61,7 +61,6 @@ const values = [
 const jsonLd = [personSchema()];
 
 const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
-const initials = 'SI';
 ---
 
 <BaseLayout
@@ -125,12 +124,16 @@ const initials = 'SI';
 
   <Section class="pt-0">
     <div class="glass-card corner-brackets grid gap-8 p-8 sm:grid-cols-[auto_1fr] sm:items-center">
-      <div
-        class="flex size-28 items-center justify-center rounded-full border border-(--color-neon)/40 bg-(--color-surface) font-display text-2xl font-semibold text-(--color-neon)"
-        aria-hidden="true"
-      >
-        {initials}
-      </div>
+      <picture>
+        <source srcset="/brand/founder-photo.webp" type="image/webp" />
+        <img
+          src="/brand/founder-photo.png"
+          alt={site.founder}
+          width="480"
+          height="598"
+          class="size-28 rounded-full border border-(--color-neon)/40 object-cover"
+        />
+      </picture>
       <div>
         <h2 class="font-display text-xl font-semibold text-(--color-text)">{site.founder}</h2>
         <p class="text-sm text-(--color-text-muted)">Founder &amp; Cybersecurity Consultant</p>
