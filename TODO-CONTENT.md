@@ -84,6 +84,36 @@ them as final. What's explicitly flagged inline as `[FILL IN]`:
 - **Responsible Disclosure**: confirm whether a paid bug bounty program will
   ever exist (currently states no).
 
+## Multi-language support
+
+The header/footer/nav now switch between English, Arabic and Portuguese (flag
+dropdown, top right — see `src/lib/i18n.ts`), auto-detected from the visitor's
+browser language on first visit and remembered after that. This is
+**site-chrome only, by design**: nav labels, footer links, the tagline and the
+"Book a consultation" buttons translate; the actual page content (service
+descriptions, blog posts, legal pages, the case study) stays English, with a
+dismissible notice bar telling non-English visitors so.
+
+Why not full-page translation: machine-translating legal and technical
+security content carries real accuracy risk for a security business, and
+doing it properly (professional translation + native-speaker review) is a
+substantial project of its own. True "detect the visitor's country" isn't
+possible on static Apache hosting without either Cloudflare in front of the
+site or a third-party geo-IP API call — this uses the browser's own language
+setting instead, which is the standard approach for static sites and doesn't
+add any external dependency.
+
+**To go further**, in order of effort:
+1. Add more languages to `SUPPORTED_LOCALES`/`translations` in
+   `src/lib/i18n.ts` — same chrome-only pattern, no architecture change.
+2. Get the existing Arabic/Portuguese chrome strings reviewed by a native
+   speaker (they're solid, standard business/technical vocabulary, but
+   weren't reviewed by one).
+3. Translate actual page content — this needs a real decision on which
+   pages first (services are highest-value for international clients) and
+   how translations get produced/reviewed before it's worth building the
+   page-routing for it.
+
 ## Booking (`/book/`)
 
 - The booking form emails a _requested_ date/time to `info@shahidiqbal.com`
