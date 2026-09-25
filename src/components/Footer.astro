@@ -6,39 +6,83 @@ const year = new Date().getFullYear();
 const columns = [
   {
     title: 'Security',
+    titleI18n: 'footer.col.security',
     links: [
-      { label: 'Penetration Testing', href: '/services/penetration-testing/' },
-      { label: 'Vulnerability Assessment', href: '/services/vulnerability-assessment/' },
-      { label: 'Network & Cloud Security', href: '/services/network-cloud-security/' },
-      { label: 'Compliance & Risk', href: '/services/compliance-risk-assessment/' },
-      { label: 'Incident Response', href: '/services/incident-response/' },
-      { label: 'Monitoring & Training', href: '/services/monitoring-training/' },
+      {
+        label: 'Penetration Testing',
+        href: '/services/penetration-testing/',
+        i18n: 'footer.link.penetrationTesting',
+      },
+      {
+        label: 'Vulnerability Assessment',
+        href: '/services/vulnerability-assessment/',
+        i18n: 'footer.link.vulnerabilityAssessment',
+      },
+      {
+        label: 'Network & Cloud Security',
+        href: '/services/network-cloud-security/',
+        i18n: 'footer.link.networkCloudSecurity',
+      },
+      {
+        label: 'Compliance & Risk',
+        href: '/services/compliance-risk-assessment/',
+        i18n: 'footer.link.complianceRisk',
+      },
+      {
+        label: 'Incident Response',
+        href: '/services/incident-response/',
+        i18n: 'footer.link.incidentResponse',
+      },
+      {
+        label: 'Monitoring & Training',
+        href: '/services/monitoring-training/',
+        i18n: 'footer.link.monitoringTraining',
+      },
     ],
   },
   {
     title: 'Build',
+    titleI18n: 'footer.col.build',
     links: [
-      { label: 'Website Development', href: '/services/secure-website-development/' },
-      { label: 'Software Development', href: '/services/custom-software-development/' },
-      { label: 'AI Automation', href: '/services/ai-automation/' },
+      {
+        label: 'Website Development',
+        href: '/services/secure-website-development/',
+        i18n: 'footer.link.websiteDevelopment',
+      },
+      {
+        label: 'Software Development',
+        href: '/services/custom-software-development/',
+        i18n: 'footer.link.softwareDevelopment',
+      },
+      {
+        label: 'AI Automation',
+        href: '/services/ai-automation/',
+        i18n: 'footer.link.aiAutomation',
+      },
     ],
   },
   {
     title: 'Company',
+    titleI18n: 'footer.col.company',
     links: [
-      { label: 'About', href: '/about/' },
-      { label: 'Case Studies', href: '/case-studies/' },
-      { label: 'Blog', href: '/blog/' },
-      { label: 'Contact', href: '/contact/' },
-      { label: 'Book a consultation', href: '/book/' },
+      { label: 'About', href: '/about/', i18n: 'footer.link.about' },
+      { label: 'Case Studies', href: '/case-studies/', i18n: 'footer.link.caseStudies' },
+      { label: 'Blog', href: '/blog/', i18n: 'footer.link.blog' },
+      { label: 'Contact', href: '/contact/', i18n: 'footer.link.contact' },
+      { label: 'Book a consultation', href: '/book/', i18n: 'footer.link.bookConsultation' },
     ],
   },
   {
     title: 'Legal',
+    titleI18n: 'footer.col.legal',
     links: [
-      { label: 'Privacy Policy', href: '/privacy/' },
-      { label: 'Terms of Service', href: '/terms/' },
-      { label: 'Responsible Disclosure', href: '/responsible-disclosure/' },
+      { label: 'Privacy Policy', href: '/privacy/', i18n: 'footer.link.privacyPolicy' },
+      { label: 'Terms of Service', href: '/terms/', i18n: 'footer.link.termsOfService' },
+      {
+        label: 'Responsible Disclosure',
+        href: '/responsible-disclosure/',
+        i18n: 'footer.link.responsibleDisclosure',
+      },
     ],
   },
 ];
@@ -70,7 +114,9 @@ const columns = [
             />
           </picture>
         </a>
-        <p class="mt-3 text-sm text-(--color-text-muted) font-mono">{site.tagline}</p>
+        <p class="mt-3 text-sm text-(--color-text-muted) font-mono" data-i18n="footer.tagline">
+          {site.tagline}
+        </p>
         <p class="mt-2 text-sm text-(--color-text-muted)">
           <a href={telLink()} class="inline-block py-1.5 hover:text-(--color-neon)">
             {site.phoneDisplay}
@@ -89,12 +135,15 @@ const columns = [
       </div>
       {columns.map((col) => (
         <div>
-          <p class="eyebrow mb-4">{col.title}</p>
+          <p class="eyebrow mb-4" data-i18n={col.titleI18n}>
+            {col.title}
+          </p>
           <ul>
             {col.links.map((link) => (
               <li>
                 <a
                   href={link.href}
+                  data-i18n={link.i18n}
                   class="block py-1.5 text-sm text-(--color-text-muted) hover:text-(--color-neon)"
                 >
                   {link.label}
@@ -108,7 +157,8 @@ const columns = [
 
     <div class="mt-12 flex flex-col gap-4 border-t border-(--color-border) pt-8 sm:flex-row sm:items-center sm:justify-between">
       <p class="text-xs text-(--color-text-muted) font-mono">
-        &copy; {year} {site.name}. All rights reserved.
+        &copy; {year} {site.name}.{' '}
+        <span data-i18n="footer.rightsReserved">All rights reserved.</span>
       </p>
       <div class="flex gap-2 -my-2.5">
         <a

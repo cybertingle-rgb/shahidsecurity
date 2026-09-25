@@ -1,12 +1,13 @@
 ---
 import { Icon } from 'astro-icon/components';
+import LanguageSwitcher from '@/components/LanguageSwitcher.astro';
 
 const nav = [
-  { label: 'Services', href: '/services/' },
-  { label: 'Case Studies', href: '/case-studies/' },
-  { label: 'About', href: '/about/' },
-  { label: 'Blog', href: '/blog/' },
-  { label: 'Contact', href: '/contact/' },
+  { label: 'Services', href: '/services/', i18n: 'nav.services' },
+  { label: 'Case Studies', href: '/case-studies/', i18n: 'nav.caseStudies' },
+  { label: 'About', href: '/about/', i18n: 'nav.about' },
+  { label: 'Blog', href: '/blog/', i18n: 'nav.blog' },
+  { label: 'Contact', href: '/contact/', i18n: 'nav.contact' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -35,6 +36,7 @@ const currentPath = Astro.url.pathname;
       {nav.map((item) => (
         <a
           href={item.href}
+          data-i18n={item.i18n}
           class:list={[
             'tap-target font-mono text-sm transition-colors hover:text-(--color-neon)',
             currentPath.startsWith(item.href) ? 'text-(--color-neon)' : 'text-(--color-text-muted)',
@@ -46,8 +48,9 @@ const currentPath = Astro.url.pathname;
       ))}
     </nav>
 
-    <div class="hidden md:block">
-      <a href="/book/" class="btn btn-primary text-xs px-4 py-2">
+    <div class="hidden md:flex items-center gap-3">
+      <LanguageSwitcher />
+      <a href="/book/" data-i18n="nav.book" class="btn btn-primary text-xs px-4 py-2">
         Book a consultation
       </a>
     </div>
@@ -75,12 +78,19 @@ const currentPath = Astro.url.pathname;
       {nav.map((item) => (
         <a
           href={item.href}
+          data-i18n={item.i18n}
           class="font-mono text-lg py-3 border-b border-(--color-border) text-(--color-text)"
         >
           {item.label}
         </a>
       ))}
-      <a href="/book/" class="btn btn-primary mt-6 w-full">
+      <div class="mt-6 flex items-center justify-between gap-3">
+        <span class="font-mono text-xs text-(--color-text-muted)" data-i18n="langSwitcher.label">
+          Language
+        </span>
+        <LanguageSwitcher />
+      </div>
+      <a href="/book/" data-i18n="nav.book" class="btn btn-primary mt-4 w-full">
         Book a consultation
       </a>
     </nav>

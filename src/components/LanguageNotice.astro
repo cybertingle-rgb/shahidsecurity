@@ -1,0 +1,64 @@
+---
+// Shown only when the active locale isn't English, since page body content
+// (unlike nav/footer chrome) isn't translated yet. See src/lib/i18n.ts.
+---
+
+<div class="lang-notice" data-lang-notice hidden>
+  <p class="lang-notice-text" data-i18n="notice.translation"></p>
+  <button
+    type="button"
+    class="lang-notice-dismiss"
+    data-lang-notice-dismiss
+    data-i18n="notice.dismiss"
+  >
+    Dismiss
+  </button>
+</div>
+
+<style>
+  .lang-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.6rem 1rem;
+    background: var(--color-neon-dim);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .lang-notice-dismiss {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-neon-soft);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  const SESSION_KEY = 'shahid-lang-notice-dismissed';
+  const notice = document.querySelector<HTMLElement>('[data-lang-notice]');
+  const dismissBtn = document.querySelector<HTMLElement>('[data-lang-notice-dismiss]');
+
+  function update(locale: string) {
+    if (!notice) return;
+    const dismissed = sessionStorage.getItem(SESSION_KEY) === '1';
+    notice.hidden = locale === 'en' || dismissed;
+  }
+
+  document.addEventListener('shahid:locale-change', (e) => {
+    update((e as CustomEvent).detail.locale);
+  });
+
+  dismissBtn?.addEventListener('click', () => {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    if (notice) notice.hidden = true;
+  });
+
+  update(document.documentElement.getAttribute('data-active-locale') ?? 'en');
+</script>

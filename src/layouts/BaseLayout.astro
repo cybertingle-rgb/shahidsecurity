@@ -4,7 +4,9 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import WhatsAppButton from '@/components/WhatsAppButton.astro';
 import Preloader from '@/components/Preloader.astro';
+import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
+import { translations } from '@/lib/i18n';
 import { absoluteUrl, pageTitle } from '@/lib/seo';
 import { organizationSchema } from '@/lib/schema';
 
@@ -66,6 +68,11 @@ const allJsonLd = [organizationSchema(), ...jsonLd];
     {allJsonLd.map((schema) => (
       <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
     ))}
+    <script
+      type="application/json"
+      id="i18n-dictionary"
+      set:html={JSON.stringify(translations)}
+    ></script>
   </head>
   <body>
     <Preloader />
@@ -73,6 +80,7 @@ const allJsonLd = [organizationSchema(), ...jsonLd];
       Skip to content
     </a>
     <Header />
+    <LanguageNotice />
     <main id="main-content" class="pt-16">
       <slot />
     </main>
