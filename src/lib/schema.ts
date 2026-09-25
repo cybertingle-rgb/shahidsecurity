@@ -123,6 +123,19 @@ export function personSchema() {
     worksFor: { '@id': `${site.url}/#organization` },
     url: absoluteUrl('/about/'),
     sameAs: [site.social.linkedin, site.social.x],
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'Qarshi University, Lahore',
+    },
+    knowsAbout: [
+      'Penetration Testing',
+      'Vulnerability Assessment',
+      'SOC Operations',
+      'Incident Response',
+      'IoT Security',
+      'Network Security',
+      'Threat Intelligence',
+    ],
   };
 }
 
