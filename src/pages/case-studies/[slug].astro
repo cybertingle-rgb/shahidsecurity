@@ -18,6 +18,9 @@ export async function getStaticPaths() {
 const { cs } = Astro.props;
 const { Content } = await render(cs);
 const path = `/case-studies/${cs.id}/`;
+
+const services = await getCollection('services');
+const serviceByTitle = new Map(services.map((s) => [s.data.title.toLowerCase(), s.id]));
 const jsonLd = [
   articleSchema({
     title: cs.data.title,
@@ -52,9 +55,15 @@ const jsonLd = [
       intro={cs.data.client}
     />
     <div class="mt-4 flex flex-wrap gap-2">
-      {cs.data.services.map((s) => (
-        <span class="pill pill-low">{s}</span>
-      ))}
+      {cs.data.services.map((s) =>
+        serviceByTitle.has(s.toLowerCase()) ? (
+          <a href={`/services/${serviceByTitle.get(s.toLowerCase())}/`} class="pill pill-low">
+            {s}
+          </a>
+        ) : (
+          <span class="pill pill-low">{s}</span>
+        ),
+      )}
     </div>
   </Section>
 

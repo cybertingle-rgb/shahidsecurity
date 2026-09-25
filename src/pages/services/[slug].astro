@@ -8,6 +8,7 @@ import FAQ from '@/components/FAQ.astro';
 import CTABand from '@/components/CTABand.astro';
 import Prose from '@/components/Prose.astro';
 import { Icon } from 'astro-icon/components';
+import CaseStudyCard from '@/components/CaseStudyCard.astro';
 import { getCollection, render } from 'astro:content';
 import { serviceSchema, faqSchema } from '@/lib/schema';
 
@@ -22,6 +23,10 @@ export async function getStaticPaths() {
 const { service } = Astro.props;
 const { Content } = await render(service);
 const path = `/services/${service.id}/`;
+
+const relatedCaseStudies = (await getCollection('caseStudies', ({ data }) => !data.draft)).filter(
+  (cs) => cs.data.services.some((s) => s.toLowerCase() === service.data.title.toLowerCase()),
+);
 
 const jsonLd: object[] = [
   serviceSchema({ name: service.data.title, description: service.data.shortDescription, path }),
@@ -117,6 +122,23 @@ if (faq) jsonLd.push(faq);
       <ProcessSteps steps={service.data.process} />
     </div>
   </Section>
+
+  {relatedCaseStudies.length > 0 && (
+    <Section>
+      <SectionHeading eyebrow="// RELATED WORK" title="Case studies using this service" />
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {relatedCaseStudies.map((cs) => (
+          <CaseStudyCard
+            title={cs.data.title}
+            client={cs.data.client}
+            industry={cs.data.industry}
+            services={cs.data.services}
+            href={`/case-studies/${cs.id}/`}
+          />
+        ))}
+      </div>
+    </Section>
+  )}
 
   <Section>
     <CTABand
