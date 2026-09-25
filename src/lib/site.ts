@@ -43,7 +43,7 @@ export const site = {
     display: 'Monday–Saturday, 10:00–20:00 PKT',
   },
   social: {
-    facebook: 'https://facebook.com/shahidsecurityofficial',
+    facebook: 'https://www.facebook.com/shahidsecurityofficial',
     instagram: 'https://www.instagram.com/shahidsecurityofficial',
     x: 'https://x.com/shahidsecurity',
     linkedin: 'https://www.linkedin.com/in/shahidlooper',

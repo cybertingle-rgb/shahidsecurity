@@ -19,9 +19,11 @@ const path = `/blog/tag/${tag}/`;
 ---
 
 <BaseLayout
-  title={`#${tag}`}
-  description={`Posts tagged #${tag} on the Shahid Security blog.`}
+  title={`"${tag}" articles`}
+  description={`Blog posts tagged "${tag}" from the Shahid Security blog.`}
   path={path}
+  noindex
+  pageType="CollectionPage"
 >
   <Section class="pt-12">
     <Breadcrumbs

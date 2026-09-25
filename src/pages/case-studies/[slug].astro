@@ -5,7 +5,7 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import CTABand from '@/components/CTABand.astro';
 import { getCollection, render } from 'astro:content';
-import { breadcrumbSchema } from '@/lib/schema';
+import { articleSchema } from '@/lib/schema';
 
 export async function getStaticPaths() {
   const caseStudies = await getCollection('caseStudies', ({ data }) => !data.draft);
@@ -19,15 +19,24 @@ const { cs } = Astro.props;
 const { Content } = await render(cs);
 const path = `/case-studies/${cs.id}/`;
 const jsonLd = [
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Case Studies', path: '/case-studies/' },
-    { name: cs.data.title, path },
-  ]),
+  articleSchema({
+    title: cs.data.title,
+    description: cs.data.challenge,
+    path,
+    publishedAt: cs.data.publishedAt,
+  }),
 ];
 ---
 
-<BaseLayout title={cs.data.title} description={cs.data.challenge} path={path} jsonLd={jsonLd}>
+<BaseLayout
+  title={cs.data.title}
+  description={cs.data.challenge}
+  path={path}
+  jsonLd={jsonLd}
+  ogImage={`/og/case-study-${cs.id}.png`}
+  ogType="article"
+  articlePublishedAt={cs.data.publishedAt}
+>
   <Section class="pt-12">
     <Breadcrumbs
       items={[

@@ -6,14 +6,6 @@ import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import ContactForm from '@/components/ContactForm.astro';
 import { Icon } from 'astro-icon/components';
 import { site, mailtoLink, whatsappLink } from '@/lib/site';
-import { breadcrumbSchema } from '@/lib/schema';
-
-const jsonLd = [
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Contact', path: '/contact/' },
-  ]),
-];
 
 const cards = [
   {
@@ -45,8 +37,8 @@ const cards = [
   title="Talk to a Security Expert"
   description="Tell us what you're worried about. We reply within 24 hours on working days. For emergencies, WhatsApp is fastest."
   path="/contact/"
-  jsonLd={jsonLd}
   ogImage="/og/contact.png"
+  pageType="ContactPage"
 >
   <Section class="pt-12">
     <Breadcrumbs

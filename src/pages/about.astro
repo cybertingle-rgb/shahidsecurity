@@ -6,7 +6,7 @@ import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import CTABand from '@/components/CTABand.astro';
 import { Icon } from 'astro-icon/components';
 import { site } from '@/lib/site';
-import { personSchema, breadcrumbSchema } from '@/lib/schema';
+import { personSchema } from '@/lib/schema';
 
 const expertiseAreas = [
   'Cybersecurity Analyst',
@@ -58,13 +58,7 @@ const values = [
   { title: 'Honest scope', text: 'We tell you what you need, not what costs the most.' },
 ];
 
-const jsonLd = [
-  personSchema(),
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about/' },
-  ]),
-];
+const jsonLd = [personSchema()];
 
 const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
 const initials = 'SI';
@@ -76,6 +70,8 @@ const initials = 'SI';
   path="/about/"
   jsonLd={jsonLd}
   ogImage="/og/about.png"
+  pageType="ProfilePage"
+  mainEntityId={`${site.url}/about/#person`}
 >
   <Section class="pt-12">
     <Breadcrumbs

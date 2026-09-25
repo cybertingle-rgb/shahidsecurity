@@ -15,6 +15,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   description="Practical, plain-English writing on cybersecurity for business owners worldwide."
   path="/blog/"
   ogImage="/og/blog.png"
+  pageType="CollectionPage"
 >
   <Section class="pt-12">
     <Breadcrumbs
