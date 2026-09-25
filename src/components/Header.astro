@@ -4,6 +4,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.astro';
 
 const nav = [
   { label: 'Services', href: '/services/', i18n: 'nav.services' },
+  { label: 'Industries', href: '/industries/', i18n: 'nav.industries' },
   { label: 'Case Studies', href: '/case-studies/', i18n: 'nav.caseStudies' },
   { label: 'About', href: '/about/', i18n: 'nav.about' },
   { label: 'Blog', href: '/blog/', i18n: 'nav.blog' },
@@ -32,7 +33,7 @@ const currentPath = Astro.url.pathname;
       </picture>
     </a>
 
-    <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+    <nav class="hidden lg:flex items-center gap-6" aria-label="Primary">
       {nav.map((item) => (
         <a
           href={item.href}
@@ -48,7 +49,7 @@ const currentPath = Astro.url.pathname;
       ))}
     </nav>
 
-    <div class="hidden md:flex items-center gap-3">
+    <div class="hidden lg:flex items-center gap-3">
       <LanguageSwitcher />
       <a href="/book/" data-i18n="nav.book" class="btn btn-primary text-xs px-4 py-2">
         Book a consultation
@@ -58,7 +59,7 @@ const currentPath = Astro.url.pathname;
     <button
       id="menu-toggle"
       type="button"
-      class="md:hidden flex items-center justify-center size-11 text-(--color-text)"
+      class="lg:hidden flex items-center justify-center size-11 text-(--color-text)"
       aria-expanded="false"
       aria-controls="mobile-menu"
       aria-label="Open menu"
@@ -69,7 +70,7 @@ const currentPath = Astro.url.pathname;
 
   <div
     id="mobile-menu"
-    class="md:hidden fixed inset-0 top-16 bg-(--color-bg)/98 backdrop-blur-sm border-t border-(--color-border) hidden"
+    class="lg:hidden fixed inset-0 top-16 bg-(--color-bg)/98 backdrop-blur-sm border-t border-(--color-border) hidden"
     role="dialog"
     aria-modal="true"
     aria-label="Mobile menu"
