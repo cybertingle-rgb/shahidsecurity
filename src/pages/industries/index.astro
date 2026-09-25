@@ -5,7 +5,6 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import CTABand from '@/components/CTABand.astro';
 import { Icon } from 'astro-icon/components';
-import { breadcrumbSchema } from '@/lib/schema';
 
 const industries = [
   {
@@ -83,20 +82,13 @@ const industries = [
     ],
   },
 ];
-
-const jsonLd = [
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Industries', path: '/industries/' },
-  ]),
-];
 ---
 
 <BaseLayout
   title="Industries"
   description="Cybersecurity services scoped to the specific risks of your industry — SaaS, e-commerce, finance, healthcare, education, manufacturing and SMEs."
   path="/industries/"
-  jsonLd={jsonLd}
+  pageType="CollectionPage"
   ogImage="/og/industries.png"
 >
   <Section class="pt-12">

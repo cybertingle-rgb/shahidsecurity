@@ -4,21 +4,12 @@ import Section from '@/components/Section.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import BookingForm from '@/components/BookingForm.astro';
-import { breadcrumbSchema } from '@/lib/schema';
-
-const jsonLd = [
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Book a Consultation', path: '/book/' },
-  ]),
-];
 ---
 
 <BaseLayout
   title="Book a Free 30-Minute Consultation"
   description="Pick a time that suits you. We'll discuss your setup, your concerns, and the most sensible next step. No obligation."
   path="/book/"
-  jsonLd={jsonLd}
   ogImage="/og/book.png"
 >
   <Section class="pt-12">

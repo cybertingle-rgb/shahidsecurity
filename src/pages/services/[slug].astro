@@ -9,7 +9,7 @@ import CTABand from '@/components/CTABand.astro';
 import Prose from '@/components/Prose.astro';
 import { Icon } from 'astro-icon/components';
 import { getCollection, render } from 'astro:content';
-import { serviceSchema, faqSchema, breadcrumbSchema } from '@/lib/schema';
+import { serviceSchema, faqSchema } from '@/lib/schema';
 
 export async function getStaticPaths() {
   const services = await getCollection('services');
@@ -25,11 +25,6 @@ const path = `/services/${service.id}/`;
 
 const jsonLd: object[] = [
   serviceSchema({ name: service.data.title, description: service.data.shortDescription, path }),
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Services', path: '/services/' },
-    { name: service.data.title, path },
-  ]),
 ];
 const faq = faqSchema(service.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
 if (faq) jsonLd.push(faq);

@@ -5,7 +5,7 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import Prose from '@/components/Prose.astro';
 import { getCollection, render } from 'astro:content';
-import { blogPostingSchema, breadcrumbSchema } from '@/lib/schema';
+import { blogPostingSchema } from '@/lib/schema';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -28,11 +28,6 @@ const jsonLd = [
     updatedAt: post.data.updatedAt,
     author: post.data.author,
   }),
-  breadcrumbSchema([
-    { name: 'Home', path: '/' },
-    { name: 'Blog', path: '/blog/' },
-    { name: post.data.title, path },
-  ]),
 ];
 ---
 
@@ -42,6 +37,9 @@ const jsonLd = [
   path={path}
   jsonLd={jsonLd}
   ogImage={`/og/blog-${post.id}.png`}
+  ogType="article"
+  articlePublishedAt={post.data.publishedAt}
+  articleModifiedAt={post.data.updatedAt}
 >
   <Section class="pt-12">
     <Breadcrumbs

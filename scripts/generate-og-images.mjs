@@ -107,6 +107,14 @@ async function main() {
     pages.push({ slug: `blog-${file.replace('.mdx', '')}`, title: data.title });
   }
 
+  const caseStudiesDir = path.join(root, 'src/content/caseStudies');
+  for (const file of readdirSync(caseStudiesDir)) {
+    if (!file.endsWith('.mdx')) continue;
+    const raw = readFileSync(path.join(caseStudiesDir, file), 'utf8');
+    const { data } = matter(raw);
+    pages.push({ slug: `case-study-${file.replace('.mdx', '')}`, title: data.title });
+  }
+
   for (const page of pages) {
     await renderOgImage(page.title, path.join(outDir, `${page.slug}.png`));
   }

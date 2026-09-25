@@ -18,6 +18,7 @@ const caseStudies = (await getCollection('caseStudies', ({ data }) => !data.draf
   path="/case-studies/"
   noindex={caseStudies.length === 0}
   ogImage="/og/case-studies.png"
+  pageType="CollectionPage"
 >
   <Section class="pt-12">
     <Breadcrumbs
