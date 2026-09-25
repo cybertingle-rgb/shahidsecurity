@@ -8,6 +8,43 @@ import { Icon } from 'astro-icon/components';
 import { site } from '@/lib/site';
 import { personSchema, breadcrumbSchema } from '@/lib/schema';
 
+const expertiseAreas = [
+  'Cybersecurity Analyst',
+  'SOC Analyst',
+  'Penetration Testing',
+  'Vulnerability Assessment',
+  'Incident Response',
+  'Threat Intelligence',
+  'Network Security',
+  'IoT Security',
+  'Secure Development',
+];
+
+const timeline = [
+  {
+    period: '2020 – 2021',
+    role: 'Cyber Security Analyst',
+    org: 'IMS Lubricants',
+  },
+  {
+    period: '2021 – 2023',
+    role: 'SOC Analyst',
+    org: 'Ravi Cables Pakistan',
+  },
+  {
+    period: '2023 – Present',
+    role: 'Founder & Principal Consultant',
+    org: 'Shahid Security',
+  },
+];
+
+const education = [
+  'BS Computer Science — Qarshi University, Lahore',
+  'Training: CompTIA Network+ & Security+ fundamentals',
+  'Training: Certified Ethical Hacking (CEH) methodology',
+  'Training: CISSP domains',
+];
+
 const values = [
   { title: 'Authorised & ethical', text: 'We never test anything without written permission.' },
   {
@@ -100,14 +137,10 @@ const initials = 'SI';
       </div>
       <div>
         <h2 class="font-display text-xl font-semibold text-(--color-text)">{site.founder}</h2>
-        <p class="text-sm text-(--color-text-muted)">Founder &amp; Security Consultant</p>
+        <p class="text-sm text-(--color-text-muted)">Founder &amp; Cybersecurity Consultant</p>
         <p class="mt-3 text-sm text-(--color-text-muted)">
           {yearsExperience}+ years in cybersecurity — penetration testing, SOC operations and
           incident response
-        </p>
-        <p class="mt-1 text-sm text-(--color-text-muted)">
-          Training: CompTIA Network+ &amp; Security+ fundamentals, Certified Ethical Hacking (CEH)
-          methodology, and CISSP domains
         </p>
         <div class="mt-4 flex gap-4">
           <a
@@ -127,6 +160,54 @@ const initials = 'SI';
             <Icon name="lucide:twitter" class="size-4" aria-hidden="true" /> X
           </a>
         </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading
+      eyebrow="// cybersecurity expertise"
+      title="Meet Muhammad Shahid Iqbal"
+      intro="Founder & Cybersecurity Consultant — who's actually performing your assessment."
+    />
+
+    <div class="mt-10 flex flex-wrap gap-2">
+      {expertiseAreas.map((area) => (
+        <span class="pill pill-low">{area}</span>
+      ))}
+    </div>
+
+    <div class="mt-12 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
+      <div>
+        <h3 class="eyebrow">// career timeline</h3>
+        <ol class="mt-4 space-y-6 border-l border-(--color-border) pl-6">
+          {timeline.map((item) => (
+            <li class="relative">
+              <span
+                class="absolute -left-[1.6rem] top-1.5 size-2.5 rounded-full bg-(--color-neon)"
+                aria-hidden="true"
+              ></span>
+              <p class="font-mono text-xs text-(--color-neon-soft)">{item.period}</p>
+              <p class="mt-1 font-display text-base font-semibold text-(--color-text)">
+                {item.role}
+              </p>
+              <p class="text-sm text-(--color-text-muted)">{item.org}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div>
+        <h3 class="eyebrow">// education &amp; training</h3>
+        <ul class="mt-4 space-y-2.5">
+          {education.map((item) => (
+            <li class="flex gap-2 text-sm leading-relaxed text-(--color-text-muted)">
+              <span class="mt-1 shrink-0 text-(--color-neon)" aria-hidden="true">
+                ▸
+              </span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   </Section>

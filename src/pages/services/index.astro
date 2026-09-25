@@ -13,7 +13,7 @@ const build = services.filter((s) => s.data.group === 'build');
 ---
 
 <BaseLayout
-  title="Cybersecurity Services in Pakistan"
+  title="Cybersecurity Services"
   description="Everything we offer is scoped to your business size and budget. Every engagement starts with written authorisation and an NDA."
   path="/services/"
   ogImage="/og/services.png"
@@ -34,7 +34,7 @@ const build = services.filter((s) => s.data.group === 'build');
   </Section>
 
   <Section class="pt-0">
-    <h2 class="eyebrow mb-6">// Security</h2>
+    <h2 class="eyebrow mb-6">// Primary — Cybersecurity</h2>
     <div id="security" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {security.map((s) => (
         <ServiceCard
@@ -48,7 +48,7 @@ const build = services.filter((s) => s.data.group === 'build');
   </Section>
 
   <Section class="pt-0">
-    <h2 class="eyebrow mb-6">// Build</h2>
+    <h2 class="eyebrow mb-6">// Secondary — Secure Development & AI</h2>
     <div id="build" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {build.map((s) => (
         <ServiceCard

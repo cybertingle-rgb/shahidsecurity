@@ -43,17 +43,18 @@ const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
   }
 
   .preloader-shield-wrap {
-    width: min(70vw, 70vh);
-    height: min(70vw, 70vh);
-    clip-path: inset(100% 0 0 0);
-    animation: shield-reveal 900ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
+    width: min(35vw, 35vh);
+    height: min(35vw, 35vh);
+    opacity: 0;
+    animation: shield-flicker-in 900ms steps(12, end) 80ms forwards;
   }
 
   .preloader-shield {
     width: 100%;
     height: 100%;
     filter: drop-shadow(0 0 24px rgba(0, 191, 99, 0.7));
-    animation: shield-pulse 1.4s ease-in-out infinite;
+    animation: shield-flicker 2.2s linear infinite;
+    animation-delay: 900ms;
   }
 
   .preloader-terminal {
@@ -82,21 +83,74 @@ const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
     display: inline;
   }
 
-  @keyframes shield-reveal {
-    to {
-      clip-path: inset(0 0 0 0);
+  /* Power-on flicker: a jittery, uneven ramp-up rather than a smooth fade,
+     like a CRT or a neon sign catching before it holds. */
+  @keyframes shield-flicker-in {
+    0% {
+      opacity: 0;
+    }
+    8% {
+      opacity: 0.8;
+    }
+    12% {
+      opacity: 0.1;
+    }
+    20% {
+      opacity: 0.9;
+    }
+    26% {
+      opacity: 0.2;
+    }
+    34% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 0.3;
+    }
+    48% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
     }
   }
 
-  @keyframes shield-pulse {
+  /* Ongoing hacker-terminal flicker once the shield is "on": irregular
+     brightness drops and a hair of jitter, never fully cutting to black. */
+  @keyframes shield-flicker {
     0%,
+    91%,
     100% {
-      transform: scale(1);
-      filter: drop-shadow(0 0 16px rgba(0, 191, 99, 0.6));
+      opacity: 1;
+      transform: translateX(0);
+      filter: drop-shadow(0 0 26px rgba(0, 191, 99, 0.85)) brightness(1.05);
     }
-    50% {
-      transform: scale(1.04);
-      filter: drop-shadow(0 0 32px rgba(0, 191, 99, 0.9));
+    92% {
+      opacity: 0.35;
+      transform: translateX(-2px);
+      filter: drop-shadow(0 0 6px rgba(0, 191, 99, 0.3)) brightness(0.6);
+    }
+    93% {
+      opacity: 1;
+      transform: translateX(1px);
+    }
+    94% {
+      opacity: 0.5;
+      transform: translateX(0);
+      filter: drop-shadow(0 0 10px rgba(0, 191, 99, 0.4)) brightness(0.7);
+    }
+    95%,
+    96.5% {
+      opacity: 1;
+      transform: translateX(0);
+      filter: drop-shadow(0 0 26px rgba(0, 191, 99, 0.85)) brightness(1.05);
+    }
+    97% {
+      opacity: 0.2;
+      filter: drop-shadow(0 0 4px rgba(0, 191, 99, 0.25)) brightness(0.5);
+    }
+    97.5% {
+      opacity: 1;
     }
   }
 
@@ -108,11 +162,12 @@ const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
 
   @media (prefers-reduced-motion: reduce) {
     .preloader-shield-wrap {
-      clip-path: inset(0 0 0 0);
+      opacity: 1;
       animation: none;
     }
     .preloader-shield {
       animation: none;
+      filter: drop-shadow(0 0 24px rgba(0, 191, 99, 0.7));
     }
     .preloader-terminal {
       animation: none;
