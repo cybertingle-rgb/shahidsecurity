@@ -81,8 +81,8 @@ const trustItems = [
 ---
 
 <BaseLayout
-  title="Shahid Security — Penetration Testing & Cybersecurity in Pakistan"
-  description="Penetration testing, security audits, network hardening and incident response for businesses in Pakistan and worldwide. Book a free consultation."
+  title="Shahid Security — Cybersecurity Assessment, Penetration Testing & Security Engineering"
+  description="Independent cybersecurity consulting for businesses worldwide: penetration testing, vulnerability assessments, security audits and incident response. Book a free consultation."
   path="/"
   isHome
   ogImage="/og/home.png"
@@ -91,14 +91,16 @@ const trustItems = [
     <HeroBackdrop />
     <div class="relative grid gap-12 lg:grid-cols-2 lg:items-center">
       <div>
-        <p class="eyebrow">Protect. Build. Scale. · Cybersecurity from Pakistan</p>
+        <p class="eyebrow">Shahid Security</p>
         <h1 class="mt-4 text-4xl font-semibold leading-tight text-(--color-text) sm:text-5xl">
-          Find the gaps before attackers do.
+          Cybersecurity Assessment, Penetration Testing & Security Engineering
           <span class="cursor-blink text-(--color-neon-soft)">█</span>
         </h1>
         <p class="mt-6 max-w-xl text-lg leading-relaxed text-(--color-text-muted)">
-          Penetration testing, security audits and hardening for growing businesses — plus secure
-          web, software and AI automation built right the first time.
+          Independent security consulting for businesses worldwide — penetration testing,
+          vulnerability assessments and security engineering, led by a consultant with hands-on SOC
+          and incident-response experience. Secure development and AI automation available as a
+          secondary capability.
         </p>
         <div class="mt-8 flex flex-wrap gap-4">
           <Button href="/book/" variant="primary">
@@ -165,8 +167,8 @@ const trustItems = [
   <Section>
     <SectionHeading
       eyebrow="> services"
-      title="What we do"
-      intro="Security when you need it defended. Build when you need it shipped."
+      title="Cybersecurity services"
+      intro="Penetration testing, audits, monitoring and response — the core of what we do."
     />
     <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {homeServiceCards.map((s) => (
@@ -177,12 +179,26 @@ const trustItems = [
           icon={s.icon}
         />
       ))}
-      <ServiceCard
-        title="Secure Development & AI Automation"
-        description="Websites, software and AI workflows built with security designed in."
-        href="/services/#build"
-        icon="lucide:sparkles"
-      />
+    </div>
+
+    <div class="mt-12 border-t border-(--color-border) pt-10">
+      <p class="eyebrow">// also available</p>
+      <h3 class="mt-2 font-display text-lg font-semibold text-(--color-text)">
+        Secure development & AI automation
+      </h3>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-(--color-text-muted)">
+        A secondary capability for clients who want their next build done securely from day one —
+        websites, software and AI workflows, built by the same team that tests them.
+      </p>
+      <div class="mt-4">
+        <a
+          href="/services/#build"
+          class="inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)"
+        >
+          See secure development services
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
     </div>
   </Section>
 

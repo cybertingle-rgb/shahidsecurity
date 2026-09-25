@@ -10,7 +10,7 @@ export const site = {
   domain: 'shahidiqbal.com',
   url: 'https://shahidiqbal.com',
   description:
-    'Penetration testing, security audits, network hardening and incident response for businesses in Pakistan and worldwide. Book a free consultation.',
+    'Independent cybersecurity consulting for businesses worldwide: penetration testing, vulnerability assessments, security audits and incident response. Book a free consultation.',
   email: 'info@shahidiqbal.com',
   phone: '1101011011101110000000111110010110001110',
   phoneDisplay: '1101011011101110000000111110010110001110',
