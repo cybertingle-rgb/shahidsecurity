@@ -1,8 +1,9 @@
 ---
 // A small wandering panda mascot, fixed to the viewport, present on every
-// page. Only one static artwork pose was supplied (no walk-cycle frames),
-// so "walking" is simulated with position changes + a horizontal flip for
-// direction + a continuous idle bob, rather than swapping sprite frames.
+// page. The flying pose is a real animated WebP (baked-in loop of a subtle
+// head tilt + cape sway), so no client-side animation library is needed —
+// keeps this CSP-safe and avoids shipping a JS animation runtime.
+// Reduced-motion visitors get a single still frame instead of the loop.
 // Clicking it plays a happy bounce + floating hearts reaction.
 ---
 
@@ -14,12 +15,17 @@
 >
   <span class="panda-reaction" data-panda-hearts aria-hidden="true"></span>
   <picture>
+    <source
+      media="(prefers-reduced-motion: reduce)"
+      srcset="/brand/panda-mascot-static.webp"
+      type="image/webp"
+    />
     <source srcset="/brand/panda-mascot.webp" type="image/webp" />
     <img
       src="/brand/panda-mascot.png"
       alt=""
-      width="320"
-      height="321"
+      width="440"
+      height="250"
       class="panda-img"
       data-panda-img
       draggable="false"
@@ -33,7 +39,7 @@
     left: 5%;
     bottom: 8px;
     z-index: 35;
-    width: 46px;
+    width: 64px;
     height: auto;
     background: transparent;
     border: none;
@@ -47,13 +53,13 @@
 
   @media (min-width: 640px) {
     .panda-mascot {
-      width: 84px;
+      width: 110px;
     }
   }
 
   @media (min-width: 1024px) {
     .panda-mascot {
-      width: 104px;
+      width: 140px;
     }
   }
 
@@ -61,36 +67,11 @@
     display: block;
     width: 100%;
     height: auto;
-    animation: panda-bob 1.8s ease-in-out infinite;
-    transform-origin: 50% 100%;
+    transform-origin: 50% 50%;
   }
 
   .panda-mascot.is-facing-left .panda-img {
     transform: scaleX(-1);
-  }
-
-  .panda-mascot.is-facing-left .panda-img {
-    animation: panda-bob-flipped 1.8s ease-in-out infinite;
-  }
-
-  @keyframes panda-bob {
-    0%,
-    100% {
-      transform: translateY(0) rotate(-2deg);
-    }
-    50% {
-      transform: translateY(-6px) rotate(2deg);
-    }
-  }
-
-  @keyframes panda-bob-flipped {
-    0%,
-    100% {
-      transform: scaleX(-1) translateY(0) rotate(-2deg);
-    }
-    50% {
-      transform: scaleX(-1) translateY(-6px) rotate(2deg);
-    }
   }
 
   .panda-mascot.is-clicked .panda-img {
@@ -103,31 +84,31 @@
 
   @keyframes panda-hop {
     0% {
-      transform: translateY(0) rotate(0) scale(1);
+      transform: translateY(0) scale(1);
     }
     30% {
-      transform: translateY(-22px) rotate(-8deg) scale(1.08);
+      transform: translateY(-16px) scale(1.12);
     }
     55% {
-      transform: translateY(0) rotate(6deg) scale(1.05);
+      transform: translateY(0) scale(1.05);
     }
     100% {
-      transform: translateY(0) rotate(0) scale(1);
+      transform: translateY(0) scale(1);
     }
   }
 
   @keyframes panda-hop-flipped {
     0% {
-      transform: scaleX(-1) translateY(0) rotate(0) scale(1);
+      transform: scaleX(-1) translateY(0) scale(1);
     }
     30% {
-      transform: scaleX(-1) translateY(-22px) rotate(8deg) scale(1.08);
+      transform: scaleX(-1) translateY(-16px) scale(1.12);
     }
     55% {
-      transform: scaleX(-1) translateY(0) rotate(-6deg) scale(1.05);
+      transform: scaleX(-1) translateY(0) scale(1.05);
     }
     100% {
-      transform: scaleX(-1) translateY(0) rotate(0) scale(1);
+      transform: scaleX(-1) translateY(0) scale(1);
     }
   }
 
@@ -165,9 +146,6 @@
     .panda-mascot {
       transition: none;
     }
-    .panda-img {
-      animation: none;
-    }
     .panda-mascot.is-clicked .panda-img,
     .panda-mascot.is-clicked.is-facing-left .panda-img {
       animation: none;
@@ -200,10 +178,10 @@
   // A small fixed range, not a viewport-height percentage: on short mobile
   // screens a percentage-based range pushed the mascot up into the hero's
   // buttons and text. It only ever needs to hug the true bottom edge.
-  const MAX_BOTTOM_PX = 24;
+  const MAX_BOTTOM_PX = 14;
 
   function mascotWidth() {
-    return mascot?.getBoundingClientRect().width ?? 46;
+    return mascot?.getBoundingClientRect().width ?? 64;
   }
 
   function randomSpot() {

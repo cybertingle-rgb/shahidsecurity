@@ -122,6 +122,7 @@ export function personSchema() {
     jobTitle: 'Founder & Cybersecurity Consultant',
     worksFor: { '@id': `${site.url}/#organization` },
     url: absoluteUrl('/about/'),
+    image: absoluteUrl('/brand/founder-photo.png'),
     sameAs: [site.social.linkedin, site.social.x],
     alumniOf: {
       '@type': 'CollegeOrUniversity',
