@@ -1,0 +1,59 @@
+---
+title: 'Business Email Compromise in 2026: How Attackers Bypass MFA'
+description: 'Multi-factor authentication stops most credential attacks, but not all of them. Here is how modern business email compromise campaigns get around MFA, based on 2026 threat data from Microsoft.'
+publishedAt: 2026-09-26
+tags: ['phishing', 'business-email-compromise', 'incident-response']
+author: Shahid Iqbal
+relatedService: monitoring-training
+relatedPosts: ['ransomware-2026-trends', 'ai-security-risks-for-business']
+faqs:
+  - q: We already require MFA for email — are we protected from business email compromise?
+    a: 'MFA blocks the large majority of automated, credential-stuffing style attacks, which is why it remains essential. It does not fully stop targeted phishing that uses a real-time proxy to capture both your password and your MFA approval at the same time, which is why MFA needs to be paired with user awareness and phishing-resistant methods where possible.'
+  - q: What does a typical business email compromise attempt actually look like?
+    a: 'Recent data shows most BEC content is generic outreach rather than an obviously fake invoice — a short, plausible message from what looks like a colleague or partner, designed to start a conversation before the request for money or data ever appears. That patience is what makes it hard to spot with a simple rule.'
+  - q: Are attackers moving beyond email itself?
+    a: 'Yes. Microsoft has reported a sharp rise in social engineering conducted over Microsoft Teams rather than email, including voice-based ("vishing") attempts, as attackers adapt to organisations that have gotten better at spotting email-based phishing.'
+draft: false
+---
+
+Multi-factor authentication (MFA) is, correctly, the standard advice for stopping credential-based attacks — and it works, for most of them. But "most" isn't "all," and the gap between those two words is exactly where a growing share of business email compromise (BEC) activity now lives. Understanding how attackers get around MFA — rather than assuming it's an unbeatable wall — is what actually keeps a business protected.
+
+## The scale, per Microsoft's own 2026 data
+
+Microsoft's threat intelligence team publishes a quarterly email threat landscape report, and the 2026 numbers are large by any measure. In Q1 2026, Microsoft detected approximately **8.3 billion phishing emails**. That volume dropped somewhat to **7.6 billion in Q2 2026**, coinciding with Microsoft's disruption of a major phishing-as-a-service platform known as Tycoon2FA — a takedown that produced a measurable 15% decrease in phishing volume and forced attackers to shift tactics.
+
+Business email compromise specifically accounted for roughly **10.7 million attacks in Q1 2026** alone. Interestingly, the content of most of these wasn't the obvious "urgent wire transfer" scam you might picture — Microsoft's data shows **82–84% of BEC content was generic outreach**, with explicit financial or document requests making up only 9–10%. In other words, most attacks start as a plausible, low-pressure message intended to start a conversation and build trust, with the actual ask coming later, once the target has already engaged.
+
+## How MFA actually gets bypassed
+
+MFA remains genuinely effective against the most common attack pattern: an attacker who has stolen a password (through a data breach, reuse, or a basic phishing page) and tries to log in with it. Without the second factor, that login fails. The bypass techniques that matter operate differently:
+
+- **Adversary-in-the-middle (AiTM) phishing**, the technique behind platforms like Tycoon2FA, works by proxying the _real_ login session in real time. The victim lands on a page that looks identical to their actual login screen, enters their password, and completes their real MFA prompt — but the attacker's server sits between the victim and the real service, capturing the resulting authenticated session token. From the service's point of view, this looks like a normal, successful, MFA-verified login, because in a technical sense, it was — just relayed through an attacker.
+- **MFA fatigue** relies on repeatedly sending push notification approval requests until a tired or distracted user approves one just to make it stop, without checking whether they actually initiated the login.
+- **Social engineering the reset process**, rather than attacking the login itself — convincing a help desk or the user to reset MFA entirely by impersonating IT support or the account owner.
+
+None of these are "MFA doesn't work." They're evidence that MFA shifts the attack from stealing a password to hijacking a session or manipulating a person, which is a real improvement — but not the end of the story.
+
+## The shift beyond email itself
+
+Microsoft's Q2 2026 data also flags a tactical shift worth knowing about specifically because it's newer and less anticipated: as organisations get better at filtering email-based phishing, attackers have expanded into **Microsoft Teams-based social engineering**, including a reported roughly **tenfold increase in voice-based ("vishing") attempts** conducted through Teams calls. The logic is straightforward — email gets filtered and flagged more aggressively than it used to, so attackers move to channels with less mature filtering and a higher baseline of trust (an internal chat platform feels safer to employees than an unsolicited email, even when it shouldn't).
+
+## Security recommendations
+
+- **Use phishing-resistant MFA where possible** — hardware security keys or platform authenticators (like passkeys) that are cryptographically bound to the legitimate site, rather than a code or push approval that can be relayed through a proxy.
+- **Train staff to verify unusual requests through a second channel**, especially anything involving payment, credential changes, or urgent action — a quick phone call to a known number catches almost everything AiTM phishing is designed to slip past.
+- **Extend phishing awareness to Teams and other internal chat tools**, not just email. If your training only ever mentions "suspicious emails," you've left the fastest-growing channel uncovered.
+- **Tighten help desk identity verification for MFA resets.** A process that resets MFA based on a phone call and a name is a bypass waiting to be used.
+- **Monitor for impossible or unusual sign-in patterns** — a session originating from an unexpected location or device shortly after a legitimate-looking login is a strong signal, even when MFA was technically satisfied.
+
+## Key takeaways
+
+Business email compromise in 2026 isn't primarily about attackers cracking passwords — it's about patiently building trust through generic outreach, then either relaying a real login session past MFA or moving the conversation to a less-scrutinised channel like Teams. MFA remains essential and blocks the majority of attempts, but treating it as a complete solution — rather than one strong layer among several — is exactly the gap current attackers are trained to find.
+
+Shahid Security's [Security Monitoring & Awareness Training](/services/monitoring-training/) service includes phishing simulation and staff training built around how these attacks actually work today, not a generic "don't click suspicious links" slideshow.
+
+**Want to know how your team would actually respond to a realistic phishing attempt?** [Book a free consultation](/book/) to talk through a simulation.
+
+---
+
+Sources: [Microsoft Security Blog — Email threat landscape Q1 2026](https://www.microsoft.com/en-us/security/blog/2026/04/30/email-threat-landscape-q1-2026-trends-and-insights/), [Microsoft Security Blog — Email threat landscape Q2 2026](https://www.microsoft.com/en-us/security/blog/2026/07/23/email-threat-landscape-q2-2026-trends-and-insights/).

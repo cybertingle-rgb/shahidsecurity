@@ -68,6 +68,18 @@ const blog = defineCollection({
       author: z.string().default('Shahid Iqbal'),
       cover: image().optional(),
       draft: z.boolean().default(false),
+      /** Service slug (matches a services/*.mdx filename) this article most supports. */
+      relatedService: z.string().optional(),
+      /** Slugs of other blog posts to surface as related reading. */
+      relatedPosts: z.array(z.string()).default([]),
+      faqs: z
+        .array(
+          z.object({
+            q: z.string(),
+            a: z.string(),
+          }),
+        )
+        .default([]),
     }),
 });
 

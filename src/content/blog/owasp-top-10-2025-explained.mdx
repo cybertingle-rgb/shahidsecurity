@@ -1,0 +1,64 @@
+---
+title: 'OWASP Top 10:2025 Explained: What Changed and Why It Matters'
+description: 'OWASP released its first Top 10 update since 2021 in November 2025. Here is what actually changed, in plain English, and what it means for your next security review.'
+publishedAt: 2026-09-26
+tags: ['owasp', 'web-application-security', 'penetration-testing']
+author: Shahid Iqbal
+relatedService: penetration-testing
+relatedPosts: ['api-security-best-practices', 'software-supply-chain-attacks-2026']
+faqs:
+  - q: Is the OWASP Top 10:2025 an official replacement for the 2021 list?
+    a: 'Yes. OWASP released the 2025 edition at its Global AppSec Conference in November 2025, and it supersedes the 2021 list as the current reference. Older audits and checklists built against the 2021 version should be revisited, since two categories are new and several others were reordered or merged.'
+  - q: Does a lower ranking mean a risk category matters less?
+    a: "Not necessarily. The ranking reflects how frequently OWASP's data sources found each weakness across tested applications, not how severe a single instance can be. A rare but catastrophic issue can rank below a common but usually low-impact one."
+  - q: Do we need to redo a recent penetration test because the list changed?
+    a: 'Not automatically. A competent test already covered access control, authentication, misconfiguration and injection regardless of which numbered list they sat under. It is worth asking your tester whether supply-chain integrity and error-handling behaviour — the two genuinely new areas — were in scope, since those are the parts a pre-2025 methodology might have under-covered.'
+draft: false
+---
+
+Every few years, OWASP updates the Top 10 — its reference list of the most common weaknesses found in web applications — based on data contributed by testing firms and tooling vendors, plus a practitioner survey. The 2025 edition, released in November 2025 at the OWASP Global AppSec conference in Washington, D.C., is the first update since 2021. If your last security review, developer training, or procurement checklist was built around the 2021 list, it's worth understanding what actually moved and why.
+
+This isn't a rewrite of the list itself — OWASP publishes that at [owasp.org/Top10](https://owasp.org/Top10/2025/). It's a plain-English walkthrough of what changed, aimed at the people who have to act on it: engineering leads, business owners who commission security reviews, and anyone comparing a report against "the OWASP Top 10" for the first time since 2021.
+
+## The headline change: two new categories
+
+Two categories are genuinely new in 2025, not just renamed:
+
+**A03: Software Supply Chain Failures.** The 2021 list had "Vulnerable and Outdated Components" — essentially, are you running software with known bugs. The 2025 version expands this into something broader: the integrity of how software gets _built and delivered_ in the first place. That includes compromised build pipelines, poisoned open-source packages, and unverified third-party dependencies — not just outdated version numbers. This shift tracks real incidents: 2026 alone saw a widely-used npm package compromised through a maintainer account takeover, distributed to well over a hundred million weekly downloads before anyone caught it (more on that in our [supply chain attacks article](/blog/software-supply-chain-attacks-2026/)).
+
+**A10: Mishandling of Exceptional Conditions.** This category covers what happens when an application encounters an error, a timeout, or an unexpected input — and handles it badly. That might mean failing open instead of closed, leaking a stack trace with internal details, or silently continuing after a security check throws an exception. It spans 24 different underlying weakness types (CWEs), and it reflects a pattern OWASP's data showed clearly: a lot of real breaches don't come from an attacker breaking strong logic, they come from an attacker triggering the _edge case_ nobody tested.
+
+## What moved, and what that tells you
+
+Beyond the two new entries, the reordering is itself informative:
+
+- **Broken Access Control stays at #1.** It was the most common weakness in 2021 and remains so in 2025 — affecting, per OWASP's data, virtually every application category tested. If your last review didn't dig into authorization logic specifically (not just "is there a login page"), this is the one to revisit first.
+- **Security Misconfiguration jumped from #5 to #2.** This is arguably the most practically important move for teams shipping frequently. It signals that the shift to continuous deployment — pushing changes constantly without matching continuous _scanning_ — is creating exposure windows that weren't as common in 2021's slower release cycles.
+- **Server-Side Request Forgery (SSRF) was folded into Broken Access Control.** It's not gone; OWASP judged that SSRF is, at its core, an access control failure — the application is making a request it shouldn't be trusted to make — so it made more sense as a symptom of A01 than its own category.
+- **The overall framing shifted from symptoms to root causes.** OWASP was explicit about this in the 2025 release notes: rather than cataloguing surface-level bug types, the list increasingly groups issues by the underlying failure in design or process that produced them.
+
+## Why this matters if you're not a developer
+
+If you run a business rather than write code, here's the practical takeaway: the OWASP Top 10 isn't a developer-only reference. It's the de facto standard that penetration testers, auditors, and increasingly cyber-insurance underwriters use to scope and describe what they tested. When a report says "tested against the OWASP Top 10," it's worth knowing whether that means the 2021 or 2025 version — because the 2025 version explicitly asks a tester to look at your build pipeline and third-party dependencies, which a 2021-era scope might have skipped entirely.
+
+This is also a genuinely good moment to ask a question a lot of businesses never ask their developer or agency: _what happens when this app hits an error it wasn't built to expect?_ That's now a named, top-10 category — not an afterthought.
+
+## Security recommendations
+
+- Ask your current or prospective penetration testing provider explicitly which OWASP Top 10 version they scope against, and confirm A03 (supply chain) and A10 (exceptional conditions) are included.
+- Inventory your third-party dependencies and packages — not just for known CVEs, but for how they're sourced (official registries with maintainer verification, versus unpinned or loosely-vetted sources).
+- Review error-handling paths in your application: what does a user see, and what does the system _do_, when something fails unexpectedly? Fail closed, not open.
+- Re-audit access control logic specifically, since it remains the single most common weakness across both the 2021 and 2025 data sets.
+- Treat security misconfiguration as a continuous-deployment problem: if you ship weekly, you need scanning on a matching cadence, not an annual review.
+
+## Key takeaways
+
+OWASP's 2025 update is the first in four years, and it reflects real shifts in how applications actually break: supply chain integrity and error-handling behaviour are now named, top-level risk categories rather than footnotes. Broken Access Control remains the most common weakness by a wide margin. If your last security review predates November 2025, it's worth a conversation about whether its scope still matches how attackers are actually getting in.
+
+Shahid Security's [penetration testing](/services/penetration-testing/) engagements are scoped against the current OWASP methodology, including dependency and supply-chain review, not a static checklist from years ago.
+
+**Want a review that reflects the current threat landscape, not last decade's?** [Book a free 30-minute consultation](/book/) to talk through your scope.
+
+---
+
+Sources: [OWASP Top 10:2025](https://owasp.org/Top10/2025/), [OWASP Top 10:2025 Introduction](https://top10.owasp.org/2025/0x00_2025-Introduction/).

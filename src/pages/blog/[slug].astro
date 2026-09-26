@@ -3,9 +3,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Section from '@/components/Section.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
 import Prose from '@/components/Prose.astro';
+import { Icon } from 'astro-icon/components';
 import { getCollection, render } from 'astro:content';
-import { blogPostingSchema } from '@/lib/schema';
+import { blogPostingSchema, faqSchema } from '@/lib/schema';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -19,7 +21,7 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 const path = `/blog/${post.id}/`;
 
-const jsonLd = [
+const jsonLd: object[] = [
   blogPostingSchema({
     title: post.data.title,
     description: post.data.description,
@@ -29,6 +31,19 @@ const jsonLd = [
     author: post.data.author,
   }),
 ];
+const faq = faqSchema(post.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+
+const relatedService = post.data.relatedService
+  ? (await getCollection('services')).find((s) => s.id === post.data.relatedService)
+  : undefined;
+
+const relatedPosts =
+  post.data.relatedPosts.length > 0
+    ? (await getCollection('blog', ({ data }) => !data.draft)).filter((p) =>
+        post.data.relatedPosts.includes(p.id),
+      )
+    : [];
 ---
 
 <BaseLayout
@@ -69,8 +84,101 @@ const jsonLd = [
   </Section>
 
   <Section class="pt-0">
-    <Prose>
-      <Content />
-    </Prose>
+    <div class="grid gap-12 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <Prose>
+          <Content />
+        </Prose>
+
+        {post.data.faqs.length > 0 && (
+          <>
+            <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={post.data.faqs} />
+            </div>
+          </>
+        )}
+
+        <div class="mt-10 flex items-center gap-4 border-t border-(--color-border) pt-8">
+          <picture>
+            <source srcset="/brand/founder-photo.webp" type="image/webp" />
+            <img
+              src="/brand/founder-photo.png"
+              alt={post.data.author}
+              width="480"
+              height="598"
+              class="size-14 rounded-full border border-(--color-neon)/40 object-cover"
+            />
+          </picture>
+          <div>
+            <p class="font-display text-sm font-semibold text-(--color-text)">
+              Written by{' '}
+              <a href="/about/" class="hover:text-(--color-neon)">
+                {post.data.author}
+              </a>
+            </p>
+            <p class="text-xs text-(--color-text-muted)">
+              Founder &amp; Cybersecurity Consultant, Shahid Security
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="space-y-6">
+        {relatedService && (
+          <div class="glass-card corner-brackets p-6">
+            <h2 class="font-display text-base font-semibold text-(--color-text)">
+              Related service
+            </h2>
+            <p class="mt-2 text-sm text-(--color-text-muted)">
+              {relatedService.data.shortDescription}
+            </p>
+            <a
+              href={`/services/${relatedService.id}/`}
+              class="mt-3 inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)"
+            >
+              See {relatedService.data.title}
+              <Icon name="lucide:arrow-right" class="size-3.5" aria-hidden="true" />
+            </a>
+          </div>
+        )}
+
+        {relatedPosts.length > 0 && (
+          <div class="glass-card corner-brackets p-6">
+            <h2 class="font-display text-base font-semibold text-(--color-text)">
+              Related reading
+            </h2>
+            <ul class="mt-3 space-y-3">
+              {relatedPosts.map((p) => (
+                <li>
+                  <a
+                    href={`/blog/${p.id}/`}
+                    class="text-sm text-(--color-text) hover:text-(--color-neon)"
+                  >
+                    {p.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div class="glass-card corner-brackets p-6">
+          <h2 class="font-display text-base font-semibold text-(--color-text)">
+            Not sure where to start?
+          </h2>
+          <p class="mt-2 text-sm text-(--color-text-muted)">
+            Book a free 30-minute consultation. No obligation.
+          </p>
+          <a
+            href="/book/"
+            class="mt-3 inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)"
+          >
+            Book a consultation
+            <Icon name="lucide:arrow-right" class="size-3.5" aria-hidden="true" />
+          </a>
+        </div>
+      </aside>
+    </div>
   </Section>
 </BaseLayout>

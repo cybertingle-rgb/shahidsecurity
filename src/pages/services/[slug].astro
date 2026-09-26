@@ -28,6 +28,10 @@ const relatedCaseStudies = (await getCollection('caseStudies', ({ data }) => !da
   (cs) => cs.data.services.some((s) => s.toLowerCase() === service.data.title.toLowerCase()),
 );
 
+const relatedArticles = (await getCollection('blog', ({ data }) => !data.draft)).filter(
+  (post) => post.data.relatedService === service.id,
+);
+
 const authorizationSafety =
   service.data.group === 'security'
     ? 'Every engagement starts with written authorisation and, where appropriate, a signed NDA — we never test a system without the owner’s explicit permission. Testing is scoped and scheduled with you in advance, avoids destructive techniques by default, and stays inside the boundaries agreed before any work begins.'
@@ -201,6 +205,24 @@ if (faq) jsonLd.push(faq);
             services={cs.data.services}
             href={`/case-studies/${cs.id}/`}
           />
+        ))}
+      </div>
+    </Section>
+  )}
+
+  {relatedArticles.length > 0 && (
+    <Section>
+      <SectionHeading eyebrow="// FROM THE BLOG" title="Further reading" />
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {relatedArticles.map((post) => (
+          <a href={`/blog/${post.id}/`} class="glass-card corner-brackets block p-6">
+            <h3 class="font-display text-base font-semibold text-(--color-text)">
+              {post.data.title}
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">
+              {post.data.description}
+            </p>
+          </a>
         ))}
       </div>
     </Section>

@@ -1,0 +1,61 @@
+---
+title: 'Why Cloud Misconfiguration Is Now the Leading Cause of Data Breaches'
+description: 'Cloud breaches are rarely caused by the provider. Recent data shows misconfiguration — not a platform flaw — behind a growing share of incidents. Here is what that means and how to fix it.'
+publishedAt: 2026-09-26
+tags: ['cloud-security', 'data-breach', 'network-security']
+author: Shahid Iqbal
+relatedService: network-cloud-security
+relatedPosts: ['patch-management-cisa-kev-guide', 'gcc-cybersecurity-compliance-sama-nesa']
+faqs:
+  - q: If our cloud provider is secure, why are we still at risk?
+    a: 'Cloud providers secure the infrastructure — physical data centres, the hypervisor, the underlying network. Under the shared responsibility model, you are responsible for how you configure what you build on top of that: access permissions, storage visibility, encryption settings, and network rules. Most reported cloud breaches trace back to that second half.'
+  - q: What is the single most common cloud misconfiguration?
+    a: 'Overly permissive access — either identity and access management (IAM) roles with far more permission than a user or service actually needs, or storage (like an object storage bucket) left more publicly visible than intended. Both stem from defaults or convenience settings that were never tightened after initial setup.'
+  - q: We are a small business — do we really have the same exposure as an enterprise?
+    a: 'Often more, in relative terms. Enterprises typically have a dedicated cloud security or DevOps team reviewing configuration. Many small businesses provision cloud services with default settings and never revisit them, which is precisely the pattern behind most misconfiguration-driven breaches.'
+draft: false
+---
+
+When a cloud-hosted business gets breached, the instinct is often to ask whether AWS, Azure, or Google Cloud had a security failure. In the overwhelming majority of cases, they didn't. The infrastructure held. What failed was how the business configured what it built on top of that infrastructure — and current data shows this is now the dominant cause of cloud-related breaches, not an edge case.
+
+## What the data actually shows
+
+According to Verizon's 2026 Data Breach Investigations Report, cloud misconfiguration was responsible for 14% of all global breaches — up from 9% in 2024. That's a meaningful jump in a short window, and it tracks with how fast businesses have moved workloads to the cloud without a matching increase in configuration discipline.
+
+Other figures paint a similar picture from different angles: over 31% of cloud breaches are attributed to misconfiguration and manual error, and a majority of organisations — around 70% — identify misconfigured cloud services as a major risk in their own environment. IBM's Cost of a Data Breach research puts a number on the damage: the average breach caused specifically by cloud misconfiguration costs **$4.45 million**.
+
+Perhaps the most telling figure comes from Gartner, which has projected that through 2026, **99% of cloud security failures will be the customer's fault — not the provider's**. That's not a criticism of any particular business; it's a structural observation about how cloud security actually works.
+
+## Why this keeps happening: the shared responsibility model
+
+Every major cloud provider operates on a shared responsibility model. The provider secures the cloud itself — physical security, the hypervisor layer, network infrastructure, and the availability of the platform. The customer is responsible for security _in_ the cloud: how you configure identity and access management, how you set storage visibility, how you encrypt data, and how you segment your network.
+
+The problem is that this split isn't always intuitive, especially for teams without a dedicated cloud security function. A storage bucket created during a quick prototype, left with default (often overly permissive) visibility settings, and never revisited once the project went to production, is a textbook example. It's not a sophisticated attack — it's a default that nobody changed.
+
+## The three misconfiguration patterns that show up most often
+
+- **Overly permissive identity and access management (IAM).** Users, service accounts, or applications granted far broader permissions than their actual job requires — often because it was faster to grant broad access during setup than to scope it precisely, with no follow-up to tighten it later.
+- **Publicly exposed storage.** Object storage (the cloud equivalent of a shared drive) left visible to anyone with the link, or in some cases, anyone at all, when it was only ever meant to be accessed internally.
+- **Missing or incomplete logging.** Weak identity controls or missing audit logging were found in a large majority of reviewed cloud accounts — meaning that even when something goes wrong, many organisations lack the visibility to know it happened, let alone respond quickly.
+
+At scale, this adds up fast: research from cloud security vendors has found the average enterprise running **over 3,000 misconfigured cloud assets** at any given time. Most businesses don't have anywhere near that scale, but the same root causes — defaults never revisited, permissions never scoped down, logging never turned on — apply just as easily to a five-server environment as a five-thousand-server one.
+
+## Security recommendations
+
+- **Review IAM permissions against actual usage**, not against what seemed convenient at setup. Most cloud platforms provide tooling to show which granted permissions have actually been used — unused permissions are candidates for removal.
+- **Audit storage visibility settings directly**, rather than assuming defaults are safe. Cloud storage defaults have improved over the years, but legacy resources created under older defaults are a common blind spot.
+- **Turn on and actually monitor audit logging.** Logging that exists but nobody reviews provides no real protection — pair it with alerting on the events that matter (permission changes, new public access grants, unusual data access volume).
+- **Treat cloud configuration review as ongoing, not one-time.** Environments drift as teams add resources, and a configuration that was correct at launch can quietly become permissive months later.
+- **Get an independent review before, not after, an incident.** A cloud configuration review is far cheaper than the average $4.45 million cost of a breach it could have prevented.
+
+## Key takeaways
+
+The pattern in the current data is consistent across multiple independent sources: cloud breaches are overwhelmingly a configuration problem, not a provider problem. That's a genuinely useful thing to know, because unlike a zero-day vulnerability in provider infrastructure — which you can't do much about directly — misconfiguration is entirely within your control to find and fix, if someone actually looks.
+
+Shahid Security's [Network & Cloud Security](/services/network-cloud-security/) service reviews AWS, Azure, and Google Cloud configurations against known-secure baselines, covering the exact patterns — IAM, storage visibility, logging — behind most reported cloud breaches.
+
+**Not sure what your current cloud configuration actually exposes?** [Book a free consultation](/book/) and we'll help you find out before an attacker does.
+
+---
+
+Sources: [Verizon 2026 Data Breach Investigations Report](https://www.verizon.com/business/resources/reports/dbir/) (via industry reporting), IBM Cost of a Data Breach Report, Gartner cloud security research (via industry reporting).
