@@ -1,0 +1,64 @@
+---
+title: "A Business Owner's Guide to Patch Management and the CISA KEV Catalog"
+description: "Most businesses cannot patch everything, all the time. Here is how to use CISA's Known Exploited Vulnerabilities catalog to decide what actually needs fixing first."
+publishedAt: 2026-09-26
+tags: ['vulnerability-management', 'patch-management', 'cisa']
+author: Shahid Iqbal
+relatedService: vulnerability-assessment
+relatedPosts: ['cloud-misconfiguration-data-breaches', 'ransomware-2026-trends']
+faqs:
+  - q: What is the CISA KEV catalog, in one sentence?
+    a: 'It is a public list, maintained by the US Cybersecurity and Infrastructure Security Agency, of specific software vulnerabilities that are confirmed to be actively exploited in real attacks — as opposed to vulnerabilities that are merely theoretically dangerous.'
+  - q: Does the KEV catalog only matter for US government agencies?
+    a: 'The mandatory remediation deadlines apply to US federal agencies, but the catalog itself is public and free for anyone to use. Because it only lists vulnerabilities with confirmed real-world exploitation, it is one of the most reliable free signals any business can use to prioritise patching.'
+  - q: We cannot patch everything immediately — what should we do instead?
+    a: 'Almost no organisation can patch everything the moment an update ships. The realistic approach is to prioritise by evidence of active exploitation first (the KEV catalog is built for exactly this), then by how exposed the affected system is — internet-facing systems before internal ones — then work through the rest on a regular cycle.'
+draft: false
+---
+
+Most small and mid-sized businesses have the same patching problem: dozens of systems, a handful of people who can actually apply updates, and a constant stream of vendor advisories saying everything is "critical." Patching everything immediately isn't realistic. Patching nothing until something breaks isn't safe either. The US Cybersecurity and Infrastructure Security Agency (CISA) publishes a free, public tool that solves exactly this prioritisation problem — and most businesses outside the US federal government have never heard of it.
+
+## What the KEV catalog actually is
+
+CISA's [Known Exploited Vulnerabilities (KEV) catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) is a running list of specific software vulnerabilities that CISA has confirmed are being actively exploited by attackers — right now, in the real world, not in a lab. This is a meaningfully different signal from a general vendor security bulletin. A vendor's "critical" rating usually reflects how bad a vulnerability _could_ be if exploited. The KEV catalog only lists vulnerabilities that already _are_ being exploited, based on threat intelligence CISA has verified.
+
+The catalog moves constantly. In the first three weeks of September 2026 alone, CISA added vulnerabilities affecting Sangoma Switchvox, Adobe Commerce/Magento, Microsoft Windows, Fortinet products, Citrix NetScaler, Cisco Firewall Management Center and Identity Services Engine, N-able N-central, Acronis Backup, and Zyxel switches — a genuinely broad spread of vendors, which is normal for the catalog. It isn't specific to one platform or industry.
+
+CISA pairs the catalog with **Binding Operational Directive 26-04**, which sets mandatory remediation deadlines for US federal agencies once a vulnerability is added. Your business isn't bound by that directive — but the underlying signal (this is confirmed to be exploited, not theoretical) is exactly as useful to a private business as it is to a federal agency.
+
+## Why this beats a generic "patch everything" policy
+
+A patch management policy that treats every update as equally urgent tends to produce one of two failure modes: either nothing gets patched on schedule because the backlog is overwhelming, or patches get applied in a rush without testing, which occasionally breaks something in production. Using the KEV catalog as a prioritisation layer avoids both:
+
+1. **Confirmed exploitation beats theoretical severity.** A vulnerability with a lower severity score that's on the KEV list is a more urgent real-world risk than a higher-scored vulnerability with no known exploitation. Attackers go after what's already proven to work.
+2. **It's vendor-neutral.** You don't need a subscription to every vendor's threat feed. CISA's list already aggregates across vendors.
+3. **It tells you what to do next, not just what's wrong.** Most KEV entries link to the vendor's official advisory and a remediation deadline, which is a ready-made action item rather than another thing to research.
+
+## A practical patch prioritisation approach for SMEs
+
+You don't need a dedicated security team to use this. A workable process looks like:
+
+- **Know what you're running.** You can't prioritise patches for software you don't know you have. A basic asset inventory — servers, key business applications, network devices, cloud services — is the prerequisite for everything else.
+- **Check new assets and major software against the KEV catalog on a regular cadence** (weekly is reasonable for most SMEs), not just when a vendor sends an alert.
+- **Prioritise internet-facing systems first.** A KEV-listed vulnerability on a public web server or VPN gateway is a materially higher near-term risk than the same vulnerability on an internal-only machine with no direct internet exposure.
+- **Set a real deadline once something matches**, and treat it the way CISA's own federal directive does: days, not "whenever we get to it."
+- **Don't stop patching everything else.** The KEV catalog tells you what's urgent, not what's optional. Routine patching on a monthly cycle still matters for the vulnerabilities that haven't been weaponised yet.
+
+## Security recommendations
+
+- Bookmark the [CISA KEV catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) and check it against your software inventory on a set schedule.
+- Maintain a current, honest asset inventory — this is the single most common gap we see, and it undermines every other step.
+- Segment and prioritise internet-facing systems for the fastest patch cycle.
+- Where a full internal patch program isn't realistic, a periodic external vulnerability assessment closes the gap by checking what's actually exposed from outside.
+
+## Key takeaways
+
+Patch management doesn't have to mean patching everything immediately — it means patching the right things first. CISA's KEV catalog is a free, continuously updated, vendor-neutral signal built specifically to answer "what's actually being exploited right now," and it's available to any business, not just US federal agencies. Combined with a basic asset inventory and a bias toward internet-facing systems, it turns an overwhelming backlog into a manageable, evidence-based priority list.
+
+Shahid Security's [Vulnerability Assessment & Security Audit](/services/vulnerability-assessment/) service maps your actual attack surface and cross-checks it against known-exploited and misconfigured issues, so you have a prioritised, realistic fix list rather than a wall of "critical" alerts.
+
+**Not sure what's actually exposed on your network right now?** [Book a free consultation](/book/) and we'll help you find out.
+
+---
+
+Sources: [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog), CISA KEV catalog alerts, September 2026.

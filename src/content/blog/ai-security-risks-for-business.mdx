@@ -1,0 +1,57 @@
+---
+title: 'AI Security Risks Every Business Should Understand'
+description: 'Adopting AI tools introduces a specific set of security risks — prompt injection, data leakage, and unsanctioned "shadow AI" use — distinct from traditional software risk. Here is what actually matters.'
+publishedAt: 2026-09-26
+tags: ['ai-security', 'ai-automation', 'data-protection']
+author: Shahid Iqbal
+relatedService: ai-automation
+relatedPosts: ['api-security-best-practices', 'business-email-compromise-2026']
+faqs:
+  - q: What is prompt injection, in plain language?
+    a: 'Prompt injection is when an attacker hides instructions inside content an AI system will process — a document, a webpage, an email — hoping the AI follows those hidden instructions instead of (or in addition to) the task its owner actually intended. OWASP ranks it as the top security risk for large language model applications.'
+  - q: What is "shadow AI," and why is it a security risk?
+    a: 'Shadow AI refers to employees using AI tools the business has not approved, reviewed, or configured securely — often to save time on a task. The risk is not the AI tool itself, but that sensitive company or client data may be pasted into a public tool with no visibility into how that data is stored, used, or retained.'
+  - q: Does NIST have official guidance on generative AI risk?
+    a: 'Yes. NIST published the Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (NIST-AI-600-1), which explicitly identifies prompt injection and data poisoning as information security risks, and supply chain integrity as a related concern for organisations building on third-party AI models.'
+draft: false
+---
+
+Adopting AI tools — whether a customer support assistant, an internal automation, or an AI coding assistant — introduces a set of security risks that are genuinely different from traditional software risk, not just a new flavour of the same old problems. Understanding the specific, current shape of that risk is more useful than either blanket AI enthusiasm or blanket AI avoidance.
+
+## The reference points: NIST and OWASP
+
+Two authoritative sources define the current shape of AI security risk. **NIST's AI Risk Management Framework**, and specifically its **Generative AI Profile (NIST-AI-600-1)**, explicitly identifies direct and indirect prompt injection and data poisoning as information security risks, and flags supply chain integrity — the trustworthiness of the models and components an application is built on — as a related value-chain risk. NIST's broader AI 100-2 taxonomy classifies attacks against AI systems into four categories: evasion, poisoning, privacy, and misuse.
+
+On the application security side, **OWASP's Top 10 for Large Language Model Applications** now lists **prompt injection as LLM01** — the single most significant risk category — and the 2025 edition added new categories including **System Prompt Leakage** and **Vector and Embedding Weaknesses**, reflecting how retrieval-augmented and increasingly autonomous ("agentic") AI systems have expanded what there is to attack.
+
+## The three risks that matter most for a business, not just a developer
+
+**Prompt injection.** An AI system that reads external content — a customer's uploaded document, a webpage it's summarising, an incoming email it's triaging — can be manipulated if that content contains hidden instructions designed to redirect the AI's behaviour. This matters commercially wherever an AI tool acts on external input with any degree of autonomy: an AI assistant that can send emails, update records, or trigger a workflow based on what it reads is a meaningfully different risk than one that only displays a summary for a human to review.
+
+**Data leakage through AI tools.** Many AI tools, particularly consumer-facing ones, don't offer strong guarantees about how submitted data is stored, retained, or used — including, in some cases, for further model training. An employee pasting client contract details, source code, or financial data into an AI tool to "save time" can inadvertently expose that data outside the business's control, with no way to retract it afterward.
+
+**Shadow AI.** This is the adoption pattern that makes the first two risks harder to manage: employees adopting AI tools the business hasn't reviewed, approved, or configured, simply because the tool is useful and easy to access. The risk isn't necessarily the tool itself — it's the complete lack of visibility into what data has gone where, which makes even asking "have we been exposed?" difficult to answer after the fact.
+
+## Why this connects directly to how AI automation should be built
+
+None of this is an argument against using AI. It's an argument for building AI automation with the same security discipline applied to any other system handling business data — arguably more, given how new and fast-moving the risk landscape is. Concretely, that means designing for data minimisation (each step of an automation only sees the data it actually needs), human review on high-stakes actions rather than full autonomy by default, and clear documentation of exactly which third-party AI services are involved and what happens to data sent to them.
+
+## Security recommendations
+
+- **Establish an approved-tools policy for AI use**, and make the approved option genuinely convenient — shadow AI usually happens because the sanctioned alternative is slower or missing entirely, not out of malice.
+- **Treat AI-generated actions with consequences (sending communications, modifying records, approving transactions) as requiring human review**, at least until an automation has a strong track record and a low-consequence failure mode.
+- **Validate content before an AI system acts on it**, the same way you'd validate any external input — this is the direct defence against prompt injection.
+- **Document data flows for every AI tool in use**, including what's sent to third-party model providers and under what terms, so you can actually answer "where does our data go" when asked.
+- **Review AI tool contracts for data retention and training-use terms** before adopting them for anything involving client or sensitive business data.
+
+## Key takeaways
+
+AI security risk in 2026 has a specific, documented shape — prompt injection, data leakage, and unsanctioned shadow AI use — rather than being a vague, generic "AI is risky" concern. NIST and OWASP both treat these as concrete, addressable risks with known mitigations, not unsolvable problems. The businesses getting real value from AI safely are the ones designing automation with data minimisation and human review built in from the start, not adding security as an afterthought.
+
+Shahid Security's [AI Automation](/services/ai-automation/) service builds automation with data privacy and access control designed in from the first step — including human review for high-stakes actions and full documentation of what data an automation can see and do.
+
+**Exploring AI automation for your business and want it built securely from the start?** [Book a free consultation](/book/) to talk through your use case.
+
+---
+
+Sources: [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework), NIST-AI-600-1 Generative AI Profile, OWASP Top 10 for LLM Applications (2025 edition).
