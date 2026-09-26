@@ -105,11 +105,18 @@ export default defineConfig({
     remotePatterns: [],
   },
   build: {
-    // Inline all page CSS instead of an external, render-blocking
-    // stylesheet request — most visits land on a single page from search
-    // or social, so there's little cross-page cache to give up, and the
-    // inlined <style> gets auto-hashed by security.csp above.
-    inlineStylesheets: 'always',
+    // 'auto' lets Astro split the shared Tailwind bundle into a small
+    // number of cacheable external files instead of re-inlining the full
+    // ~100KB+ of CSS into every page. Measured with Lighthouse before
+    // switching from 'always': this was NOT a case where inlining helped
+    // first-load performance — it came out the same or better on FCP/LCP
+    // on every page type tested (smaller HTML to parse offsets the extra
+    // request), and it removes the real cost of the old setup: every
+    // multi-page visit (the site's own browse -> service -> contact
+    // funnel) re-downloaded the same CSS on every page instead of hitting
+    // cache. CSP needs no change either way — style-src already allows
+    // 'self', which covers external stylesheets without hashing.
+    inlineStylesheets: 'auto',
   },
   trailingSlash: 'always',
 });
