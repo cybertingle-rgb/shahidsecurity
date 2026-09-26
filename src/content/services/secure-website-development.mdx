@@ -26,8 +26,27 @@ process:
     text: We build with security headers, sensible defaults and no plugin sprawl.
   - title: Launch & handover
     text: Go live with documentation your team can actually use.
-faqs: []
-seoTitle: Secure Website Development | Shahid Security
+methodology:
+  - 'Secure-by-default build: modern, static-first architecture with security headers (CSP, HSTS and friends) and hardened hosting configured from the first commit.'
+  - "Migration review: if you're moving off WordPress or another CMS, we audit what's actually worth carrying over — content and functionality, not old plugins and vulnerabilities."
+  - 'Code review as we build: changes are checked for common web vulnerabilities such as injection, broken auth and exposed secrets throughout development.'
+  - 'Pre-launch check: a final review of headers, configuration and common weaknesses before the site goes live.'
+expectedOutcomes:
+  - 'A fast, modern website with no legacy plugin sprawl to patch every month.'
+  - 'Security headers and hardened hosting configured correctly from day one.'
+  - 'Documentation your team, or the next developer, can actually follow.'
+limitations:
+  - 'Security is designed in throughout the build, but an independent penetration test is recommended before launch for sites handling sensitive data or payments.'
+  - 'Ongoing security depends on keeping dependencies and hosting updated after handover — this can be covered under Security Monitoring & Awareness Training if you want it managed.'
+  - 'Scope such as page count, integrations and content migration volume is agreed upfront; significant scope changes are re-quoted.'
+faqs:
+  - q: Do you use WordPress?
+    a: Only if you specifically want it, and if so we harden it properly. Our default recommendation is a modern static-first build, which removes most of the plugin-related risk WordPress sites carry.
+  - q: Can you migrate our existing content?
+    a: Yes — we review what's worth carrying over during scoping, since old CMS exports often carry outdated or unused content along with the good stuff.
+  - q: Do you offer ongoing maintenance after launch?
+    a: We can hand over full documentation for your team, or cover ongoing monitoring and updates under Security Monitoring & Awareness Training — your choice.
+seoTitle: Secure Website Development
 seoDescription: Fast, modern websites built with security headers and hardened hosting from day one — including migration off vulnerable WordPress installs.
 ---
 

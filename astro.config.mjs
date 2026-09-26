@@ -4,16 +4,42 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import tailwindcss from '@tailwindcss/vite';
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import matter from 'gray-matter';
 
 const site = 'https://shahidiqbal.com';
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url));
 const caseStudiesDir = fileURLToPath(new URL('./src/content/caseStudies', import.meta.url));
+const blogDir = fileURLToPath(new URL('./src/content/blog', import.meta.url));
 const hasCaseStudies = readdirSync(caseStudiesDir).some(
   (f) => f.endsWith('.mdx') || f.endsWith('.md'),
 );
+
+// Real lastmod dates, sourced from content frontmatter — only for the
+// collections that actually track publishedAt/updatedAt. Everything else
+// (services, static pages) has no genuine "last changed" date to report,
+// and Google explicitly recommends omitting lastmod over guessing one.
+/** @param {string} dir @param {string} pathPrefix */
+function collectLastmods(dir, pathPrefix) {
+  const map = new Map();
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.mdx') && !file.endsWith('.md')) continue;
+    const { data } = matter(readFileSync(`${dir}/${file}`, 'utf8'));
+    if (data.draft) continue;
+    const date = data.updatedAt ?? data.publishedAt;
+    if (!date) continue;
+    const slug = file.replace(/\.mdx?$/, '');
+    map.set(`${pathPrefix}${slug}/`, new Date(date).toISOString());
+  }
+  return map;
+}
+
+const lastmodByPath = new Map([
+  ...collectLastmods(caseStudiesDir, '/case-studies/'),
+  ...collectLastmods(blogDir, '/blog/'),
+]);
 
 // Hosting target: Hostinger shared hosting (static export uploaded to public_html).
 // No SSR adapter — the contact form is handled by a plain PHP script (public/api/contact.php),
@@ -68,6 +94,11 @@ export default defineConfig({
         !page.includes('/contact/thanks') &&
         !page.includes('/book/thanks') &&
         (hasCaseStudies || !page.includes('/case-studies')),
+      serialize(item) {
+        const path = new URL(item.url).pathname;
+        const lastmod = lastmodByPath.get(path);
+        return lastmod ? { ...item, lastmod } : item;
+      },
     }),
   ],
   image: {

@@ -29,8 +29,27 @@ process:
     text: We test safely, with written authorisation, inside agreed boundaries.
   - title: Report & fix
     text: Plain-language report, prioritised by risk, and a free re-test after you fix.
-faqs: []
-seoTitle: Network & Cloud Security | Shahid Security
+methodology:
+  - 'Configuration review: firewalls, routers, VPN and remote access setup checked against known-secure baselines.'
+  - 'Access model review: identity and role-based access control mapped against who actually needs what.'
+  - 'Cloud review: AWS/Azure/GCP configuration checked against CIS benchmarks and common misconfiguration patterns such as public storage or over-permissioned roles.'
+  - 'Hardening: changes are applied in agreed maintenance windows, with a documented before/after so you can see exactly what changed.'
+expectedOutcomes:
+  - 'A reduced attack surface: fewer open ports, tighter access, no default or forgotten configurations.'
+  - 'A documented access model you can hand to a new hire or auditor.'
+  - 'Encryption and hardening applied consistently across on-prem and cloud.'
+limitations:
+  - 'Hardening is based on the environment and access provided at the time of the engagement; new servers or services added later need their own review.'
+  - 'Some changes, such as enforcing MFA, may require coordination with your team to avoid disrupting daily operations — we plan these together.'
+  - 'This service secures configuration and infrastructure; it does not replace application-level testing (see Penetration Testing).'
+faqs:
+  - q: Will this cause downtime?
+    a: We schedule changes in agreed maintenance windows and test rollback steps first. Most hardening work is applied without user-facing downtime.
+  - q: Do you support multi-cloud setups?
+    a: Yes — we review AWS, Azure and GCP individually against their own best-practice benchmarks, and check consistency where you run more than one.
+  - q: Can you work with our existing IT provider?
+    a: Yes. We're happy to hand off a documented plan for your existing team or provider to implement, or to implement it ourselves.
+seoTitle: Network & Cloud Security
 seoDescription: Firewall hardening, secure remote access, identity and access control, encryption and cloud configuration review for on-prem and cloud environments.
 ---
 

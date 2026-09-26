@@ -19,6 +19,9 @@ const services = defineCollection({
         text: z.string(),
       }),
     ),
+    methodology: z.array(z.string()),
+    expectedOutcomes: z.array(z.string()),
+    limitations: z.array(z.string()),
     faqs: z.array(
       z.object({
         q: z.string(),

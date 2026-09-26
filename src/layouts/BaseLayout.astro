@@ -9,7 +9,7 @@ import PandaMascot from '@/components/PandaMascot.astro';
 import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
 import { translations } from '@/lib/i18n';
-import { absoluteUrl, pageTitle } from '@/lib/seo';
+import { absoluteUrl, pageTitle, twitterHandle } from '@/lib/seo';
 import { organizationSchema, websiteSchema, webPageSchema } from '@/lib/schema';
 
 interface Props {
@@ -97,6 +97,7 @@ const allJsonLd = [
     )}
     {ogType === 'article' && <meta property="article:author" content={site.founder} />}
     <meta name="twitter:card" content="summary_large_image" />
+    {twitterHandle() && <meta name="twitter:site" content={twitterHandle()} />}
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
