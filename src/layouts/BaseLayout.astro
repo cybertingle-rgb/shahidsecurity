@@ -28,6 +28,8 @@ interface Props {
   ogType?: 'website' | 'article';
   articlePublishedAt?: Date;
   articleModifiedAt?: Date;
+  /** Omit the canonical tag — for pages like 404 that have no single real URL. */
+  noCanonical?: boolean;
 }
 
 const {
@@ -43,6 +45,7 @@ const {
   ogType = 'website',
   articlePublishedAt,
   articleModifiedAt,
+  noCanonical = false,
 } = Astro.props;
 
 const canonical = absoluteUrl(path);
@@ -70,7 +73,7 @@ const allJsonLd = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {!noCanonical && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex, follow" />}
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
