@@ -28,6 +28,11 @@ const relatedCaseStudies = (await getCollection('caseStudies', ({ data }) => !da
   (cs) => cs.data.services.some((s) => s.toLowerCase() === service.data.title.toLowerCase()),
 );
 
+const authorizationSafety =
+  service.data.group === 'security'
+    ? 'Every engagement starts with written authorisation and, where appropriate, a signed NDA — we never test a system without the owner’s explicit permission. Testing is scoped and scheduled with you in advance, avoids destructive techniques by default, and stays inside the boundaries agreed before any work begins.'
+    : 'Every engagement starts with a signed NDA before we get access to your systems or data. We follow secure coding and data-handling practices throughout, and any security testing of what we build — code review, pre-launch penetration testing — is scoped and agreed with you in advance.';
+
 const jsonLd: object[] = [
   serviceSchema({ name: service.data.title, description: service.data.shortDescription, path }),
 ];
@@ -81,6 +86,20 @@ if (faq) jsonLd.push(faq);
           ))}
         </ul>
 
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">
+          Our methodology
+        </h2>
+        <ol class="mt-4 space-y-3">
+          {service.data.methodology.map((item, index) => (
+            <li class="flex items-start gap-3 text-sm text-(--color-text-muted)">
+              <span class="mt-0.5 flex size-5 flex-shrink-0 items-center justify-center rounded-full border border-(--color-neon)/40 font-mono text-[0.65rem] text-(--color-neon)">
+                {index + 1}
+              </span>
+              {item}
+            </li>
+          ))}
+        </ol>
+
         <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">What you get</h2>
         <ul class="mt-4 space-y-2">
           {service.data.deliverables.map((item) => (
@@ -88,6 +107,37 @@ if (faq) jsonLd.push(faq);
               <Icon
                 name="lucide:file-check-2"
                 class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)"
+                aria-hidden="true"
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">What to expect</h2>
+        <ul class="mt-4 space-y-2">
+          {service.data.expectedOutcomes.map((item) => (
+            <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+              <Icon
+                name="lucide:trending-up"
+                class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)"
+                aria-hidden="true"
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">Limitations</h2>
+        <p class="mt-2 text-sm text-(--color-text-muted)">
+          Honest scope, not a sales pitch — here's what this service doesn't cover.
+        </p>
+        <ul class="mt-4 space-y-2">
+          {service.data.limitations.map((item) => (
+            <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+              <Icon
+                name="lucide:info"
+                class="mt-0.5 size-4 flex-shrink-0 text-(--color-text-muted)"
                 aria-hidden="true"
               />
               {item}
@@ -120,6 +170,22 @@ if (faq) jsonLd.push(faq);
     <SectionHeading eyebrow="// PROCESS" title="How this engagement works" />
     <div class="mt-10">
       <ProcessSteps steps={service.data.process} />
+    </div>
+  </Section>
+
+  <Section>
+    <div class="glass-card corner-brackets flex items-start gap-4 p-6 sm:p-8">
+      <Icon
+        name="lucide:shield-check"
+        class="mt-1 size-6 flex-shrink-0 text-(--color-neon)"
+        aria-hidden="true"
+      />
+      <div>
+        <h2 class="font-display text-lg font-semibold text-(--color-text)">
+          Authorisation &amp; safety
+        </h2>
+        <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{authorizationSafety}</p>
+      </div>
     </div>
   </Section>
 

@@ -15,3 +15,9 @@ export function absoluteUrl(path: string) {
 export function pageTitle(title: string, isHome = false) {
   return isHome ? title : `${title} | ${site.name}`;
 }
+
+/** Derives an "@handle" from the site's X/Twitter profile URL for twitter:site. */
+export function twitterHandle() {
+  const match = site.social.x.match(/x\.com\/([^/?#]+)/);
+  return match ? `@${match[1]}` : undefined;
+}
