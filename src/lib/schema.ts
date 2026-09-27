@@ -17,8 +17,7 @@ export function organizationSchema() {
     telephone: site.phone,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: site.registeredAddress.street,
-      addressLocality: site.registeredAddress.district.replace('District ', ''),
+      addressLocality: site.registeredAddress.locality,
       addressRegion: site.registeredAddress.region,
       addressCountry: site.registeredAddress.country,
     },

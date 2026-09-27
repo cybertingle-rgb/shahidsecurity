@@ -15,25 +15,21 @@ export const site = {
   phone: '1101011011101110000000111110010110001110',
   phoneDisplay: '1101011011101110000000111110010110001110',
   whatsappNumber: '1101011011101110000000111110010110001110',
-  // Public-facing location shown on the Contact page. Kept deliberately general
-  // (no unconfirmed specific city) — the registered office below is the exact
-  // legal address, used on invoices/legal pages instead.
+  // Public-facing location shown on the Contact page.
   address: {
-    locality: 'Khanewal',
-    region: 'Punjab',
+    locality: 'Islamabad',
+    region: 'Islamabad Capital Territory',
     country: 'PK',
     countryName: 'Pakistan',
-    displayLine: 'Pakistan',
+    displayLine: 'Islamabad, Pakistan',
   },
   // Registered office — used in JSON-LD, footer legal line and invoices, not the hero/contact cards.
   registeredAddress: {
-    street: 'Chak 105/15-L, Vanjari',
-    tehsil: 'Tehsil Mian Channu',
-    district: 'District Khanewal',
-    region: 'Punjab',
+    locality: 'Islamabad',
+    region: 'Islamabad Capital Territory',
     country: 'PK',
     countryName: 'Pakistan',
-    full: 'Chak 105/15-L, Vanjari, Tehsil Mian Channu, District Khanewal, Punjab, Pakistan',
+    full: 'Islamabad, Pakistan',
   },
   hours: {
     days: 'Monday–Saturday',
