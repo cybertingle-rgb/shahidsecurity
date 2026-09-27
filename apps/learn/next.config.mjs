@@ -5,6 +5,16 @@ const nextConfig = {
   // (Hostinger's "Setup Node.js App") without shipping the whole workspace.
   output: 'standalone',
   poweredByHeader: false,
+  // The standalone build only bundles files actually imported by traced
+  // code — the drizzle-kit migrator reads these SQL files from disk at
+  // runtime (migrationsFolder: './drizzle'), so they'd otherwise be
+  // silently missing from the deployed output. Needed by
+  // /api/internal/migrate, which runs migrations from inside the already
+  // -running server on hosts where there's no separate shell access to
+  // the build environment (see that route's comment for why it exists).
+  outputFileTracingIncludes: {
+    '/api/internal/migrate/route': ['./drizzle/**/*'],
+  },
   async headers() {
     return [
       {
