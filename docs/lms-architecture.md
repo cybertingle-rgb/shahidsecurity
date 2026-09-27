@@ -22,8 +22,19 @@ This is a real cost and ops decision (new hosting, new domain/subdomain DNS reco
 | ORM/migrations | **Drizzle ORM** (or Prisma — either is fine; Drizzle is lighter and SQL-closer) | Type-safe queries, explicit migrations you can review before running, no auto-magic against production data |
 | Auth | A dedicated auth library (e.g. **Lucia** or **Auth.js**) rather than hand-rolled sessions | Password hashing, session management, and CSRF handling are exactly the kind of code a security-focused business shouldn't reinvent |
 | Background jobs (email sending, webhook retries) | Start with a simple DB-backed job queue; add **BullMQ + Redis** only once volume justifies it | V1 volume doesn't need a message broker; add it when it does, not before |
-| Hosting | **Railway or Render** (persistent Node process + managed Postgres + cron, in one place) | Both support zero-downtime deploys, real migrations, and background workers — none of which shared hosting offers |
-| Domain | `learn.shahidiqbal.com` (subdomain), DNS managed wherever `shahidiqbal.com`'s DNS already lives | Keeps the LMS clearly part of the Shahid Security brand without touching the existing site's hosting |
+| Hosting | **Hostinger, via hPanel's "Setup Node.js App" feature** — updated 2026-09-27, see note below | You've already created the `learn.shahidiqbal.com` subdomain in hPanel (mapped to `/home/u397210942/domains/shahidiqbal.com/public_html/learn`), and chosen to run the app there rather than provision separate hosting — see `LMS_DECISIONS.md` addendum |
+| Database | **PostgreSQL, from an external managed provider** (e.g. Neon, Supabase, or a database-only plan from Railway/Render/Aiven/ElephantSQL) | Hostinger shared hosting plans provide MySQL/MariaDB, not Postgres, so the database can't live on the same account as the app process — `DATABASE_URL` just needs to be reachable over the internet with TLS, which works from any host, including a Hostinger Node.js app |
+| Domain | `learn.shahidiqbal.com` (subdomain), already created in hPanel | Keeps the LMS clearly part of the Shahid Security brand, on the same hosting account as the existing site |
+
+> **2026-09-27 update — hosting decision changed from the original recommendation.** This section originally recommended Railway or Render specifically to get a persistent Node process, managed Postgres, and background-job support in one place, because shared hosting historically lacked all three. You've since created the `learn` subdomain in Hostinger's hPanel and decided to run the Next.js app there via its Node.js App feature (LiteSpeed's Node.js Selector/Passenger), keeping everything on one hosting account. This is workable for V1's scope, with caveats that need verifying before Phase 2 provisioning, not assumed:
+> - **Confirm the plan actually has "Setup Node.js App" in hPanel** and which Node.js versions it offers — Next.js needs a reasonably current LTS (18.17+ or later depending on the exact Next.js version chosen).
+> - **Postgres still comes from elsewhere** (see the Database row above) — this was already true of every hosting option, but it's worth restating since "run it on Hostinger" doesn't mean "the database is on Hostinger too."
+> - **Resource limits**: shared/Node-app hosting plans cap CPU/RAM/concurrent processes more tightly than a dedicated app host — fine for V1's expected traffic, worth re-checking before any real marketing push.
+> - **Deploys are not zero-downtime** the way Railway/Render's are — an hPanel Node app restart briefly interrupts the app; acceptable for V1, flagged as a Phase 13 (performance) revisit item if it becomes a real issue.
+> - **Outbound connections**: the app needs outbound HTTPS to the external Postgres provider, the email provider, and the payment provider's API — confirm the hosting plan doesn't block outbound traffic on the ports/hosts those services need, before Phase 2 begins.
+> - **Shared account blast radius**: the LMS app and the existing static site now share one hosting account's overall resource ceiling (even though they're separate subdomains/directories/processes) — a traffic spike on one could theoretically affect account-wide limits. Low risk at V1 scale, worth monitoring rather than ignoring.
+>
+> Full detail in `LMS_DECISIONS.md`'s addendum and `LMS_PRE_PHASE_2_REVIEW.md`.
 | Transactional email | A dedicated provider (e.g. Resend, Postmark, SES) — **not** the existing PHPMailer/SMTP setup | That setup is built for four low-volume contact-form emails, not verification/receipt/reminder volume at scale, and mixing marketing-site SMTP credentials into a new app is exactly the kind of cross-contamination worth avoiding |
 
 ## 3. Route map (adapted from the brief to this architecture)
@@ -82,7 +93,7 @@ Kept deliberately simple for V1, to avoid building a fragile real-time sync laye
 ## 7. What this proposal deliberately leaves open
 
 - **Which payment providers** — needs real research against current API docs, not assumed (`lms-payments.md`).
-- **Exact hosting invoice** — Railway/Render both have usage-based pricing; getting a real quote at expected scale is a business decision for Shahid, not something to pre-commit to here.
-- **Whether Hostinger's shared plan includes MySQL** — if it does, and Shahid strongly prefers to avoid new hosting cost, a PHP+MySQL-on-existing-hosting path is still technically possible; it's not recommended here, but it's not ruled impossible either. Worth a direct conversation before Phase 2 starts.
+- **Which external Postgres provider** — Neon, Supabase, and a database-only Railway/Render/Aiven/ElephantSQL plan are all workable; picking one is a real comparison (free-tier limits, backup policy, connection-pooling support for a Node app on shared hosting) worth doing right before Phase 2 provisioning, not assumed here.
+- **Confirming Hostinger's Node.js App feature and resource limits** (see the update note in §2) before Phase 2 provisioning begins — this is now the load-bearing hosting decision instead of Railway/Render.
 
 Everything from here (database schema, auth, payments, security, deployment) is detailed in the companion documents in this folder.
