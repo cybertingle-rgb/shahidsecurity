@@ -1,6 +1,6 @@
 # Learn with Shahid — Progress
 
-**Current phase:** Phase 3 — Admin dashboard. **Built, tested (real browser automation, not just unit tests), and verified locally against MySQL. Real deployment of Phases 2–3 together is blocked on one thing only you can do (below) — everything I could build without it is done.**
+**Current phase:** Phase 3 — Admin dashboard, code complete. **Built, tested (real browser automation, not just unit tests), and verified locally against MySQL. Real deployment is on hold while you transfer the domain to a new host with a higher plan (Hostinger's Node.js hosting turned out to need a plan upgrade) — see "Hosting update" below. Local development continues regardless.**
 
 ## Completed
 
@@ -27,25 +27,34 @@ Full admin management UI + Server Actions for every V1 admin area named in `docs
 ## Mid-Phase-2 change: PostgreSQL → MySQL (for context)
 You asked why an external Postgres provider was needed given you already have Hostinger hosting. The whole database layer was rewritten to MySQL so everything runs on your existing account — see the Phase 2 commit and `apps/learn/README.md`'s "Two database users" section for the one real trade-off that came out of it (MySQL needs two DB users and `GRANT OPTION` to make `audit_logs` genuinely tamper-proof at the database level; unconfirmed whether your plan allows it).
 
+## Hosting update (2026-09-27): moving off Hostinger
+
+Turns out Hostinger's Node.js "Web App" hosting is locked on your current plan — it requires Business or a Cloud plan (Cloud Startup/Professional/Enterprise), not available on Premium/entry shared hosting. Rather than upgrade Hostinger, **you're transferring the domain to a different host where you already have a higher plan.** Plan, as you described it:
+
+1. Complete the domain transfer to the new host.
+2. Connect that host's GitHub integration and get `shahidiqbal.com` (the marketing site) deploying there first.
+3. Once that's solid, bring `learn.shahidiqbal.com` (this app) over the same way.
+
+**I'm not touching DNS, hosting configs, or either deploy workflow until the transfer is done and you share the new host's details** — domain transfers are delicate and I don't want to interfere with one mid-flight. One likely upside once we get there: many modern hosts (including Hostinger's own Business/Cloud tier, for what it's worth) auto-deploy directly from a connected GitHub repo, which would replace the manual SSH/rsync + untested Passenger-restart-file approach `deploy-lms.yml` currently uses with something more reliable.
+
 ## What I could not do myself (not a permission gate — a capability one)
 
-I have no browser and no external account credentials in this sandbox. One thing blocks turning any of this from "built and tested locally" into "actually deployed":
+I have no browser and no external account credentials in this sandbox. Real deployment of Phases 2–3 is on hold until:
 
-1. **Hostinger's hPanel "Setup Node.js App" wizard**, run once against the subdomain you already created — sets the startup file to `server.js` and confirms the Node.js version available. While there, also check whether your MySQL admin user has `GRANT OPTION` (see `apps/learn/README.md`'s "Two database users" section for exactly what to check and the fallback if it isn't available).
+1. **The domain transfer completes** and `shahidiqbal.com` is deploying on the new host.
+2. **You share the new host's deployment mechanism** (GitHub auto-deploy vs. SSH, its Node.js version support, and whether it's MySQL or something else) so I can update `.github/workflows/deploy.yml` and then `deploy-lms.yml`/`apps/learn`'s database layer to match — worth revisiting the MySQL-vs-Postgres call too if the new host makes Postgres easier than Hostinger did.
 
-Full instructions, plus the exact GitHub secrets to add (`LMS_DATABASE_ADMIN_URL`, `LMS_DATABASE_URL`, `LMS_SESSION_SECRET`, `LMS_APP_URL`) and an honest note about the untested Passenger-restart-file convention the deploy workflow uses, are in `apps/learn/README.md`.
-
-Until that's done, `deploy-lms.yml` will run on every push to `apps/learn/**` and fail at the build step — expected, harmless (touches nothing on the live marketing site), and not something to work around by faking a value.
+`deploy-lms.yml` (still pointed at Hostinger) will keep failing on every push to `apps/learn/**` until this is sorted — expected, harmless (touches nothing live), not something to work around by faking a value.
 
 ## Next
 
-1. You: complete the hPanel Node.js App setup and check the `GRANT OPTION` question, then add the four GitHub secrets.
-2. Me, once those secrets exist: confirm the first real deploy succeeds, verify the restart mechanism actually works, then continue with Phase 4 (student dashboard) per `LMS_IMPLEMENTATION_PLAN.md` — no new infrastructure needed for Phases 4–6.
+1. You: finish the domain transfer, get `shahidiqbal.com` live on the new host via its GitHub integration, then tell me so I can update the deploy workflows.
+2. Me, in the meantime: keep building Phase 4 (student dashboard) and beyond against the local dev database — none of that depends on where it eventually deploys.
 3. Payment provider and transactional email provider choices remain open, needed by Phase 7, not blocking anything before it.
 
 ## Blocked
 
-Real deployment is blocked on the item above. Nothing else is blocked — Phase 4 onward can continue against the local dev database regardless.
+Real deployment is blocked on the domain transfer + new host details above. Nothing else is blocked — Phase 4 onward can continue against the local dev database regardless.
 
 ## Not started
 
