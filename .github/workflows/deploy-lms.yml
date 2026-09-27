@@ -1,0 +1,100 @@
+name: Deploy Learn with Shahid (LMS)
+
+# Separate workflow, separate trigger path, separate deploy target from
+# deploy.yml (the marketing site) — the two apps share a repo and a
+# Hostinger account but nothing else, per docs/LMS_DECISIONS.md #1/#7.
+# This workflow only runs when apps/learn/** actually changes.
+on:
+  push:
+    branches:
+      - claude/wizardly-keller-yg0bj7
+    paths:
+      - 'apps/learn/**'
+      - '.github/workflows/deploy-lms.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-lms
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    # Required secrets (see docs/LMS_PRE_PHASE_2_REVIEW.md §11):
+    #   DATABASE_URL       — external managed Postgres (staging/production)
+    #   SESSION_SECRET     — random, 32+ chars, distinct from any dev value
+    #   NEXT_PUBLIC_APP_URL — e.g. https://learn.shahidiqbal.com
+    # Reused from the existing marketing-site workflow (same Hostinger
+    # account, different target path — see the deploy step below):
+    #   DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: apps/learn
+        env:
+          DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
+          SESSION_SECRET: ${{ secrets.LMS_SESSION_SECRET }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.LMS_APP_URL }}
+        run: pnpm build
+
+      - name: Assemble standalone deploy bundle
+        # Next.js's `output: 'standalone'` produces a trimmed server +
+        # node_modules in .next/standalone, but deliberately does NOT copy
+        # static assets or public/ into it — that's a manual step per
+        # Next.js's own documented deployment instructions.
+        run: |
+          cp -r apps/learn/.next/static apps/learn/.next/standalone/.next/static
+          if [ -d apps/learn/public ]; then cp -r apps/learn/public apps/learn/.next/standalone/public; fi
+
+      - name: Run pending database migrations
+        working-directory: apps/learn
+        env:
+          DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
+        run: pnpm db:migrate
+
+      - name: Apply audit_logs insert-only grant (idempotent)
+        working-directory: apps/learn
+        env:
+          DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
+        run: pnpm db:apply-grants
+
+      - name: Deploy standalone bundle over SSH
+        uses: easingthemes/ssh-deploy@v6
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
+          REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
+          REMOTE_USER: ${{ secrets.DEPLOY_USER }}
+          # The subdomain directory you created in hPanel — a sibling of
+          # the marketing site's public_html, never inside it.
+          TARGET: ${{ secrets.DEPLOY_LMS_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/learn' }}
+          SOURCE: apps/learn/.next/standalone/
+          ARGS: '-rltzv --delete'
+
+      - name: Restart the app (Passenger convention — verify this actually works in hPanel)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            APP_DIR="${{ secrets.DEPLOY_LMS_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/learn' }}"
+            mkdir -p "$APP_DIR/tmp"
+            touch "$APP_DIR/tmp/restart.txt"
