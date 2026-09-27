@@ -65,7 +65,9 @@
     <circle class="doodle-pulse" cx="130" cy="60" r="3"></circle>
   </svg>
 
-  <div class="ambient-doodle-glow" data-ambient-glow></div>
+  <div class="cursor-ring" data-cursor-ring>
+    <span class="cursor-ring-spin"></span>
+  </div>
 </div>
 
 <style>
@@ -210,21 +212,54 @@
     }
   }
 
-  .ambient-doodle-glow {
+  /* A small ring that tracks the pointer and continuously spins in
+     place — a "scanning" cursor accent rather than the old wide
+     radial glow. Translated to the pointer's exact position on move;
+     the spin itself runs independently of pointer movement. */
+  .cursor-ring {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+    z-index: 5;
+    pointer-events: none;
     opacity: 0;
-    background: radial-gradient(
-      circle 220px at var(--mx, 50%) var(--my, 50%),
-      color-mix(in oklab, var(--color-neon-soft) 30%, transparent),
-      transparent 70%
-    );
-    mix-blend-mode: screen;
     transition: opacity 200ms ease;
+    transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0);
+    mix-blend-mode: screen;
   }
 
-  .ambient-doodle-glow.is-active {
+  .cursor-ring.is-active {
     opacity: 1;
+  }
+
+  .cursor-ring-spin {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      var(--color-neon) 55deg,
+      transparent 100deg,
+      #ff3b6b 180deg,
+      transparent 225deg,
+      #3b9bff 305deg,
+      transparent 360deg
+    );
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    filter: drop-shadow(0 0 5px var(--color-neon-soft));
+    animation: cursor-ring-rotate 1.6s linear infinite;
+  }
+
+  @keyframes cursor-ring-rotate {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -235,23 +270,24 @@
     .doodle-pulse {
       opacity: 0;
     }
+    .cursor-ring-spin {
+      animation: none;
+    }
   }
 </style>
 
 <script>
-  const glow = document.querySelector<HTMLElement>('[data-ambient-glow]');
+  const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (glow && !prefersReducedMotion) {
+  if (ring && !prefersReducedMotion) {
     window.addEventListener('pointermove', (e) => {
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      glow.style.setProperty('--mx', `${x}%`);
-      glow.style.setProperty('--my', `${y}%`);
-      glow.classList.add('is-active');
+      ring.style.setProperty('--cx', `${e.clientX}px`);
+      ring.style.setProperty('--cy', `${e.clientY}px`);
+      ring.classList.add('is-active');
     });
     document.addEventListener('pointerleave', () => {
-      glow.classList.remove('is-active');
+      ring.classList.remove('is-active');
     });
   }
 </script>
