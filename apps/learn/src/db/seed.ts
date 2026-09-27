@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
+import { eq, and } from 'drizzle-orm';
 import * as schema from './schema';
 import { hashPassword } from '../lib/auth/password';
 
@@ -10,6 +10,10 @@ import { hashPassword } from '../lib/auth/password';
  * copy of real student data, per docs/lms-deployment.md's "Environments"
  * section. All accounts use the .test TLD (RFC 2606, reserved and
  * guaranteed never to resolve as a real domain).
+ *
+ * MySQL has no RETURNING clause, so every insert here generates its id
+ * with crypto.randomUUID() up front and uses that value directly, rather
+ * than reading a row back after inserting it.
  */
 
 const DEV_PASSWORD = 'DevPassword123!';
@@ -60,27 +64,29 @@ async function main() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error('DATABASE_URL is required to seed');
 
-  const pool = new Pool({ connectionString });
-  const db = drizzle(pool, { schema });
+  const pool = mysql.createPool({ uri: connectionString, timezone: 'Z' });
+  const db = drizzle(pool, { schema, mode: 'default' });
 
   console.log('Seeding permissions...');
-  const permissionRows = await Promise.all(
-    PERMISSION_KEYS.map((key) =>
-      db.insert(schema.permissions).values({ key }).onConflictDoNothing().returning().then(async (rows) => {
-        if (rows[0]) return rows[0];
-        const [existing] = await db.select().from(schema.permissions).where(eq(schema.permissions.key, key));
-        return existing;
-      }),
-    ),
-  );
+  const permByKey = new Map<string, { id: string; key: string }>();
+  for (const key of PERMISSION_KEYS) {
+    const [existing] = await db.select().from(schema.permissions).where(eq(schema.permissions.key, key));
+    if (existing) {
+      permByKey.set(key, existing);
+      continue;
+    }
+    const id = crypto.randomUUID();
+    await db.insert(schema.permissions).values({ id, key });
+    permByKey.set(key, { id, key });
+  }
 
   console.log('Seeding roles...');
   async function upsertRole(name: string, description: string) {
-    const [inserted] = await db.insert(schema.roles).values({ name, description }).onConflictDoNothing().returning();
-    if (inserted) return inserted;
     const [existing] = await db.select().from(schema.roles).where(eq(schema.roles.name, name));
-    if (!existing) throw new Error(`Failed to insert or find role: ${name}`);
-    return existing;
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    await db.insert(schema.roles).values({ id, name, description });
+    return { id, name, description, createdAt: new Date() };
   }
 
   const superAdminRole = await upsertRole('super_admin', 'Full access to everything.');
@@ -88,17 +94,19 @@ async function main() {
   const instructorRole = await upsertRole('instructor', 'Scoped to their own assigned courses.');
   const studentRole = await upsertRole('student', 'Default role for every registered account.');
 
-  const permByKey = new Map(permissionRows.filter(Boolean).map((p) => [p!.key, p!]));
-
-  async function grant(roleId: string, keys: string[]) {
+  async function grant(roleId: string, keys: readonly string[]) {
     for (const key of keys) {
       const perm = permByKey.get(key);
       if (!perm) continue;
-      await db.insert(schema.rolePermissions).values({ roleId, permissionId: perm.id }).onConflictDoNothing();
+      const [existing] = await db
+        .select()
+        .from(schema.rolePermissions)
+        .where(and(eq(schema.rolePermissions.roleId, roleId), eq(schema.rolePermissions.permissionId, perm.id)));
+      if (!existing) await db.insert(schema.rolePermissions).values({ roleId, permissionId: perm.id });
     }
   }
 
-  await grant(superAdminRole.id, [...PERMISSION_KEYS]);
+  await grant(superAdminRole.id, PERMISSION_KEYS);
   await grant(
     adminRole.id,
     PERMISSION_KEYS.filter((k) => k !== 'roles.manage'),
@@ -109,15 +117,18 @@ async function main() {
 
   console.log('Seeding test users...');
   async function upsertUser(email: string, fullName: string, roleId: string, emailVerified: boolean) {
-    const passwordHash = await hashPassword(DEV_PASSWORD);
-    const [inserted] = await db
-      .insert(schema.users)
-      .values({ email, passwordHash, fullName, emailVerifiedAt: emailVerified ? new Date() : null })
-      .onConflictDoNothing()
-      .returning();
-    const user = inserted ?? (await db.select().from(schema.users).where(eq(schema.users.email, email)))[0];
-    if (!user) throw new Error(`Failed to insert or find user: ${email}`);
-    await db.insert(schema.userRoles).values({ userId: user.id, roleId }).onConflictDoNothing();
+    const [existing] = await db.select().from(schema.users).where(eq(schema.users.email, email));
+    let user = existing;
+    if (!user) {
+      const id = crypto.randomUUID();
+      const passwordHash = await hashPassword(DEV_PASSWORD);
+      await db.insert(schema.users).values({ id, email, passwordHash, fullName, emailVerifiedAt: emailVerified ? new Date() : null });
+      const [inserted] = await db.select().from(schema.users).where(eq(schema.users.id, id));
+      if (!inserted) throw new Error(`Failed to insert user: ${email}`);
+      user = inserted;
+    }
+    const [existingRole] = await db.select().from(schema.userRoles).where(and(eq(schema.userRoles.userId, user.id), eq(schema.userRoles.roleId, roleId)));
+    if (!existingRole) await db.insert(schema.userRoles).values({ userId: user.id, roleId });
     return user;
   }
 
@@ -129,31 +140,28 @@ async function main() {
 
   console.log('Seeding the Learn with Shahid Enrollment product (PKR 800)...');
   const [existingProduct] = await db.select().from(schema.products).where(eq(schema.products.name, 'Learn with Shahid Enrollment'));
-  const enrollmentProduct =
-    existingProduct ??
-    (
-      await db
-        .insert(schema.products)
-        .values({
-          type: 'membership',
-          name: 'Learn with Shahid Enrollment',
-          description: 'Student dashboard, cybersecurity roadmap, eligible learning resources, community access, and announcements.',
-          status: 'active',
-          accessRules: { grants: ['dashboard', 'roadmap', 'community', 'announcements'] },
-        })
-        .returning()
-    )[0];
+  let enrollmentProductId = existingProduct?.id;
+  if (!enrollmentProductId) {
+    enrollmentProductId = crypto.randomUUID();
+    await db.insert(schema.products).values({
+      id: enrollmentProductId,
+      type: 'membership',
+      name: 'Learn with Shahid Enrollment',
+      description: 'Student dashboard, cybersecurity roadmap, eligible learning resources, community access, and announcements.',
+      status: 'active',
+      accessRules: { grants: ['dashboard', 'roadmap', 'community', 'announcements'] },
+    });
+  }
 
-  if (!enrollmentProduct) throw new Error('Failed to insert or find the Learn with Shahid Enrollment product');
-
-  const [existingPrice] = await db.select().from(schema.prices).where(eq(schema.prices.productId, enrollmentProduct.id));
+  const [existingPrice] = await db.select().from(schema.prices).where(eq(schema.prices.productId, enrollmentProductId));
   if (!existingPrice) {
     // 800 PKR stored as 80000 minor units — ISO 4217 gives PKR a 2-decimal
     // minor unit, same convention used for every currency in this table
     // (docs/lms-database.md) so the "never hardcode PKR 800" requirement
     // holds structurally: this is the ONE place the number 800 appears.
     await db.insert(schema.prices).values({
-      productId: enrollmentProduct.id,
+      id: crypto.randomUUID(),
+      productId: enrollmentProductId,
       currencyCode: 'PKR',
       countryCode: null,
       amount: 80000,
@@ -162,36 +170,33 @@ async function main() {
 
   console.log('Seeding a sample course...');
   const [existingInstructorProfile] = await db.select().from(schema.instructors).where(eq(schema.instructors.userId, instructorUser.id));
-  const instructorProfile =
-    existingInstructorProfile ??
-    (
-      await db
-        .insert(schema.instructors)
-        .values({ userId: instructorUser.id, displayName: 'Instructor (seed)', bio: 'Seed data for local development.' })
-        .returning()
-    )[0];
-  if (!instructorProfile) throw new Error('Failed to insert or find the seed instructor profile');
+  let instructorProfileId = existingInstructorProfile?.id;
+  if (!instructorProfileId) {
+    instructorProfileId = crypto.randomUUID();
+    await db
+      .insert(schema.instructors)
+      .values({ id: instructorProfileId, userId: instructorUser.id, displayName: 'Instructor (seed)', bio: 'Seed data for local development.' });
+  }
 
   const [existingCourse] = await db.select().from(schema.courses).where(eq(schema.courses.slug, 'soc-analyst-fundamentals-sample'));
   if (!existingCourse) {
-    const [course] = await db
-      .insert(schema.courses)
-      .values({
-        title: 'SOC Analyst Fundamentals (sample)',
-        slug: 'soc-analyst-fundamentals-sample',
-        shortDescription: 'Seed course for local development and testing only.',
-        instructorId: instructorProfile.id,
-        level: 'beginner',
-        status: 'published',
-        publishedAt: new Date(),
-      })
-      .returning();
-    if (!course) throw new Error('Failed to insert the seed course');
+    const courseId = crypto.randomUUID();
+    await db.insert(schema.courses).values({
+      id: courseId,
+      title: 'SOC Analyst Fundamentals (sample)',
+      slug: 'soc-analyst-fundamentals-sample',
+      shortDescription: 'Seed course for local development and testing only.',
+      instructorId: instructorProfileId,
+      level: 'beginner',
+      status: 'published',
+      publishedAt: new Date(),
+    });
 
-    const [courseModule] = await db.insert(schema.courseModules).values({ courseId: course.id, title: 'Getting started', sortOrder: 0 }).returning();
-    if (!courseModule) throw new Error('Failed to insert the seed course module');
+    const moduleId = crypto.randomUUID();
+    await db.insert(schema.courseModules).values({ id: moduleId, courseId, title: 'Getting started', sortOrder: 0 });
     await db.insert(schema.lessons).values({
-      moduleId: courseModule.id,
+      id: crypto.randomUUID(),
+      moduleId,
       title: 'Welcome',
       type: 'text',
       content: { body: 'Seed lesson content.' },
@@ -205,6 +210,7 @@ async function main() {
   if (existingStages.length === 0) {
     for (const stage of ROADMAP_STAGES) {
       await db.insert(schema.roadmapStages).values({
+        id: crypto.randomUUID(),
         levelNumber: stage.level,
         title: stage.title,
         isRequired: stage.required,
@@ -215,13 +221,12 @@ async function main() {
   }
 
   console.log('Seeding settings...');
-  await db
-    .insert(schema.settings)
-    .values([
-      { key: 'default_enrollment_product_id', value: enrollmentProduct?.id ?? null },
-      { key: 'support_email', value: 'support@shahidiqbal.com' },
-    ])
-    .onConflictDoNothing();
+  async function upsertSetting(key: string, value: unknown) {
+    const [existing] = await db.select().from(schema.settings).where(eq(schema.settings.key, key));
+    if (!existing) await db.insert(schema.settings).values({ id: crypto.randomUUID(), key, value });
+  }
+  await upsertSetting('default_enrollment_product_id', enrollmentProductId);
+  await upsertSetting('support_email', 'support@shahidiqbal.com');
 
   console.log('Seed complete.');
   console.log(`Dev password for all seeded accounts: ${DEV_PASSWORD}`);

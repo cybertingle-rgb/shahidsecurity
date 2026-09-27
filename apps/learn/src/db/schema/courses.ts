@@ -1,88 +1,84 @@
-import { boolean, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, datetime, int, json, mysqlEnum, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
+import { idColumn, fkColumn } from './columns';
 import { users } from './identity';
 
-export const courseLevelEnum = pgEnum('course_level', ['beginner', 'intermediate', 'advanced', 'expert']);
-export const courseStatusEnum = pgEnum('course_status', ['draft', 'review', 'published', 'archived']);
-export const lessonTypeEnum = pgEnum('lesson_type', [
-  'video',
-  'text',
-  'pdf',
-  'image',
-  'code',
-  'quiz',
-  'assignment',
-  'external_resource',
-  'download',
-]);
-export const videoProviderEnum = pgEnum('video_provider', ['youtube_unlisted', 'vimeo', 'cloud_storage', 'other']);
-
-export const instructors = pgTable('instructors', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+export const instructors = mysqlTable('instructors', {
+  id: idColumn(),
+  userId: fkColumn('user_id').references(() => users.id, { onDelete: 'set null' }),
   displayName: text('display_name').notNull(),
   bio: text('bio'),
   photoUrl: text('photo_url'),
   credentialsText: text('credentials_text'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
 });
 
-export const courses = pgTable('courses', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const courses = mysqlTable('courses', {
+  id: idColumn(),
   title: text('title').notNull(),
-  slug: text('slug').notNull().unique(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
   shortDescription: text('short_description'),
   fullDescription: text('full_description'),
   thumbnailUrl: text('thumbnail_url'),
-  instructorId: uuid('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
+  instructorId: fkColumn('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
   category: text('category'),
-  level: courseLevelEnum('level').notNull().default('beginner'),
-  durationMinutes: integer('duration_minutes'),
-  language: text('language').notNull().default('en'),
+  level: mysqlEnum('level', ['beginner', 'intermediate', 'advanced', 'expert']).notNull().default('beginner'),
+  durationMinutes: int('duration_minutes'),
+  language: varchar('language', { length: 10 }).notNull().default('en'),
   // No price column here on purpose — price lives in products/prices
   // (see commerce.ts) per lms-database.md, so a course can be free,
   // bundled, or priced per country without a schema change.
-  status: courseStatusEnum('status').notNull().default('draft'),
-  publishedAt: timestamp('published_at', { withTimezone: true }),
+  status: mysqlEnum('status', ['draft', 'review', 'published', 'archived']).notNull().default('draft'),
+  publishedAt: datetime('published_at'),
   featured: boolean('featured').notNull().default(false),
   seoTitle: text('seo_title'),
   seoDescription: text('seo_description'),
   canonicalUrl: text('canonical_url'),
   ogImageUrl: text('og_image_url'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
 });
 
-export const courseModules = pgTable('course_modules', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  courseId: uuid('course_id')
+export const courseModules = mysqlTable('course_modules', {
+  id: idColumn(),
+  courseId: fkColumn('course_id')
     .notNull()
     .references(() => courses.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
-  sortOrder: integer('sort_order').notNull().default(0),
+  sortOrder: int('sort_order').notNull().default(0),
 });
 
-export const lessons = pgTable('lessons', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  moduleId: uuid('module_id')
+export const lessons = mysqlTable('lessons', {
+  id: idColumn(),
+  moduleId: fkColumn('module_id')
     .notNull()
     .references(() => courseModules.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
-  type: lessonTypeEnum('type').notNull(),
-  content: jsonb('content').$type<Record<string, unknown>>(),
+  type: mysqlEnum('type', [
+    'video',
+    'text',
+    'pdf',
+    'image',
+    'code',
+    'quiz',
+    'assignment',
+    'external_resource',
+    'download',
+  ]).notNull(),
+  content: json('content').$type<Record<string, unknown>>(),
   isFreePreview: boolean('is_free_preview').notNull().default(false),
   requiresEnrollment: boolean('requires_enrollment').notNull().default(true),
-  dripReleaseAt: timestamp('drip_release_at', { withTimezone: true }),
-  dripReleaseDaysAfterEnrollment: integer('drip_release_days_after_enrollment'),
-  estimatedDurationMinutes: integer('estimated_duration_minutes'),
-  sortOrder: integer('sort_order').notNull().default(0),
+  dripReleaseAt: datetime('drip_release_at'),
+  dripReleaseDaysAfterEnrollment: int('drip_release_days_after_enrollment'),
+  estimatedDurationMinutes: int('estimated_duration_minutes'),
+  sortOrder: int('sort_order').notNull().default(0),
 });
 
-export const lessonVideoSources = pgTable('lesson_video_sources', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  lessonId: uuid('lesson_id')
+export const lessonVideoSources = mysqlTable('lesson_video_sources', {
+  id: idColumn(),
+  lessonId: fkColumn('lesson_id')
     .notNull()
     .references(() => lessons.id, { onDelete: 'cascade' }),
-  provider: videoProviderEnum('provider').notNull(),
+  provider: mysqlEnum('provider', ['youtube_unlisted', 'vimeo', 'cloud_storage', 'other']).notNull(),
   providerReference: text('provider_reference').notNull(),
   notes: text('notes'),
 });

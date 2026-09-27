@@ -1,166 +1,164 @@
-import { boolean, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, uniqueIndex } from 'drizzle-orm/pg-core';
+import { boolean, datetime, int, json, mysqlEnum, mysqlTable, text, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
+import { idColumn, fkColumn } from './columns';
 import { users } from './identity';
 import { instructors } from './courses';
-
-export const productTypeEnum = pgEnum('product_type', [
-  'course',
-  'membership',
-  'bundle',
-  'workshop',
-  'bootcamp',
-  'mentoring',
-  'digital_product',
-  'live_class',
-]);
-export const productStatusEnum = pgEnum('product_status', ['draft', 'active', 'inactive']);
-export const orderStatusEnum = pgEnum('order_status', ['pending', 'paid', 'failed', 'cancelled', 'refunded', 'partially_refunded']);
-export const paymentMethodEnum = pgEnum('payment_method', ['online', 'manual_bank_transfer']);
-export const paymentStatusEnum = pgEnum('payment_status', ['pending_verification', 'succeeded', 'failed', 'refunded']);
-export const manualPaymentStatusEnum = pgEnum('manual_payment_status', ['pending', 'approved', 'rejected', 'clarification_requested']);
-export const refundStatusEnum = pgEnum('refund_status', ['requested', 'approved', 'rejected', 'processed']);
-export const couponDiscountTypeEnum = pgEnum('coupon_discount_type', ['percentage', 'fixed']);
 
 // "The Learn with Shahid Enrollment is just a row here, type `membership`"
 // — docs/lms-database.md. This is the mechanism behind
 // docs/LMS_DECISIONS.md #8: the PKR 800 price is never hardcoded in code.
-export const products = pgTable('products', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  type: productTypeEnum('type').notNull(),
+export const products = mysqlTable('products', {
+  id: idColumn(),
+  type: mysqlEnum('type', [
+    'course',
+    'membership',
+    'bundle',
+    'workshop',
+    'bootcamp',
+    'mentoring',
+    'digital_product',
+    'live_class',
+  ]).notNull(),
   name: text('name').notNull(),
   description: text('description'),
-  status: productStatusEnum('status').notNull().default('draft'),
-  accessRules: jsonb('access_rules').$type<Record<string, unknown>>(),
-  durationDays: integer('duration_days'),
-  instructorId: uuid('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
-  seo: jsonb('seo').$type<Record<string, unknown>>(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  status: mysqlEnum('status', ['draft', 'active', 'inactive']).notNull().default('draft'),
+  accessRules: json('access_rules').$type<Record<string, unknown>>(),
+  durationDays: int('duration_days'),
+  instructorId: fkColumn('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
+  seo: json('seo').$type<Record<string, unknown>>(),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
 });
 
-export const prices = pgTable(
+export const prices = mysqlTable(
   'prices',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    productId: uuid('product_id')
+    id: idColumn(),
+    productId: fkColumn('product_id')
       .notNull()
       .references(() => products.id, { onDelete: 'cascade' }),
     // ISO 4217 (PKR, USD, AED, SAR, QAR, ...)
-    currencyCode: text('currency_code').notNull(),
-    // ISO 3166-1 alpha-2, null = default price for that currency.
-    countryCode: text('country_code'),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    // ISO 3166-1 alpha-2, null = default price for that currency. MySQL
+    // treats NULL as distinct in a unique index the same way Postgres
+    // does, so multiple currencies can each have one NULL-country default row.
+    countryCode: varchar('country_code', { length: 2 }),
     // Minor units (paisa/cents) — never a float, per docs/lms-database.md.
-    amount: integer('amount').notNull(),
-    saleAmount: integer('sale_amount'),
+    amount: int('amount').notNull(),
+    saleAmount: int('sale_amount'),
     isActive: boolean('is_active').notNull().default(true),
   },
   (table) => [uniqueIndex('prices_product_currency_country_idx').on(table.productId, table.currencyCode, table.countryCode)],
 );
 
-export const orders = pgTable('orders', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  orderNumber: text('order_number').notNull().unique(),
-  userId: uuid('user_id')
+export const orders = mysqlTable('orders', {
+  id: idColumn(),
+  orderNumber: varchar('order_number', { length: 64 }).notNull().unique(),
+  userId: fkColumn('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'restrict' }),
-  productId: uuid('product_id')
+  productId: fkColumn('product_id')
     .notNull()
     .references(() => products.id, { onDelete: 'restrict' }),
-  amount: integer('amount').notNull(),
-  currencyCode: text('currency_code').notNull(),
-  discountAmount: integer('discount_amount').notNull().default(0),
-  couponId: uuid('coupon_id'),
+  amount: int('amount').notNull(),
+  currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+  discountAmount: int('discount_amount').notNull().default(0),
+  // No FK here on purpose (matches the original design): a coupon can be
+  // deactivated/removed without touching historical order rows.
+  couponId: fkColumn('coupon_id'),
   paymentProvider: text('payment_provider'),
   paymentReference: text('payment_reference'),
-  status: orderStatusEnum('status').notNull().default('pending'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  paidAt: timestamp('paid_at', { withTimezone: true }),
+  status: mysqlEnum('status', ['pending', 'paid', 'failed', 'cancelled', 'refunded', 'partially_refunded']).notNull().default('pending'),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  paidAt: datetime('paid_at'),
 });
 
-export const orderItems = pgTable('order_items', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  orderId: uuid('order_id')
+export const orderItems = mysqlTable('order_items', {
+  id: idColumn(),
+  orderId: fkColumn('order_id')
     .notNull()
     .references(() => orders.id, { onDelete: 'cascade' }),
-  productId: uuid('product_id')
+  productId: fkColumn('product_id')
     .notNull()
     .references(() => products.id, { onDelete: 'restrict' }),
-  unitAmount: integer('unit_amount').notNull(),
+  unitAmount: int('unit_amount').notNull(),
 });
 
-export const payments = pgTable('payments', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  orderId: uuid('order_id')
+export const payments = mysqlTable('payments', {
+  id: idColumn(),
+  orderId: fkColumn('order_id')
     .notNull()
     .references(() => orders.id, { onDelete: 'cascade' }),
   provider: text('provider').notNull(),
   providerPaymentId: text('provider_payment_id'),
-  amount: integer('amount').notNull(),
-  currencyCode: text('currency_code').notNull(),
-  status: paymentStatusEnum('status').notNull().default('pending_verification'),
-  method: paymentMethodEnum('method').notNull(),
-  verifiedByUserId: uuid('verified_by_user_id').references(() => users.id, { onDelete: 'set null' }),
-  verifiedAt: timestamp('verified_at', { withTimezone: true }),
-  idempotencyKey: text('idempotency_key').notNull().unique(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  amount: int('amount').notNull(),
+  currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+  status: mysqlEnum('status', ['pending_verification', 'succeeded', 'failed', 'refunded']).notNull().default('pending_verification'),
+  method: mysqlEnum('method', ['online', 'manual_bank_transfer']).notNull(),
+  verifiedByUserId: fkColumn('verified_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  verifiedAt: datetime('verified_at'),
+  idempotencyKey: varchar('idempotency_key', { length: 255 }).notNull().unique(),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
 });
 
-export const manualPaymentSubmissions = pgTable('manual_payment_submissions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  paymentId: uuid('payment_id')
+export const manualPaymentSubmissions = mysqlTable('manual_payment_submissions', {
+  id: idColumn(),
+  paymentId: fkColumn('payment_id')
     .notNull()
     .references(() => payments.id, { onDelete: 'cascade' }),
   transactionReference: text('transaction_reference').notNull(),
-  amountClaimed: integer('amount_claimed').notNull(),
-  paymentDate: timestamp('payment_date', { withTimezone: true }).notNull(),
+  amountClaimed: int('amount_claimed').notNull(),
+  paymentDate: datetime('payment_date').notNull(),
   receiptFileUrl: text('receipt_file_url'),
   adminNotes: text('admin_notes'),
-  status: manualPaymentStatusEnum('status').notNull().default('pending'),
+  status: mysqlEnum('status', ['pending', 'approved', 'rejected', 'clarification_requested']).notNull().default('pending'),
 });
 
-export const refunds = pgTable('refunds', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  paymentId: uuid('payment_id')
+export const refunds = mysqlTable('refunds', {
+  id: idColumn(),
+  paymentId: fkColumn('payment_id')
     .notNull()
     .references(() => payments.id, { onDelete: 'cascade' }),
-  amount: integer('amount').notNull(),
+  amount: int('amount').notNull(),
   reason: text('reason'),
-  status: refundStatusEnum('status').notNull().default('requested'),
-  requestedByUserId: uuid('requested_by_user_id')
+  status: mysqlEnum('status', ['requested', 'approved', 'rejected', 'processed']).notNull().default('requested'),
+  requestedByUserId: fkColumn('requested_by_user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'restrict' }),
-  processedByUserId: uuid('processed_by_user_id').references(() => users.id, { onDelete: 'set null' }),
-  processedAt: timestamp('processed_at', { withTimezone: true }),
+  processedByUserId: fkColumn('processed_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  processedAt: datetime('processed_at'),
 });
 
 // V2 — schema exists per the Phase 2 "full schema now" decision; no coupon
 // UI or checkout logic ships in V1 (docs/LMS_V1_SCOPE.md).
-export const coupons = pgTable('coupons', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  code: text('code').notNull().unique(),
-  discountType: couponDiscountTypeEnum('discount_type').notNull(),
-  discountValue: integer('discount_value').notNull(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }),
-  usageLimit: integer('usage_limit'),
-  perUserLimit: integer('per_user_limit').default(1),
-  applicableProductIds: uuid('applicable_product_ids').array(),
-  minimumOrderAmount: integer('minimum_order_amount'),
+export const coupons = mysqlTable('coupons', {
+  id: idColumn(),
+  code: varchar('code', { length: 64 }).notNull().unique(),
+  discountType: mysqlEnum('discount_type', ['percentage', 'fixed']).notNull(),
+  discountValue: int('discount_value').notNull(),
+  expiresAt: datetime('expires_at'),
+  usageLimit: int('usage_limit'),
+  perUserLimit: int('per_user_limit').default(1),
+  // No native array type in MySQL — stored as a JSON array of product ids
+  // instead of Postgres's uuid[]. Empty array (not null) means "all products".
+  applicableProductIds: json('applicable_product_ids').$type<string[]>(),
+  minimumOrderAmount: int('minimum_order_amount'),
   isActive: boolean('is_active').notNull().default(true),
 });
 
-export const couponUsage = pgTable(
+export const couponUsage = mysqlTable(
   'coupon_usage',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    couponId: uuid('coupon_id')
+    id: idColumn(),
+    couponId: fkColumn('coupon_id')
       .notNull()
       .references(() => coupons.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
+    userId: fkColumn('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    orderId: uuid('order_id')
+    orderId: fkColumn('order_id')
       .notNull()
       .references(() => orders.id, { onDelete: 'cascade' }),
-    usedAt: timestamp('used_at', { withTimezone: true }).notNull().defaultNow(),
+    usedAt: datetime('used_at').notNull().$defaultFn(() => new Date()),
   },
   // Closes the race-condition window on single-use coupons at the database
   // level, per docs/lms-payments.md's anti-fraud section.

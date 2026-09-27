@@ -1,8 +1,15 @@
 # Learn with Shahid — Database Design Proposal
 
-**Status:** proposal. No migration has been run; no database exists yet. Written against PostgreSQL, per `lms-architecture.md`'s recommended stack — table names use `snake_case`, every table has `id uuid primary key default gen_random_uuid()`, `created_at`/`updated_at timestamptz`, unless noted.
+**Status:** built, migrated, and tested locally against MySQL (updated 2026-09-27 — this document originally described a PostgreSQL design; you later chose MySQL to keep everything on your existing Hostinger account, per `LMS_DECISIONS.md` addendum 2). The domain model below (tables, columns, relationships) is unchanged and still accurate; only the underlying engine and a few MySQL-specific mechanics differ from what's written here:
 
-Grouped by domain. Foreign keys are named `<table>_id`. This is a blueprint for Phase 2, not final DDL — exact column types get refined when the ORM schema is actually written, and reviewed before the first migration runs against anything real.
+- IDs are `varchar(36)` (MySQL has no native UUID type), generated client-side via `crypto.randomUUID()` — see `apps/learn/src/db/schema/columns.ts`.
+- `jsonb` → MySQL `json`; `timestamptz` → MySQL `datetime`, always read/written in UTC by the app.
+- No native array type — the one array column (`coupons.applicable_product_ids`) is a JSON array instead.
+- **`audit_logs`'s insert-only enforcement needs two MySQL users, not one** — MySQL can't `REVOKE` a privilege from one table if it was granted at the database level, so the app's runtime user is provisioned with per-table grants from the start (`apps/learn/src/db/apply-grants.ts`), separate from the full-privilege user migrations run as. See that file's comments and `LMS_DECISIONS.md` #35–36 for why, and the open question about whether Hostinger's user has the `GRANT OPTION` this requires.
+
+The actual, current schema is `apps/learn/src/db/schema/*.ts` — treat it as canonical over this document if the two ever disagree; this document is the design rationale, not a literal DDL reference anymore.
+
+Grouped by domain. Foreign keys are named `<table>_id`.
 
 ## Identity & access control
 

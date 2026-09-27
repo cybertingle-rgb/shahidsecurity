@@ -44,6 +44,16 @@ Each entry: the decision, and why. Numbered to match the approval message this r
 
 This addendum updates `lms-architecture.md` §2/§7 and `lms-deployment.md`'s hosting section to match — both now reference this decision instead of the original Railway/Render recommendation.
 
+## Addendum 2 — database engine changed to MySQL (2026-09-27, same session)
+
+| # | Decision | Rationale |
+| --- | --- | --- |
+| 34 | The database is **MySQL** (matching Hostinger's included database engine), not PostgreSQL via an external provider as decision #32 originally set. | You wanted everything on your existing Hostinger account, with no new company/account for the database either. Hostinger shared hosting includes MySQL; it doesn't offer Postgres. The entire schema (48 tables) was rewritten from Postgres-flavored Drizzle ORM to MySQL-flavored Drizzle ORM, migrated and tested clean against a real local MySQL instance. |
+| 35 | The app connects to MySQL as **two separate database users**, not one. | MySQL's privilege model is purely additive across scopes — unlike Postgres, you cannot `REVOKE` a privilege from one table if it was granted at the database level. The only way to make `audit_logs` genuinely insert-only is to never grant it broadly in the first place: a full-privilege admin user runs migrations, and a second, narrower user (with per-table SELECT/INSERT/UPDATE/DELETE, and SELECT/INSERT-only on `audit_logs`) is what the deployed app actually connects as. `src/db/apply-grants.ts` sets this up automatically from the admin connection. |
+| 36 | This requires the admin MySQL user to have `GRANT OPTION` — **not yet confirmed available on your specific Hostinger plan.** | Verified working end-to-end against a local MySQL instance (this session). Whether Hostinger's hPanel-issued database user has `GRANT OPTION` (needed to create the second, narrower user and its per-table grants) is unconfirmed — this is a real open item for Phase 2 deployment, not assumed. If it isn't available, `audit_logs` insert-only enforcement falls back to application-level only (the code simply never issues UPDATE/DELETE against that table) rather than a database-enforced guarantee — a real, disclosed trade-off of consolidating onto Hostinger's shared MySQL versus the original external-Postgres plan. |
+
+This addendum updates `lms-architecture.md`, `lms-database.md`, `LMS_PRE_PHASE_2_REVIEW.md`, and `apps/learn/README.md` to reference MySQL instead of PostgreSQL/Neon/Supabase throughout.
+
 ## What "approved" means and doesn't mean here
 
 Approved: the architectural direction above is the plan Phase 2 onward will build against — no further re-litigation of separate-app-vs-extend, Next.js/Postgres, the subdomain, or the V1 product list is expected before building starts.

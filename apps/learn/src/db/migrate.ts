@@ -1,22 +1,25 @@
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/mysql2';
+import { migrate } from 'drizzle-orm/mysql2/migrator';
+import mysql from 'mysql2/promise';
 
 async function main() {
-  const connectionString = process.env.DATABASE_URL;
+  // Migrations run DDL (CREATE/ALTER TABLE), which the app's own narrow
+  // runtime user deliberately doesn't have (see apply-grants.ts) — prefer
+  // the full-privilege admin connection when one's configured.
+  const connectionString = process.env.DATABASE_ADMIN_URL ?? process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error('DATABASE_URL is required to run migrations');
+    throw new Error('DATABASE_ADMIN_URL or DATABASE_URL is required to run migrations');
   }
 
-  const pool = new Pool({ connectionString });
-  const db = drizzle(pool);
+  const connection = await mysql.createConnection({ uri: connectionString });
+  const db = drizzle(connection, { mode: 'default' });
 
   console.log('Running migrations...');
   await migrate(db, { migrationsFolder: './drizzle' });
   console.log('Migrations complete.');
 
-  await pool.end();
+  await connection.end();
 }
 
 main().catch((err) => {

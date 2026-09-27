@@ -4,8 +4,8 @@ import 'dotenv/config';
 export default defineConfig({
   schema: './src/db/schema/index.ts',
   out: './drizzle',
-  dialect: 'postgresql',
+  dialect: 'mysql',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? 'postgres://localhost:5432/learn_with_shahid_dev',
+    url: process.env.DATABASE_URL ?? 'mysql://root@127.0.0.1:3306/learn_with_shahid_dev',
   },
 });
