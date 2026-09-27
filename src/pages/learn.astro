@@ -1,0 +1,181 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import ProcessSteps from '@/components/ProcessSteps.astro';
+import Button from '@/components/Button.astro';
+import FAQ from '@/components/FAQ.astro';
+import { Icon } from 'astro-icon/components';
+import { faqSchema } from '@/lib/schema';
+
+const LEARN_APP_URL = 'https://learn.shahidiqbal.com';
+
+const highlights = [
+  {
+    icon: 'lucide:layout-dashboard',
+    title: 'Student dashboard',
+    text: 'One place to see your enrollment, progress, community links and announcements.',
+  },
+  {
+    icon: 'lucide:map',
+    title: 'Cybersecurity roadmap',
+    text: 'A structured, level-by-level path from IT fundamentals through to red team and career prep — no guessing what to learn next.',
+  },
+  {
+    icon: 'lucide:users',
+    title: 'Community access',
+    text: 'Join other learners in a dedicated Discord/Telegram/Facebook space once you’re enrolled — ask questions, share progress, stay accountable.',
+  },
+  {
+    icon: 'lucide:megaphone',
+    title: 'Announcements',
+    text: 'New content, cohorts and updates land in your dashboard, not buried in a group chat.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Create your account',
+    text: `Register at ${LEARN_APP_URL} with your email and a password. Takes under a minute.`,
+  },
+  {
+    title: 'Enroll in the program',
+    text: 'Join Learn with Shahid to unlock your student dashboard and everything that comes with it.',
+  },
+  {
+    title: 'Follow your roadmap',
+    text: 'Work through the structured cybersecurity roadmap at your own pace, from fundamentals onward.',
+  },
+  {
+    title: 'Join the community',
+    text: 'Get access to the learner community and track your progress from your dashboard as you go.',
+  },
+];
+
+const faqItems = [
+  {
+    q: 'What is Learn with Shahid?',
+    a: 'Learn with Shahid is the education side of Shahid Security: a student dashboard, a structured cybersecurity roadmap, a learner community and ongoing announcements, all built and run by the same practitioner behind the consulting side of the business.',
+  },
+  {
+    q: 'Do I need prior experience to start?',
+    a: 'No. The roadmap starts from IT and networking fundamentals and builds up level by level toward specialised areas like penetration testing, cloud security and incident response.',
+  },
+  {
+    q: 'Where do I actually log in and learn?',
+    a: `The student and admin application lives on its own subdomain at ${LEARN_APP_URL} — that's where you register, log in, and access your dashboard, roadmap and community links.`,
+  },
+  {
+    q: 'Is there a community I can join?',
+    a: 'Yes — enrolled students get access to a dedicated community space (Discord, Telegram or Facebook, depending on the group) to ask questions and learn alongside others.',
+  },
+  {
+    q: 'How do I get help if I’m stuck?',
+    a: `Reach out through the contact page on this site, or use the support channels linked from your dashboard once you're enrolled at ${LEARN_APP_URL}.`,
+  },
+];
+
+const jsonLd = [faqSchema(faqItems.map((item) => ({ question: item.q, answer: item.a })))].filter((s) => s !== null);
+---
+
+<BaseLayout
+  title="Learn with Shahid — Cybersecurity Learning Platform"
+  description="A student dashboard, a structured cybersecurity roadmap, and a learner community — built by the same practitioner behind Shahid Security. See how it works and get started."
+  path="/learn/"
+  jsonLd={jsonLd}
+  ogImage="/og/about.png"
+  pageType="WebPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Learn with Shahid', path: '/learn/' },
+      ]}
+    />
+    <div class="grid gap-10 lg:grid-cols-[auto_1fr] lg:items-center">
+      <picture class="mx-auto">
+        <source srcset="/brand/learn-logo.webp" type="image/webp" />
+        <img
+          src="/brand/learn-logo.png"
+          alt="Learn with Shahid"
+          width="1254"
+          height="1254"
+          class="h-32 w-auto sm:h-40"
+        />
+      </picture>
+      <div>
+        <SectionHeading
+          as="h1"
+          eyebrow="// learn with shahid"
+          title="Learn cybersecurity, guided by a working practitioner"
+          intro="A student dashboard, a structured roadmap, and a real community — not another abandoned course platform. Built and maintained by the same person running Shahid Security's client work."
+        />
+        <div class="mt-8 flex flex-wrap gap-4">
+          <Button href={`${LEARN_APP_URL}/register`} variant="primary">
+            Create your account
+          </Button>
+          <Button href={`${LEARN_APP_URL}/login`} variant="secondary">
+            Log in
+          </Button>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section class="pt-0" bordered>
+    <SectionHeading eyebrow="// what you get" title="Everything lives in one dashboard" />
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {highlights.map((item) => (
+        <div class="glass-card p-6">
+          <Icon name={item.icon} class="size-6 text-(--color-neon)" aria-hidden="true" />
+          <h3 class="mt-4 font-display text-base font-semibold text-(--color-text)">{item.title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{item.text}</p>
+        </div>
+      ))}
+    </div>
+  </Section>
+
+  <Section class="pt-0">
+    <SectionHeading eyebrow="// how it works" title="Four steps to get started" />
+    <div class="mt-10">
+      <ProcessSteps steps={steps} />
+    </div>
+  </Section>
+
+  <Section class="pt-0" bordered>
+    <SectionHeading eyebrow="// faq" title="Frequently asked questions" />
+    <div class="mt-10 max-w-3xl">
+      <FAQ items={faqItems} />
+    </div>
+  </Section>
+
+  <Section>
+    <div class="glass-card corner-brackets relative overflow-hidden p-10 text-center sm:p-14">
+      <div class="learn-cta-glow pointer-events-none absolute inset-0 opacity-40"></div>
+      <div class="relative">
+        <h2 class="font-display text-2xl font-semibold text-(--color-text) sm:text-3xl">
+          Ready to start learning?
+        </h2>
+        <p class="mx-auto mt-3 max-w-xl text-(--color-text-muted)">
+          Create your account on {LEARN_APP_URL.replace('https://', '')} and get access to your dashboard, roadmap and community.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <Button href={`${LEARN_APP_URL}/register`} variant="primary">
+            Create your account
+          </Button>
+          <Button href="/contact/" variant="secondary">
+            Have questions first?
+          </Button>
+        </div>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .learn-cta-glow {
+    background: radial-gradient(60% 60% at 50% 0%, var(--color-neon-dim), transparent 70%);
+  }
+</style>
