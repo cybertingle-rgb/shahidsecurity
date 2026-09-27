@@ -24,3 +24,177 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
 }
+
+/* ------------------------------------------------------------------ */
+/* Ambient education/cybersecurity background (EduBackground.tsx)      */
+/* ------------------------------------------------------------------ */
+
+.edu-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 900px 600px at 20% -10%, color-mix(in oklab, var(--color-neon) 14%, transparent), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 90% 110%, color-mix(in oklab, var(--color-neon) 10%, transparent), transparent 60%),
+    var(--color-bg);
+}
+
+.edu-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: edu-orb-drift 18s ease-in-out infinite alternate;
+}
+
+.edu-bg-orb-a {
+  top: -10%;
+  left: 10%;
+  width: 380px;
+  height: 380px;
+  background: color-mix(in oklab, var(--color-neon) 55%, transparent);
+}
+
+.edu-bg-orb-b {
+  bottom: -15%;
+  right: 5%;
+  width: 420px;
+  height: 420px;
+  background: color-mix(in oklab, #3b9bff 45%, transparent);
+  animation-duration: 24s;
+  animation-delay: -6s;
+}
+
+@keyframes edu-orb-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(4%, 6%) scale(1.12);
+  }
+}
+
+.edu-bg-icon {
+  position: absolute;
+  color: var(--color-neon-soft);
+  opacity: 0.16;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-neon) 60%, transparent));
+  animation: edu-icon-float var(--edu-duration, 24s) ease-in-out infinite;
+  animation-delay: var(--edu-delay, 0s);
+}
+
+@keyframes edu-icon-float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(1.2em, -1.4em) rotate(6deg);
+  }
+  50% {
+    transform: translate(-0.6em, 1em) rotate(-4deg);
+  }
+  75% {
+    transform: translate(-1.2em, -0.8em) rotate(3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Glass auth card with a spinning neon/RGB border trace (AuthCard.tsx) */
+/* ------------------------------------------------------------------ */
+
+.auth-card-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 26rem;
+  perspective: 1000px;
+}
+
+/* A registered custom property lets the browser animate the conic
+   gradient's own rotation angle directly — rotating the gradient
+   this way (instead of transform: rotate() on the box) keeps the glow
+   confined to the box's actual rectangular bounds. Transforming the
+   whole element instead sweeps its corners out past the card at 45°,
+   which is what produced the stray diamond shape earlier. */
+@property --auth-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.auth-card-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 1.25rem;
+}
+
+.auth-card-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from var(--auth-angle),
+    var(--color-neon),
+    #3b9bff,
+    var(--color-neon-soft),
+    #ff3b6b,
+    var(--color-neon)
+  );
+  animation: auth-glow-spin 5s linear infinite;
+}
+
+.auth-card-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(from var(--auth-angle), var(--color-neon), #3b9bff, var(--color-neon-soft), #ff3b6b, var(--color-neon));
+  filter: blur(20px);
+  opacity: 0.55;
+  animation: auth-glow-spin 5s linear infinite;
+}
+
+@keyframes auth-glow-spin {
+  to {
+    --auth-angle: 360deg;
+  }
+}
+
+.auth-card {
+  position: relative;
+  border-radius: 1.1rem;
+  padding: 2rem;
+  background: color-mix(in oklab, var(--color-surface) 78%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in oklab, var(--color-border-strong) 70%, transparent);
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+  transform: perspective(1000px) rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg));
+  transition: transform 150ms ease-out;
+}
+
+.auth-card-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(90deg, var(--color-text), var(--color-neon-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-bg-orb,
+  .edu-bg-icon,
+  .auth-card-glow {
+    animation: none;
+  }
+  .auth-card {
+    transition: none;
+  }
+}
