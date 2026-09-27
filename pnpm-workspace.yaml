@@ -5,3 +5,5 @@ packages:
 allowBuilds:
   esbuild: true
 
+minimumReleaseAgeExclude:
+  - nodemailer@10.0.11
