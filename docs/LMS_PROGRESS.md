@@ -1,6 +1,6 @@
 # Learn with Shahid — Progress
 
-**Current phase:** Phase 3 — Admin dashboard, code complete. **Built, tested (real browser automation, not just unit tests), and verified locally against MySQL. Real deployment is on hold while you transfer the domain to a new host with a higher plan (Hostinger's Node.js hosting turned out to need a plan upgrade) — see "Hosting update" below. Local development continues regardless.**
+**Current phase:** Phase 4 — Student dashboard, code complete. **Built, tested (real browser automation, not just unit tests), and verified locally against MySQL. Real deployment is on hold while you transfer the domain to a new host with a higher plan (Hostinger's Node.js hosting turned out to need a plan upgrade) — see "Hosting update" below. Local development continues regardless.**
 
 ## Completed
 
@@ -23,6 +23,20 @@ Full admin management UI + Server Actions for every V1 admin area named in `docs
 - **Admin dashboard** (`/admin`): nav shell linking to all of the above — deliberately no counts/analytics yet, since that's Phase 11's job, not Phase 3's.
 
 **Verified, not just written**: `next build` and the standalone TypeScript check both pass. A real headless-Chromium (Playwright) run drove the actual browser through the full flow against the running app — create a course → submit for review → publish; create a product → set a price; create a community; publish an announcement; manually enroll a student into the new course and see it show up on both their profile and the global enrollments list; suspend and reactivate a student — **13/13 checks passed against real UI interaction**, not mocked. `curl`-based checks re-confirmed the RBAC boundary: every new `/admin/*` page returns 200 for an admin session and 404 for a student session. Two new automated vitest tests added (20/20 total now passing) confirming the exact permission keys these new actions use (`courses.publish`, `payments.verify`, `enrollments.manage`, etc.) are correctly granted and — just as importantly — that a user with only one of them is denied all the others.
+
+### Phase 4 — Student dashboard (this round)
+Full read-only + self-service student area at `/dashboard`, built on `src/lib/student/data.ts` — six functions, every one scoped by the session's own `userId` only (no route param ever accepts an arbitrary id, per the IDOR-safe pattern in `docs/lms-security.md`):
+
+- **Overview** (`/dashboard`): a "Continue Learning" card for the single furthest-along, still-incomplete course (with a progress bar), falling back to "not enrolled" or "all caught up" messaging, plus quick-link cards to the sections below.
+- **My Courses** (`/dashboard/courses`): every active enrollment with its own progress bar.
+- **Membership** (`/dashboard/membership`): current membership status, start/expiry dates.
+- **Community** (`/dashboard/community`): every community the student has *any* access-state row for, with human-readable status labels — the actual invite URL is only ever shown once status is `invited` or `joined`, never at `eligible` or earlier, matching the community-access state machine in `lms-security.md`.
+- **Orders** (`/dashboard/orders`): full order history.
+- **Profile** (`/dashboard/profile`) + **Settings** (`/dashboard/settings`): self-service name/username/phone/country update, and password change (verifies the current password, re-hashes, destroys every existing session including the current one, logs an `authEvents` row, and redirects to `/login` — the same "changing your password signs you out everywhere" rule the forgot-password flow already used).
+
+**Verified, not just written**: `next build` and the standalone TypeScript check both pass. Six new automated IDOR tests (`tests/student-idor.test.ts`) call the actual `getMy*` data-layer functions with two seeded students and confirm zero cross-student leakage on enrollments, in-progress course, membership, community access (including the invite-link redaction), orders, and profile — 26/26 tests passing overall. A real headless-Chromium (Playwright) run then drove an actual browser through the full student flow against the running dev server: logged in as `student.a`, hit all seven `/dashboard/*` routes and confirmed each renders its own heading with no client-side exception (21 checks), updated the profile's full name and confirmed it persisted on reload, confirmed an unauthenticated request to `/dashboard` redirects to `/login`, and confirmed `student.b`'s own profile page shows `student.b`'s name, never `student.a`'s (25/25 checks passed). A second Playwright run exercised the password-change flow end-to-end: changed `student.a`'s password, confirmed the old password stopped working and the new one worked, then changed it back — 5/5 checks passed, and the seed account's password and full name were confirmed restored to their original seeded values afterward.
+
+One real bug caught and fixed during this round, unrelated to the app: the first two smoke-test drafts used the bare CSS selector `button[type="submit"]`, which — because the dashboard layout's "Log out" button sits earlier in the DOM than each page's own submit button — silently logged the test session out instead of submitting the profile/settings form. Scoping the selector to `form:has(#fullName) button[type="submit"]` (and the equivalent for the settings form) fixed it; this was a test-script bug, not an application bug, confirmed by cross-checking the dev server's request log.
 
 ## Mid-Phase-2 change: PostgreSQL → MySQL (for context)
 You asked why an external Postgres provider was needed given you already have Hostinger hosting. The whole database layer was rewritten to MySQL so everything runs on your existing account — see the Phase 2 commit and `apps/learn/README.md`'s "Two database users" section for the one real trade-off that came out of it (MySQL needs two DB users and `GRANT OPTION` to make `audit_logs` genuinely tamper-proof at the database level; unconfirmed whether your plan allows it).
@@ -49,13 +63,13 @@ I have no browser and no external account credentials in this sandbox. Real depl
 ## Next
 
 1. You: finish the domain transfer, get `shahidiqbal.com` live on the new host via its GitHub integration, then tell me so I can update the deploy workflows.
-2. Me, in the meantime: keep building Phase 4 (student dashboard) and beyond against the local dev database — none of that depends on where it eventually deploys.
+2. Me, in the meantime: keep building Phase 5 (course content: modules/lessons/lesson progress tracking) and beyond against the local dev database — none of that depends on where it eventually deploys.
 3. Payment provider and transactional email provider choices remain open, needed by Phase 7, not blocking anything before it.
 
 ## Blocked
 
-Real deployment is blocked on the domain transfer + new host details above. Nothing else is blocked — Phase 4 onward can continue against the local dev database regardless.
+Real deployment is blocked on the domain transfer + new host details above. Nothing else is blocked — Phase 5 onward can continue against the local dev database regardless.
 
 ## Not started
 
-Phases 4–15 in full, per `LMS_IMPLEMENTATION_PLAN.md`.
+Phases 5–15 in full, per `LMS_IMPLEMENTATION_PLAN.md`.
