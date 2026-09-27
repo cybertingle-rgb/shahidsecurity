@@ -44,26 +44,26 @@ export async function POST(request: NextRequest) {
   }
 
   const passwordHash = await hashPassword(parsed.data.password);
+  // MySQL has no RETURNING clause, so the id is generated here and used
+  // directly rather than read back after the insert.
+  const userId = crypto.randomUUID();
 
-  const [user] = await db
-    .insert(users)
-    .values({
-      email,
-      passwordHash,
-      fullName: parsed.data.fullName,
-      countryCode: parsed.data.countryCode ?? null,
-    })
-    .returning({ id: users.id });
-  if (!user) throw new Error('Insert did not return the created user row');
+  await db.insert(users).values({
+    id: userId,
+    email,
+    passwordHash,
+    fullName: parsed.data.fullName,
+    countryCode: parsed.data.countryCode ?? null,
+  });
 
   const [studentRole] = await db.select().from(roles).where(eq(roles.name, 'student')).limit(1);
   if (studentRole) {
-    await db.insert(userRoles).values({ userId: user.id, roleId: studentRole.id });
+    await db.insert(userRoles).values({ userId, roleId: studentRole.id });
   }
 
-  await db.insert(authEvents).values({ userId: user.id, eventType: 'register', ipAddress: ip });
+  await db.insert(authEvents).values({ userId, eventType: 'register', ipAddress: ip });
 
-  const token = await createEmailVerificationToken(user.id);
+  const token = await createEmailVerificationToken(userId);
   const verifyUrl = `${env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
   await sendEmail(email, 'Verify your Learn with Shahid account', `Verify your email: ${verifyUrl}`);
 

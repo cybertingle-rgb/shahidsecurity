@@ -20,10 +20,18 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    # Required secrets (see docs/LMS_PRE_PHASE_2_REVIEW.md §11):
-    #   DATABASE_URL       — external managed Postgres (staging/production)
-    #   SESSION_SECRET     — random, 32+ chars, distinct from any dev value
-    #   NEXT_PUBLIC_APP_URL — e.g. https://learn.shahidiqbal.com
+    # Required secrets (see docs/LMS_PRE_PHASE_2_REVIEW.md §11 and
+    # apps/learn/README.md's "Two database users" section):
+    #   LMS_DATABASE_ADMIN_URL — full-privilege MySQL user (Hostinger's
+    #                            hPanel-issued database user) — runs
+    #                            migrations and apply-grants; needs
+    #                            GRANT OPTION for apply-grants to work
+    #   LMS_DATABASE_URL       — the narrower runtime user's connection
+    #                            string (a name/password you choose —
+    #                            apply-grants.ts creates the MySQL user
+    #                            and its grants automatically)
+    #   LMS_SESSION_SECRET     — random, 32+ chars, distinct from any dev value
+    #   LMS_APP_URL            — e.g. https://learn.shahidiqbal.com
     # Reused from the existing marketing-site workflow (same Hostinger
     # account, different target path — see the deploy step below):
     #   DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER
@@ -65,12 +73,13 @@ jobs:
       - name: Run pending database migrations
         working-directory: apps/learn
         env:
-          DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
+          DATABASE_ADMIN_URL: ${{ secrets.LMS_DATABASE_ADMIN_URL }}
         run: pnpm db:migrate
 
-      - name: Apply audit_logs insert-only grant (idempotent)
+      - name: Provision the narrow runtime user and its grants (idempotent)
         working-directory: apps/learn
         env:
+          DATABASE_ADMIN_URL: ${{ secrets.LMS_DATABASE_ADMIN_URL }}
           DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
         run: pnpm db:apply-grants
 

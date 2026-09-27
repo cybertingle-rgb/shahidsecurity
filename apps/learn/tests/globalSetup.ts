@@ -1,12 +1,12 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/mysql2';
+import { migrate } from 'drizzle-orm/mysql2/migrator';
+import mysql from 'mysql2/promise';
 
-const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? 'postgres://learn_dev:learn_dev_password@localhost:5432/learn_with_shahid_test';
+const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ?? 'mysql://learn_dev:learn_dev_password@127.0.0.1:3306/learn_with_shahid_test';
 
 export async function setup() {
-  const pool = new Pool({ connectionString: TEST_DATABASE_URL });
-  const db = drizzle(pool);
+  const connection = await mysql.createConnection({ uri: TEST_DATABASE_URL });
+  const db = drizzle(connection, { mode: 'default' });
   await migrate(db, { migrationsFolder: './drizzle' });
-  await pool.end();
+  await connection.end();
 }
