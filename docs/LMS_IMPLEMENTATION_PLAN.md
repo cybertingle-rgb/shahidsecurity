@@ -1,24 +1,32 @@
 # Learn with Shahid — Implementation Plan
 
-Phased per the brief's own instruction: no phase starts until the previous one is built, tested, documented, and — where it touches production, infrastructure, payments, or pricing — explicitly approved. See `lms-deployment.md` for what always requires sign-off regardless of phase.
+Phased per the brief's own instruction: no phase starts until the previous one is built, tested, documented, and — where it touches production, infrastructure, payments, or pricing — explicitly approved. See `lms-deployment.md` for what always requires sign-off regardless of phase. Architectural direction is locked (`LMS_DECISIONS.md`); this plan builds **V1 only** (`LMS_V1_SCOPE.md`) — every phase below is scoped to V1 unless its row says otherwise, and no V2 feature (certificates, coupons, bundles, live classes, advanced analytics, automated email campaigns, additional payment providers, subscriptions, mentorship, corporate training, advanced community automation) is implemented in any of these phases even where the underlying schema already supports it.
 
-| Phase | Scope | Requires your approval before starting? |
-| --- | --- | --- |
-| **1. Architecture audit** | This round of documents. | Approval to *proceed to Phase 2* — i.e., to actually provision anything. |
-| **2. Database & authentication** | Provision staging Postgres, implement schema from `lms-database.md`, auth (register/verify/login/reset) from `lms-security.md`. | **Yes** — first real infrastructure (hosting account, staging database). |
-| **3. Admin dashboard** | Admin shell, RBAC enforcement, student management, settings (no payments yet). | No new infra; builds on Phase 2. |
-| **4. Student dashboard** | Student shell, profile, settings. | No new infra. |
-| **5. Courses/Lessons** | Course/module/lesson CRUD, course player, video-source abstraction. | No new infra. |
-| **6. Membership** | Membership product, enrollment logic (manual-grant only — no payment yet). | No new infra. |
-| **7. Payments** | Provider integration (`lms-payments.md`), manual bank-transfer flow, orders, refunds, coupons. | **Yes** — real payment credentials, real money. Runs against sandbox/test credentials until explicitly told to go live. |
-| **8. Community management** | `/admin/communities`, student-facing eligibility/invite flow. | No new infra, but **community invite links themselves must come from you**, not invented. |
-| **9. Progress/Quiz/Certificates** | Progress tracking, quiz engine, certificate issuance + `/verify/[id]`. | No new infra. |
-| **10. SEO** | `/learn/*` static pages on the existing site, roadmap, resources hub, structured data. | No new infra; **does** touch the existing site's codebase — reviewed against the SEO regression checklist before merge. |
-| **11. Analytics** | Event tracking (`lms-business-model.md`'s funnel, brief's named events), admin analytics views. | No new infra unless a dedicated analytics tool is added, in which case that tool choice is flagged for approval. |
-| **12. Security audit** | The full pre-launch review list in `lms-security.md`. | Findings reported before Phase 13 starts. |
-| **13. Performance optimization** | Caching, pagination, image/video delivery review, load testing against realistic volume. | No new infra unless a CDN/cache layer is added, flagged if so. |
-| **14. Testing** | The full test list below, including explicit unauthorized-access tests. | No approval needed to write tests; failures block progress to Phase 15 regardless. |
-| **15. Production deployment** | Real DNS, real domain, real payment credentials flipped live, public launch. | **Yes — explicitly, in writing, right before this phase, not assumed from earlier approvals.** |
+| Phase | Scope | V1 / V2 | Requires your approval before starting? |
+| --- | --- | --- | --- |
+| **1. Architecture audit** | This round of documents, plus the decisions/scope/pre-flight documents that followed. | — | Approval to *proceed to Phase 2* — i.e., to actually provision anything. **Gate: "START PHASE 2."** |
+| **2. Database & authentication** | Verify Hostinger's Node.js App feature (version/limits/outbound access, per `LMS_PRE_PHASE_2_REVIEW.md` §15), provision an external managed Postgres for staging, deploy the app skeleton to the already-created `learn.shahidiqbal.com` subdomain, implement full schema from `lms-database.md` (V2 tables included, so no later migration is needed to add them — see note below), auth (register/verify/login/reset) from `lms-security.md`. | V1 build; V2 tables created but unused | **Yes** — first real infrastructure (external database account, app deployed to the existing Hostinger subdomain). |
+| **3. Admin dashboard** | Admin shell, RBAC enforcement, student/course/product/pricing/order/payment/community/announcement management per `LMS_V1_SCOPE.md`. Coupon and certificate admin screens are **not** built in this phase even though their tables exist. | V1 | No new infra; builds on Phase 2. |
+| **4. Student dashboard** | Student shell: My Courses, Progress, Continue Learning, Membership, Community, Orders, Profile, Settings. No Certificates tab in V1. | V1 | No new infra. |
+| **5. Courses/Lessons** | Course/module/lesson CRUD, course player, video-source abstraction, quizzes (question types + attempts, no certificate issuance on pass). | V1 | No new infra. |
+| **6. Membership** | The "Learn with Shahid Enrollment" (PKR 800) membership product, enrollment logic (manual-grant only — no payment yet). | V1 | No new infra. |
+| **7. Payments** | **One** online provider integration (per the comparison in `lms-payments.md`) plus manual bank-transfer flow, orders, admin verification queue. Refunds are supported as a tracked workflow; coupons are **not** built in this phase. | V1 | **Yes** — real payment credentials, real money. Runs against sandbox/test credentials until explicitly told to go live. |
+| **8. Community management** | `/admin/communities`, student-facing eligibility/invite flow (Discord/Facebook/Telegram, admin-managed URLs). Advanced automation (auto-invite via platform API) is **not** built. | V1 | No new infra, but **community invite links themselves must come from you**, not invented. |
+| **9. Progress tracking & quizzes** | Progress tracking, quiz engine. **Certificate issuance and `/verify/[id]` are V2 — not built in this phase**, even though `certificates`/`certificate_verifications` exist in the Phase 2 schema. | V1 (progress/quiz) — certificates deferred to V2 | No new infra. |
+| **10. SEO** | `/learn/*` static pages on the existing site (`/learn`, `/learn/roadmap`, `/learn/courses`, `/learn/pricing`, `/learn/faq`), structured data. | V1 | No new infra; **does** touch the existing site's codebase — reviewed against the SEO regression checklist before merge. |
+| **11. Basic analytics** | Counts/lists the schema already produces: students, enrollments, orders/payments, a basic revenue total. No charts, funnels, cohorts, or exports — those are V2 "Advanced analytics." | V1 (basic only) | No new infra unless a dedicated analytics tool is added, in which case that tool choice is flagged for approval. |
+| **12. Security audit** | The full pre-launch review list in `lms-security.md`. | V1 | Findings reported before Phase 13 starts. |
+| **13. Performance optimization** | Caching, pagination, image/video delivery review, load testing against realistic volume. | V1 | No new infra unless a CDN/cache layer is added, flagged if so. |
+| **14. Testing** | The full test list below, including explicit unauthorized-access tests. | V1 | No approval needed to write tests; failures block progress to Phase 15 regardless. |
+| **15. Production deployment (V1 launch)** | Real DNS, real domain, real payment credentials flipped live, public launch — of the V1 scope only. | V1 | **Yes — explicitly, in writing, right before this phase, not assumed from earlier approvals.** |
+
+## V2 — documented now, built later, in its own future phase set
+
+Certificates, coupons, course bundles, live classes, advanced analytics, automated email campaigns, additional payment providers, subscriptions, mentorship, corporate training, and advanced community automation are fully designed in the Phase 1 documents (`lms-database.md`, `lms-payments.md`, `lms-business-model.md`) but have **no implementation phase number yet** — they get their own phased plan, proposed and approved separately, once V1 is live and validated with real students. This is deliberate: building V1's full feature list before adding anything from the V2 list is the scope boundary in `LMS_V1_SCOPE.md`, not an oversight.
+
+## Note on Phase 2 building the full schema
+
+Phase 2 creates every table in `lms-database.md`, including the ones V1 doesn't use yet (`certificates`, `coupons`, live-class tables, etc.), rather than a V1-only subset. This is a deliberate, low-risk call: it's one reviewed migration instead of a second schema-change migration when V2 starts, and an unused table with no application code pointing at it carries no security or operational risk. No V2 **feature** (UI, business logic, API route) is built in Phases 2–15 — only its data model exists early.
 
 ## Testing scope (Phase 14, tracked here so it isn't lost between phases)
 

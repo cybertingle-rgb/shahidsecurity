@@ -5,16 +5,18 @@
 ## Environments
 
 - **Local development**: the LMS app runs against a local Postgres instance (Docker or a local install) with seeded, entirely fake test data — never a copy of real student data.
-- **Staging**: a full copy of the app + a separate database, on the same hosting platform, used for testing migrations and payment sandbox flows before anything touches production. Given the brief's own "never run destructive migration automatically on production" and "test migration, test rollback" instructions, **staging is not optional** for this project.
+- **Staging**: a full copy of the app + a separate database, used for testing migrations and payment sandbox flows before anything touches production. Given the brief's own "never run destructive migration automatically on production" and "test migration, test rollback" instructions, **staging is not optional** for this project. Staging's app process runs the same way production will (Hostinger Node.js App, see below) but against its own database and its own subdomain/path, never against the production database.
 - **Production**: `learn.shahidiqbal.com`, real database, real (eventually) payment credentials — reached only after the Phase 12–14 security/performance/testing gates in `LMS_IMPLEMENTATION_PLAN.md` pass and you've signed off.
 
-## Hosting recommendation (needs your approval before provisioning)
+## Hosting recommendation (updated 2026-09-27 — needs your final confirmation, not a fresh choice, before provisioning)
 
-Railway or Render, per `lms-architecture.md` §2 — both give a persistent Node process, managed Postgres with automated backups, environment-variable secrets storage, and straightforward zero-downtime deploys. This is a new, separate hosting relationship from Hostinger; the existing site's hosting is completely untouched.
+**Superseded from the original Railway/Render recommendation.** You've already created the `learn.shahidiqbal.com` subdomain in Hostinger's hPanel (`/home/u397210942/domains/shahidiqbal.com/public_html/learn`) and chosen to run the Next.js app there via hPanel's "Setup Node.js App" feature, on the same hosting account as the existing site — recorded in `LMS_DECISIONS.md`'s addendum. This keeps the app process on Hostinger; **the database still comes from an external managed Postgres provider** (Hostinger shared plans don't offer Postgres — see `lms-architecture.md` §2's update note and `LMS_PRE_PHASE_2_REVIEW.md` §7). Before Phase 2 provisions anything, confirm in hPanel: the Node.js version(s) available, the app's memory/CPU limits, and that outbound HTTPS to the external database/email/payment APIs isn't blocked.
 
-## The existing site is never at risk, by construction
+## The existing site is never at risk, by construction — with one caveat now worth naming
 
-Because the LMS is a separate codebase and a separate deploy pipeline (`lms-architecture.md` §1), there is no scenario in this plan where an LMS deploy touches `shahidiqbal.com`'s `dist/`, `.htaccess`, DNS A record, or GitHub Actions workflow. The only integration points are (a) new *static* pages added to the existing Astro codebase under `/learn/*`, which go through the exact same build/deploy/review process as any other page added this session, and (b) a new DNS **CNAME** record for the `learn` subdomain, which doesn't modify the existing domain's existing records.
+Because the LMS is a separate codebase, a separate deploy mechanism, and a separate directory/subdomain (`lms-architecture.md` §1), there is no scenario in this plan where an LMS deploy touches `shahidiqbal.com`'s `dist/`, `.htaccess`, the existing GitHub Actions workflow, or the existing site's own files. The only integration points are (a) new *static* pages added to the existing Astro codebase under `/learn/*`, which go through the exact same build/deploy/review process as any other page added this session, and (b) the `learn` subdomain, already created and mapped to its own directory — no change to the domain's other existing records.
+
+**The one thing that's changed from the original "completely separate hosting relationship" framing**: the LMS app and the existing site now share one Hostinger account, so they share that account's overall resource ceiling (storage quota, concurrent-process limits) even though their directories, subdomains, and processes are separate. This is a real but low-probability risk at V1's expected scale — flagged in `LMS_PRE_PHASE_2_REVIEW.md` §8, not hidden — and worth revisiting if the LMS's traffic or storage footprint grows enough to matter.
 
 ## Database migration safety
 
