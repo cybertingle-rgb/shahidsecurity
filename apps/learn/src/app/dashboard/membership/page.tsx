@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getSessionUser } from '@/lib/auth/session';
 import { getMyMembership } from '@/lib/student/data';
 
@@ -20,7 +21,12 @@ export default async function MembershipPage() {
           {!membership.expiresAt && <p className="text-sm text-text-muted">No expiry — this membership doesn't lapse.</p>}
         </div>
       ) : (
-        <p className="text-text-muted">You don't have an active membership yet.</p>
+        <div className="space-y-3">
+          <p className="text-text-muted">You don't have an active membership yet.</p>
+          <Link href="/dashboard/checkout" className="inline-block rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+            Browse membership & courses
+          </Link>
+        </div>
       )}
     </div>
   );
