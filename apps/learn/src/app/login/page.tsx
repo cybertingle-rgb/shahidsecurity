@@ -80,6 +80,11 @@ export default function LoginPage() {
               Register
             </Link>
           </p>
+          <p className="text-sm text-text-muted">
+            <Link href="/forgot-password" className="text-neon">
+              Forgot password?
+            </Link>
+          </p>
         </form>
       </AuthCard>
     </div>

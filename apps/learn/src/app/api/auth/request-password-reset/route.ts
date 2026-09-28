@@ -5,7 +5,7 @@ import { db } from '@/db';
 import { users, authEvents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/auth/rateLimit';
 import { createPasswordResetToken } from '@/lib/auth/tokens';
-import { sendEmail } from '@/lib/email';
+import { sendEmail, authEmailHtml } from '@/lib/email';
 import { env } from '@/lib/env';
 
 const schema = z.object({ email: z.string().email() });
@@ -36,7 +36,18 @@ export async function POST(request: NextRequest) {
 
   const token = await createPasswordResetToken(user.id);
   const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
-  await sendEmail(email, 'Reset your Learn with Shahid password', `Reset your password: ${resetUrl}\nThis link expires in 1 hour.`);
+  await sendEmail(
+    email,
+    'Reset your Learn with Shahid password',
+    `Reset your password: ${resetUrl}\nThis link expires in 1 hour.`,
+    authEmailHtml({
+      heading: 'Reset your password',
+      intro: 'We received a request to reset your Learn with Shahid password. This link expires in 1 hour.',
+      buttonLabel: 'Reset password',
+      buttonUrl: resetUrl,
+      footer: "If you didn't request this, you can safely ignore this email.",
+    }),
+  );
   await db.insert(authEvents).values({ userId: user.id, eventType: 'password_reset_requested', ipAddress: ip });
 
   return genericResponse;
