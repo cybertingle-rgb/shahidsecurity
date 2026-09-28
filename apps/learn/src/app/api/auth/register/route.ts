@@ -6,7 +6,7 @@ import { users, roles, userRoles, authEvents } from '@/db/schema';
 import { hashPassword } from '@/lib/auth/password';
 import { checkRateLimit } from '@/lib/auth/rateLimit';
 import { createEmailVerificationToken } from '@/lib/auth/tokens';
-import { sendEmail } from '@/lib/email';
+import { sendEmail, authEmailHtml } from '@/lib/email';
 import { env } from '@/lib/env';
 
 // "Nothing more than that" — docs/lms-student-guide.md's data-minimization
@@ -65,7 +65,17 @@ export async function POST(request: NextRequest) {
 
   const token = await createEmailVerificationToken(userId);
   const verifyUrl = `${env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
-  await sendEmail(email, 'Verify your Learn with Shahid account', `Verify your email: ${verifyUrl}`);
+  await sendEmail(
+    email,
+    'Verify your Learn with Shahid account',
+    `Verify your email: ${verifyUrl}`,
+    authEmailHtml({
+      heading: 'Verify your email',
+      intro: "You're almost set — confirm your email address to activate your Learn with Shahid account.",
+      buttonLabel: 'Verify email',
+      buttonUrl: verifyUrl,
+    }),
+  );
 
   return NextResponse.json({ message: 'If that email can be registered, a verification email has been sent.' }, { status: 201 });
 }
