@@ -48,7 +48,9 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Prices</h2>
         <p className="text-sm text-text-muted">
-          The price actually charged always comes from this table, resolved server-side at checkout — never hardcoded, never trusted from the client.
+          Set the <strong className="text-text">USD</strong> price — that's the base every visitor's local-currency display (and the actual checkout
+          charge) is derived from automatically. Only add another currency row here if you want to override the auto-converted amount for a specific
+          market.
         </p>
         <div className="overflow-hidden rounded-lg border border-border">
           <table className="w-full text-sm">
@@ -93,7 +95,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         <form action={addPrice.bind(null, id)} className="flex flex-wrap items-end gap-3 rounded-lg border border-border p-4">
           <div>
             <label className="block text-sm text-text-muted">Currency (ISO 4217)</label>
-            <input name="currencyCode" placeholder="PKR" maxLength={3} required className="w-24 rounded-md border border-border bg-bg-elevated px-3 py-2" />
+            <input name="currencyCode" defaultValue="USD" maxLength={3} required className="w-24 rounded-md border border-border bg-bg-elevated px-3 py-2" />
           </div>
           <div>
             <label className="block text-sm text-text-muted">Country (optional, ISO 3166-1 alpha-2)</label>

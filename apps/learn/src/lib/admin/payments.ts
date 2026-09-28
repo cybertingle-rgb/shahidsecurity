@@ -1,6 +1,6 @@
 import { eq, desc } from 'drizzle-orm';
 import { db } from '@/db';
-import { payments, manualPaymentSubmissions, orders, users, products } from '@/db/schema';
+import { payments, manualPaymentSubmissions, orders, users, products, paymentMethods } from '@/db/schema';
 
 export async function listPendingManualPayments() {
   return db
@@ -11,6 +11,7 @@ export async function listPendingManualPayments() {
       orderNumber: orders.orderNumber,
       amount: payments.amount,
       currencyCode: payments.currencyCode,
+      paymentMethodName: paymentMethods.name,
       transactionReference: manualPaymentSubmissions.transactionReference,
       amountClaimed: manualPaymentSubmissions.amountClaimed,
       paymentDate: manualPaymentSubmissions.paymentDate,
@@ -25,6 +26,7 @@ export async function listPendingManualPayments() {
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .innerJoin(users, eq(orders.userId, users.id))
     .innerJoin(products, eq(orders.productId, products.id))
+    .leftJoin(paymentMethods, eq(payments.paymentMethodId, paymentMethods.id))
     .where(eq(manualPaymentSubmissions.status, 'pending'))
     .orderBy(desc(manualPaymentSubmissions.paymentDate));
 }

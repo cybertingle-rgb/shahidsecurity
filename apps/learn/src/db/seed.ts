@@ -138,7 +138,7 @@ async function main() {
   await upsertUser('student.a@learnwithshahid.test', 'Student A (seed)', studentRole.id, true);
   await upsertUser('student.b@learnwithshahid.test', 'Student B (seed)', studentRole.id, true);
 
-  console.log('Seeding the Learn with Shahid Enrollment product (PKR 800)...');
+  console.log('Seeding the Learn with Shahid Enrollment product ($8.00 USD)...');
   const [existingProduct] = await db.select().from(schema.products).where(eq(schema.products.name, 'Learn with Shahid Enrollment'));
   let enrollmentProductId = existingProduct?.id;
   if (!enrollmentProductId) {
@@ -155,16 +155,17 @@ async function main() {
 
   const [existingPrice] = await db.select().from(schema.prices).where(eq(schema.prices.productId, enrollmentProductId));
   if (!existingPrice) {
-    // 800 PKR stored as 80000 minor units — ISO 4217 gives PKR a 2-decimal
-    // minor unit, same convention used for every currency in this table
-    // (docs/lms-database.md) so the "never hardcode PKR 800" requirement
-    // holds structurally: this is the ONE place the number 800 appears.
+    // USD is the admin's base currency (src/lib/currency.ts converts to
+    // every visitor's local currency for display from this one row) —
+    // fake dev-only amount, same convention used for every currency in
+    // this table (docs/lms-database.md) so "never hardcode a price"
+    // holds structurally: this is the ONE place this fake number appears.
     await db.insert(schema.prices).values({
       id: crypto.randomUUID(),
       productId: enrollmentProductId,
-      currencyCode: 'PKR',
+      currencyCode: 'USD',
       countryCode: null,
-      amount: 80000,
+      amount: 800,
     });
   }
 

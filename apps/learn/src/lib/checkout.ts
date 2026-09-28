@@ -1,13 +1,15 @@
 import { eq, and, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { orders, payments, manualPaymentSubmissions, products, prices } from '@/db/schema';
+import { orders, payments, manualPaymentSubmissions, products, prices, paymentMethods } from '@/db/schema';
 import { resolvePrice, type ResolvedPrice } from './pricing';
+import { BASE_CURRENCY } from './currency';
 
-// V1 is PKR-only per docs/LMS_V1_SCOPE.md — no country/currency picker yet,
-// so checkout always resolves the PKR price. Multi-currency is designed in
-// the schema (prices.currencyCode/countryCode) but not wired to a picker
-// until that's actually scoped.
-const CHECKOUT_CURRENCY = 'PKR';
+// The admin always enters/updates a product's price in USD — that single
+// row is the source of truth every visitor's local-currency display and
+// every order/payment record derives from (lib/currency.ts converts for
+// *display* only; the ledger itself always stays in USD, unaffected by
+// which currency a page happened to show someone at the time).
+const CHECKOUT_CURRENCY = BASE_CURRENCY;
 
 /**
  * One batched query for every active product's price, not one resolvePrice
@@ -56,22 +58,28 @@ function generateOrderNumber(): string {
 }
 
 /**
- * Creates the order/payment/submission chain for a manual bank-transfer
- * claim — the amount charged is always the server-resolved price
- * (resolvePrice), never anything the client sent, per
- * docs/lms-security.md's "a payment success response cannot be faked from
- * the browser" rule. This only ever reaches `pending_verification` — an
- * admin approving it in /admin/payments (approveManualPayment) is the only
- * code path that flips it to paid and grants access.
+ * Creates the order/payment/submission chain for a manual payment claim
+ * against whichever admin-defined payment method the student picked (bank
+ * transfer, crypto, mobile wallet, ...). The amount charged is always the
+ * server-resolved USD price (resolvePrice), never anything the client
+ * sent, per docs/lms-security.md's "a payment success response cannot be
+ * faked from the browser" rule. This only ever reaches
+ * `pending_verification` — an admin approving it in /admin/payments
+ * (approveManualPayment) is the only code path that flips it to paid and
+ * grants access.
  */
-export async function submitManualBankTransfer(
+export async function submitManualPayment(
   userId: string,
   productId: string,
+  paymentMethodId: string,
   details: { transactionReference: string; amountClaimed: number; paymentDate: Date; receiptFileUrl?: string | null },
 ): Promise<{ ok: true; orderNumber: string } | { ok: false; error: string }> {
   const resolved = await getPurchasableProduct(productId);
   if (!resolved) return { ok: false, error: 'This product is not currently available for purchase.' };
   const { price } = resolved;
+
+  const [method] = await db.select().from(paymentMethods).where(and(eq(paymentMethods.id, paymentMethodId), eq(paymentMethods.isActive, true)));
+  if (!method) return { ok: false, error: 'That payment method is not available.' };
 
   if (!details.transactionReference.trim()) return { ok: false, error: 'A transaction reference is required.' };
   if (!Number.isFinite(details.amountClaimed) || details.amountClaimed < 0) return { ok: false, error: 'Enter a valid amount.' };
@@ -93,10 +101,11 @@ export async function submitManualBankTransfer(
   await db.insert(payments).values({
     id: paymentId,
     orderId,
-    provider: 'manual_bank_transfer',
+    provider: method.type,
     amount: price.amount,
     currencyCode: price.currencyCode,
-    method: 'manual_bank_transfer',
+    method: 'manual',
+    paymentMethodId: method.id,
     status: 'pending_verification',
     idempotencyKey: crypto.randomUUID(),
   });
