@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getCourse, listInstructors } from '@/lib/admin/courses';
-import { updateCourse, setCourseStatus } from '../actions';
+import Link from 'next/link';
+import { getCourse, listInstructors, listModulesWithLessons } from '@/lib/admin/courses';
+import { updateCourse, setCourseStatus, createModule, deleteModule, createLesson, deleteLesson } from '../actions';
 
 const NEXT_STATUS: Record<string, { label: string; status: 'draft' | 'review' | 'published' | 'archived' }[]> = {
   draft: [{ label: 'Submit for review', status: 'review' }],
@@ -12,9 +13,11 @@ const NEXT_STATUS: Record<string, { label: string; status: 'draft' | 'review' | 
   archived: [{ label: 'Restore to draft', status: 'draft' }],
 };
 
+const LESSON_TYPES = ['text', 'video', 'pdf', 'image', 'code', 'quiz', 'assignment', 'external_resource', 'download'] as const;
+
 export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [course, instructors] = await Promise.all([getCourse(id), listInstructors()]);
+  const [course, instructors, modules] = await Promise.all([getCourse(id), listInstructors(), listModulesWithLessons(id)]);
   if (!course) notFound();
 
   return (
@@ -98,9 +101,75 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
         </button>
       </form>
 
-      <p className="text-sm text-text-muted">
-        Modules and lessons are managed once course-player work begins (Phase 5 — see docs/LMS_IMPLEMENTATION_PLAN.md).
-      </p>
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Modules & lessons</h2>
+
+        {modules.map((mod) => (
+          <div key={mod.id} className="rounded-lg border border-border p-4">
+            <div className="flex items-center justify-between">
+              <p className="font-medium">{mod.title}</p>
+              <form action={deleteModule.bind(null, id, mod.id)}>
+                <button type="submit" className="text-xs text-danger">
+                  Delete module
+                </button>
+              </form>
+            </div>
+
+            <ul className="mt-3 space-y-2">
+              {mod.lessons.map((lesson) => (
+                <li key={lesson.id} className="flex items-center justify-between rounded-md border border-border bg-bg-elevated/40 px-3 py-2 text-sm">
+                  <Link href={`/admin/courses/${id}/lessons/${lesson.id}`} className="text-neon">
+                    {lesson.title}
+                  </Link>
+                  <div className="flex items-center gap-3">
+                    <span className="text-text-muted">{lesson.type}</span>
+                    {lesson.isFreePreview && <span className="text-xs text-neon-soft">free preview</span>}
+                    <form action={deleteLesson.bind(null, id, lesson.id)}>
+                      <button type="submit" className="text-xs text-danger">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+              {mod.lessons.length === 0 && <li className="text-sm text-text-muted">No lessons yet.</li>}
+            </ul>
+
+            <form action={createLesson.bind(null, id, mod.id)} className="mt-3 flex flex-wrap items-end gap-2 border-t border-border pt-3">
+              <div>
+                <label className="block text-xs text-text-muted">New lesson title</label>
+                <input name="title" required className="rounded-md border border-border bg-bg-elevated px-2 py-1 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs text-text-muted">Type</label>
+                <select name="type" className="rounded-md border border-border bg-bg-elevated px-2 py-1 text-sm">
+                  {LESSON_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <label className="flex items-center gap-1 text-xs text-text-muted">
+                <input type="checkbox" name="isFreePreview" /> Free preview
+              </label>
+              <button type="submit" className="rounded-md bg-neon px-3 py-1.5 text-xs font-medium text-bg">
+                Add lesson
+              </button>
+            </form>
+          </div>
+        ))}
+
+        <form action={createModule.bind(null, id)} className="flex items-end gap-2 rounded-lg border border-dashed border-border-strong p-4">
+          <div className="flex-1">
+            <label className="block text-xs text-text-muted">New module title</label>
+            <input name="title" required className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm" />
+          </div>
+          <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+            Add module
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
