@@ -1,6 +1,17 @@
 # Learn with Shahid — Progress
 
-**Current phase:** Phase 4 — Student dashboard, code complete. **Built, tested (real browser automation, not just unit tests), and verified locally against MySQL. Real deployment is on hold while you transfer the domain to a new host with a higher plan (Hostinger's Node.js hosting turned out to need a plan upgrade) — see "Hosting update" below. Local development continues regardless.**
+**Current phase:** Phases 1–11 complete and deployed to production (`learn.shahidiqbal.com`, Hostinger). Phase 12 (security review) done as a lightweight pass alongside Phases 5–11 rather than a separate round — see "Phases 5–12 (this session)" below. Phases 13–14 (dedicated performance/load testing, the full negative-test checklist) are not done as standalone rounds — the negative-test *coverage* that exists (IDOR, RBAC, payment-amount-integrity) was written alongside each phase instead, and is listed below. **Phase 15 (production launch) is not signed off**: a real online payment gateway still needs your merchant credentials (not something to fabricate), and going fully live is an explicit sign-off gate per `LMS_IMPLEMENTATION_PLAN.md`, not assumed here.
+
+### Phases 5–12 (this session)
+
+- **Phase 5 — Courses/lessons**: admin module/lesson CRUD and a quiz builder on `/admin/courses/[id]`; a real student course player (`/dashboard/courses/[id]` and its lesson pages) rendering every lesson type, tracking `lesson_progress`/`course_progress`, and a quiz-taking flow whose grading and `maxAttempts` enforcement happen entirely server-side.
+- **Phase 6 — Membership**: fixed the real bug behind "membership/pricing shows nothing" — granting a product (admin manual-grant or an approved payment) now also creates/updates its `memberships` row and flips gated `community_access` rows to `eligible`, via one shared `src/lib/enrollment.ts`, instead of two grant paths that could drift apart.
+- **Phase 7 — Payments**: a real student checkout (`/dashboard/checkout`) for manual bank transfer — order/payment/submission rows land in the admin verification queue that already existed since Phase 3. The order/payment amount is always server-resolved (`resolvePrice`), never the client's claimed amount. **A real online payment gateway (Safepay or similar) is not integrated** — that needs your actual merchant account, which nothing here can substitute for.
+- **Phase 8 — Community management**: `/admin/communities/[id]` lists who's eligible for a gated community and lets an admin mark them invited/joined — this had no UI at all before, even though the `community_access` state machine existed in schema since Phase 2.
+- **Phase 9 — Progress/quizzes**: covered as part of Phase 5's course player (progress tracking and the quiz engine are the same code).
+- **Phase 10 — SEO**: `/learn/roadmap`, `/learn/courses`, `/learn/pricing` on shahidiqbal.com, each doing a build-time fetch against a new public API on the LMS app (`/api/public/roadmap`, `/api/public/pricing`) with a graceful fallback if that fetch fails. Added `/admin/roadmap` since the roadmap had schema and dev-seed data but no admin editor at all.
+- **Phase 11 — Basic analytics**: a stats row on `/admin` (total students, active enrollments, total orders, revenue from paid orders) — counts only, no charts/exports, per `LMS_V1_SCOPE.md`.
+- **Phase 12 — Security review**: removed `/api/internal/bootstrap-admin` (a one-time setup endpoint that had been left live — it could mint a super_admin account for any email given the right secret header; no longer needed once the real super_admin account existed). `/api/internal/migrate` is kept — it's genuinely load-bearing on this host (no shell access to run migrations otherwise), not leftover debt. Verified every new admin Server Action starts with a `requireAdminAction` permission check. Hardened checkout against malformed numeric/date input (previously could throw a 500 instead of failing cleanly). 45 automated tests passing (up from 26), including dedicated IDOR/negative tests for the course player, enrollment grants, and checkout's price-integrity guarantee.
 
 ## Completed
 
@@ -41,7 +52,9 @@ One real bug caught and fixed during this round, unrelated to the app: the first
 ## Mid-Phase-2 change: PostgreSQL → MySQL (for context)
 You asked why an external Postgres provider was needed given you already have Hostinger hosting. The whole database layer was rewritten to MySQL so everything runs on your existing account — see the Phase 2 commit and `apps/learn/README.md`'s "Two database users" section for the one real trade-off that came out of it (MySQL needs two DB users and `GRANT OPTION` to make `audit_logs` genuinely tamper-proof at the database level; unconfirmed whether your plan allows it).
 
-## Hosting update (2026-09-27): moving off Hostinger
+## Hosting update (2026-09-27, resolved): moving off Hostinger — superseded
+
+**Resolved as of the deploy that shipped Phases 5–12**: the app is live at `learn.shahidiqbal.com` on Hostinger's Git-based Node.js App hosting after all, on the same account as the main site — the plan/product mismatch below turned out to be solvable without a host migration. Left as-is for the history; nothing below is still true operationally.
 
 Turns out Hostinger's Node.js "Web App" hosting is locked on your current plan — it requires Business or a Cloud plan (Cloud Startup/Professional/Enterprise), not available on Premium/entry shared hosting. Rather than upgrade Hostinger, **you're transferring the domain to a different host where you already have a higher plan.** Plan, as you described it:
 
@@ -51,25 +64,21 @@ Turns out Hostinger's Node.js "Web App" hosting is locked on your current plan �
 
 **I'm not touching DNS, hosting configs, or either deploy workflow until the transfer is done and you share the new host's details** — domain transfers are delicate and I don't want to interfere with one mid-flight. One likely upside once we get there: many modern hosts (including Hostinger's own Business/Cloud tier, for what it's worth) auto-deploy directly from a connected GitHub repo, which would replace the manual SSH/rsync + untested Passenger-restart-file approach `deploy-lms.yml` currently uses with something more reliable.
 
-## What I could not do myself (not a permission gate — a capability one)
+## What I could not do myself (not a permission gate — a capability one) — resolved
 
-I have no browser and no external account credentials in this sandbox. Real deployment of Phases 2–3 is on hold until:
-
-1. **The domain transfer completes** and `shahidiqbal.com` is deploying on the new host.
-2. **You share the new host's deployment mechanism** (GitHub auto-deploy vs. SSH, its Node.js version support, and whether it's MySQL or something else) so I can update `.github/workflows/deploy.yml` and then `deploy-lms.yml`/`apps/learn`'s database layer to match — worth revisiting the MySQL-vs-Postgres call too if the new host makes Postgres easier than Hostinger did.
-
-`deploy-lms.yml` (still pointed at Hostinger) will keep failing on every push to `apps/learn/**` until this is sorted — expected, harmless (touches nothing live), not something to work around by faking a value.
+The domain-transfer blocker above never materialized (the app deployed to Hostinger directly instead). What I genuinely still cannot do myself, as of Phases 5–12: provide real online-payment-gateway merchant credentials, or give the Phase 15 go-live sign-off — both need you specifically.
 
 ## Next
 
-1. You: finish the domain transfer, get `shahidiqbal.com` live on the new host via its GitHub integration, then tell me so I can update the deploy workflows.
-2. Me, in the meantime: keep building Phase 5 (course content: modules/lessons/lesson progress tracking) and beyond against the local dev database — none of that depends on where it eventually deploys.
-3. Payment provider and transactional email provider choices remain open, needed by Phase 7, not blocking anything before it.
+1. You: create the real "Learn with Shahid Enrollment" product + PKR price in `/admin/products` if you haven't already (Phase 6 fixed the code path, but the actual production row is yours to create — never fabricated on your behalf). Fill in `/admin/settings`'s bank transfer instructions so `/dashboard/checkout` shows real payment details instead of a placeholder.
+2. You: choose and provide credentials for a real online payment gateway when ready for Phase 7's "one properly integrated provider" — manual bank transfer works today without it.
+3. You: explicit sign-off for Phase 15 (production launch) — not assumed from any earlier approval.
+4. Me: continue building V2 features once you want them scoped (certificates, coupons, live classes, subscriptions, corporate training — all listed in `LMS_V1_SCOPE.md`'s exclusion table, all schema-ready, none built).
 
 ## Blocked
 
-Real deployment is blocked on the domain transfer + new host details above. Nothing else is blocked — Phase 5 onward can continue against the local dev database regardless.
+Only on things that need something only you have: real payment gateway credentials (Phase 7's online provider), and your explicit go-live approval (Phase 15). Nothing else is blocked.
 
 ## Not started
 
-Phases 5–15 in full, per `LMS_IMPLEMENTATION_PLAN.md`.
+V2 features only (`LMS_V1_SCOPE.md`'s exclusion table): certificates + public verification, coupons, course bundles, live classes, advanced analytics, automated email campaigns, a second payment provider, subscriptions, mentorship, corporate training, community-platform API automation.

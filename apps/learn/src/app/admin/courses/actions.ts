@@ -226,9 +226,11 @@ export async function upsertQuiz(lessonId: string, formData: FormData) {
   const courseId = await getCourseIdForLesson(lessonId);
   if (!courseId) throw new Error('Lesson not found.');
 
-  const passingPercentage = Number(formData.get('passingPercentage') ?? 70);
+  const passingPercentageRaw = Number(formData.get('passingPercentage'));
+  const passingPercentage = Number.isFinite(passingPercentageRaw) ? passingPercentageRaw : 70;
   const maxAttemptsRaw = String(formData.get('maxAttempts') ?? '').trim();
-  const maxAttempts = maxAttemptsRaw ? Number(maxAttemptsRaw) : null;
+  const maxAttemptsParsed = maxAttemptsRaw ? Number(maxAttemptsRaw) : null;
+  const maxAttempts = maxAttemptsParsed !== null && Number.isFinite(maxAttemptsParsed) ? maxAttemptsParsed : null;
 
   const [existing] = await db.select({ id: quizzes.id }).from(quizzes).where(eq(quizzes.lessonId, lessonId));
   if (existing) {
