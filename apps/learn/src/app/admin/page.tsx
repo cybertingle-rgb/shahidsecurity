@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getAdminOverviewStats } from '@/lib/admin/analytics';
 
 const SECTIONS = [
   { href: '/admin/students', label: 'Students', description: 'Search, view profiles, suspend/reactivate, manual enroll' },
@@ -13,15 +14,37 @@ const SECTIONS = [
   { href: '/admin/roadmap', label: 'Roadmap', description: 'The 18-stage cybersecurity roadmap shown on shahidiqbal.com/learn/roadmap' },
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const stats = await getAdminOverviewStats();
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
         <p className="text-text-muted">
-          Phase 3 of `LMS_IMPLEMENTATION_PLAN.md`. Coupons and certificates are V2 and intentionally not here yet — see `docs/LMS_V1_SCOPE.md`.
+          Coupons and certificates are V2 and intentionally not here yet — see `docs/LMS_V1_SCOPE.md`.
         </p>
       </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Total students</p>
+          <p className="mt-1 text-2xl font-semibold">{stats.totalStudents}</p>
+        </div>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Active enrollments</p>
+          <p className="mt-1 text-2xl font-semibold">{stats.activeEnrollments}</p>
+        </div>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Total orders</p>
+          <p className="mt-1 text-2xl font-semibold">{stats.totalOrders}</p>
+        </div>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Revenue (paid orders)</p>
+          <p className="mt-1 text-2xl font-semibold text-neon">PKR {(stats.totalRevenueMinorUnits / 100).toLocaleString()}</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {SECTIONS.map((section) => (
           <Link
