@@ -3,7 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
-import { communities } from '@/db/schema';
+import { communities, communityAccess } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
 
@@ -45,4 +45,24 @@ export async function toggleCommunityStatus(id: string, nextStatus: 'active' | '
   await db.update(communities).set({ status: nextStatus }).where(eq(communities.id, id));
   await logAudit({ actorUserId: admin.id, action: `community.status_changed.${nextStatus}`, targetType: 'community', targetId: id });
   revalidatePath('/admin/communities');
+}
+
+/**
+ * The actual invite (adding someone to the Discord/Telegram/etc.) always
+ * happens by hand, outside this app — this just records that it happened,
+ * moving the eligible -> invited step of the community_access state
+ * machine (docs/lms-security.md). Never auto-invites via a platform API.
+ */
+export async function markInvited(communityAccessId: string, communityId: string) {
+  const admin = await requireAdminAction('communities.manage');
+  await db.update(communityAccess).set({ status: 'invited', invitedAt: new Date() }).where(eq(communityAccess.id, communityAccessId));
+  await logAudit({ actorUserId: admin.id, action: 'community_access.invited', targetType: 'community_access', targetId: communityAccessId });
+  revalidatePath(`/admin/communities/${communityId}`);
+}
+
+export async function markJoined(communityAccessId: string, communityId: string) {
+  const admin = await requireAdminAction('communities.manage');
+  await db.update(communityAccess).set({ status: 'joined', joinedAt: new Date() }).where(eq(communityAccess.id, communityAccessId));
+  await logAudit({ actorUserId: admin.id, action: 'community_access.joined', targetType: 'community_access', targetId: communityAccessId });
+  revalidatePath(`/admin/communities/${communityId}`);
 }
