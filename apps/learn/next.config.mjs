@@ -28,6 +28,15 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/api/internal/migrate/route': ['./drizzle/**/*'],
   },
+  experimental: {
+    // Turbopack's default 'childProcesses' strategy spawns a pool of OS
+    // processes for webpack-loader work (PostCSS included) and talks to
+    // them over sockets. On this host that pool has been failing to spawn
+    // under load ("node process exited before we could connect to it"),
+    // panicking the build mid-CSS-processing. workerThreads does the same
+    // work in-process instead, sidestepping the spawn/connect race.
+    turbopackPluginRuntimeStrategy: 'workerThreads',
+  },
   async headers() {
     return [
       {
