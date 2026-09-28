@@ -15,6 +15,13 @@
       "when": 1790626780976,
       "tag": "0001_nosy_namora",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790627661232,
+      "tag": "0002_nice_drax",
+      "breakpoints": true
     }
   ]
 }

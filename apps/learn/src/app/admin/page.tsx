@@ -11,6 +11,7 @@ const SECTIONS = [
   { href: '/admin/communities', label: 'Communities', description: 'Discord/Facebook/Telegram invite links and eligibility rules' },
   { href: '/admin/announcements', label: 'Announcements', description: 'Publish updates to students' },
   { href: '/admin/payment-methods', label: 'Payment Methods', description: 'Bank transfer, crypto wallets, mobile wallets — add as many as you need' },
+  { href: '/admin/exchange-rates', label: 'Exchange Rates', description: "Set today's USD conversion rate per currency — stays fixed until you change it" },
   { href: '/admin/settings', label: 'Settings', description: 'Support email' },
   { href: '/admin/roadmap', label: 'Roadmap', description: 'The 18-stage cybersecurity roadmap shown on shahidiqbal.com/learn/roadmap' },
 ];

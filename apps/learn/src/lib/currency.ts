@@ -1,12 +1,18 @@
-import { getSetting, setSetting } from './settings';
+import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { exchangeRates } from '@/db/schema';
 
 /**
- * Geo/FX-based currency localization — display-only. The transactional
- * ledger (orders/payments) stays in USD, unchanged; this layer only ever
- * decides what number to *show* a given visitor. That split means this
- * whole file can fail (network down, API rate-limited, whatever) without
- * breaking checkout — every function here degrades to "just show USD"
- * rather than throwing.
+ * Geo-IP currency localization — display-only. The transactional ledger
+ * (orders/payments) stays in USD, unchanged; this layer only ever decides
+ * what number to *show* a given visitor. Every function here degrades to
+ * "just show USD" on any failure rather than throwing, so this file can
+ * never break checkout.
+ *
+ * Exchange rates are admin-entered (see /admin/exchange-rates), not fetched
+ * from a live FX API — deliberately: the admin sets today's rate once and
+ * it holds exactly there, unchanged, until they update it again. No
+ * external FX dependency, no silent drift between page loads.
  */
 
 // Deliberately not exhaustive — every country not listed falls back to
@@ -49,7 +55,12 @@ const COUNTRY_TO_CURRENCY: Record<string, string> = {
 
 export const BASE_CURRENCY = 'USD';
 
-/** Best-effort — reads the first hop off x-forwarded-for; never the source of truth for anything security-sensitive. */
+/**
+ * Best-effort — reads the first hop off x-forwarded-for (the visitor's
+ * real IP, not anything the browser itself reports — Chrome's own
+ * location setting/permission is unrelated and never consulted); never
+ * the source of truth for anything security-sensitive.
+ */
 function extractClientIp(headers: Headers): string | null {
   const forwarded = headers.get('x-forwarded-for');
   if (forwarded) return forwarded.split(',')[0]?.trim() || null;
@@ -97,47 +108,36 @@ export function currencyForCountry(countryCode: string | null): string {
 type RateTable = Record<string, number>; // currencyCode -> units per 1 USD
 
 let ratesMemoryCache: { rates: RateTable; fetchedAt: number } | null = null;
-const RATES_TTL_MS = 6 * 60 * 60 * 1000;
-const RATES_SETTING_KEY = 'fx_rates_usd_cache';
+const RATES_CACHE_TTL_MS = 5 * 60 * 1000; // just enough to avoid a DB hit on every page load
 
 /**
- * Live USD exchange rates from a free, keyless API, cached in-memory for
- * this process and persisted to the settings table so a fresh server
- * start still has a recent-ish table before its first successful fetch
- * completes. Falls back to {} (meaning "only USD renders correctly") if
- * every layer fails — never throws.
+ * Reads admin-entered rates from the exchange_rates table — never a live
+ * external fetch. A short in-memory cache means an admin's rate update
+ * takes up to 5 minutes to show everywhere, not instantly; that's a
+ * deliberate trade for not hitting the DB on every single request.
  */
 export async function getUsdExchangeRates(): Promise<RateTable> {
-  if (ratesMemoryCache && Date.now() - ratesMemoryCache.fetchedAt < RATES_TTL_MS) {
+  if (ratesMemoryCache && Date.now() - ratesMemoryCache.fetchedAt < RATES_CACHE_TTL_MS) {
     return ratesMemoryCache.rates;
   }
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!res.ok) throw new Error(`FX rate fetch failed: ${res.status}`);
-    const data = (await res.json()) as { result?: string; rates?: RateTable };
-    if (data.result !== 'success' || !data.rates) throw new Error('FX rate response malformed');
+  const rows = await db.select().from(exchangeRates);
+  const rates: RateTable = {};
+  for (const row of rows) rates[row.currencyCode] = Number(row.rate);
 
-    ratesMemoryCache = { rates: data.rates, fetchedAt: Date.now() };
-    await setSetting(RATES_SETTING_KEY, { rates: data.rates, fetchedAt: Date.now() });
-    return data.rates;
-  } catch {
-    const cached = await getSetting<{ rates: RateTable; fetchedAt: number }>(RATES_SETTING_KEY);
-    if (cached?.rates) {
-      ratesMemoryCache = { rates: cached.rates, fetchedAt: cached.fetchedAt };
-      return cached.rates;
-    }
-    return {};
-  }
+  ratesMemoryCache = { rates, fetchedAt: Date.now() };
+  return rates;
+}
+
+/** Called by the admin exchange-rates actions after a write, so a rate change shows up immediately rather than waiting out the cache. */
+export function invalidateExchangeRateCache(): void {
+  ratesMemoryCache = null;
 }
 
 export function convertFromUsd(amountUsdMinorUnits: number, targetCurrency: string, rates: RateTable): { amount: number; currencyCode: string } {
   if (targetCurrency === BASE_CURRENCY) return { amount: amountUsdMinorUnits, currencyCode: BASE_CURRENCY };
   const rate = rates[targetCurrency];
-  if (!rate) return { amount: amountUsdMinorUnits, currencyCode: BASE_CURRENCY }; // no rate available — show USD rather than a wrong number
+  if (!rate) return { amount: amountUsdMinorUnits, currencyCode: BASE_CURRENCY }; // no admin-set rate — show USD rather than a wrong number
   return { amount: Math.round(amountUsdMinorUnits * rate), currencyCode: targetCurrency };
 }
 
@@ -147,4 +147,9 @@ export async function localizeAmountForRequest(amountUsdMinorUnits: number, head
   const currency = currencyForCountry(country);
   const rates = await getUsdExchangeRates();
   return convertFromUsd(amountUsdMinorUnits, currency, rates);
+}
+
+export async function getExchangeRateRow(currencyCode: string): Promise<{ rate: number; updatedAt: Date } | null> {
+  const [row] = await db.select().from(exchangeRates).where(eq(exchangeRates.currencyCode, currencyCode));
+  return row ? { rate: Number(row.rate), updatedAt: row.updatedAt } : null;
 }

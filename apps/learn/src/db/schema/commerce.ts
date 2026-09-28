@@ -1,4 +1,4 @@
-import { boolean, datetime, int, json, mysqlEnum, mysqlTable, text, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
+import { boolean, datetime, decimal, int, json, mysqlEnum, mysqlTable, text, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
 import { idColumn, fkColumn } from './columns';
 import { users } from './identity';
 import { instructors } from './courses';
@@ -49,6 +49,17 @@ export const prices = mysqlTable(
   },
   (table) => [uniqueIndex('prices_product_currency_country_idx').on(table.productId, table.currencyCode, table.countryCode)],
 );
+
+// Admin-set, never auto-updated from a live FX API — deliberately: the
+// admin enters today's rate once and it holds exactly there until they
+// change it again, not silently drifting between page loads. Units of
+// that currency per 1 USD (e.g. 285.50 for PKR).
+export const exchangeRates = mysqlTable('exchange_rates', {
+  id: idColumn(),
+  currencyCode: varchar('currency_code', { length: 3 }).notNull().unique(),
+  rate: decimal('rate', { precision: 18, scale: 6 }).notNull(),
+  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
+});
 
 export const orders = mysqlTable('orders', {
   id: idColumn(),
