@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
@@ -37,31 +38,27 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="min-h-screen bg-bg text-text">
-      <header className="border-b border-border px-6 py-4">
-        <p className="text-sm text-text-muted">Learn with Shahid</p>
-        <p className="text-lg font-semibold">Welcome, {user.fullName}</p>
+      <header className="portal-header sticky top-0 z-10 flex items-center gap-3 px-6 py-4">
+        <Image src="/icon.png" alt="Shahid Security" width={40} height={40} className="drop-shadow-[0_0_12px_rgba(0,191,99,0.35)]" priority />
+        <div>
+          <p className="text-sm text-text-muted">Learn with Shahid</p>
+          <p className="text-lg font-semibold">Welcome, {user.fullName}</p>
+        </div>
       </header>
       <div className="flex flex-col gap-6 p-6 sm:flex-row">
-        <nav className="flex shrink-0 gap-2 overflow-x-auto sm:w-48 sm:flex-col">
+        <nav className="portal-nav-panel flex shrink-0 gap-1 overflow-x-auto p-3 sm:w-52 sm:flex-col">
           {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-text-muted hover:bg-surface hover:text-text"
-            >
+            <Link key={item.href} href={item.href} className="whitespace-nowrap px-3 py-2 text-sm text-text-muted hover:text-text">
               {item.label}
             </Link>
           ))}
           {isAdmin && (
-            <Link
-              href="/admin"
-              className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-neon hover:bg-surface"
-            >
+            <Link href="/admin" className="whitespace-nowrap px-3 py-2 text-sm font-medium text-neon">
               Admin panel →
             </Link>
           )}
           <form action={logoutAction} className="sm:mt-4">
-            <button type="submit" className="w-full whitespace-nowrap rounded-md px-3 py-2 text-left text-sm text-danger hover:bg-surface">
+            <button type="submit" className="w-full whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger/10">
               Log out
             </button>
           </form>
