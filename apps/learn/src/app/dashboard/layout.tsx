@@ -2,7 +2,10 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
+import { getUserRoleNames } from '@/lib/rbac';
 import { logoutAction } from './logout-action';
+
+const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 
 const NAV = [
   { href: '/dashboard', label: 'Overview' },
@@ -29,6 +32,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect('/login');
   }
 
+  const roleNames = await getUserRoleNames(user.id);
+  const isAdmin = [...roleNames].some((name) => ADMIN_ROLE_NAMES.has(name));
+
   return (
     <div className="min-h-screen bg-bg text-text">
       <header className="border-b border-border px-6 py-4">
@@ -46,6 +52,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               {item.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-neon hover:bg-surface"
+            >
+              Admin panel →
+            </Link>
+          )}
           <form action={logoutAction} className="sm:mt-4">
             <button type="submit" className="w-full whitespace-nowrap rounded-md px-3 py-2 text-left text-sm text-danger hover:bg-surface">
               Log out
