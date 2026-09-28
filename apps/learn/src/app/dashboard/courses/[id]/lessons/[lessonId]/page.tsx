@@ -44,7 +44,15 @@ export default async function LessonPlayerPage({ params }: { params: Promise<{ i
 
       {lesson.type === 'video' && videoSource && (
         <div className="aspect-video w-full overflow-hidden rounded-lg border border-border">
-          <iframe src={videoEmbedUrl(videoSource.provider, videoSource.providerReference)} className="h-full w-full" allowFullScreen />
+          {videoSource.provider === 'youtube_unlisted' || videoSource.provider === 'vimeo' ? (
+            <iframe src={videoEmbedUrl(videoSource.provider, videoSource.providerReference)} className="h-full w-full" allowFullScreen />
+          ) : (
+            // A direct file URL (cloud_storage/other) is a real video resource,
+            // not a page to embed — <video> with preload="metadata" (not
+            // "auto") so opening the lesson doesn't start downloading the
+            // whole file before the student presses play.
+            <video src={videoSource.providerReference} controls preload="metadata" className="h-full w-full bg-black" />
+          )}
         </div>
       )}
 

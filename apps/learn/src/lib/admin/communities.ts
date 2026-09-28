@@ -41,5 +41,6 @@ export async function listCommunityMembers(communityId: string) {
     .from(communityAccess)
     .innerJoin(users, eq(communityAccess.userId, users.id))
     .where(eq(communityAccess.communityId, communityId))
-    .orderBy(desc(communityAccess.invitedAt));
+    .orderBy(desc(communityAccess.invitedAt))
+    .limit(100);
 }

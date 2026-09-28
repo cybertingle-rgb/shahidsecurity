@@ -1,6 +1,6 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { orders, payments, manualPaymentSubmissions, products } from '@/db/schema';
+import { orders, payments, manualPaymentSubmissions, products, prices } from '@/db/schema';
 import { resolvePrice, type ResolvedPrice } from './pricing';
 
 // V1 is PKR-only per docs/LMS_V1_SCOPE.md — no country/currency picker yet,
@@ -9,12 +9,36 @@ import { resolvePrice, type ResolvedPrice } from './pricing';
 // until that's actually scoped.
 const CHECKOUT_CURRENCY = 'PKR';
 
+/**
+ * One batched query for every active product's price, not one resolvePrice
+ * call per product (Phase 13 perf pass — the original loop was a real N+1
+ * against the catalog page). Safe to specialize this way *only* because
+ * listPurchasableProducts always resolves with countryCode=null — the
+ * per-product checkout path (getPurchasableProduct, below) keeps using the
+ * general resolvePrice() since a single lookup has nothing to batch.
+ */
 export async function listPurchasableProducts(): Promise<Array<{ id: string; name: string; description: string | null; type: string; price: ResolvedPrice }>> {
   const productRows = await db.select().from(products).where(eq(products.status, 'active'));
+  const productIds = productRows.map((p) => p.id);
+  if (productIds.length === 0) return [];
+
+  const priceRows = await db
+    .select()
+    .from(prices)
+    .where(and(inArray(prices.productId, productIds), eq(prices.currencyCode, CHECKOUT_CURRENCY), isNull(prices.countryCode), eq(prices.isActive, true)));
+  const priceByProductId = new Map(priceRows.map((p) => [p.productId, p]));
+
   const results: Array<{ id: string; name: string; description: string | null; type: string; price: ResolvedPrice }> = [];
   for (const p of productRows) {
-    const price = await resolvePrice(p.id, CHECKOUT_CURRENCY, null);
-    if (price) results.push({ id: p.id, name: p.name, description: p.description, type: p.type, price });
+    const priceRow = priceByProductId.get(p.id);
+    if (!priceRow) continue;
+    results.push({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      type: p.type,
+      price: { amount: priceRow.saleAmount ?? priceRow.amount, currencyCode: priceRow.currencyCode, priceId: priceRow.id },
+    });
   }
   return results;
 }
