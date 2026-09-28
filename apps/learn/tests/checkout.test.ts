@@ -78,6 +78,20 @@ describe('Checkout — manual bank transfer', () => {
     expect(orders).toHaveLength(0);
   });
 
+  it('rejects a non-finite amountClaimed or invalid paymentDate without throwing', async () => {
+    const userId = await makeUser('badinput@checkout.test');
+    const productId = await makeActiveProductWithPrice(50000);
+
+    const badAmount = await submitManualBankTransfer(userId, productId, { transactionReference: 'TXN', amountClaimed: NaN, paymentDate: new Date() });
+    expect(badAmount.ok).toBe(false);
+
+    const badDate = await submitManualBankTransfer(userId, productId, { transactionReference: 'TXN', amountClaimed: 500, paymentDate: new Date('not-a-date') });
+    expect(badDate.ok).toBe(false);
+
+    const orders = await testDb.select().from(schema.orders).where(eq(schema.orders.userId, userId));
+    expect(orders).toHaveLength(0);
+  });
+
   it('rejects a submission with a blank transaction reference', async () => {
     const userId = await makeUser('blankref@checkout.test');
     const productId = await makeActiveProductWithPrice(50000);

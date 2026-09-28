@@ -50,6 +50,8 @@ export async function submitManualBankTransfer(
   const { price } = resolved;
 
   if (!details.transactionReference.trim()) return { ok: false, error: 'A transaction reference is required.' };
+  if (!Number.isFinite(details.amountClaimed) || details.amountClaimed < 0) return { ok: false, error: 'Enter a valid amount.' };
+  if (Number.isNaN(details.paymentDate.getTime())) return { ok: false, error: 'Enter a valid payment date.' };
 
   const orderId = crypto.randomUUID();
   const orderNumber = generateOrderNumber();
