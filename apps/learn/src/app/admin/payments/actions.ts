@@ -6,6 +6,7 @@ import { db } from '@/db';
 import { manualPaymentSubmissions, payments, orders, enrollments } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
+import { grantProductAccess } from '@/lib/enrollment';
 
 async function loadSubmissionChain(submissionId: string) {
   const [submission] = await db.select().from(manualPaymentSubmissions).where(eq(manualPaymentSubmissions.id, submissionId));
@@ -37,6 +38,12 @@ export async function approveManualPayment(submissionId: string) {
     source: 'purchase',
     status: 'active',
   });
+
+  // Same grant side effects as the admin manual-enroll action — a
+  // membership-type product needs its own `memberships` row, and any
+  // community gated on this product needs its eligibility flipped. One
+  // shared path (src/lib/enrollment.ts) so the two can't drift apart.
+  await grantProductAccess(order.userId, order.productId);
 
   await logAudit({
     actorUserId: admin.id,

@@ -9,6 +9,7 @@ const SECTIONS = [
   { href: '/admin/payments', label: 'Payments', description: 'Manual payment verification queue' },
   { href: '/admin/communities', label: 'Communities', description: 'Discord/Facebook/Telegram invite links and eligibility rules' },
   { href: '/admin/announcements', label: 'Announcements', description: 'Publish updates to students' },
+  { href: '/admin/settings', label: 'Settings', description: 'Bank transfer instructions and support email' },
 ];
 
 export default function AdminDashboardPage() {
