@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { roadmapStages, roadmapStageResources, courses } from '@/db/schema';
 
@@ -10,32 +10,44 @@ import { roadmapStages, roadmapStageResources, courses } from '@/db/schema';
  * and synced the same way course marketing data is"). A stage only ever
  * carries a course link once a *published* course actually exists for it
  * — never a placeholder "coming soon" card, per that same doc.
+ *
+ * One batched query for every stage's resources, not one query per stage
+ * (Phase 13 perf pass — the original per-stage Promise.all was a real N+1,
+ * 18+ round-trips for what's now a single one).
  */
 export async function GET() {
   const stages = await db.select().from(roadmapStages).orderBy(asc(roadmapStages.sortOrder));
+  const stageIds = stages.map((s) => s.id);
 
-  const stageRows = await Promise.all(
-    stages.map(async (stage) => {
-      const linkRows = await db
-        .select({ courseSlug: courses.slug, courseTitle: courses.title, courseStatus: courses.status, externalLinks: roadmapStageResources.externalLinks })
+  const linkRows = stageIds.length
+    ? await db
+        .select({
+          roadmapStageId: roadmapStageResources.roadmapStageId,
+          courseSlug: courses.slug,
+          courseTitle: courses.title,
+          courseStatus: courses.status,
+          externalLinks: roadmapStageResources.externalLinks,
+        })
         .from(roadmapStageResources)
         .leftJoin(courses, eq(roadmapStageResources.courseId, courses.id))
-        .where(eq(roadmapStageResources.roadmapStageId, stage.id));
+        .where(inArray(roadmapStageResources.roadmapStageId, stageIds))
+    : [];
 
-      const course = linkRows.find((r) => r.courseSlug && r.courseStatus === 'published');
-      const externalLinks = linkRows.flatMap((r) => r.externalLinks ?? []);
+  const stageRows = stages.map((stage) => {
+    const links = linkRows.filter((r) => r.roadmapStageId === stage.id);
+    const course = links.find((r) => r.courseSlug && r.courseStatus === 'published');
+    const externalLinks = links.flatMap((r) => r.externalLinks ?? []);
 
-      return {
-        levelNumber: stage.levelNumber,
-        title: stage.title,
-        description: stage.description,
-        prerequisitesText: stage.prerequisitesText,
-        isRequired: stage.isRequired,
-        course: course ? { slug: course.courseSlug, title: course.courseTitle } : null,
-        externalLinks,
-      };
-    }),
-  );
+    return {
+      levelNumber: stage.levelNumber,
+      title: stage.title,
+      description: stage.description,
+      prerequisitesText: stage.prerequisitesText,
+      isRequired: stage.isRequired,
+      course: course ? { slug: course.courseSlug, title: course.courseTitle } : null,
+      externalLinks,
+    };
+  });
 
   return NextResponse.json({ stages: stageRows }, { headers: { 'Cache-Control': 'public, max-age=300' } });
 }
