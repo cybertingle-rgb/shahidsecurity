@@ -21,8 +21,164 @@
 }
 
 body {
-  background: var(--color-bg);
+  background:
+    radial-gradient(ellipse 1200px 700px at 15% -10%, color-mix(in oklab, var(--color-neon) 7%, transparent), transparent 55%),
+    radial-gradient(ellipse 1000px 800px at 100% 100%, color-mix(in oklab, #3b9bff 6%, transparent), transparent 55%),
+    var(--color-bg);
   color: var(--color-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Admin/student portal — 3D card language                             */
+/* ------------------------------------------------------------------ */
+/* Deliberately targets the *existing* utility-class combination every
+   admin/dashboard card, table, and form already carries
+   (rounded-lg + border + border-border), rather than introducing a new
+   class every page would need to adopt one by one — this single block
+   upgrades every such panel across both portals at once, and any new
+   page written the same way (which is the established pattern in this
+   codebase) picks it up automatically, no extra markup required. */
+
+.rounded-lg.border.border-border,
+.rounded-lg.border.border-dashed.border-border-strong {
+  position: relative;
+  border-radius: 1.1rem !important;
+  background: linear-gradient(160deg, color-mix(in oklab, var(--color-surface) 94%, white 5%), var(--color-bg-elevated));
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 8%, transparent) inset,
+    0 0 0 1px color-mix(in oklab, var(--color-border-strong) 50%, transparent),
+    0 18px 40px -18px rgba(0, 0, 0, 0.75),
+    0 6px 16px -4px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 200ms ease-out;
+}
+
+.rounded-lg.border.border-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, color-mix(in oklab, var(--color-neon) 22%, transparent), transparent 40%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.rounded-lg.border.border-border:hover {
+  border-color: color-mix(in oklab, var(--color-border-strong) 70%, var(--color-neon) 30%);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 10%, transparent) inset,
+    0 0 0 1px color-mix(in oklab, var(--color-neon) 30%, transparent),
+    0 28px 56px -20px rgba(0, 0, 0, 0.8),
+    0 0 32px -8px color-mix(in oklab, var(--color-neon) 35%, transparent);
+  transform: translateY(-4px) scale(1.006);
+}
+
+/* Table rows/containers shouldn't lift on hover (too much motion in a
+   dense list) — just a quieter depth + a subtle highlight per-row. */
+table .rounded-lg.border.border-border:hover,
+tr:hover {
+  transform: none;
+}
+
+tbody tr {
+  transition: background-color 150ms ease-out;
+}
+
+tbody tr:hover {
+  background: color-mix(in oklab, var(--color-neon) 4%, transparent);
+}
+
+/* Primary CTA buttons (bg-neon) — every "Save"/"Add"/"Approve" action
+   across both portals shares this class already. */
+.bg-neon {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-neon) 40%, transparent),
+    0 8px 20px -8px color-mix(in oklab, var(--color-neon) 70%, transparent);
+  transition:
+    transform 150ms ease-out,
+    box-shadow 150ms ease-out,
+    filter 150ms ease-out;
+}
+
+.bg-neon:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-neon) 55%, transparent),
+    0 10px 28px -8px color-mix(in oklab, var(--color-neon) 85%, transparent);
+  transform: translateY(-1px);
+}
+
+.bg-neon:active {
+  transform: translateY(0);
+}
+
+/* Text inputs/selects/textareas — a visible lift on focus instead of the
+   flat default browser outline. */
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  transition:
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+input:not([type='checkbox']):not([type='radio']):focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-neon) 60%, var(--color-border));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-neon) 18%, transparent);
+}
+
+/* The admin/dashboard header bars (a border-bottom + flex row today) —
+   a touch of glass instead of a flat line. */
+.portal-header {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--color-surface) 55%, transparent), transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border-strong) 60%, transparent);
+}
+
+.portal-nav-panel {
+  background: linear-gradient(160deg, color-mix(in oklab, var(--color-surface) 85%, white 2%), var(--color-bg-elevated));
+  border: 1px solid var(--color-border);
+  border-radius: 1.1rem;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 6%, transparent) inset,
+    0 0 0 1px color-mix(in oklab, var(--color-border-strong) 40%, transparent),
+    0 18px 36px -20px rgba(0, 0, 0, 0.75);
+}
+
+.portal-nav-panel a {
+  border-radius: 0.6rem;
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+.portal-nav-panel a:hover {
+  background: color-mix(in oklab, var(--color-neon) 10%, transparent);
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rounded-lg.border.border-border,
+  .bg-neon,
+  .portal-nav-panel a {
+    transition: none;
+  }
+  .rounded-lg.border.border-border:hover,
+  .bg-neon:hover {
+    transform: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */
