@@ -21,6 +21,7 @@ export default async function PaymentsPage() {
                 </p>
                 <p className="text-sm text-text-muted">
                   {p.productName} — order {p.orderNumber} — {(p.amount / 100).toFixed(2)} {p.currencyCode}
+                  {p.paymentMethodName && <span> — via {p.paymentMethodName}</span>}
                 </p>
                 <p className="text-sm text-text-muted">
                   Claimed: {(p.amountClaimed / 100).toFixed(2)} on {p.paymentDate.toLocaleDateString()}, ref {p.transactionReference}

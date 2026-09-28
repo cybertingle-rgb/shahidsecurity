@@ -48,11 +48,12 @@ function formatAmount(amountMinorUnits: number, currencyCode: string): string {
 
   <Section class="pt-0">
     {products.length === 0 && <p class="text-(--color-text-muted)">Pricing hasn't been published yet — check back soon.</p>}
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" id="pricing-grid">
       {products.map((p) => (
-        <div class="glass-card corner-brackets p-6 text-center">
+        <div class="glass-card corner-brackets p-6 text-center" data-product-name={p.name}>
           <p class="font-display text-base font-semibold text-(--color-text)">{p.name}</p>
-          <p class="mt-3 font-display text-3xl font-semibold text-(--color-neon)">{formatAmount(p.amount, p.currencyCode)}</p>
+          <p class="mt-3 font-display text-3xl font-semibold text-(--color-neon)" data-price-primary>{formatAmount(p.amount, p.currencyCode)}</p>
+          <p class="mt-1 text-xs text-(--color-text-muted)" data-price-localized></p>
           {p.description && <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">{p.description}</p>}
         </div>
       ))}
@@ -63,3 +64,30 @@ function formatAmount(amountMinorUnits: number, currencyCode: string): string {
     </div>
   </Section>
 </BaseLayout>
+
+<script>
+  // Progressive enhancement only: the prices above are already correct
+  // (USD, server-rendered at build time — real content for crawlers and
+  // no-JS visitors). This page is fully static (prerendered for SEO), so
+  // there's no per-visitor request to localize against at build time —
+  // this client-side re-fetch hits the LMS app directly from the
+  // visitor's own browser, where their real IP is what geo-detects their
+  // currency. Fails silently, leaving the USD price as-is, if it can't reach it.
+  (async () => {
+    try {
+      const res = await fetch('https://learn.shahidiqbal.com/api/public/pricing');
+      if (!res.ok) return;
+      const data = await res.json();
+      const products: Array<{ name: string; localizedAmount: number; localizedCurrencyCode: string; currencyCode: string }> = data.products ?? [];
+
+      for (const product of products) {
+        if (product.localizedCurrencyCode === product.currencyCode) continue; // already USD, nothing to add
+        const card = document.querySelector(`[data-product-name="${CSS.escape(product.name)}"]`);
+        const el = card?.querySelector('[data-price-localized]');
+        if (el) el.textContent = `≈ ${product.localizedCurrencyCode} ${(product.localizedAmount / 100).toLocaleString()}`;
+      }
+    } catch {
+      // Silent — the build-time USD price already rendered correctly.
+    }
+  })();
+</script>

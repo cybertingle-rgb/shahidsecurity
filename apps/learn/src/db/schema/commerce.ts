@@ -83,6 +83,25 @@ export const orderItems = mysqlTable('order_items', {
   unitAmount: int('unit_amount').notNull(),
 });
 
+// Admin-configurable payment options (bank transfer, crypto wallet, mobile
+// wallet, etc.) — the whole point being an admin can add a new one (e.g. a
+// second crypto wallet, JazzCash, EasyPaisa) without a code deploy, per
+// docs/lms-database.md's "never hardcode" rule applied to payment methods
+// the same way it already applies to prices and community links.
+export const paymentMethods = mysqlTable('payment_methods', {
+  id: idColumn(),
+  name: text('name').notNull(),
+  type: mysqlEnum('type', ['bank_transfer', 'crypto', 'mobile_wallet', 'other']).notNull(),
+  // Free-text instructions shown to the student at checkout (bank details,
+  // a note, etc.) — for `crypto`, walletAddress below is what actually
+  // matters; instructions here are supplementary (e.g. "BTC only, network fee is on you").
+  instructions: text('instructions'),
+  walletAddress: text('wallet_address'),
+  isActive: boolean('is_active').notNull().default(true),
+  sortOrder: int('sort_order').notNull().default(0),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+});
+
 export const payments = mysqlTable('payments', {
   id: idColumn(),
   orderId: fkColumn('order_id')
@@ -93,7 +112,12 @@ export const payments = mysqlTable('payments', {
   amount: int('amount').notNull(),
   currencyCode: varchar('currency_code', { length: 3 }).notNull(),
   status: mysqlEnum('status', ['pending_verification', 'succeeded', 'failed', 'refunded']).notNull().default('pending_verification'),
-  method: mysqlEnum('method', ['online', 'manual_bank_transfer']).notNull(),
+  // 'manual' covers every admin-defined payment_methods row (bank
+  // transfer, crypto, mobile wallet, ...) — which one specifically is
+  // paymentMethodId, not this enum. Was 'manual_bank_transfer' before
+  // payment methods became data-driven instead of just the one hardcoded kind.
+  method: mysqlEnum('method', ['online', 'manual']).notNull(),
+  paymentMethodId: fkColumn('payment_method_id').references(() => paymentMethods.id, { onDelete: 'set null' }),
   verifiedByUserId: fkColumn('verified_by_user_id').references(() => users.id, { onDelete: 'set null' }),
   verifiedAt: datetime('verified_at'),
   idempotencyKey: varchar('idempotency_key', { length: 255 }).notNull().unique(),

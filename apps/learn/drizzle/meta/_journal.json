@@ -8,6 +8,13 @@
       "when": 1790516864990,
       "tag": "0000_busy_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1790626780976,
+      "tag": "0001_nosy_namora",
+      "breakpoints": true
     }
   ]
 }

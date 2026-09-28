@@ -8,10 +8,7 @@ import { setSetting } from '@/lib/settings';
 export async function updateSettings(formData: FormData) {
   const admin = await requireAdminAction('settings.manage');
 
-  const paymentInstructions = String(formData.get('paymentInstructions') ?? '');
   const supportEmail = String(formData.get('supportEmail') ?? '');
-
-  await setSetting('payment_instructions', paymentInstructions || null);
   await setSetting('support_email', supportEmail || null);
 
   await logAudit({ actorUserId: admin.id, action: 'settings.updated', targetType: 'settings' });
