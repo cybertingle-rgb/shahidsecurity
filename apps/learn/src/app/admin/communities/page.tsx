@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { listCommunities, listAllProducts } from '@/lib/admin/communities';
 import { createCommunity, toggleCommunityStatus } from './actions';
 
@@ -22,7 +23,11 @@ export default async function CommunitiesPage() {
           <tbody>
             {communities.map((c) => (
               <tr key={c.id} className="border-t border-border">
-                <td className="px-4 py-2">{c.name}</td>
+                <td className="px-4 py-2">
+                  <Link href={`/admin/communities/${c.id}`} className="text-neon">
+                    {c.name}
+                  </Link>
+                </td>
                 <td className="px-4 py-2 text-text-muted">{c.platform}</td>
                 <td className="px-4 py-2 text-text-muted">{c.requiredProductName ?? '—'}</td>
                 <td className="px-4 py-2">{c.status}</td>
