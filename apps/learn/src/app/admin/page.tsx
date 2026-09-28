@@ -10,6 +10,7 @@ const SECTIONS = [
   { href: '/admin/communities', label: 'Communities', description: 'Discord/Facebook/Telegram invite links and eligibility rules' },
   { href: '/admin/announcements', label: 'Announcements', description: 'Publish updates to students' },
   { href: '/admin/settings', label: 'Settings', description: 'Bank transfer instructions and support email' },
+  { href: '/admin/roadmap', label: 'Roadmap', description: 'The 18-stage cybersecurity roadmap shown on shahidiqbal.com/learn/roadmap' },
 ];
 
 export default function AdminDashboardPage() {

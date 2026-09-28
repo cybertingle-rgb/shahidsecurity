@@ -1,0 +1,89 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+
+const LEARN_API_BASE = 'https://learn.shahidiqbal.com';
+
+type RoadmapStage = {
+  levelNumber: number;
+  title: string;
+  description: string | null;
+  prerequisitesText: string | null;
+  isRequired: boolean;
+  course: { slug: string; title: string } | null;
+  externalLinks: Array<{ type: string; url: string; label: string }>;
+};
+
+// Build-time fetch against the live LMS app, same pattern as
+// /api/public/courses' own comment describes — data is authored in the
+// LMS admin (/admin/roadmap), never hardcoded here (docs/lms-roadmap.md).
+// Falls back to an empty list (rendered as an honest "not published yet"
+// state below) rather than failing the whole site build if the LMS app
+// is temporarily unreachable at build time.
+let stages: RoadmapStage[] = [];
+try {
+  const res = await fetch(`${LEARN_API_BASE}/api/public/roadmap`);
+  if (res.ok) {
+    const data = await res.json();
+    stages = data.stages ?? [];
+  }
+} catch {
+  stages = [];
+}
+---
+
+<BaseLayout
+  title="Cybersecurity Roadmap — Learn with Shahid"
+  description="A structured, level-by-level map through cybersecurity — from IT fundamentals to red team and career prep. A map, not a mandate."
+  path="/learn/roadmap/"
+  pageType="WebPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Learn with Shahid', path: '/learn/' },
+        { name: 'Roadmap', path: '/learn/roadmap/' },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="// cybersecurity roadmap"
+      title="One path through cybersecurity — not the only one"
+      intro="This shows one common path through cybersecurity, not the only one. Depending on your background, you may already have several of these skills, want to specialise earlier, or take a different order entirely. Prerequisites are noted where they genuinely matter; everything else is a suggestion."
+    />
+  </Section>
+
+  <Section class="pt-0">
+    {stages.length === 0 && (
+      <p class="text-(--color-text-muted)">The roadmap hasn't been published yet — check back soon.</p>
+    )}
+    <ol class="grid gap-6 sm:grid-cols-2">
+      {stages.map((stage) => (
+        <li class="glass-card corner-brackets p-6">
+          <span class="font-mono text-xs text-(--color-neon)">{`// level ${stage.levelNumber}`}</span>
+          <h2 class="mt-2 font-display text-lg font-semibold text-(--color-text)">{stage.title}</h2>
+          {stage.description && <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{stage.description}</p>}
+          {stage.prerequisitesText && (
+            <p class="mt-3 text-xs text-(--color-text-muted)">
+              <span class="text-(--color-neon-soft)">{stage.isRequired ? 'Prerequisite: ' : 'Helpful: '}</span>
+              {stage.prerequisitesText}
+            </p>
+          )}
+          {stage.course && (
+            <a href={`https://learn.shahidiqbal.com/register`} class="mt-3 inline-block text-sm text-(--color-neon)">
+              → {stage.course.title}
+            </a>
+          )}
+          {stage.externalLinks?.map((link) => (
+            <a href={link.url} class="mt-1 block text-sm text-(--color-neon)">
+              → {link.label}
+            </a>
+          ))}
+        </li>
+      ))}
+    </ol>
+  </Section>
+</BaseLayout>

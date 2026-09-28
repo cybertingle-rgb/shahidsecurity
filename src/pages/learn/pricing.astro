@@ -1,0 +1,65 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import Button from '@/components/Button.astro';
+
+const LEARN_API_BASE = 'https://learn.shahidiqbal.com';
+
+type PublicPrice = { name: string; description: string | null; type: string; amount: number; currencyCode: string };
+
+// Same build-time-fetch-with-fallback pattern as the other /learn/* pages
+// — the price shown here always comes from the same server-side
+// resolvePrice() checkout itself uses, never a hardcoded number
+// (docs/LMS_DECISIONS.md #8: "the PKR 800 price is never hardcoded in code").
+let products: PublicPrice[] = [];
+try {
+  const res = await fetch(`${LEARN_API_BASE}/api/public/pricing`);
+  if (res.ok) {
+    const data = await res.json();
+    products = data.products ?? [];
+  }
+} catch {
+  products = [];
+}
+
+function formatAmount(amountMinorUnits: number, currencyCode: string): string {
+  return `${currencyCode} ${(amountMinorUnits / 100).toLocaleString()}`;
+}
+---
+
+<BaseLayout
+  title="Pricing — Learn with Shahid"
+  description="Membership and course pricing for Learn with Shahid."
+  path="/learn/pricing/"
+  pageType="WebPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Learn with Shahid', path: '/learn/' },
+        { name: 'Pricing', path: '/learn/pricing/' },
+      ]}
+    />
+    <SectionHeading as="h1" eyebrow="// pricing" title="Simple, transparent pricing" intro="Create an account, then complete payment (online or manual bank transfer) from your dashboard." />
+  </Section>
+
+  <Section class="pt-0">
+    {products.length === 0 && <p class="text-(--color-text-muted)">Pricing hasn't been published yet — check back soon.</p>}
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {products.map((p) => (
+        <div class="glass-card corner-brackets p-6 text-center">
+          <p class="font-display text-base font-semibold text-(--color-text)">{p.name}</p>
+          <p class="mt-3 font-display text-3xl font-semibold text-(--color-neon)">{formatAmount(p.amount, p.currencyCode)}</p>
+          {p.description && <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">{p.description}</p>}
+        </div>
+      ))}
+    </div>
+    <div class="mt-10 flex flex-wrap gap-4">
+      <Button href="https://learn.shahidiqbal.com/register" variant="primary">Create your account</Button>
+      <Button href="/contact/" variant="secondary">Have questions first?</Button>
+    </div>
+  </Section>
+</BaseLayout>
