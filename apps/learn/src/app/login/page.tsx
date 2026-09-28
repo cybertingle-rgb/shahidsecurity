@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import EduBackground from '@/components/EduBackground';
 import AuthCard from '@/components/AuthCard';
+import GoogleButton, { googleOAuthErrorMessage } from '@/components/GoogleButton';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const oauthError = googleOAuthErrorMessage(searchParams.get('error'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +39,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
-      <EduBackground />
-      <AuthCard title="Log in">
+    <AuthCard title="Log in">
+      <div className="space-y-4">
+        {(error || oauthError) && <p className="text-sm text-danger">{error ?? oauthError}</p>}
+        <GoogleButton />
+        <div className="flex items-center gap-3 text-xs text-text-muted">
+          <span className="h-px flex-1 bg-border" />
+          or
+          <span className="h-px flex-1 bg-border" />
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="space-y-1">
             <label className="text-sm text-text-muted" htmlFor="email">
               Email
@@ -86,7 +94,18 @@ export default function LoginPage() {
             </Link>
           </p>
         </form>
-      </AuthCard>
+      </div>
+    </AuthCard>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
+      <EduBackground />
+      <Suspense fallback={null}>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }

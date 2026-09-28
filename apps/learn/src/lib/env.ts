@@ -9,6 +9,12 @@ const envSchema = z.object({
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // "Continue with Google" — both unset simply disables the feature (the
+  // button hides itself and the routes 500 defensively) rather than
+  // breaking every other unrelated env var check, since not every
+  // environment (local dev, test) needs it configured.
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 
 export const env = envSchema.parse({
@@ -16,4 +22,6 @@ export const env = envSchema.parse({
   SESSION_SECRET: process.env.SESSION_SECRET,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NODE_ENV: process.env.NODE_ENV,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 });

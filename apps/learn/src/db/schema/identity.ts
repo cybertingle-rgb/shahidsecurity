@@ -131,5 +131,26 @@ export const rateLimitHits = mysqlTable('rate_limit_hits', {
   createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
 });
 
+// Links a user to an external identity provider (currently just Google).
+// A user row can exist with or without a linked oauth_accounts row — email
+// verified by Google is treated as equivalent to this app's own email
+// verification step, so a Google sign-in on a brand-new email creates the
+// user directly with emailVerifiedAt already set (see lib/auth/google.ts).
+export const oauthAccounts = mysqlTable(
+  'oauth_accounts',
+  {
+    id: idColumn(),
+    userId: fkColumn('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    provider: varchar('provider', { length: 30 }).notNull(),
+    // The provider's stable subject id (Google's `sub`) — never the email,
+    // since a provider account's email can change but its `sub` can't.
+    providerAccountId: varchar('provider_account_id', { length: 255 }).notNull(),
+    createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  },
+  (table) => [uniqueIndex('oauth_accounts_provider_account_idx').on(table.provider, table.providerAccountId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
