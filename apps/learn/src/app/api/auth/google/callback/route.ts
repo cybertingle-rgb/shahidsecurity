@@ -5,6 +5,7 @@ import { authEvents, users } from '@/db/schema';
 import { checkRateLimit } from '@/lib/auth/rateLimit';
 import { createSession, setSessionCookie } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
+import { env } from '@/lib/env';
 import {
   isGoogleOAuthConfigured,
   GOOGLE_OAUTH_STATE_COOKIE,
@@ -15,15 +16,23 @@ import {
 
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 
-function toLogin(request: NextRequest, error: string): NextResponse {
-  const response = NextResponse.redirect(new URL(`/login?error=${error}`, request.url));
+// Every redirect this route issues is built from env.NEXT_PUBLIC_APP_URL,
+// never from the incoming request's own Host (request.url/request.nextUrl)
+// — behind Hostinger's reverse proxy the Node process sees its own
+// internal bind address (0.0.0.0:3000) as the request host, not the real
+// public domain, so a request.url-based redirect sends the browser to an
+// address it can't even connect to. NEXT_PUBLIC_APP_URL is the one
+// explicitly-configured source of truth for this app's public URL (same
+// one used to build the Google redirect_uri itself).
+function toLogin(error: string): NextResponse {
+  const response = NextResponse.redirect(new URL(`/login?error=${error}`, env.NEXT_PUBLIC_APP_URL));
   response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE);
   return response;
 }
 
 export async function GET(request: NextRequest) {
   if (!isGoogleOAuthConfigured()) {
-    return toLogin(request, 'google_not_configured');
+    return toLogin('google_not_configured');
   }
 
   const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
@@ -34,7 +43,7 @@ export async function GET(request: NextRequest) {
   // retries from a misconfigured client.
   const allowed = await checkRateLimit(`oauth:google:ip:${ip}`, { maxAttempts: 20, windowMs: 15 * 60 * 1000 });
   if (!allowed) {
-    return toLogin(request, 'too_many_attempts');
+    return toLogin('too_many_attempts');
   }
 
   const { searchParams } = new URL(request.url);
@@ -44,13 +53,13 @@ export async function GET(request: NextRequest) {
   const cookieState = request.cookies.get(GOOGLE_OAUTH_STATE_COOKIE)?.value;
 
   if (googleError) {
-    return toLogin(request, 'google_denied');
+    return toLogin('google_denied');
   }
   // A missing/mismatched state means this request didn't originate from
   // the redirect this server itself sent to Google — refuse rather than
   // trusting a `code` we can't tie back to a request we started.
   if (!code || !state || !cookieState || state !== cookieState) {
-    return toLogin(request, 'oauth_state');
+    return toLogin('oauth_state');
   }
 
   try {
@@ -59,10 +68,10 @@ export async function GET(request: NextRequest) {
     const result = await resolveOrCreateGoogleUser(profile);
 
     if ('error' in result) {
-      return toLogin(request, result.error);
+      return toLogin(result.error);
     }
     if (result.status !== 'active') {
-      return toLogin(request, 'account_suspended');
+      return toLogin('account_suspended');
     }
 
     const roleNames = await getUserRoleNames(result.id);
@@ -73,11 +82,11 @@ export async function GET(request: NextRequest) {
     await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, result.id));
     await db.insert(authEvents).values({ userId: result.id, eventType: 'login_success', ipAddress: ip, userAgent, metadata: { provider: 'google' } });
 
-    const response = NextResponse.redirect(new URL('/dashboard', request.url));
+    const response = NextResponse.redirect(new URL('/dashboard', env.NEXT_PUBLIC_APP_URL));
     response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE);
     return response;
   } catch (err) {
     console.error('Google OAuth callback failed', err);
-    return toLogin(request, 'google_error');
+    return toLogin('google_error');
   }
 }
