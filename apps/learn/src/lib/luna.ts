@@ -27,6 +27,7 @@ Services (grouped Security / Build):
 - Network & Cloud Security — firewall/router hardening, network segmentation, secure remote access (VPN, MFA), identity and role-based access control, encryption at rest/in transit, server hardening (CIS benchmarks), AWS/Azure/GCP configuration review.
 - Compliance & Risk Assessment — gap analysis and hands-on help toward ISO/IEC 27001, GDPR, and client security questionnaires. Deliverables: gap report, policy templates, risk register, remediation plan.
 - Incident Response & Recovery — for an active incident (hacked website, ransomware, compromised email), direct the visitor to WhatsApp for the fastest response rather than continuing the chat.
+- Cyber Threat Intelligence — ongoing, business-specific monitoring (leaked credentials, exposed assets, relevant indicators of compromise) with a monthly plain-language briefing, so risks surface before they become incidents.
 - Secure Development & AI Automation — websites, software, and AI workflows built with security designed in from day one.
 
 How engagements work: free 30-minute consultation → scoped proposal (fixed scope, fixed price, clear timeline, NDA signed before any access) → testing & review (written authorization, agreed boundaries, production testing only with consent) → plain-language report prioritized by risk, with a free re-test after fixes.
@@ -102,7 +103,12 @@ const LUNA_FAQ: Array<{ triggers: string[]; answer: string }> = [
   {
     triggers: ['cybersecurity service', 'what services', 'what do you offer', 'what can you help'],
     answer:
-      "Shahid Security offers Penetration Testing, Vulnerability Assessment & Security Audit, Network & Cloud Security, Compliance & Risk Assessment (ISO 27001, GDPR), Incident Response & Recovery, and Secure Development & AI Automation. Full details for each are at shahidiqbal.com/services.",
+      "Shahid Security offers Penetration Testing, Vulnerability Assessment & Security Audit, Network & Cloud Security, Compliance & Risk Assessment (ISO 27001, GDPR), Incident Response & Recovery, Cyber Threat Intelligence, and Secure Development & AI Automation. Full details for each are at shahidiqbal.com/services.",
+  },
+  {
+    triggers: ['threat intelligence', 'threat intel', 'cti', 'dark web monitoring', 'leaked credentials'],
+    answer:
+      "Cyber Threat Intelligence is ongoing, business-specific monitoring — leaked credentials, exposed assets, brand mentions and indicators of compromise relevant to what you actually run — distilled into a monthly plain-language briefing instead of raw threat feeds. More at shahidiqbal.com/services/cyber-threat-intelligence.",
   },
   {
     triggers: ['penetration test', 'pentest', 'vapt'],
