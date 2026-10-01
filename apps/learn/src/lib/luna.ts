@@ -64,3 +64,79 @@ export const LUNA_SUGGESTED_QUESTIONS = [
 ] as const;
 
 export type LunaChatMessage = { role: 'user' | 'assistant'; content: string };
+
+/**
+ * A local, zero-cost fast path for the handful of questions every
+ * visitor actually asks (starting with the widget's own suggested
+ * questions) — checked before ever calling the Claude API. Two reasons
+ * this exists, not just one: it means Luna answers the common cases
+ * instantly and for free, and it means those answers keep working even
+ * on a brand-new Anthropic account with no billing/credit loaded yet
+ * (see the BadRequestError branch in the chat route) — the exact gap
+ * that made "What is Learn with Shahid?" (one of Luna's own suggested
+ * questions) fail outright. Every answer here is the same real,
+ * published fact the system prompt uses — nothing new to keep in sync
+ * beyond what's already true on the site.
+ *
+ * Matching is deliberately simple: each entry lists trigger phrases: if
+ * the visitor's (lowercased) message contains any of them, that entry
+ * answers. First match wins, so more specific entries are listed before
+ * more general ones that could otherwise shadow them.
+ */
+const LUNA_FAQ: Array<{ triggers: string[]; answer: string }> = [
+  {
+    triggers: ['who is shahid', 'who is muhammad', 'founder', 'about shahid', 'who runs', 'who owns'],
+    answer:
+      "Muhammad Shahid Iqbal is the founder and principal cybersecurity consultant behind Shahid Security. He studied Computer Science with a focus on information security — his final-year project was an attack study on an IoT-based smart campus system — and has worked since as a cybersecurity analyst and SOC analyst (vulnerability assessments, incident response, CEH methodology and CISSP-domain training). Shahid Security is his practice; Learn with Shahid is the education side of it. More on the About page at shahidiqbal.com/about.",
+  },
+  {
+    triggers: ['learn with shahid', 'what is learn', 'learning platform', 'learn.shahidiqbal'],
+    answer:
+      "Learn with Shahid (learn.shahidiqbal.com) is the education arm of Shahid Security — a structured, hands-on cybersecurity learning path from fundamentals to offensive security, with courses, a roadmap, memberships, live sessions, and a student community, built by a working security consultant rather than a generic course platform. You can see the current roadmap, courses, and pricing, and register or log in, right there at learn.shahidiqbal.com.",
+  },
+  {
+    triggers: ['where should i start', 'how do i start learning', 'beginner', 'new to cyber', 'start my career', 'getting started in security'],
+    answer:
+      "Learn with Shahid's roadmap (learn.shahidiqbal.com/learn/roadmap) lays out a structured path from fundamentals through to offensive security, so that's the best starting point rather than jumping straight into tools. Create a free account to track your progress as you go through it.",
+  },
+  {
+    triggers: ['cybersecurity service', 'what services', 'what do you offer', 'what can you help'],
+    answer:
+      "Shahid Security offers Penetration Testing, Vulnerability Assessment & Security Audit, Network & Cloud Security, Compliance & Risk Assessment (ISO 27001, GDPR), Incident Response & Recovery, and Secure Development & AI Automation. Full details for each are at shahidiqbal.com/services.",
+  },
+  {
+    triggers: ['penetration test', 'pentest', 'vapt'],
+    answer:
+      "Penetration testing is authorized, controlled testing of your web app, API, network, or mobile app to find vulnerabilities a real attacker would use — manual testing backed by tools, never scanner-only, against the OWASP Top 10 and business-logic flaws. You get an executive summary, technical findings with CVSS severity and fix steps, a free re-test after remediation, and a letter of attestation. More at shahidiqbal.com/services/penetration-testing.",
+  },
+  {
+    triggers: ['book a consultation', 'book a call', 'free consultation', 'schedule a call', 'talk to someone', 'talk to a human'],
+    answer:
+      "You can book a free 30-minute consultation directly at shahidiqbal.com — look for \"Book a free 30-minute consultation\" — or reach out on WhatsApp for a faster reply. No pressure, no obligation; it's a chance to understand your setup and what you actually need.",
+  },
+  {
+    triggers: ['contact', 'email', 'phone number', 'whatsapp', 'reach you', 'get in touch'],
+    answer:
+      'You can reach Shahid Security at info@shahidiqbal.com or via WhatsApp at +92 311 6234126 (there\'s a WhatsApp button on the site too). Typical reply time is within 24 hours.',
+  },
+  {
+    triggers: ['how much does it cost', 'pricing', 'price', 'how much do you charge'],
+    answer:
+      "Security engagements are scoped and quoted individually after a free consultation, since cost depends on what you actually need — there's no one-size price I can quote here. Learn with Shahid's course/membership pricing is shown live once you're signed in at learn.shahidiqbal.com. Book a free consultation at shahidiqbal.com for a real quote on services.",
+  },
+  {
+    triggers: ['incident response', 'been hacked', 'i got hacked', 'ransomware', 'compromised'],
+    answer:
+      "If you're dealing with an active incident — a hacked website, ransomware, or a compromised email account — the fastest route is WhatsApp (+92 311 6234126), not this chat. For general incident response planning (not an active emergency), Shahid Security also offers Incident Response & Recovery as a service — details at shahidiqbal.com/services.",
+  },
+];
+
+export function matchLunaFaq(message: string): string | null {
+  const normalized = message.toLowerCase();
+  for (const entry of LUNA_FAQ) {
+    if (entry.triggers.some((trigger) => normalized.includes(trigger))) {
+      return entry.answer;
+    }
+  }
+  return null;
+}
