@@ -129,28 +129,31 @@ const trustItems = [
 
   <ScanDivider />
 
-  <Section class="text-center" bordered>
-    <img
-      src="/brand/learn-with-shahid-logo.png"
-      alt="Learn with Shahid"
-      width="180"
-      height="180"
-      class="mx-auto mb-6 h-32 w-32 drop-shadow-[0_0_24px_rgba(0,191,99,0.4)] sm:h-40 sm:w-40"
-    />
-    <SectionHeading
-      eyebrow="// LEARN WITH SHAHID"
-      title="Learn Cyber Security with Shahid"
-      intro="A structured, hands-on roadmap from fundamentals to offensive security — courses, live sessions, and a community of learners, built by a working security consultant."
-      align="center"
-      as="h2"
-    />
-    <div class="mt-8 flex flex-wrap justify-center gap-4">
-      <Button href="https://learn.shahidiqbal.com/register" variant="primary">
-        Register
-      </Button>
-      <Button href="https://learn.shahidiqbal.com/login" variant="secondary">
-        Log in
-      </Button>
+  <Section bordered>
+    <div class="flex flex-col items-center gap-8 text-center sm:flex-row sm:items-center sm:text-left">
+      <img
+        src="/brand/learn-with-shahid-logo.png"
+        alt="Learn with Shahid"
+        width="180"
+        height="180"
+        class="h-32 w-32 shrink-0 drop-shadow-[0_0_24px_rgba(0,191,99,0.4)] sm:h-40 sm:w-40"
+      />
+      <div>
+        <SectionHeading
+          eyebrow="// LEARN WITH SHAHID"
+          title="Learn Cyber Security with Shahid"
+          intro="A structured, hands-on roadmap from fundamentals to offensive security — courses, live sessions, and a community of learners, built by a working security consultant."
+          as="h2"
+        />
+        <div class="mt-8 flex flex-wrap justify-center gap-4 sm:justify-start">
+          <Button href="https://learn.shahidiqbal.com/register" variant="primary">
+            Register
+          </Button>
+          <Button href="https://learn.shahidiqbal.com/login" variant="secondary">
+            Log in
+          </Button>
+        </div>
+      </div>
     </div>
   </Section>
 

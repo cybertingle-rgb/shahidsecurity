@@ -6,7 +6,11 @@
 interface Review {
   name: string;
   location: string;
-  flag: string;
+  // Country-flag emoji render as plain two-letter codes (no color-flag
+  // font) on a lot of Windows/Linux setups — exactly the "SA Saudi
+  // Arabia" bug reported — so flags are real SVG files (from the
+  // flag-icons package, copied into public/flags/) instead.
+  flagCode: string;
   rating: number;
   quote: string;
   tag: 'Security client' | 'Learn with Shahid student';
@@ -16,7 +20,7 @@ const reviews: Review[] = [
   {
     name: 'Michael Anderson',
     location: 'United States',
-    flag: '🇺🇸',
+    flagCode: 'us',
     rating: 5,
     quote:
       "We needed a better understanding of our website's security, and Shahid Security helped us identify areas that needed attention. The vulnerability assessment was explained clearly, along with practical recommendations for improving protection. Good overall experience.",
@@ -25,7 +29,7 @@ const reviews: Review[] = [
   {
     name: 'Ryan Mitchell',
     location: 'United States',
-    flag: '🇺🇸',
+    flagCode: 'us',
     rating: 5,
     quote:
       "I started following the cybersecurity roadmap because I wasn't sure where to begin. The structured learning path helped me understand networking, Linux, and cybersecurity fundamentals. Very useful for beginners.",
@@ -34,7 +38,7 @@ const reviews: Review[] = [
   {
     name: 'Daniel Foster',
     location: 'Canada',
-    flag: '🇨🇦',
+    flagCode: 'ca',
     rating: 4,
     quote:
       'Had a consultation regarding website security and penetration testing. Shahid explained the process and shared useful recommendations. The technical discussion was helpful. I would have liked a little more detail in the final reporting, but overall a positive experience.',
@@ -43,7 +47,7 @@ const reviews: Review[] = [
   {
     name: 'Muhammad Saad',
     location: 'Pakistan',
-    flag: '🇵🇰',
+    flagCode: 'pk',
     rating: 4,
     quote:
       'The SOC Analyst learning material is helpful, especially for understanding SIEM, log analysis, and security monitoring. I would like to see more hands-on labs, but the learning guidance is good.',
@@ -52,7 +56,7 @@ const reviews: Review[] = [
   {
     name: 'Ahmed Al-Mansoori',
     location: 'Qatar',
-    flag: '🇶🇦',
+    flagCode: 'qa',
     rating: 5,
     quote:
       'Professional guidance on cybersecurity and network security. I particularly appreciated the practical discussion about security risks and ways to improve our infrastructure. Communication was clear and professional.',
@@ -61,7 +65,7 @@ const reviews: Review[] = [
   {
     name: 'Hassan Al-Qahtani',
     location: 'Saudi Arabia',
-    flag: '🇸🇦',
+    flagCode: 'sa',
     rating: 5,
     quote:
       'Learn with Shahid provides a clear direction for anyone interested in ethical hacking and penetration testing. I found the learning roadmap particularly useful for understanding the skills and tools I need to develop.',
@@ -70,7 +74,7 @@ const reviews: Review[] = [
   {
     name: 'Oliver James',
     location: 'United Kingdom',
-    flag: '🇬🇧',
+    flagCode: 'gb',
     rating: 4,
     quote:
       'Consulted Shahid Security about web application security. The assessment approach and recommendations were useful, especially regarding common application vulnerabilities. A good experience, with room for more frequent progress updates.',
@@ -79,7 +83,7 @@ const reviews: Review[] = [
   {
     name: 'Ethan Williams',
     location: 'Australia',
-    flag: '🇦🇺',
+    flagCode: 'au',
     rating: 4,
     quote:
       'I joined to improve my understanding of cybersecurity fundamentals and web application security. The explanations are easy to follow. More practical assignments and interactive exercises would make the experience even better.',
@@ -88,7 +92,7 @@ const reviews: Review[] = [
   {
     name: 'Hamza Tariq',
     location: 'Pakistan',
-    flag: '🇵🇰',
+    flagCode: 'pk',
     rating: 5,
     quote:
       'Received helpful guidance on vulnerability assessment and website protection. Shahid explained technical issues in simple language and suggested practical security improvements. Definitely a useful experience.',
@@ -97,7 +101,7 @@ const reviews: Review[] = [
   {
     name: 'Bilal Ahmed',
     location: 'United Arab Emirates',
-    flag: '🇦🇪',
+    flagCode: 'ae',
     rating: 5,
     quote:
       'Really helpful cybersecurity learning experience. The roadmap makes it easier to plan my progress, and the community learning concept is a great addition. Looking forward to exploring more courses in SOC operations and incident response.',
@@ -128,7 +132,10 @@ const track = [...reviews, ...reviews];
         <div class="testimonial-footer">
           <div>
             <p class="testimonial-name">{review.name}</p>
-            <p class="testimonial-location">{review.flag} {review.location}</p>
+            <p class="testimonial-location">
+              <img class="testimonial-flag" src={`/flags/${review.flagCode}.svg`} alt="" width="16" height="12" loading="lazy" />
+              {review.location}
+            </p>
           </div>
           <span class="testimonial-tag">{review.tag}</span>
         </div>
@@ -229,8 +236,20 @@ const track = [...reviews, ...reviews];
   }
 
   .testimonial-location {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.78rem;
     color: var(--color-text-muted);
+  }
+
+  .testimonial-flag {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 0.75rem;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--color-border);
   }
 
   .testimonial-tag {
