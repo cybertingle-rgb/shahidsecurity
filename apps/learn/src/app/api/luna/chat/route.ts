@@ -3,7 +3,7 @@ import { z } from 'zod';
 import Anthropic from '@anthropic-ai/sdk';
 import { checkRateLimit } from '@/lib/auth/rateLimit';
 import { env } from '@/lib/env';
-import { LUNA_SYSTEM_PROMPT } from '@/lib/luna';
+import { LUNA_SYSTEM_PROMPT, matchLunaFaq } from '@/lib/luna';
 
 // Public, unauthenticated, cross-origin by design — this is the one real
 // server in the project (the Astro marketing site is static, with no
@@ -35,10 +35,6 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: NextRequest) {
-  if (!env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: 'Luna is not available right now.' }, { status: 503, headers: CORS_HEADERS });
-  }
-
   const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
   const allowed = await checkRateLimit(`luna:chat:ip:${ip}`, { maxAttempts: 30, windowMs: 15 * 60 * 1000 });
   if (!allowed) {
@@ -48,6 +44,20 @@ export async function POST(request: NextRequest) {
   const parsed = chatSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400, headers: CORS_HEADERS });
+  }
+
+  // The local FAQ fast path runs before the API key check, deliberately —
+  // it needs no key and costs nothing, so the common questions (starting
+  // with the widget's own suggested ones) work even before Anthropic
+  // billing is set up, and stay instant/free afterward too.
+  const lastUserMessage = [...parsed.data.messages].reverse().find((m) => m.role === 'user');
+  const faqAnswer = lastUserMessage ? matchLunaFaq(lastUserMessage.content) : null;
+  if (faqAnswer) {
+    return NextResponse.json({ reply: faqAnswer }, { headers: CORS_HEADERS });
+  }
+
+  if (!env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: 'Luna is not available right now.' }, { status: 503, headers: CORS_HEADERS });
   }
 
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
