@@ -68,6 +68,34 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ reply: text }, { headers: CORS_HEADERS });
   } catch (err) {
+    // Distinguishing these cases in the response itself (not just the
+    // server log) matters here specifically because this session has no
+    // access to production logs — the single most common first-setup
+    // failure is a brand-new API key with no credit loaded yet, which
+    // Anthropic reports as a 400 "credit balance too low", easy to
+    // mistake for a code bug without this.
+    if (err instanceof Anthropic.AuthenticationError) {
+      console.error('Luna: invalid Anthropic API key', err);
+      return NextResponse.json({ error: 'Luna is misconfigured (invalid API key).' }, { status: 502, headers: CORS_HEADERS });
+    }
+    // Anthropic reports "credit balance too low" (the most common
+    // first-setup failure — a brand-new key with no credit loaded) as a
+    // 400, not a 403, so it surfaces as BadRequestError here.
+    if (err instanceof Anthropic.BadRequestError) {
+      console.error('Luna: Anthropic API rejected the request (often: no credit on the account)', err);
+      return NextResponse.json(
+        { error: "Luna's account needs billing set up (add credit at console.anthropic.com)." },
+        { status: 502, headers: CORS_HEADERS },
+      );
+    }
+    if (err instanceof Anthropic.RateLimitError) {
+      console.error('Luna: Anthropic rate limit hit', err);
+      return NextResponse.json({ error: 'Luna is busy right now. Please try again in a moment.' }, { status: 502, headers: CORS_HEADERS });
+    }
+    if (err instanceof Anthropic.APIError) {
+      console.error(`Luna: Anthropic API error ${err.status}`, err);
+      return NextResponse.json({ error: `Luna had trouble answering that (API error ${err.status}).` }, { status: 502, headers: CORS_HEADERS });
+    }
     console.error('Luna chat request failed', err);
     return NextResponse.json({ error: 'Luna had trouble answering that. Please try again shortly.' }, { status: 502, headers: CORS_HEADERS });
   }
