@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import { LUNA_WELCOME_MESSAGE, LUNA_SUGGESTED_QUESTIONS, type LunaChatMessage } from '@/lib/luna';
 
 // Same-origin: this widget always talks to its own app's /api/luna/chat.
@@ -126,19 +127,12 @@ export default function LunaWidget() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Close Luna chat' : 'Chat with Luna, our AI assistant'}
-        className="flex size-14 items-center justify-center rounded-full bg-neon text-bg shadow-[0_0_24px_-4px_var(--color-neon)] transition-transform hover:scale-105"
+        className="luna-toggle group flex size-14 items-center justify-center overflow-hidden rounded-full border-2 border-neon bg-bg shadow-[0_0_24px_-4px_var(--color-neon)] transition-transform hover:scale-105"
       >
         {open ? (
-          <span className="text-xl">✕</span>
+          <span className="text-xl text-neon">✕</span>
         ) : (
-          <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="5" y="8" width="14" height="11" rx="3" />
-            <path d="M9 8V5a3 3 0 0 1 6 0v3" />
-            <circle cx="9.5" cy="13.5" r="1.1" fill="currentColor" stroke="none" />
-            <circle cx="14.5" cy="13.5" r="1.1" fill="currentColor" stroke="none" />
-            <path d="M9 17h6" />
-            <path d="M3 12h2M19 12h2" />
-          </svg>
+          <Image src="/luna-panda.png" alt="" width={56} height={56} className="luna-panda-icon h-full w-full object-cover" priority />
         )}
       </button>
     </div>

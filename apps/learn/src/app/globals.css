@@ -404,3 +404,30 @@ textarea:focus {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Luna floating button — panda wiggles on hover (LunaWidget.tsx)      */
+/* ------------------------------------------------------------------ */
+
+.luna-toggle:hover .luna-panda-icon {
+  animation: luna-panda-wiggle 600ms ease-in-out;
+}
+
+@keyframes luna-panda-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-8deg) scale(1.08);
+  }
+  75% {
+    transform: rotate(8deg) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luna-toggle:hover .luna-panda-icon {
+    animation: none;
+  }
+}
