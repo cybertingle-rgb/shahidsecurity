@@ -232,41 +232,33 @@ textarea:focus {
   }
 }
 
-.edu-bg-icon {
+/* A single seamlessly-repeating tile (built in EduBackground.tsx) fills
+   the whole viewport edge-to-edge regardless of its aspect ratio — a
+   genuine dense "doodle wallpaper" rather than a sparse scattered handful
+   of icons. A slow diagonal pan of the tile's own background-position
+   (exactly one tile's width/height, so it loops with no visible seam)
+   gives it a faint sense of life without the per-icon motion this used
+   to be — much cheaper to render too. */
+.edu-bg-doodles {
   position: absolute;
-  color: var(--color-neon-soft);
-  opacity: 0.16;
-  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-neon) 60%, transparent));
-  animation: edu-icon-float var(--edu-duration, 24s) linear infinite;
-  animation-delay: var(--edu-delay, 0s);
+  inset: -260px;
+  opacity: 0.22;
+  background-repeat: repeat;
+  animation: edu-doodles-pan 90s linear infinite;
 }
 
-/* Continuous backward drift — like the main site's circuit-doodle travel
-   animation: each icon eases in, drifts diagonally away and slightly
-   shrinks (receding into the distance) with a gentle counter-rotation,
-   then fades out and loops seamlessly from its start position. */
-@keyframes edu-icon-float {
-  0% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-    opacity: 0;
+@keyframes edu-doodles-pan {
+  from {
+    background-position: 0 0;
   }
-  8% {
-    opacity: 0.2;
-  }
-  90% {
-    opacity: 0.2;
-  }
-  100% {
-    transform: translate(-4.5em, 3em) scale(0.82) rotate(-10deg);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(0, 0) rotate(0deg);
+  to {
+    background-position: 260px 260px;
   }
 }
 
 /* ------------------------------------------------------------------ */
-/* Glass auth card with a spinning neon/RGB border trace (AuthCard.tsx) */
+/* Terminal-style auth card with a single neon-green border trace       */
+/* (AuthCard.tsx) — fixed in place, no pointer-tilt                     */
 /* ------------------------------------------------------------------ */
 
 .auth-card-wrap {
@@ -274,7 +266,6 @@ textarea:focus {
   z-index: 1;
   width: 100%;
   max-width: 26rem;
-  perspective: 1000px;
 }
 
 /* A registered custom property lets the browser animate the conic
@@ -282,7 +273,7 @@ textarea:focus {
    this way (instead of transform: rotate() on the box) keeps the glow
    confined to the box's actual rectangular bounds. Transforming the
    whole element instead sweeps its corners out past the card at 45°,
-   which is what produced the stray diamond shape earlier. */
+   which is what produced a stray diamond shape earlier. */
 @property --auth-angle {
   syntax: '<angle>';
   initial-value: 0deg;
@@ -295,19 +286,29 @@ textarea:focus {
   border-radius: 1.25rem;
 }
 
+/* A single bright comet-head with a fading tail sweeping clockwise —
+   replaces the old multi-color RGB halo with just one line tracing the
+   border. A conic-gradient alone paints pie-slice wedges out from the
+   element's center, not a ring, so without masking, a wide-enough arc
+   shows as a wedge cutting across the card's own (half-opaque) interior
+   rather than a line along its edge. The padding + content-box/exclude
+   mask here is the same border-ring technique as the admin/dashboard 3D
+   cards above — it keeps the gradient confined to a ~2px band at the
+   perimeter no matter how wide the arc or how transparent the card body
+   behind it is. */
 .auth-card-glow::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: conic-gradient(
-    from var(--auth-angle),
-    var(--color-neon),
-    #3b9bff,
-    var(--color-neon-soft),
-    #ff3b6b,
-    var(--color-neon)
-  );
-  animation: auth-glow-spin 5s linear infinite;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(from var(--auth-angle), transparent 0deg, transparent 335deg, var(--color-neon-soft) 350deg, var(--color-neon-soft) 360deg);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: auth-glow-spin 4s linear infinite;
 }
 
 .auth-card-glow::after {
@@ -315,10 +316,22 @@ textarea:focus {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: conic-gradient(from var(--auth-angle), var(--color-neon), #3b9bff, var(--color-neon-soft), #ff3b6b, var(--color-neon));
-  filter: blur(20px);
-  opacity: 0.55;
-  animation: auth-glow-spin 5s linear infinite;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--auth-angle),
+    transparent 0deg,
+    transparent 320deg,
+    color-mix(in oklab, var(--color-neon) 50%, transparent) 345deg,
+    var(--color-neon-soft) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: blur(10px);
+  opacity: 0.85;
+  animation: auth-glow-spin 4s linear infinite;
 }
 
 @keyframes auth-glow-spin {
@@ -327,17 +340,50 @@ textarea:focus {
   }
 }
 
+/* A dark, half-opaque "terminal window" rather than a plain glass
+   panel — a faint scanline texture plus the title-bar dots in
+   AuthCard.tsx carry the hacker-terminal read. */
 .auth-card {
   position: relative;
   border-radius: 1.1rem;
   padding: 2rem;
-  background: color-mix(in oklab, var(--color-surface) 78%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid color-mix(in oklab, var(--color-border-strong) 70%, transparent);
-  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
-  transform: perspective(1000px) rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg));
-  transition: transform 150ms ease-out;
+  background-color: rgba(2, 8, 6, 0.5);
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in oklab, var(--color-neon) 5%, transparent) 0px,
+    color-mix(in oklab, var(--color-neon) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in oklab, var(--color-neon) 30%, var(--color-border-strong));
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.7);
+}
+
+.auth-card-termbar {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-card-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.auth-card-dot-red {
+  background: #ff5f57;
+}
+
+.auth-card-dot-yellow {
+  background: #febc2e;
+}
+
+.auth-card-dot-green {
+  background: #28c840;
 }
 
 .auth-card-title {
@@ -352,11 +398,9 @@ textarea:focus {
 
 @media (prefers-reduced-motion: reduce) {
   .edu-bg-orb,
-  .edu-bg-icon,
-  .auth-card-glow {
+  .edu-bg-doodles,
+  .auth-card-glow::before,
+  .auth-card-glow::after {
     animation: none;
-  }
-  .auth-card {
-    transition: none;
   }
 }
