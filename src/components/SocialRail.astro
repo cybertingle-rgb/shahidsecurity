@@ -133,10 +133,37 @@ import { site, whatsappLink } from '@/lib/site';
   }
 
   @media (max-width: 900px) {
-    /* Doesn't earn its keep at phone width (already tight against real
-       content) — this is purely the "wide empty gutter" fix for larger
-       viewports. */
+    /* At phone width there's no empty side gutter to fill and no hover to
+       reveal labels on, so the rail moves to a compact horizontal row
+       pinned above the safe area at bottom-left — clear of Luna's
+       bottom-right button — with smaller, always-tappable icons instead
+       of the hover-expanding pills. */
     .social-rail {
+      left: 0.75rem;
+      top: auto;
+      bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+      transform: none;
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+
+    .social-pill,
+    .social-pill:hover {
+      width: 2.5rem;
+      height: 2.5rem;
+      /* These sit permanently over page content on mobile (no hover to
+         rely on), unlike the desktop rail which floats over empty
+         gutter — more opaque so underlying text doesn't bleed through
+         the glass. */
+      background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+    }
+
+    .social-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .social-label {
       display: none;
     }
   }
