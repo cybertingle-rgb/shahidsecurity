@@ -2,12 +2,11 @@
 import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import WhatsAppButton from '@/components/WhatsAppButton.astro';
 import Preloader from '@/components/Preloader.astro';
 import AmbientDoodles from '@/components/AmbientDoodles.astro';
 import CursorParticles from '@/components/CursorParticles.astro';
 import LunaWidget from '@/components/LunaWidget.astro';
-import PandaMascot from '@/components/PandaMascot.astro';
+import SocialRail from '@/components/SocialRail.astro';
 import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
 import { translations } from '@/lib/i18n';
@@ -53,7 +52,7 @@ const {
 const canonical = absoluteUrl(path);
 const resolvedOgImage = ogImage ? absoluteUrl(ogImage) : absoluteUrl('/brand/og-default.png');
 const fullTitle = pageTitle(title, isHome);
-const hideWhatsApp = path.startsWith('/book');
+const hideSocialRail = path.startsWith('/book');
 
 // Every page automatically gets Organization + WebSite + a WebPage (or
 // subtype) entity, correctly linked via stable @id references, without
@@ -129,8 +128,7 @@ const allJsonLd = [
       <slot />
     </main>
     <Footer />
-    {!hideWhatsApp && <WhatsAppButton />}
+    {!hideSocialRail && <SocialRail />}
     <LunaWidget />
-    <PandaMascot />
   </body>
 </html>
