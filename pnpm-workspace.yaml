@@ -7,3 +7,15 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - nodemailer@10.0.11
+
+# drizzle-kit@0.31.11 (the latest release — nothing newer to upgrade to)
+# pulls in two vulnerable esbuild copies transitively: 0.18.20 via the
+# deprecated @esbuild-kit/core-utils/@esbuild-kit/esm-loader packages, and
+# 0.25.12 directly. Neither is ever in the deployed app (drizzle-kit is a
+# dev-only CLI, never bundled into the Next.js server), but Hostinger's
+# scanner still flags whatever's in node_modules. Forcing every resolution
+# to the 0.28.2 already used elsewhere in the tree (astro/vite/tsx) clears
+# both advisories (fixed in 0.25.0 and 0.28.1 respectively) and collapses
+# three esbuild copies into one.
+overrides:
+  esbuild: 0.28.2
