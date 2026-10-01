@@ -5,6 +5,8 @@ import Footer from '@/components/Footer.astro';
 import WhatsAppButton from '@/components/WhatsAppButton.astro';
 import Preloader from '@/components/Preloader.astro';
 import AmbientDoodles from '@/components/AmbientDoodles.astro';
+import CursorParticles from '@/components/CursorParticles.astro';
+import LunaWidget from '@/components/LunaWidget.astro';
 import PandaMascot from '@/components/PandaMascot.astro';
 import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
@@ -117,6 +119,7 @@ const allJsonLd = [
   <body>
     <Preloader />
     <AmbientDoodles />
+    <CursorParticles />
     <a href="#main-content" class="skip-link">
       Skip to content
     </a>
@@ -127,6 +130,7 @@ const allJsonLd = [
     </main>
     <Footer />
     {!hideWhatsApp && <WhatsAppButton />}
+    <LunaWidget />
     <PandaMascot />
   </body>
 </html>

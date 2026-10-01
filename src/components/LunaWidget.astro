@@ -1,0 +1,306 @@
+---
+// Luna — the AI assistant widget, floating bottom-right on every page.
+// This site is static (output: 'static', no server of its own), so the
+// widget calls the one real backend in this project — the already-live
+// Node app at learn.shahidiqbal.com — cross-origin, the same way
+// src/pages/learn/pricing.astro already calls that app's public API from
+// the visitor's own browser. No API key ever touches this page; the key
+// lives server-side in that app only (apps/learn/src/lib/luna.ts).
+//
+// The endpoint URL is a literal in the <script> below, not passed via
+// define:vars — this codebase has no precedent for define:vars, and
+// doing it this way lets Astro bundle the script as a normal external
+// module (same as every other script in this project), which trivially
+// satisfies the strict CSP's script-src 'self' with no inline-script
+// hashing to reason about.
+---
+
+<div class="luna-widget" data-luna-widget>
+  <div class="luna-panel" data-luna-panel hidden>
+    <div class="luna-header">
+      <div>
+        <p class="luna-title">Luna</p>
+        <p class="luna-subtitle">Shahid Security AI Assistant</p>
+      </div>
+      <button type="button" class="luna-close" data-luna-close aria-label="Close chat">✕</button>
+    </div>
+    <div class="luna-messages" data-luna-messages>
+      <div class="luna-bubble luna-bubble-assistant">
+        Hi, I'm Luna — the Shahid Security AI assistant. I can help you explore our cybersecurity services, learn
+        about Learn with Shahid's courses and roadmap, or point you toward a free consultation. What can I help
+        with?
+      </div>
+      <div class="luna-suggestions" data-luna-suggestions>
+        <button type="button" class="luna-chip" data-luna-chip>What cybersecurity services do you offer?</button>
+        <button type="button" class="luna-chip" data-luna-chip>How can I book a free consultation?</button>
+        <button type="button" class="luna-chip" data-luna-chip>What is Learn with Shahid?</button>
+        <button type="button" class="luna-chip" data-luna-chip>How can I secure my website?</button>
+      </div>
+    </div>
+    <form class="luna-form" data-luna-form>
+      <input type="text" class="luna-input" data-luna-input placeholder="Ask Luna anything…" autocomplete="off" />
+      <button type="submit" class="luna-send" data-luna-send>Send</button>
+    </form>
+  </div>
+
+  <button type="button" class="luna-button" data-luna-toggle aria-label="Chat with Luna, our AI assistant">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="5" y="8" width="14" height="11" rx="3"></rect>
+      <path d="M9 8V5a3 3 0 0 1 6 0v3"></path>
+      <circle cx="9.5" cy="13.5" r="1.1" fill="currentColor" stroke="none"></circle>
+      <circle cx="14.5" cy="13.5" r="1.1" fill="currentColor" stroke="none"></circle>
+      <path d="M9 17h6"></path>
+      <path d="M3 12h2M19 12h2"></path>
+    </svg>
+  </button>
+</div>
+
+<style>
+  .luna-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .luna-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--color-neon);
+    color: var(--color-bg);
+    box-shadow: 0 0 24px -4px rgba(0, 191, 99, 0.7);
+    transition: transform 150ms ease;
+  }
+
+  .luna-button:hover {
+    transform: scale(1.05);
+  }
+
+  .luna-button svg {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .luna-panel {
+    display: flex;
+    flex-direction: column;
+    width: 22rem;
+    max-width: calc(100vw - 3rem);
+    height: 32rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg-elevated);
+    box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.7);
+  }
+
+  .luna-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .luna-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .luna-subtitle {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .luna-close {
+    color: var(--color-text-muted);
+  }
+
+  .luna-close:hover {
+    color: var(--color-text);
+  }
+
+  .luna-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .luna-bubble {
+    max-width: 85%;
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .luna-bubble-assistant {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .luna-bubble-user {
+    margin-left: auto;
+    background: var(--color-neon);
+    color: var(--color-bg);
+  }
+
+  .luna-bubble-error {
+    background: rgba(255, 59, 92, 0.1);
+    color: var(--color-danger);
+  }
+
+  .luna-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .luna-chip {
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    transition:
+      border-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .luna-chip:hover {
+    border-color: var(--color-neon);
+    color: var(--color-text);
+  }
+
+  .luna-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .luna-input {
+    flex: 1;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .luna-input:focus {
+    outline: none;
+    border-color: var(--color-neon);
+  }
+
+  .luna-send {
+    border-radius: 0.5rem;
+    background: var(--color-neon);
+    color: var(--color-bg);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .luna-send:disabled {
+    opacity: 0.5;
+  }
+</style>
+
+<script>
+  const CHAT_ENDPOINT = 'https://learn.shahidiqbal.com/api/luna/chat';
+  const widget = document.querySelector('[data-luna-widget]');
+  const toggle = widget?.querySelector('[data-luna-toggle]');
+  const closeBtn = widget?.querySelector('[data-luna-close]');
+  const panel = widget?.querySelector('[data-luna-panel]');
+  const messagesEl = widget?.querySelector('[data-luna-messages]');
+  const suggestionsEl = widget?.querySelector('[data-luna-suggestions]');
+  const form = widget?.querySelector('[data-luna-form]');
+  const input = widget?.querySelector('[data-luna-input]');
+
+  type ChatMessage = { role: 'user' | 'assistant'; content: string };
+  const history: ChatMessage[] = [];
+  let sending = false;
+
+  function appendBubble(text: string, kind: 'user' | 'assistant' | 'error') {
+    const div = document.createElement('div');
+    div.className = `luna-bubble luna-bubble-${kind}`;
+    div.textContent = text;
+    messagesEl?.appendChild(div);
+    messagesEl?.scrollTo({ top: messagesEl.scrollHeight });
+  }
+
+  async function send(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed || sending) return;
+
+    suggestionsEl?.remove();
+    appendBubble(trimmed, 'user');
+    history.push({ role: 'user', content: trimmed });
+    sending = true;
+    if (input instanceof HTMLInputElement) input.value = '';
+
+    const typing = document.createElement('div');
+    typing.className = 'luna-bubble luna-bubble-assistant';
+    typing.textContent = 'Luna is typing…';
+    messagesEl?.appendChild(typing);
+    messagesEl?.scrollTo({ top: messagesEl.scrollHeight });
+
+    try {
+      const res = await fetch(CHAT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+      const data = await res.json();
+      typing.remove();
+      if (!res.ok) {
+        appendBubble(data.error ?? 'Something went wrong.', 'error');
+        return;
+      }
+      appendBubble(data.reply, 'assistant');
+      history.push({ role: 'assistant', content: data.reply });
+    } catch {
+      typing.remove();
+      appendBubble('Could not reach Luna. Check your connection and try again.', 'error');
+    } finally {
+      sending = false;
+    }
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isHidden = panel?.hasAttribute('hidden');
+    if (isHidden) panel?.removeAttribute('hidden');
+    else panel?.setAttribute('hidden', '');
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    panel?.setAttribute('hidden', '');
+  });
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (input instanceof HTMLInputElement) send(input.value);
+  });
+
+  widget?.querySelectorAll('[data-luna-chip]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      if (chip instanceof HTMLElement) send(chip.textContent ?? '');
+    });
+  });
+</script>
