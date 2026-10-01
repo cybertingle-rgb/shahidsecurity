@@ -8,10 +8,10 @@ export default function HomePage() {
       <EduBackground />
       <div className="relative z-10 flex flex-col items-center gap-6 rounded-2xl border border-border-strong/60 bg-surface/60 px-8 py-10 backdrop-blur-xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
         <Image
-          src="/icon.png"
+          src="/logo.png"
           alt="Shahid Security"
-          width={110}
-          height={110}
+          width={180}
+          height={180}
           className="drop-shadow-[0_0_30px_rgba(0,191,99,0.4)]"
           priority
         />

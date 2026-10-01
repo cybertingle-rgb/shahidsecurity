@@ -15,6 +15,11 @@ const envSchema = z.object({
   // environment (local dev, test) needs it configured.
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Luna (the AI assistant widget on both shahidiqbal.com and
+  // learn.shahidiqbal.com) — unset simply disables the chat endpoint
+  // (it responds with a clear "not configured" error) rather than
+  // breaking every other unrelated env var check.
+  ANTHROPIC_API_KEY: z.string().optional(),
 });
 
 export const env = envSchema.parse({
@@ -24,4 +29,5 @@ export const env = envSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
 });

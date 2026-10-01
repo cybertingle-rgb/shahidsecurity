@@ -38,9 +38,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="min-h-screen bg-bg text-text">
-      <header className="portal-header sticky top-0 z-10 flex items-center gap-3 px-6 py-4">
-        <Image src="/icon.png" alt="Shahid Security" width={40} height={40} className="drop-shadow-[0_0_12px_rgba(0,191,99,0.35)]" priority />
-        <div>
+      <header className="portal-header sticky top-0 z-10 flex flex-col items-center gap-2 px-6 py-5">
+        <Image src="/logo.png" alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
+        <div className="text-center">
           <p className="text-sm text-text-muted">Learn with Shahid</p>
           <p className="text-lg font-semibold">Welcome, {user.fullName}</p>
         </div>
