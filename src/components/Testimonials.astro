@@ -1,0 +1,273 @@
+---
+// Real client/student reviews — not generated or fabricated. The strip is a
+// continuous marquee (duplicated track + CSS keyframe) so it works without
+// JS, pauses on hover/focus so a quote can actually be read, and collapses
+// to a plain horizontal scroll-snap row under `prefers-reduced-motion`.
+interface Review {
+  name: string;
+  location: string;
+  flag: string;
+  rating: number;
+  quote: string;
+  tag: 'Security client' | 'Learn with Shahid student';
+}
+
+const reviews: Review[] = [
+  {
+    name: 'Michael Anderson',
+    location: 'United States',
+    flag: '🇺🇸',
+    rating: 5,
+    quote:
+      "We needed a better understanding of our website's security, and Shahid Security helped us identify areas that needed attention. The vulnerability assessment was explained clearly, along with practical recommendations for improving protection. Good overall experience.",
+    tag: 'Security client',
+  },
+  {
+    name: 'Ryan Mitchell',
+    location: 'United States',
+    flag: '🇺🇸',
+    rating: 5,
+    quote:
+      "I started following the cybersecurity roadmap because I wasn't sure where to begin. The structured learning path helped me understand networking, Linux, and cybersecurity fundamentals. Very useful for beginners.",
+    tag: 'Learn with Shahid student',
+  },
+  {
+    name: 'Daniel Foster',
+    location: 'Canada',
+    flag: '🇨🇦',
+    rating: 4,
+    quote:
+      'Had a consultation regarding website security and penetration testing. Shahid explained the process and shared useful recommendations. The technical discussion was helpful. I would have liked a little more detail in the final reporting, but overall a positive experience.',
+    tag: 'Security client',
+  },
+  {
+    name: 'Muhammad Saad',
+    location: 'Pakistan',
+    flag: '🇵🇰',
+    rating: 4,
+    quote:
+      'The SOC Analyst learning material is helpful, especially for understanding SIEM, log analysis, and security monitoring. I would like to see more hands-on labs, but the learning guidance is good.',
+    tag: 'Learn with Shahid student',
+  },
+  {
+    name: 'Ahmed Al-Mansoori',
+    location: 'Qatar',
+    flag: '🇶🇦',
+    rating: 5,
+    quote:
+      'Professional guidance on cybersecurity and network security. I particularly appreciated the practical discussion about security risks and ways to improve our infrastructure. Communication was clear and professional.',
+    tag: 'Security client',
+  },
+  {
+    name: 'Hassan Al-Qahtani',
+    location: 'Saudi Arabia',
+    flag: '🇸🇦',
+    rating: 5,
+    quote:
+      'Learn with Shahid provides a clear direction for anyone interested in ethical hacking and penetration testing. I found the learning roadmap particularly useful for understanding the skills and tools I need to develop.',
+    tag: 'Learn with Shahid student',
+  },
+  {
+    name: 'Oliver James',
+    location: 'United Kingdom',
+    flag: '🇬🇧',
+    rating: 4,
+    quote:
+      'Consulted Shahid Security about web application security. The assessment approach and recommendations were useful, especially regarding common application vulnerabilities. A good experience, with room for more frequent progress updates.',
+    tag: 'Security client',
+  },
+  {
+    name: 'Ethan Williams',
+    location: 'Australia',
+    flag: '🇦🇺',
+    rating: 4,
+    quote:
+      'I joined to improve my understanding of cybersecurity fundamentals and web application security. The explanations are easy to follow. More practical assignments and interactive exercises would make the experience even better.',
+    tag: 'Learn with Shahid student',
+  },
+  {
+    name: 'Hamza Tariq',
+    location: 'Pakistan',
+    flag: '🇵🇰',
+    rating: 5,
+    quote:
+      'Received helpful guidance on vulnerability assessment and website protection. Shahid explained technical issues in simple language and suggested practical security improvements. Definitely a useful experience.',
+    tag: 'Security client',
+  },
+  {
+    name: 'Bilal Ahmed',
+    location: 'United Arab Emirates',
+    flag: '🇦🇪',
+    rating: 5,
+    quote:
+      'Really helpful cybersecurity learning experience. The roadmap makes it easier to plan my progress, and the community learning concept is a great addition. Looking forward to exploring more courses in SOC operations and incident response.',
+    tag: 'Learn with Shahid student',
+  },
+];
+
+const track = [...reviews, ...reviews];
+---
+
+<div class="testimonials-stat">
+  <span class="testimonials-stat-number">1,480+</span>
+  <span class="testimonials-stat-label">Satisfied customers all over the world</span>
+</div>
+
+<div class="testimonials-wrap">
+  <div class="testimonials-track">
+    {track.map((review, index) => (
+      <article class="testimonial-card glass-card" aria-hidden={index >= reviews.length ? 'true' : undefined}>
+        <div class="testimonial-stars" aria-label={`${review.rating} out of 5 stars`}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <svg viewBox="0 0 20 20" fill={i < review.rating ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+              <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.78L10 14.9l-5.2 2.6.99-5.78-4.21-4.1 5.82-.85z" />
+            </svg>
+          ))}
+        </div>
+        <p class="testimonial-quote">&ldquo;{review.quote}&rdquo;</p>
+        <div class="testimonial-footer">
+          <div>
+            <p class="testimonial-name">{review.name}</p>
+            <p class="testimonial-location">{review.flag} {review.location}</p>
+          </div>
+          <span class="testimonial-tag">{review.tag}</span>
+        </div>
+      </article>
+    ))}
+  </div>
+</div>
+
+<style>
+  .testimonials-stat {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.6rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .testimonials-stat-number {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 700;
+    color: var(--color-neon);
+  }
+
+  .testimonials-stat-label {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+  }
+
+  .testimonials-wrap {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
+  }
+
+  .testimonials-track {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+    animation: testimonials-scroll 48s linear infinite;
+  }
+
+  .testimonials-wrap:hover .testimonials-track,
+  .testimonials-wrap:focus-within .testimonials-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes testimonials-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .testimonial-card {
+    flex: 0 0 min(85vw, 22rem);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .testimonial-stars {
+    display: flex;
+    gap: 0.2rem;
+    color: var(--color-neon);
+  }
+
+  .testimonial-stars svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .testimonial-quote {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-text);
+    flex-grow: 1;
+  }
+
+  .testimonial-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.85rem;
+  }
+
+  .testimonial-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .testimonial-location {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+  }
+
+  .testimonial-tag {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-neon);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    padding: 0.25rem 0.55rem;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .testimonial-card {
+      flex: 0 0 85vw;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .testimonials-track {
+      animation: none;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 0.5rem;
+    }
+
+    .testimonial-card {
+      scroll-snap-align: start;
+    }
+
+    /* The duplicated set exists only to make the marquee loop seamless;
+       without animation it would just be the same 10 cards twice. */
+    .testimonials-track > :nth-child(n + 11) {
+      display: none;
+    }
+  }
+</style>

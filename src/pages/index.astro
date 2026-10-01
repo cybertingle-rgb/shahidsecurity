@@ -10,6 +10,7 @@ import TrustBar from '@/components/TrustBar.astro';
 import HeroBackdrop from '@/components/HeroBackdrop.astro';
 import TerminalWindow from '@/components/TerminalWindow.astro';
 import ScanDivider from '@/components/ScanDivider.astro';
+import Testimonials from '@/components/Testimonials.astro';
 
 const homeServiceCards = [
   {
@@ -249,6 +250,15 @@ const trustItems = [
           <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{v.text}</p>
         </div>
       ))}
+    </div>
+  </Section>
+
+  <ScanDivider />
+
+  <Section class="text-center">
+    <SectionHeading eyebrow="// 04 WHAT PEOPLE SAY" title="Clients and students, in their own words" align="center" />
+    <div class="mt-10">
+      <Testimonials />
     </div>
   </Section>
 
