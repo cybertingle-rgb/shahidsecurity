@@ -1,0 +1,107 @@
+---
+// Neon-green particle trail that follows the pointer, replacing the old
+// spinning RGB cursor ring. A capped pool of PARTICLE_COUNT particles is
+// pre-allocated and reused (no per-frame allocation) — each one is
+// "respawned" near the cursor on movement and fades out over its
+// lifetime. Canvas-based rather than one DOM node per particle, since 50
+// animated DOM nodes would be far more expensive than one canvas draw
+// call per frame. Rendered once, site-wide, from BaseLayout.
+---
+
+<canvas class="cursor-particles" aria-hidden="true"></canvas>
+
+<style>
+  .cursor-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('.cursor-particles');
+  const ctx = canvas?.getContext('2d');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canvas && ctx && !prefersReducedMotion) {
+    const PARTICLE_COUNT = 42;
+    const NEON = '26, 255, 140'; // --color-neon-soft, as an rgb() triplet for canvas use
+
+    type Particle = { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; active: boolean };
+
+    const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      life: 0,
+      maxLife: 1,
+      size: 0,
+      active: false,
+    }));
+
+    let nextIndex = 0;
+
+    function resize() {
+      if (!canvas) return;
+      canvas.width = window.innerWidth * window.devicePixelRatio;
+      canvas.height = window.innerHeight * window.devicePixelRatio;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx?.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+    }
+
+    function spawn(x: number, y: number) {
+      const p = particles[nextIndex]!;
+      nextIndex = (nextIndex + 1) % PARTICLE_COUNT;
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 0.4 + Math.random() * 1.4;
+      p.x = x;
+      p.y = y;
+      p.vx = Math.cos(angle) * speed;
+      p.vy = Math.sin(angle) * speed - 0.3; // slight upward drift
+      p.maxLife = 40 + Math.random() * 30;
+      p.life = p.maxLife;
+      p.size = 1.5 + Math.random() * 2.5;
+      p.active = true;
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      // A couple of particles per move event reads as a trail without
+      // flooding the pool on a fast mouse sweep.
+      spawn(e.clientX, e.clientY);
+      spawn(e.clientX, e.clientY);
+    }
+
+    function tick() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const p of particles) {
+        if (!p.active) continue;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 1;
+        if (p.life <= 0) {
+          p.active = false;
+          continue;
+        }
+        const alpha = p.life / p.maxLife;
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${NEON}, ${(alpha * 0.8).toFixed(3)})`;
+        ctx.shadowColor = `rgba(${NEON}, ${(alpha * 0.9).toFixed(3)})`;
+        ctx.shadowBlur = 6;
+        ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    window.addEventListener('pointermove', onPointerMove);
+    requestAnimationFrame(tick);
+  }
+</script>

@@ -58,7 +58,11 @@ export default defineConfig({
         "default-src 'self'",
         "img-src 'self' data:",
         "font-src 'self'",
-        "connect-src 'self' https://challenges.cloudflare.com",
+        // https://learn.shahidiqbal.com: the Luna chat widget's fetch()
+        // target — this static site has no backend of its own, so Luna's
+        // widget calls the one real server in the project directly from
+        // the visitor's browser (src/components/LunaWidget.astro).
+        "connect-src 'self' https://challenges.cloudflare.com https://learn.shahidiqbal.com",
         'frame-src https://challenges.cloudflare.com',
         "base-uri 'self'",
         "form-action 'self'",

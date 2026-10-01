@@ -173,7 +173,8 @@
   const hearts = document.querySelector<HTMLElement>('[data-panda-hearts]');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const RIGHT_RESERVED_PX = 110; // keep clear of the WhatsApp button
+  const RIGHT_RESERVED_PX = 110; // keep clear of the Luna AI assistant button
+  const LEFT_RESERVED_PX = 110; // keep clear of the WhatsApp button
   const EDGE_MARGIN_PX = 8;
   // A small fixed range, not a viewport-height percentage: on short mobile
   // screens a percentage-based range pushed the mascot up into the hero's
@@ -187,7 +188,7 @@
   function randomSpot() {
     const w = mascotWidth();
     const maxLeft = window.innerWidth - w - RIGHT_RESERVED_PX;
-    const minLeft = EDGE_MARGIN_PX;
+    const minLeft = LEFT_RESERVED_PX;
     const left = Math.max(minLeft, Math.random() * Math.max(minLeft, maxLeft));
     const bottom = EDGE_MARGIN_PX + Math.random() * MAX_BOTTOM_PX;
     return { left, bottom };
