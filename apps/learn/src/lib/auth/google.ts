@@ -50,7 +50,13 @@ export async function exchangeGoogleCode(code: string): Promise<GoogleTokenRespo
       grant_type: 'authorization_code',
     }),
   });
-  if (!res.ok) throw new Error(`Google token exchange failed: ${res.status}`);
+  if (!res.ok) {
+    // Google's error body (e.g. "redirect_uri_mismatch", "invalid_client")
+    // is the single most useful diagnostic for this call — surfaced in the
+    // server log, never to the browser.
+    const body = await res.text().catch(() => '');
+    throw new Error(`Google token exchange failed: ${res.status} ${body}`);
+  }
   return res.json();
 }
 
@@ -58,7 +64,10 @@ export type GoogleProfile = { sub: string; email: string; emailVerified: boolean
 
 export async function fetchGoogleProfile(accessToken: string): Promise<GoogleProfile> {
   const res = await fetch(GOOGLE_USERINFO_ENDPOINT, { headers: { Authorization: `Bearer ${accessToken}` } });
-  if (!res.ok) throw new Error(`Google userinfo fetch failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Google userinfo fetch failed: ${res.status} ${body}`);
+  }
   const data = (await res.json()) as { sub: string; email?: string; email_verified?: boolean; name?: string };
   if (!data.email) throw new Error('Google account has no email');
   return { sub: data.sub, email: data.email.toLowerCase(), emailVerified: Boolean(data.email_verified), name: data.name ?? null };

@@ -7,6 +7,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   account_not_found: 'Something went wrong. Please try again.',
   too_many_attempts: 'Too many attempts. Try again later.',
   google_error: 'Google sign-in failed. Please try again.',
+  google_token_exchange_failed: 'Google sign-in failed (token exchange). Please try again.',
+  google_profile_fetch_failed: 'Google sign-in failed (profile fetch). Please try again.',
+  google_account_error: 'Google sign-in failed (account setup). Please try again.',
+  google_session_error: 'Google sign-in failed (session). Please try again.',
 };
 
 export function googleOAuthErrorMessage(code: string | null): string | null {
