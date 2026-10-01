@@ -62,18 +62,42 @@ export async function GET(request: NextRequest) {
     return toLogin('oauth_state');
   }
 
+  // Each external/DB step gets its own try/catch and its own error code —
+  // the code that ends up in the browser's address bar is then itself a
+  // diagnostic (which step failed), not just a generic "something broke",
+  // since production server logs aren't something this session can see.
+  let tokens;
   try {
-    const tokens = await exchangeGoogleCode(code);
-    const profile = await fetchGoogleProfile(tokens.access_token);
-    const result = await resolveOrCreateGoogleUser(profile);
+    tokens = await exchangeGoogleCode(code);
+  } catch (err) {
+    console.error('Google OAuth: token exchange failed', err);
+    return toLogin('google_token_exchange_failed');
+  }
 
-    if ('error' in result) {
-      return toLogin(result.error);
-    }
-    if (result.status !== 'active') {
-      return toLogin('account_suspended');
-    }
+  let profile;
+  try {
+    profile = await fetchGoogleProfile(tokens.access_token);
+  } catch (err) {
+    console.error('Google OAuth: profile fetch failed', err);
+    return toLogin('google_profile_fetch_failed');
+  }
 
+  let result;
+  try {
+    result = await resolveOrCreateGoogleUser(profile);
+  } catch (err) {
+    console.error('Google OAuth: resolveOrCreateGoogleUser failed', err);
+    return toLogin('google_account_error');
+  }
+
+  if ('error' in result) {
+    return toLogin(result.error);
+  }
+  if (result.status !== 'active') {
+    return toLogin('account_suspended');
+  }
+
+  try {
     const roleNames = await getUserRoleNames(result.id);
     const isAdmin = [...roleNames].some((name) => ADMIN_ROLE_NAMES.has(name));
     const { token, expiresAt } = await createSession(result.id, { isAdmin, ipAddress: ip, userAgent });
@@ -86,7 +110,7 @@ export async function GET(request: NextRequest) {
     response.cookies.delete(GOOGLE_OAUTH_STATE_COOKIE);
     return response;
   } catch (err) {
-    console.error('Google OAuth callback failed', err);
-    return toLogin('google_error');
+    console.error('Google OAuth: session creation failed', err);
+    return toLogin('google_session_error');
   }
 }
