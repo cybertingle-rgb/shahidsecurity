@@ -3,6 +3,7 @@
 import { Suspense, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import EduBackground from '@/components/EduBackground';
 import AuthCard from '@/components/AuthCard';
 import GoogleButton, { googleOAuthErrorMessage } from '@/components/GoogleButton';
@@ -111,8 +112,16 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text">
       <EduBackground />
+      <Image
+        src="/logo.png"
+        alt="Shahid Security"
+        width={150}
+        height={150}
+        className="relative z-10 drop-shadow-[0_0_24px_rgba(0,191,99,0.45)]"
+        priority
+      />
       <Suspense fallback={null}>
         <RegisterForm />
       </Suspense>

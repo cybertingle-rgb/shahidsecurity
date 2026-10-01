@@ -16,6 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.129.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "22.20.4",
     "@types/qrcode": "^1.5.6",
