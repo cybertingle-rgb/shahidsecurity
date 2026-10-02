@@ -1,33 +1,44 @@
 import { boolean, datetime, decimal, int, json, mysqlEnum, mysqlTable, text, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
 import { idColumn, fkColumn } from './columns';
 import { users } from './identity';
-import { instructors } from './courses';
+import { instructors, courses } from './courses';
 
 // "The Learn with Shahid Enrollment is just a row here, type `membership`"
 // — docs/lms-database.md. This is the mechanism behind
 // docs/LMS_DECISIONS.md #8: the PKR 800 price is never hardcoded in code.
-export const products = mysqlTable('products', {
-  id: idColumn(),
-  type: mysqlEnum('type', [
-    'course',
-    'membership',
-    'bundle',
-    'workshop',
-    'bootcamp',
-    'mentoring',
-    'digital_product',
-    'live_class',
-  ]).notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  status: mysqlEnum('status', ['draft', 'active', 'inactive']).notNull().default('draft'),
-  accessRules: json('access_rules').$type<Record<string, unknown>>(),
-  durationDays: int('duration_days'),
-  instructorId: fkColumn('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
-  seo: json('seo').$type<Record<string, unknown>>(),
-  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
-  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
-});
+export const products = mysqlTable(
+  'products',
+  {
+    id: idColumn(),
+    type: mysqlEnum('type', [
+      'course',
+      'membership',
+      'bundle',
+      'workshop',
+      'bootcamp',
+      'mentoring',
+      'digital_product',
+      'live_class',
+    ]).notNull(),
+    name: text('name').notNull(),
+    description: text('description'),
+    status: mysqlEnum('status', ['draft', 'active', 'inactive']).notNull().default('draft'),
+    accessRules: json('access_rules').$type<Record<string, unknown>>(),
+    durationDays: int('duration_days'),
+    instructorId: fkColumn('instructor_id').references(() => instructors.id, { onDelete: 'set null' }),
+    // The single source of truth linking a sellable product back to its
+    // actual content row — only meaningful when type='course'. Nullable so
+    // every other product type (membership, bundle, ...) is unaffected;
+    // the unique index still enforces at most one product per course (MySQL
+    // treats multiple NULLs as distinct, same as prices' composite index
+    // above), so a course's commerce record can never be duplicated.
+    courseId: fkColumn('course_id').references(() => courses.id, { onDelete: 'set null' }),
+    seo: json('seo').$type<Record<string, unknown>>(),
+    createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+    updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
+  },
+  (table) => [uniqueIndex('products_course_id_idx').on(table.courseId)],
+);
 
 export const prices = mysqlTable(
   'prices',
@@ -127,7 +138,10 @@ export const payments = mysqlTable('payments', {
   // transfer, crypto, mobile wallet, ...) — which one specifically is
   // paymentMethodId, not this enum. Was 'manual_bank_transfer' before
   // payment methods became data-driven instead of just the one hardcoded kind.
-  method: mysqlEnum('method', ['online', 'manual']).notNull(),
+  // 'free' is a $0 course enrollment — never represented as 'manual' or
+  // 'online', so a free enrollment can never be mistaken for a real bank
+  // transfer or gateway charge in the payments ledger.
+  method: mysqlEnum('method', ['online', 'manual', 'free']).notNull(),
   paymentMethodId: fkColumn('payment_method_id').references(() => paymentMethods.id, { onDelete: 'set null' }),
   verifiedByUserId: fkColumn('verified_by_user_id').references(() => users.id, { onDelete: 'set null' }),
   verifiedAt: datetime('verified_at'),

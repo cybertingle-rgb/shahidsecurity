@@ -30,6 +30,13 @@ export const courses = mysqlTable('courses', {
   status: mysqlEnum('status', ['draft', 'review', 'published', 'archived']).notNull().default('draft'),
   publishedAt: datetime('published_at'),
   featured: boolean('featured').notNull().default(false),
+  // Structured curriculum-page content, entered on the same course form as
+  // everything else — JSON arrays of plain strings, not a new sub-table,
+  // since these are simple admin-authored lists with no independent
+  // identity of their own.
+  learningOutcomes: json('learning_outcomes').$type<string[]>(),
+  requirements: json('requirements').$type<string[]>(),
+  targetAudience: text('target_audience'),
   seoTitle: text('seo_title'),
   seoDescription: text('seo_description'),
   canonicalUrl: text('canonical_url'),

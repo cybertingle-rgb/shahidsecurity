@@ -15,7 +15,11 @@ export async function createProduct(formData: FormData) {
 
   const name = String(formData.get('name') ?? '').trim();
   if (!name) throw new Error('Name is required.');
-  const type = String(formData.get('type') ?? 'course') as ProductType;
+  const type = String(formData.get('type') ?? 'membership') as ProductType;
+  // Course-type products are auto-managed from the course form itself
+  // (syncCourseProduct) — this screen never creates one directly, so a
+  // course can never end up with two disconnected commerce records.
+  if (type === 'course') throw new Error('Course pricing is set on the course itself (Admin → Courses → edit a course), not here.');
 
   const id = crypto.randomUUID();
   await db.insert(products).values({

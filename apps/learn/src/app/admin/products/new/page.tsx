@@ -16,7 +16,6 @@ export default function NewProductPage() {
             Type
           </label>
           <select id="type" name="type" className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2">
-            <option value="course">Course</option>
             <option value="membership">Membership</option>
             <option value="bundle">Bundle</option>
             <option value="workshop">Workshop</option>

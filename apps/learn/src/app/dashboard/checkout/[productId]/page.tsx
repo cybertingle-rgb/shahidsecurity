@@ -5,6 +5,7 @@ import { getPurchasableProduct } from '@/lib/checkout';
 import { listActivePaymentMethods } from '@/lib/admin/paymentMethods';
 import { localizeAmountForRequest } from '@/lib/currency';
 import { submitPayment } from './actions';
+import { enrollFree } from './free-enroll-action';
 
 function formatAmount(amountMinorUnits: number, currencyCode: string): string {
   return `${currencyCode} ${(amountMinorUnits / 100).toLocaleString()}`;
@@ -16,6 +17,23 @@ export default async function CheckoutProductPage({ params }: { params: Promise<
   if (!resolved) notFound();
 
   const { product, price } = resolved;
+
+  if (price.amount === 0) {
+    return (
+      <div className="max-w-lg space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold">{product.name}</h1>
+          <p className="mt-1 text-lg text-neon">Free</p>
+        </div>
+        <form action={enrollFree.bind(null, productId)}>
+          <button type="submit" className="w-full rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+            Enroll for free
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   const localized = await localizeAmountForRequest(price.amount, requestHeaders);
   const showLocalized = localized.currencyCode !== price.currencyCode;
 

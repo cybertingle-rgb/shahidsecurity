@@ -7,7 +7,7 @@ import { users, enrollments } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
 import { destroyAllSessionsForUser } from '@/lib/auth/session';
-import { grantProductAccess, revokeProductAccess } from '@/lib/enrollment';
+import { grantProductAccess, revokeProductAccess, resolveCourseIdForProduct } from '@/lib/enrollment';
 
 export async function suspendStudent(userId: string) {
   const admin = await requireAdminAction('users.manage');
@@ -30,11 +30,16 @@ export async function reactivateStudent(userId: string) {
 export async function manualEnroll(userId: string, formData: FormData) {
   const admin = await requireAdminAction('enrollments.manage');
 
-  const courseId = (formData.get('courseId') as string) || null;
+  const explicitCourseId = (formData.get('courseId') as string) || null;
   const productId = (formData.get('productId') as string) || null;
-  if (!courseId && !productId) {
+  if (!explicitCourseId && !productId) {
     throw new Error('Select a course or a product to enroll into.');
   }
+  // If the admin picked a course-type product (and didn't also separately
+  // pick a course), resolve its linked course automatically — same rule
+  // the payment-approval path uses, so a manual grant can never end up in
+  // the "paid/granted but not visible in My Courses" state either.
+  const courseId = explicitCourseId ?? (productId ? await resolveCourseIdForProduct(productId) : null);
 
   const enrollmentId = crypto.randomUUID();
   await db.insert(enrollments).values({

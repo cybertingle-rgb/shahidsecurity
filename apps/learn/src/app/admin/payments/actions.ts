@@ -6,7 +6,7 @@ import { db } from '@/db';
 import { manualPaymentSubmissions, payments, orders, enrollments } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
-import { grantProductAccess } from '@/lib/enrollment';
+import { grantProductAccess, resolveCourseIdForProduct } from '@/lib/enrollment';
 
 async function loadSubmissionChain(submissionId: string) {
   const [submission] = await db.select().from(manualPaymentSubmissions).where(eq(manualPaymentSubmissions.id, submissionId));
@@ -31,9 +31,16 @@ export async function approveManualPayment(submissionId: string) {
   await db.update(payments).set({ status: 'succeeded', verifiedByUserId: admin.id, verifiedAt: new Date() }).where(eq(payments.id, payment.id));
   await db.update(orders).set({ status: 'paid', paidAt: new Date() }).where(eq(orders.id, order.id));
 
+  // The actual fix for "paid for a course but got no access": a
+  // course-type product's enrollment needs courseId set, or every
+  // student-facing query (My Courses, the lesson player) — which all
+  // join on enrollments.courseId — never finds this enrollment at all.
+  const courseId = await resolveCourseIdForProduct(order.productId);
+
   await db.insert(enrollments).values({
     id: crypto.randomUUID(),
     userId: order.userId,
+    courseId,
     productId: order.productId,
     source: 'purchase',
     status: 'active',

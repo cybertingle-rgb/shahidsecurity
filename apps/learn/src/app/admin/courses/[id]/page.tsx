@@ -1,7 +1,12 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getCourse, listInstructors, listModulesWithLessons } from '@/lib/admin/courses';
+import { getCourse, listInstructors, listModulesWithLessons, getCourseProductAndPrice } from '@/lib/admin/courses';
 import { updateCourse, setCourseStatus, createModule, deleteModule, createLesson, deleteLesson } from '../actions';
+import ThumbnailUrlField from '@/components/ThumbnailUrlField';
+
+function formatMajorUnits(amountMinorUnits: number): string {
+  return (amountMinorUnits / 100).toFixed(2);
+}
 
 const NEXT_STATUS: Record<string, { label: string; status: 'draft' | 'review' | 'published' | 'archived' }[]> = {
   draft: [{ label: 'Submit for review', status: 'review' }],
@@ -17,8 +22,15 @@ const LESSON_TYPES = ['text', 'video', 'pdf', 'image', 'code', 'quiz', 'assignme
 
 export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [course, instructors, modules] = await Promise.all([getCourse(id), listInstructors(), listModulesWithLessons(id)]);
+  const [course, instructors, modules, productAndPrice] = await Promise.all([
+    getCourse(id),
+    listInstructors(),
+    listModulesWithLessons(id),
+    getCourseProductAndPrice(id),
+  ]);
   if (!course) notFound();
+
+  const currentPrice = productAndPrice?.price;
 
   return (
     <div className="max-w-lg space-y-6">
@@ -67,6 +79,13 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2"
           />
         </div>
+        <ThumbnailUrlField defaultValue={course.thumbnailUrl ?? ''} />
+        <div>
+          <label className="block text-sm text-text-muted" htmlFor="category">
+            Category
+          </label>
+          <input id="category" name="category" defaultValue={course.category ?? ''} className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2" />
+        </div>
         <div>
           <label className="block text-sm text-text-muted" htmlFor="level">
             Level
@@ -96,6 +115,75 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             ))}
           </select>
         </div>
+
+        <div className="grid grid-cols-2 gap-3 border-t border-border pt-4">
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="priceAmount">
+              Price (USD)
+            </label>
+            <input
+              id="priceAmount"
+              name="priceAmount"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={currentPrice ? formatMajorUnits(currentPrice.amount) : ''}
+              placeholder="0.00 = free"
+              className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="salePriceAmount">
+              Discounted price (optional)
+            </label>
+            <input
+              id="salePriceAmount"
+              name="salePriceAmount"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={currentPrice?.saleAmount ? formatMajorUnits(currentPrice.saleAmount) : ''}
+              className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-text-muted">Leave price blank or 0 for a free course.</p>
+
+        <label className="flex items-center gap-2 text-sm text-text-muted">
+          <input type="checkbox" name="featured" defaultChecked={course.featured} /> Feature this course on the homepage
+        </label>
+
+        <div>
+          <label className="block text-sm text-text-muted" htmlFor="learningOutcomes">
+            What students will learn (one per line)
+          </label>
+          <textarea
+            id="learningOutcomes"
+            name="learningOutcomes"
+            rows={3}
+            defaultValue={(course.learningOutcomes ?? []).join('\n')}
+            className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-text-muted" htmlFor="requirements">
+            Requirements (one per line)
+          </label>
+          <textarea
+            id="requirements"
+            name="requirements"
+            rows={3}
+            defaultValue={(course.requirements ?? []).join('\n')}
+            className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-text-muted" htmlFor="targetAudience">
+            Who this course is for
+          </label>
+          <input id="targetAudience" name="targetAudience" defaultValue={course.targetAudience ?? ''} className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2" />
+        </div>
+
         <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
           Save changes
         </button>
