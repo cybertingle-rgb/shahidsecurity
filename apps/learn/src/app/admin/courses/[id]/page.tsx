@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCourse, listInstructors, listModulesWithLessons, getCourseProductAndPrice } from '@/lib/admin/courses';
-import { updateCourse, setCourseStatus, createModule, deleteModule, createLesson, deleteLesson } from '../actions';
+import { updateCourse, setCourseStatus, createModule, updateModule, deleteModule, createLesson, deleteLesson } from '../actions';
 import ThumbnailUrlField from '@/components/ThumbnailUrlField';
 import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 
@@ -206,8 +206,18 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
 
         {modules.map((mod) => (
           <div key={mod.id} className="rounded-lg border border-border p-4">
-            <div className="flex items-center justify-between">
-              <p className="font-medium">{mod.title}</p>
+            <div className="flex items-center justify-between gap-3">
+              <form action={updateModule.bind(null, id, mod.id)} className="flex flex-1 items-center gap-2">
+                <input
+                  name="title"
+                  defaultValue={mod.title}
+                  required
+                  className="flex-1 rounded-md border border-border bg-bg-elevated px-2 py-1 text-sm font-medium"
+                />
+                <button type="submit" className="rounded-md bg-neon px-3 py-1 text-xs font-medium text-bg">
+                  Save
+                </button>
+              </form>
               <form action={deleteModule.bind(null, id, mod.id)}>
                 <ConfirmSubmitButton confirmMessage={`Delete the module "${mod.title}" and all its lessons? This cannot be undone.`} className="text-xs text-danger">
                   Delete module
