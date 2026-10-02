@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { listAnnouncements } from '@/lib/admin/announcements';
-import { createAnnouncement } from './actions';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
+import { createAnnouncement, deleteAnnouncement } from './actions';
 
 export default async function AnnouncementsPage() {
   const announcements = await listAnnouncements();
@@ -11,11 +13,23 @@ export default async function AnnouncementsPage() {
       <div className="space-y-3">
         {announcements.map((a) => (
           <div key={a.id} className="rounded-lg border border-border p-4">
-            <div className="flex items-center justify-between">
-              <p className="font-medium">{a.title}</p>
-              <p className="text-xs text-text-muted">
-                {a.targetType} — {a.publishedAt.toLocaleDateString()}
-              </p>
+            <div className="flex items-center justify-between gap-4">
+              <Link href={`/admin/announcements/${a.id}`} className="font-medium hover:text-neon">
+                {a.title}
+              </Link>
+              <div className="flex shrink-0 items-center gap-3">
+                <p className="text-xs text-text-muted">
+                  {a.targetType} — {a.publishedAt.toLocaleDateString()}
+                </p>
+                <Link href={`/admin/announcements/${a.id}`} className="text-xs text-text-muted hover:text-text">
+                  Edit
+                </Link>
+                <form action={deleteAnnouncement.bind(null, a.id)}>
+                  <ConfirmSubmitButton confirmMessage={`Delete the announcement "${a.title}"? This cannot be undone.`} className="text-xs text-danger">
+                    Delete
+                  </ConfirmSubmitButton>
+                </form>
+              </div>
             </div>
             <p className="mt-1 text-sm text-text-muted">{a.body}</p>
           </div>
