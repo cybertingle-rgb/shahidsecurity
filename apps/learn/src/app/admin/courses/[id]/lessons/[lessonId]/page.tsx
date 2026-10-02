@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getLesson, getLessonVideoSource, getAssignment, getQuizWithQuestions } from '@/lib/admin/courses';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { updateLessonContent, upsertQuiz, addQuizQuestion, deleteQuizQuestion } from '../../../actions';
 
 const LESSON_TYPES = ['text', 'video', 'pdf', 'image', 'code', 'quiz', 'assignment', 'external_resource', 'download'] as const;
@@ -172,9 +173,9 @@ export default async function EditLessonPage({ params }: { params: Promise<{ id:
                         <span className="text-text-muted">[{q.type}]</span> {q.prompt}
                       </p>
                       <form action={deleteQuizQuestion.bind(null, lessonId, q.id)}>
-                        <button type="submit" className="text-xs text-danger">
+                        <ConfirmSubmitButton confirmMessage="Delete this question? This cannot be undone." className="text-xs text-danger">
                           Delete
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     </div>
                     {q.options && <p className="mt-1 text-xs text-text-muted">Options: {q.options.join(', ')}</p>}

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getStudentDetail, listEnrollableProducts, listPublishedCourses } from '@/lib/admin/students';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { suspendStudent, reactivateStudent, manualEnroll, revokeEnrollment, updateStudentProfile } from '../actions';
 
 export default async function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,12 +19,18 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           <p className="text-sm text-text-muted">Roles: {detail.roleNames.join(', ') || '—'}</p>
         </div>
         <form action={detail.user.status === 'active' ? suspendStudent.bind(null, id) : reactivateStudent.bind(null, id)}>
-          <button
-            type="submit"
-            className={`rounded-md px-4 py-2 text-sm font-medium ${detail.user.status === 'active' ? 'border border-danger text-danger' : 'bg-neon text-bg'}`}
-          >
-            {detail.user.status === 'active' ? 'Suspend account' : 'Reactivate account'}
-          </button>
+          {detail.user.status === 'active' ? (
+            <ConfirmSubmitButton
+              confirmMessage={`Suspend ${detail.user.fullName}'s account? They will be logged out immediately and unable to log back in until reactivated.`}
+              className="rounded-md border border-danger px-4 py-2 text-sm font-medium text-danger"
+            >
+              Suspend account
+            </ConfirmSubmitButton>
+          ) : (
+            <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+              Reactivate account
+            </button>
+          )}
         </form>
       </div>
 
@@ -108,9 +115,12 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                   <td className="px-4 py-2">
                     {e.status === 'active' && (
                       <form action={revokeEnrollment.bind(null, e.id, id)}>
-                        <button type="submit" className="text-sm text-danger">
+                        <ConfirmSubmitButton
+                          confirmMessage={`Revoke ${detail.user.fullName}'s access to "${e.courseTitle ?? e.productName}"? They will lose access immediately.`}
+                          className="text-sm text-danger"
+                        >
                           Revoke
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     )}
                   </td>

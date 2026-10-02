@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { listEnrollments } from '@/lib/admin/enrollments';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { revokeEnrollment } from '../students/actions';
 
 export default async function EnrollmentsPage() {
@@ -40,9 +41,12 @@ export default async function EnrollmentsPage() {
                 <td className="px-4 py-2">
                   {e.status === 'active' && (
                     <form action={revokeEnrollment.bind(null, e.id, e.studentId)}>
-                      <button type="submit" className="text-sm text-danger">
+                      <ConfirmSubmitButton
+                        confirmMessage={`Revoke ${e.studentName}'s access to "${e.courseTitle ?? e.productName}"? They will lose access immediately.`}
+                        className="text-sm text-danger"
+                      >
                         Revoke
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   )}
                 </td>

@@ -1,4 +1,5 @@
 import { listRoadmapStages } from '@/lib/admin/roadmap';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { createRoadmapStage, updateRoadmapStage, deleteRoadmapStage } from './actions';
 
 export default async function AdminRoadmapPage() {
@@ -41,9 +42,9 @@ export default async function AdminRoadmapPage() {
               </div>
             </form>
             <form action={deleteRoadmapStage.bind(null, stage.id)} className="mt-2">
-              <button type="submit" className="text-xs text-danger">
+              <ConfirmSubmitButton confirmMessage={`Delete the roadmap stage "${stage.title}"? This cannot be undone.`} className="text-xs text-danger">
                 Delete stage
-              </button>
+              </ConfirmSubmitButton>
             </form>
           </details>
         ))}

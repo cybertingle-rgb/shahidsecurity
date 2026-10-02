@@ -1,4 +1,5 @@
 import { listPendingManualPayments } from '@/lib/admin/payments';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { approveManualPayment, rejectManualPayment, requestClarification } from './actions';
 
 export default async function PaymentsPage() {
@@ -42,9 +43,12 @@ export default async function PaymentsPage() {
             <div className="mt-3 flex gap-2">
               <form action={rejectManualPayment.bind(null, p.submissionId)} className="flex gap-2">
                 <input name="note" placeholder="Reason (optional)" className="rounded-md border border-border bg-bg-elevated px-3 py-1.5 text-sm" />
-                <button type="submit" className="rounded-md border border-danger px-3 py-1.5 text-sm text-danger">
+                <ConfirmSubmitButton
+                  confirmMessage={`Reject this payment from ${p.studentName}? They will be notified and no enrollment will be created.`}
+                  className="rounded-md border border-danger px-3 py-1.5 text-sm text-danger"
+                >
                   Reject
-                </button>
+                </ConfirmSubmitButton>
               </form>
               <form action={requestClarification.bind(null, p.submissionId)} className="flex gap-2">
                 <input name="note" placeholder="What's needed?" required className="rounded-md border border-border bg-bg-elevated px-3 py-1.5 text-sm" />
