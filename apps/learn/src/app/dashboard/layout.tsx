@@ -10,6 +10,7 @@ const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 
 const NAV = [
   { href: '/dashboard', label: 'Overview' },
+  { href: '/courses', label: 'Browse Courses' },
   { href: '/dashboard/courses', label: 'My Courses' },
   { href: '/dashboard/membership', label: 'Membership' },
   { href: '/dashboard/checkout', label: 'Buy' },
