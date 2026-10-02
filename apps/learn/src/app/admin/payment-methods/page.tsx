@@ -1,4 +1,5 @@
 import { listPaymentMethods } from '@/lib/admin/paymentMethods';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { createPaymentMethod, updatePaymentMethod, togglePaymentMethodStatus, deletePaymentMethod } from './actions';
 
 const TYPES = ['bank_transfer', 'crypto', 'mobile_wallet', 'other'] as const;
@@ -74,9 +75,9 @@ export default async function PaymentMethodsPage() {
                 </button>
               </form>
               <form action={deletePaymentMethod.bind(null, m.id)}>
-                <button type="submit" className="text-xs text-danger">
+                <ConfirmSubmitButton confirmMessage={`Delete the payment method "${m.name}"? This cannot be undone.`} className="text-xs text-danger">
                   Delete
-                </button>
+                </ConfirmSubmitButton>
               </form>
             </div>
           </details>

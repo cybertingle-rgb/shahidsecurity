@@ -1,4 +1,5 @@
 import { listExchangeRatesAdmin } from '@/lib/admin/exchangeRates';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { setExchangeRate, deleteExchangeRate } from './actions';
 
 export default async function ExchangeRatesPage() {
@@ -32,9 +33,12 @@ export default async function ExchangeRatesPage() {
                 <td className="px-4 py-2 text-text-muted">{r.updatedAt.toLocaleString()}</td>
                 <td className="px-4 py-2">
                   <form action={deleteExchangeRate.bind(null, r.id)}>
-                    <button type="submit" className="text-xs text-danger">
+                    <ConfirmSubmitButton
+                      confirmMessage={`Remove the ${r.currencyCode} exchange rate? Visitors in that currency will see USD prices until a new rate is set.`}
+                      className="text-xs text-danger"
+                    >
                       Remove
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </td>
               </tr>

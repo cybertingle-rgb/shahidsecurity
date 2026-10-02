@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getProduct, listPricesForProduct } from '@/lib/admin/products';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 import { updateProduct, addPrice, deactivatePrice } from '../actions';
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -73,9 +74,12 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
                   <td className="px-4 py-2">
                     {price.isActive && (
                       <form action={deactivatePrice.bind(null, price.id, id)}>
-                        <button type="submit" className="text-sm text-danger">
+                        <ConfirmSubmitButton
+                          confirmMessage={`Deactivate the ${price.currencyCode} price (${(price.amount / 100).toFixed(2)})? It will stop being offered at checkout.`}
+                          className="text-sm text-danger"
+                        >
                           Deactivate
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     )}
                   </td>

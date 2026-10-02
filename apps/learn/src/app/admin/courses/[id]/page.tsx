@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getCourse, listInstructors, listModulesWithLessons, getCourseProductAndPrice } from '@/lib/admin/courses';
 import { updateCourse, setCourseStatus, createModule, deleteModule, createLesson, deleteLesson } from '../actions';
 import ThumbnailUrlField from '@/components/ThumbnailUrlField';
+import ConfirmSubmitButton from '@/components/ConfirmSubmitButton';
 
 function formatMajorUnits(amountMinorUnits: number): string {
   return (amountMinorUnits / 100).toFixed(2);
@@ -40,13 +41,24 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
       </div>
 
       <div className="flex gap-2">
-        {(NEXT_STATUS[course.status] ?? []).map((transition) => (
-          <form key={transition.status} action={setCourseStatus.bind(null, id, transition.status)}>
-            <button type="submit" className="rounded-md border border-border-strong px-3 py-1.5 text-sm">
-              {transition.label}
-            </button>
-          </form>
-        ))}
+        {(NEXT_STATUS[course.status] ?? []).map((transition) =>
+          transition.status === 'archived' ? (
+            <form key={transition.status} action={setCourseStatus.bind(null, id, transition.status)}>
+              <ConfirmSubmitButton
+                confirmMessage={`Archive "${course.title}"? It will be hidden from the public catalog — students already enrolled keep their access.`}
+                className="rounded-md border border-border-strong px-3 py-1.5 text-sm"
+              >
+                {transition.label}
+              </ConfirmSubmitButton>
+            </form>
+          ) : (
+            <form key={transition.status} action={setCourseStatus.bind(null, id, transition.status)}>
+              <button type="submit" className="rounded-md border border-border-strong px-3 py-1.5 text-sm">
+                {transition.label}
+              </button>
+            </form>
+          ),
+        )}
       </div>
 
       <form action={updateCourse.bind(null, id)} className="space-y-4 rounded-lg border border-border p-4">
@@ -197,9 +209,9 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             <div className="flex items-center justify-between">
               <p className="font-medium">{mod.title}</p>
               <form action={deleteModule.bind(null, id, mod.id)}>
-                <button type="submit" className="text-xs text-danger">
+                <ConfirmSubmitButton confirmMessage={`Delete the module "${mod.title}" and all its lessons? This cannot be undone.`} className="text-xs text-danger">
                   Delete module
-                </button>
+                </ConfirmSubmitButton>
               </form>
             </div>
 
@@ -213,9 +225,9 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
                     <span className="text-text-muted">{lesson.type}</span>
                     {lesson.isFreePreview && <span className="text-xs text-neon-soft">free preview</span>}
                     <form action={deleteLesson.bind(null, id, lesson.id)}>
-                      <button type="submit" className="text-xs text-danger">
+                      <ConfirmSubmitButton confirmMessage={`Delete the lesson "${lesson.title}"? This cannot be undone.`} className="text-xs text-danger">
                         Delete
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 </li>
