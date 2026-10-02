@@ -59,6 +59,26 @@ export async function inviteStudent(formData: FormData) {
   revalidatePath('/admin/students');
 }
 
+/** Profile fields only — never password or status, which stay on their own dedicated actions. */
+export async function updateStudentProfile(userId: string, formData: FormData) {
+  const admin = await requireAdminAction('users.manage');
+
+  const fullName = String(formData.get('fullName') ?? '').trim();
+  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  if (!fullName || !email) throw new Error('Name and email are required.');
+  const countryCode = String(formData.get('countryCode') ?? '').trim().toUpperCase() || null;
+  const phone = String(formData.get('phone') ?? '').trim() || null;
+
+  const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
+  if (existing && existing.id !== userId) throw new Error('Another user already uses that email.');
+
+  await db.update(users).set({ fullName, email, countryCode, phone, updatedAt: new Date() }).where(eq(users.id, userId));
+
+  await logAudit({ actorUserId: admin.id, action: 'student.profile_updated', targetType: 'user', targetId: userId, metadata: { email } });
+  revalidatePath(`/admin/students/${userId}`);
+  revalidatePath('/admin/students');
+}
+
 export async function suspendStudent(userId: string) {
   const admin = await requireAdminAction('users.manage');
   await db.update(users).set({ status: 'suspended' }).where(eq(users.id, userId));
