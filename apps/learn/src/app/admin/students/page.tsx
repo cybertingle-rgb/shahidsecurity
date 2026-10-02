@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { listStudents } from '@/lib/admin/students';
+import { inviteStudent } from './actions';
 
 export default async function StudentsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const params = await searchParams;
@@ -26,6 +27,36 @@ export default async function StudentsPage({ searchParams }: { searchParams: Pro
           Search
         </button>
       </form>
+
+      <details className="rounded-lg border border-border p-4">
+        <summary className="cursor-pointer text-sm font-medium">Add student</summary>
+        <form action={inviteStudent} className="mt-4 flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="fullName">
+              Full name
+            </label>
+            <input id="fullName" name="fullName" required className="w-56 rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="w-64 rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm"
+            />
+          </div>
+          <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+            Send invite
+          </button>
+          <p className="w-full text-xs text-text-muted">
+            The student sets their own password via a one-time activation link emailed to them — no password is ever set here.
+          </p>
+        </form>
+      </details>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <table className="w-full text-sm">

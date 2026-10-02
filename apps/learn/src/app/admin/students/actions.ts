@@ -1,13 +1,63 @@
 'use server';
 
+import { randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
-import { users, enrollments } from '@/db/schema';
+import { users, roles, userRoles, enrollments } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
 import { destroyAllSessionsForUser } from '@/lib/auth/session';
+import { hashPassword } from '@/lib/auth/password';
+import { createPasswordResetToken } from '@/lib/auth/tokens';
+import { sendEmail, authEmailHtml } from '@/lib/email';
+import { env } from '@/lib/env';
 import { grantProductAccess, revokeProductAccess, resolveCourseIdForProduct } from '@/lib/enrollment';
+
+/**
+ * Admin "Add Student" — collects only name + email, never a password. A
+ * random, never-communicated placeholder hash is stored so the account
+ * can't be logged into until the student follows the activation link,
+ * which reuses the same single-use password-reset token + /reset-password
+ * page as self-service "forgot password" (docs/lms-security.md: no admin
+ * ever sees or sets a real student password).
+ */
+export async function inviteStudent(formData: FormData) {
+  const admin = await requireAdminAction('users.manage');
+
+  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  const fullName = String(formData.get('fullName') ?? '').trim();
+  if (!email || !fullName) throw new Error('Name and email are required.');
+
+  const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
+  if (existing.length > 0) throw new Error('A user with that email already exists.');
+
+  const passwordHash = await hashPassword(randomBytes(32).toString('base64url'));
+  const userId = crypto.randomUUID();
+  await db.insert(users).values({ id: userId, email, passwordHash, fullName, emailVerifiedAt: new Date() });
+
+  const [studentRole] = await db.select().from(roles).where(eq(roles.name, 'student')).limit(1);
+  if (studentRole) {
+    await db.insert(userRoles).values({ userId, roleId: studentRole.id });
+  }
+
+  const token = await createPasswordResetToken(userId);
+  const activateUrl = `${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+  await sendEmail(
+    email,
+    "You've been added to Learn with Shahid",
+    `An account has been created for you. Set your password to activate it: ${activateUrl}\nThis link expires in 1 hour.`,
+    authEmailHtml({
+      heading: 'Welcome to Learn with Shahid',
+      intro: `An account has been created for you (${fullName}). Set your password to activate it. This link expires in 1 hour.`,
+      buttonLabel: 'Set your password',
+      buttonUrl: activateUrl,
+    }),
+  );
+
+  await logAudit({ actorUserId: admin.id, action: 'student.invited', targetType: 'user', targetId: userId, metadata: { email } });
+  revalidatePath('/admin/students');
+}
 
 export async function suspendStudent(userId: string) {
   const admin = await requireAdminAction('users.manage');
