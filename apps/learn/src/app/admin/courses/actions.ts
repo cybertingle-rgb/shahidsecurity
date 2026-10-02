@@ -7,7 +7,16 @@ import { db } from '@/db';
 import { courses, courseModules, lessons, lessonVideoSources, assignments, quizzes, quizQuestions } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
-import { getCourseIdForLesson, ensureDefaultInstructor } from '@/lib/admin/courses';
+import { getCourseIdForLesson, ensureDefaultInstructor, syncCourseProduct, setProductStatusForCourse } from '@/lib/admin/courses';
+import { isSafeThumbnailUrl } from '@/lib/thumbnails';
+
+/** Splits a newline-separated textarea into a clean string array, dropping blank lines — the storage shape for learningOutcomes/requirements. */
+function parseListField(raw: FormDataEntryValue | null): string[] {
+  return String(raw ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
 
 type LessonType = 'video' | 'text' | 'pdf' | 'image' | 'code' | 'quiz' | 'assignment' | 'external_resource' | 'download';
 
@@ -30,20 +39,40 @@ export async function createCourse(formData: FormData) {
   // leaves the picker on "—" still gets a real one rather than null.
   const instructorId = (formData.get('instructorId') as string) || (await ensureDefaultInstructor());
   const level = String(formData.get('level') ?? 'beginner') as 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  const thumbnailUrlInput = String(formData.get('thumbnailUrl') ?? '').trim();
+  if (thumbnailUrlInput && !isSafeThumbnailUrl(thumbnailUrlInput)) throw new Error('Thumbnail must be a valid https:// image URL.');
 
   const id = crypto.randomUUID();
   let slug = slugify(title);
   const [existing] = await db.select({ id: courses.id }).from(courses).where(eq(courses.slug, slug));
   if (existing) slug = `${slug}-${id.slice(0, 8)}`;
 
-  await db.insert(courses).values({
-    id,
-    title,
-    slug,
-    shortDescription: String(formData.get('shortDescription') ?? '') || null,
-    instructorId,
-    level,
-    status: 'draft',
+  await db.transaction(async (tx) => {
+    await tx.insert(courses).values({
+      id,
+      title,
+      slug,
+      shortDescription: String(formData.get('shortDescription') ?? '') || null,
+      fullDescription: String(formData.get('fullDescription') ?? '') || null,
+      thumbnailUrl: thumbnailUrlInput || null,
+      instructorId,
+      category: String(formData.get('category') ?? '').trim() || null,
+      level,
+      featured: formData.get('featured') === 'on',
+      learningOutcomes: parseListField(formData.get('learningOutcomes')),
+      requirements: parseListField(formData.get('requirements')),
+      targetAudience: String(formData.get('targetAudience') ?? '').trim() || null,
+      status: 'draft',
+    });
+
+    await syncCourseProduct(
+      tx,
+      { id, title, status: 'draft' },
+      {
+        priceAmount: String(formData.get('priceAmount') ?? ''),
+        salePriceAmount: String(formData.get('salePriceAmount') ?? ''),
+      },
+    );
   });
 
   await logAudit({ actorUserId: admin.id, action: 'course.created', targetType: 'course', targetId: id, metadata: { title } });
@@ -57,18 +86,40 @@ export async function updateCourse(id: string, formData: FormData) {
   if (!title) throw new Error('Title is required.');
   const instructorId = (formData.get('instructorId') as string) || null;
   const level = String(formData.get('level') ?? 'beginner') as 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  const thumbnailUrlInput = String(formData.get('thumbnailUrl') ?? '').trim();
+  if (thumbnailUrlInput && !isSafeThumbnailUrl(thumbnailUrlInput)) throw new Error('Thumbnail must be a valid https:// image URL.');
 
-  await db
-    .update(courses)
-    .set({
-      title,
-      shortDescription: String(formData.get('shortDescription') ?? '') || null,
-      fullDescription: String(formData.get('fullDescription') ?? '') || null,
-      instructorId,
-      level,
-      updatedAt: new Date(),
-    })
-    .where(eq(courses.id, id));
+  await db.transaction(async (tx) => {
+    const [current] = await tx.select({ status: courses.status }).from(courses).where(eq(courses.id, id));
+    if (!current) throw new Error('Course not found.');
+
+    await tx
+      .update(courses)
+      .set({
+        title,
+        shortDescription: String(formData.get('shortDescription') ?? '') || null,
+        fullDescription: String(formData.get('fullDescription') ?? '') || null,
+        thumbnailUrl: thumbnailUrlInput || null,
+        instructorId,
+        category: String(formData.get('category') ?? '').trim() || null,
+        level,
+        featured: formData.get('featured') === 'on',
+        learningOutcomes: parseListField(formData.get('learningOutcomes')),
+        requirements: parseListField(formData.get('requirements')),
+        targetAudience: String(formData.get('targetAudience') ?? '').trim() || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(courses.id, id));
+
+    await syncCourseProduct(
+      tx,
+      { id, title, status: current.status },
+      {
+        priceAmount: String(formData.get('priceAmount') ?? ''),
+        salePriceAmount: String(formData.get('salePriceAmount') ?? ''),
+      },
+    );
+  });
 
   await logAudit({ actorUserId: admin.id, action: 'course.updated', targetType: 'course', targetId: id });
   revalidatePath(`/admin/courses/${id}`);
@@ -85,6 +136,12 @@ export async function setCourseStatus(id: string, status: CourseStatus) {
     .update(courses)
     .set({ status, publishedAt: status === 'published' ? new Date() : undefined, updatedAt: new Date() })
     .where(eq(courses.id, id));
+
+  // Archiving/unpublishing removes the course from public purchasing;
+  // publishing restores it — the linked product (if any; free courses
+  // have none) is the only thing that controls purchasability, so it must
+  // move in lockstep with the course's own status.
+  await setProductStatusForCourse(id, status === 'published' ? 'active' : 'inactive');
 
   await logAudit({ actorUserId: admin.id, action: `course.status_changed.${status}`, targetType: 'course', targetId: id });
   revalidatePath(`/admin/courses/${id}`);

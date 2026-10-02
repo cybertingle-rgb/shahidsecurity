@@ -1,8 +1,9 @@
 import { eq, and, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { orders, payments, manualPaymentSubmissions, products, prices, paymentMethods } from '@/db/schema';
+import { orders, payments, manualPaymentSubmissions, products, prices, paymentMethods, enrollments } from '@/db/schema';
 import { resolvePrice, type ResolvedPrice } from './pricing';
 import { BASE_CURRENCY } from './currency';
+import { resolveCourseIdForProduct, grantProductAccess } from './enrollment';
 
 // The admin always enters/updates a product's price in USD — that single
 // row is the source of truth every visitor's local-currency display and
@@ -121,4 +122,68 @@ export async function submitManualPayment(
   });
 
   return { ok: true, orderNumber };
+}
+
+/**
+ * Free-course self-enrollment — goes through the exact same order/payment/
+ * enrollment tables as a real purchase (never a separate ad-hoc "just
+ * insert an enrollment" shortcut), but every record is unambiguously
+ * marked as $0 and `method: 'free'` so it can never be mistaken for a real
+ * bank transfer or gateway charge in the payments ledger. Skips the
+ * pending_verification step entirely — there's nothing for an admin to
+ * verify when no money changed hands — and goes straight to paid/succeeded.
+ *
+ * Re-checks the resolved price is actually 0 server-side rather than
+ * trusting the caller already confirmed the course is free, per the same
+ * "never trust a client-asserted price" rule the paid path follows.
+ */
+export async function enrollInFreeCourse(userId: string, productId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const resolved = await getPurchasableProduct(productId);
+  if (!resolved) return { ok: false, error: 'This course is not currently available.' };
+  if (resolved.product.type !== 'course') return { ok: false, error: 'This is not a course.' };
+  if (resolved.price.amount !== 0) return { ok: false, error: 'This course is not free.' };
+
+  const [existing] = await db
+    .select({ id: enrollments.id })
+    .from(enrollments)
+    .where(and(eq(enrollments.userId, userId), eq(enrollments.productId, productId), eq(enrollments.status, 'active')));
+  if (existing) return { ok: true };
+
+  const courseId = await resolveCourseIdForProduct(productId);
+  const orderId = crypto.randomUUID();
+
+  await db.insert(orders).values({
+    id: orderId,
+    orderNumber: generateOrderNumber(),
+    userId,
+    productId,
+    amount: 0,
+    currencyCode: CHECKOUT_CURRENCY,
+    status: 'paid',
+    paidAt: new Date(),
+  });
+
+  await db.insert(payments).values({
+    id: crypto.randomUUID(),
+    orderId,
+    provider: 'free',
+    amount: 0,
+    currencyCode: CHECKOUT_CURRENCY,
+    status: 'succeeded',
+    method: 'free',
+    idempotencyKey: crypto.randomUUID(),
+  });
+
+  await db.insert(enrollments).values({
+    id: crypto.randomUUID(),
+    userId,
+    courseId,
+    productId,
+    source: 'purchase',
+    status: 'active',
+  });
+
+  await grantProductAccess(userId, productId);
+
+  return { ok: true };
 }

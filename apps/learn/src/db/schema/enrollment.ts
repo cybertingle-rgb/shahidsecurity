@@ -9,7 +9,12 @@ export const enrollments = mysqlTable('enrollments', {
   userId: fkColumn('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  courseId: fkColumn('course_id').references(() => courses.id, { onDelete: 'cascade' }),
+  // 'restrict', not 'cascade': matches products->orders below. No code path
+  // ever hard-deletes a course (archive is the only "remove"), so this
+  // should never fire in practice — it exists as a database-level backstop
+  // so a future mistake can't silently wipe a student's enrollment,
+  // progress, and payment history by deleting the course it points to.
+  courseId: fkColumn('course_id').references(() => courses.id, { onDelete: 'restrict' }),
   productId: fkColumn('product_id').references(() => products.id, { onDelete: 'set null' }),
   source: mysqlEnum('source', ['purchase', 'membership', 'manual_admin_grant', 'coupon']).notNull(),
   status: mysqlEnum('status', ['active', 'revoked', 'expired']).notNull().default('active'),

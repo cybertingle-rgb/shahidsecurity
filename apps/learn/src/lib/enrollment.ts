@@ -3,6 +3,19 @@ import { db } from '@/db';
 import { memberships, communities, communityAccess, products } from '@/db/schema';
 
 /**
+ * The one place that resolves "this purchased product is actually this
+ * course" — used by every path that creates an `enrollments` row for a
+ * product, so a course purchase/grant always ends up with `courseId` set
+ * and therefore actually visible in My Courses / the lesson player.
+ * Returns null for a non-course product (membership, bundle, ...), which
+ * is the correct, expected case, not an error.
+ */
+export async function resolveCourseIdForProduct(productId: string): Promise<string | null> {
+  const [product] = await db.select({ courseId: products.courseId }).from(products).where(eq(products.id, productId));
+  return product?.courseId ?? null;
+}
+
+/**
  * The side effects a product grant has beyond the `enrollments` row itself
  * — called from both the admin manual-grant action and (Phase 7) the
  * payment-approval flow, so the two paths can't drift apart. Per

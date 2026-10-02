@@ -147,11 +147,19 @@ async function getActiveEnrollment(userId: string, courseId: string) {
 }
 
 export async function getCoursePlayer(userId: string, courseId: string) {
-  const [course] = await db.select().from(courses).where(and(eq(courses.id, courseId), eq(courses.status, 'published')));
+  const [course] = await db.select().from(courses).where(eq(courses.id, courseId));
   if (!course) return null;
 
   const enrollment = await getActiveEnrollment(userId, courseId);
   const enrolled = !!enrollment;
+
+  // 'published' is the only status a *new* enrollment can come from — but
+  // archiving a course must never take away access a student already paid
+  // for (Part 2/6's "preserve purchase history and access" rule). Draft and
+  // review, on the other hand, never had a real enrollment behind them
+  // (nothing purchasable existed yet), so there's nothing to preserve.
+  if (course.status !== 'published' && course.status !== 'archived') return null;
+  if (course.status === 'archived' && !enrolled) return null;
 
   const moduleRows = await db.select().from(courseModules).where(eq(courseModules.courseId, courseId)).orderBy(asc(courseModules.sortOrder));
   const moduleIds = moduleRows.map((m) => m.id);
