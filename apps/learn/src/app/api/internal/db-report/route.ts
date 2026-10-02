@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
         (SELECT COUNT(*) FROM enrollments) AS enrollments
     `);
 
-    const [courseProducts] = await connection.query<RowDataPacket[]>(`SELECT id, name, status FROM products WHERE type = 'course'`);
+    const [courseProducts] = await connection.query<RowDataPacket[]>(`SELECT id, name, status, course_id FROM products WHERE type = 'course'`);
+    const [allCourses] = await connection.query<RowDataPacket[]>(`SELECT id, title, slug, status FROM courses`);
 
     const [courseTypeEnrollmentsMissingCourseId] = await connection.query<RowDataPacket[]>(`
       SELECT e.id AS enrollment_id, e.user_id, e.product_id, e.enrolled_at
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       counts,
+      courses: allCourses,
       courseTypeProducts: courseProducts,
       // Confirmed real-world instances of the "paid but no access" bug,
       // if any exist — this is the number that determines how urgent
