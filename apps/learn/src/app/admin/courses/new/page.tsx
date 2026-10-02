@@ -3,6 +3,7 @@ import { createCourse } from '../actions';
 
 export default async function NewCoursePage() {
   const instructors = await listInstructors();
+  const defaultInstructor = instructors.find((i) => i.displayName === 'Shahid Iqbal');
 
   return (
     <div className="max-w-lg space-y-4">
@@ -35,7 +36,7 @@ export default async function NewCoursePage() {
           <label className="block text-sm text-text-muted" htmlFor="instructorId">
             Instructor
           </label>
-          <select id="instructorId" name="instructorId" className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2">
+          <select id="instructorId" name="instructorId" defaultValue={defaultInstructor?.id ?? ''} className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2">
             <option value="">—</option>
             {instructors.map((i) => (
               <option key={i.id} value={i.id}>

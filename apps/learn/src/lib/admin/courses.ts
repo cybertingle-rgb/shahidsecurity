@@ -1,4 +1,4 @@
-import { eq, asc, desc, inArray } from 'drizzle-orm';
+import { eq, asc, desc, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
 import { courses, instructors, courseModules, lessons, lessonVideoSources, quizzes, quizQuestions, assignments } from '@/db/schema';
 
@@ -23,7 +23,36 @@ export async function getCourse(id: string) {
   return course ?? null;
 }
 
+/**
+ * Every course needs an instructor shown to students, but there's no admin
+ * UI to create instructor profiles (V1 scope) and a fresh database starts
+ * with zero rows in `instructors` — so the picker had nothing to offer and
+ * courses were left instructor-less. Self-heals instead of needing a
+ * migration or shell access on Hostinger: finds-or-creates a single real
+ * "Shahid Iqbal" profile (the actual founder, not a placeholder) and
+ * backfills any course left without one onto it. Cheap and idempotent, so
+ * it's safe to call on every admin courses page load.
+ */
+export async function ensureDefaultInstructor() {
+  const [existing] = await db.select({ id: instructors.id }).from(instructors).where(eq(instructors.displayName, 'Shahid Iqbal'));
+  const id = existing?.id ?? crypto.randomUUID();
+
+  if (!existing) {
+    await db.insert(instructors).values({
+      id,
+      displayName: 'Shahid Iqbal',
+      bio: 'Founder of Shahid Security and Learn with Shahid — a working cybersecurity consultant with hands-on SOC analyst and incident-response experience.',
+      credentialsText: 'CEH-trained · CISSP-domain training · SOC & incident-response experience since 2020',
+    });
+  }
+
+  await db.update(courses).set({ instructorId: id }).where(isNull(courses.instructorId));
+
+  return id;
+}
+
 export async function listInstructors() {
+  await ensureDefaultInstructor();
   return db.select({ id: instructors.id, displayName: instructors.displayName }).from(instructors);
 }
 

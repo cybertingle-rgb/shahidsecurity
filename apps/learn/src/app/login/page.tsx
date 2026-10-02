@@ -104,14 +104,16 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text">
       <EduBackground />
-      <Image
-        src="/logo.png"
-        alt="Shahid Security"
-        width={150}
-        height={150}
-        className="relative z-10 drop-shadow-[0_0_24px_rgba(0,191,99,0.45)]"
-        priority
-      />
+      <Link href="/" className="relative z-10">
+        <Image
+          src="/logo.png"
+          alt="Shahid Security"
+          width={150}
+          height={150}
+          className="drop-shadow-[0_0_24px_rgba(0,191,99,0.45)]"
+          priority
+        />
+      </Link>
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

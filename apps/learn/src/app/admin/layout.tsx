@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
@@ -28,7 +29,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <div className="min-h-screen bg-bg text-text">
       <header className="portal-header sticky top-0 z-10 flex flex-col items-center gap-2 px-6 py-5">
-        <Image src="/logo.png" alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
+        <Link href="/">
+          <Image src="/logo.png" alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
+        </Link>
         <div className="text-center">
           <p className="text-sm font-medium tracking-wide text-neon">Learn with Shahid — Admin</p>
           <p className="text-lg font-semibold">{user.fullName}</p>
