@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getStudentDetail, listEnrollableProducts, listPublishedCourses } from '@/lib/admin/students';
-import { suspendStudent, reactivateStudent, manualEnroll, revokeEnrollment } from '../actions';
+import { suspendStudent, reactivateStudent, manualEnroll, revokeEnrollment, updateStudentProfile } from '../actions';
 
 export default async function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,6 +26,64 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           </button>
         </form>
       </div>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Profile</h2>
+        <form action={updateStudentProfile.bind(null, id)} className="flex flex-wrap items-end gap-3 rounded-lg border border-border p-4">
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="fullName">
+              Full name
+            </label>
+            <input
+              id="fullName"
+              name="fullName"
+              defaultValue={detail.user.fullName}
+              required
+              className="w-56 rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={detail.user.email}
+              required
+              className="w-64 rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="countryCode">
+              Country
+            </label>
+            <input
+              id="countryCode"
+              name="countryCode"
+              defaultValue={detail.user.countryCode ?? ''}
+              maxLength={2}
+              placeholder="AE"
+              className="w-20 rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-text-muted" htmlFor="phone">
+              Phone
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              defaultValue={detail.user.phone ?? ''}
+              className="w-40 rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm"
+            />
+          </div>
+          <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+            Save profile
+          </button>
+        </form>
+      </section>
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Enrollments</h2>
