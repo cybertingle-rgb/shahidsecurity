@@ -7,7 +7,7 @@ import { db } from '@/db';
 import { courses, courseModules, lessons, lessonVideoSources, assignments, quizzes, quizQuestions } from '@/db/schema';
 import { requireAdminAction } from '@/lib/admin/guard';
 import { logAudit } from '@/lib/audit';
-import { getCourseIdForLesson } from '@/lib/admin/courses';
+import { getCourseIdForLesson, ensureDefaultInstructor } from '@/lib/admin/courses';
 
 type LessonType = 'video' | 'text' | 'pdf' | 'image' | 'code' | 'quiz' | 'assignment' | 'external_resource' | 'download';
 
@@ -26,7 +26,9 @@ export async function createCourse(formData: FormData) {
 
   const title = String(formData.get('title') ?? '').trim();
   if (!title) throw new Error('Title is required.');
-  const instructorId = (formData.get('instructorId') as string) || null;
+  // Every course needs an instructor shown to students, so an admin who
+  // leaves the picker on "—" still gets a real one rather than null.
+  const instructorId = (formData.get('instructorId') as string) || (await ensureDefaultInstructor());
   const level = String(formData.get('level') ?? 'beginner') as 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
   const id = crypto.randomUUID();
