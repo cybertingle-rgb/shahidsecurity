@@ -1,7 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
 import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
+
+export const metadata: Metadata = {
+  title: 'Course Catalog',
+  description: 'Browse every published cybersecurity course from Learn with Shahid — structured lessons, quizzes, and progress tracking, free and paid.',
+  alternates: { canonical: '/courses' },
+};
 
 export default async function CoursesCatalogPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const { category } = await searchParams;

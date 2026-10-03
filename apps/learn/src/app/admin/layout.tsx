@@ -1,9 +1,14 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 

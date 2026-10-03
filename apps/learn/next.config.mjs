@@ -39,11 +39,23 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // Revision (2026-10): the public homepage, course catalog, and course
+      // detail pages now live in this app, not the Astro marketing site
+      // (docs/lms-architecture.md §6 is stale on this point — see
+      // LMS_PROGRESS.md's 2026-10 rework section). Only the genuinely
+      // private areas — the authenticated dashboard, the admin panel, and
+      // the API routes neither of them ever needs indexed — still send
+      // noindex; everything else is the public site and must not.
       {
-        // Everything in this app is authenticated or admin-only in V1 (the
-        // indexable marketing pages live on the separate Astro site) — see
-        // docs/lms-architecture.md §6.
-        source: '/:path*',
+        source: '/dashboard/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      {
+        source: '/admin/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      {
+        source: '/api/:path*',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
     ];
