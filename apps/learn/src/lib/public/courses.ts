@@ -184,3 +184,33 @@ export async function getCourseAccessState(userId: string | null, courseId: stri
 
   return priceRow && priceRow.amount === 0 ? 'enrollable_free' : 'purchasable';
 }
+
+/**
+ * The homepage and full catalog each render a whole page of cards at
+ * once — calling getCourseAccessState per card would be a real N+1 (two
+ * queries per course, same mistake lib/checkout.ts's listPurchasableProducts
+ * comment already calls out and fixes for pricing). One batched enrollment
+ * query covers every course on the page; the price side needs no query at
+ * all, since listCatalogCourses already carried priceAmount on each card.
+ */
+export async function getCourseAccessStates(userId: string | null, courses: PublicCourseCard[]): Promise<Map<string, CourseAccessState>> {
+  const result = new Map<string, CourseAccessState>();
+  if (!userId) {
+    for (const c of courses) result.set(c.id, 'guest');
+    return result;
+  }
+
+  const courseIds = courses.map((c) => c.id);
+  const ownedRows = courseIds.length
+    ? await db
+        .select({ courseId: enrollments.courseId })
+        .from(enrollments)
+        .where(and(eq(enrollments.userId, userId), inArray(enrollments.courseId, courseIds), eq(enrollments.status, 'active')))
+    : [];
+  const ownedCourseIds = new Set(ownedRows.map((r) => r.courseId));
+
+  for (const c of courses) {
+    result.set(c.id, ownedCourseIds.has(c.id) ? 'owned' : c.priceAmount === 0 ? 'enrollable_free' : 'purchasable');
+  }
+  return result;
+}

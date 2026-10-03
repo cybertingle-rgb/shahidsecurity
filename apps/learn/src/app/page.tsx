@@ -4,7 +4,7 @@ import EduBackground from '@/components/EduBackground';
 import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
-import { listCatalogCourses, listCourseCategories, getCourseAccessState } from '@/lib/public/courses';
+import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
 import { listPurchasableProducts } from '@/lib/checkout';
 
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
@@ -19,9 +19,8 @@ export default async function HomePage() {
 
   const [courses, categories, membershipProducts] = await Promise.all([listCatalogCourses(), listCourseCategories(), listPurchasableProducts()]);
 
-  const coursesWithAccess = await Promise.all(
-    courses.map(async (c) => ({ course: c, access: await getCourseAccessState(user?.id ?? null, c.id) })),
-  );
+  const accessByCourseId = await getCourseAccessStates(user?.id ?? null, courses);
+  const coursesWithAccess = courses.map((c) => ({ course: c, access: accessByCourseId.get(c.id)! }));
   const featuredWithAccess = coursesWithAccess.filter((c) => c.course.featured);
   const membership = membershipProducts.find((p) => p.type === 'membership');
 
