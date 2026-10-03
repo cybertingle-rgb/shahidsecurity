@@ -32,10 +32,10 @@ export default async function HomePage() {
       <header className="relative z-10 flex items-center justify-between border-b border-border px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="Shahid Security" width={36} height={36} />
-          <span className="font-semibold">Learn with Shahid</span>
+          <span className="hidden font-semibold sm:inline">Learn with Shahid</span>
         </Link>
         <nav className="flex items-center gap-4 text-sm">
-          <Link href="/" className="text-text-muted hover:text-text">
+          <Link href="/" className="hidden text-text-muted hover:text-text sm:inline">
             Home
           </Link>
           <Link href="/courses" className="text-text-muted hover:text-text">
