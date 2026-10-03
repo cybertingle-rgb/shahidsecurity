@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { eq, and, isNull, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { courses, instructors, products, prices, courseModules, lessons, enrollments } from '@/db/schema';
@@ -110,7 +111,10 @@ export type PublicCourseDetail = PublicCourseCard & {
   modules: { id: string; title: string; lessonTitles: string[] }[];
 };
 
-export async function getPublicCourseBySlug(slug: string): Promise<PublicCourseDetail | null> {
+// cache()'d so generateMetadata and the page component — both of which
+// need this course — hit the database once per request, not twice
+// (React dedupes calls with the same arguments within one render pass).
+export const getPublicCourseBySlug = cache(async (slug: string): Promise<PublicCourseDetail | null> => {
   const [row] = await db
     .select({
       id: courses.id,
@@ -156,7 +160,7 @@ export async function getPublicCourseBySlug(slug: string): Promise<PublicCourseD
       lessonTitles: lessonRows.filter((l) => l.moduleId === m.id).map((l) => l.title),
     })),
   };
-}
+});
 
 export type CourseAccessState = 'guest' | 'owned' | 'purchasable' | 'enrollable_free';
 

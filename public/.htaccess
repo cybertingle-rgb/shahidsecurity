@@ -29,6 +29,11 @@
   RewriteRule ^service/security-monitoring/?$ /services/monitoring-training/ [R=301,L]
   RewriteRule ^service/backup-recovery/?$ /services/incident-response/ [R=301,L]
 
+  # The static build-time course catalog moved into the LMS app itself as
+  # a real, dynamic, login-aware page (2026-10 rework) — redirect the old
+  # URL rather than leave two divergent "course catalog" pages indexed.
+  RewriteRule ^learn/courses/?$ https://learn.shahidiqbal.com/courses [R=301,L]
+
   RewriteRule ^portfolio(/.*)?$ /case-studies/ [R=301,L]
   RewriteRule ^blog-standard/?$ /blog/ [R=301,L]
   RewriteRule ^tag(/.*)?$ /blog/ [R=301,L]

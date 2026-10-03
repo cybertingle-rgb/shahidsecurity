@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
@@ -13,6 +14,23 @@ const LEVEL_LABEL: Record<string, string> = {
   advanced: 'Advanced',
   expert: 'Expert',
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const course = await getPublicCourseBySlug(slug);
+  if (!course) return {};
+
+  return {
+    title: course.title,
+    description: course.shortDescription ?? `${course.title} — a cybersecurity course from Learn with Shahid.`,
+    alternates: { canonical: `/courses/${course.slug}` },
+    openGraph: {
+      title: course.title,
+      description: course.shortDescription ?? undefined,
+      images: course.thumbnailUrl ? [{ url: course.thumbnailUrl }] : undefined,
+    },
+  };
+}
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -141,6 +159,33 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </div>
         </div>
       )}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Course',
+            name: course.title,
+            description: course.shortDescription ?? course.fullDescription ?? undefined,
+            url: `https://learn.shahidiqbal.com/courses/${course.slug}`,
+            provider: { '@type': 'Organization', name: 'Shahid Security', url: 'https://shahidiqbal.com' },
+            // No aggregateRating/review block — only ever added if real, disclosed
+            // ratings exist, per this project's no-fabrication rule.
+            ...(course.priceAmount != null
+              ? {
+                  offers: {
+                    '@type': 'Offer',
+                    price: ((hasDiscount ? course.saleAmount! : course.priceAmount) / 100).toFixed(2),
+                    priceCurrency: course.currencyCode,
+                    availability: 'https://schema.org/InStock',
+                    url: `https://learn.shahidiqbal.com/courses/${course.slug}`,
+                  },
+                }
+              : {}),
+          }),
+        }}
+      />
     </div>
   );
 }

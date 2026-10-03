@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import EduBackground from '@/components/EduBackground';
@@ -7,7 +8,40 @@ import { getUserRoleNames } from '@/lib/rbac';
 import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
 import { listPurchasableProducts } from '@/lib/checkout';
 
+export const metadata: Metadata = {
+  description: 'Learn cybersecurity through structured, instructor-built courses from Shahid Security — practical exercises and expert-guided learning, with free and paid courses.',
+  alternates: { canonical: '/' },
+};
+
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
+
+const FAQ_ITEMS = [
+  {
+    question: 'Is Learn with Shahid free?',
+    answer:
+      'Some courses are free and some are paid — each course’s detail page shows its price up front. Creating an account and browsing the catalog is always free.',
+  },
+  {
+    question: 'Who teaches these courses?',
+    answer:
+      'Courses are built and maintained by Shahid Iqbal, a working security consultant (the same person behind Shahid Security) — not a generic, outsourced course catalog.',
+  },
+  {
+    question: 'How do I pay for a course?',
+    answer:
+      'Paid courses are purchased via manual bank transfer today: you submit your payment reference and it’s verified by an admin before access is granted. A free course is enrolled instantly with no payment step.',
+  },
+  {
+    question: 'Do I need any prior experience to start?',
+    answer:
+      'No — each course lists its own level (Beginner through Expert) on its detail page, and the Learning Roadmap lays out a structured path from fundamentals onward for anyone starting from zero.',
+  },
+  {
+    question: 'Do courses expire once I buy them?',
+    answer:
+      'No — enrollment gives ongoing access to that course, including after it’s later archived from the public catalog; archiving only stops new enrollments, it never removes access for students who already have it.',
+  },
+];
 
 function formatAmount(amountMinorUnits: number, currencyCode: string): string {
   return `${currencyCode} ${(amountMinorUnits / 100).toLocaleString()}`;
@@ -151,6 +185,19 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* FAQ */}
+      <section className="relative z-10 mx-auto max-w-2xl px-6 py-12">
+        <h2 className="text-2xl font-semibold">Frequently Asked Questions</h2>
+        <div className="mt-6 space-y-4">
+          {FAQ_ITEMS.map((item) => (
+            <details key={item.question} className="rounded-lg border border-border p-4">
+              <summary className="cursor-pointer font-medium">{item.question}</summary>
+              <p className="mt-2 text-sm text-text-muted">{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <footer className="relative z-10 border-t border-border px-6 py-8 text-center text-sm text-text-muted">
         <p>
           Learn with Shahid is the education arm of{' '}
@@ -160,6 +207,31 @@ export default async function HomePage() {
           .
         </p>
       </footer>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'WebSite',
+                name: 'Learn with Shahid',
+                url: 'https://learn.shahidiqbal.com/',
+                publisher: { '@type': 'Organization', name: 'Shahid Security', url: 'https://shahidiqbal.com' },
+              },
+              {
+                '@type': 'FAQPage',
+                mainEntity: FAQ_ITEMS.map((item) => ({
+                  '@type': 'Question',
+                  name: item.question,
+                  acceptedAnswer: { '@type': 'Answer', text: item.answer },
+                })),
+              },
+            ],
+          }),
+        }}
+      />
     </div>
   );
 }
