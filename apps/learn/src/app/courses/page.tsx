@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
-import { listCatalogCourses, listCourseCategories, getCourseAccessState } from '@/lib/public/courses';
+import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
 
 export default async function CoursesCatalogPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const { category } = await searchParams;
@@ -9,7 +9,8 @@ export default async function CoursesCatalogPage({ searchParams }: { searchParam
 
   const [allCourses, categories] = await Promise.all([listCatalogCourses(), listCourseCategories()]);
   const filtered = category ? allCourses.filter((c) => c.category === category) : allCourses;
-  const withAccess = await Promise.all(filtered.map(async (c) => ({ course: c, access: await getCourseAccessState(user?.id ?? null, c.id) })));
+  const accessByCourseId = await getCourseAccessStates(user?.id ?? null, filtered);
+  const withAccess = filtered.map((c) => ({ course: c, access: accessByCourseId.get(c.id)! }));
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 text-text">
