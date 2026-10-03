@@ -27,6 +27,11 @@ export async function approveManualPayment(submissionId: string) {
   const admin = await requireAdminAction('payments.verify');
   const { submission, payment, order } = await loadSubmissionChain(submissionId);
 
+  // A double-click (or two admins approving the same submission at once)
+  // must not insert a second enrollment — approving is otherwise an
+  // unconditional insert with no uniqueness constraint behind it.
+  if (payment.status === 'succeeded') return;
+
   await db.update(manualPaymentSubmissions).set({ status: 'approved' }).where(eq(manualPaymentSubmissions.id, submission.id));
   await db.update(payments).set({ status: 'succeeded', verifiedByUserId: admin.id, verifiedAt: new Date() }).where(eq(payments.id, payment.id));
   await db.update(orders).set({ status: 'paid', paidAt: new Date() }).where(eq(orders.id, order.id));

@@ -143,12 +143,17 @@ export async function manualEnroll(userId: string, formData: FormData) {
 export async function revokeEnrollment(enrollmentId: string, studentUserId: string) {
   const admin = await requireAdminAction('enrollments.manage');
 
-  const [enrollment] = await db.select({ productId: enrollments.productId }).from(enrollments).where(eq(enrollments.id, enrollmentId));
+  // The enrollment's own userId/productId are the source of truth for the
+  // side effect below — never the caller-supplied studentUserId, which is
+  // only used to redirect back to the right profile page. A mismatched
+  // pair (a stale form, a tampered request) could otherwise cancel a
+  // membership or pull back community access for the wrong account.
+  const [enrollment] = await db.select({ userId: enrollments.userId, productId: enrollments.productId }).from(enrollments).where(eq(enrollments.id, enrollmentId));
   await db.update(enrollments).set({ status: 'revoked' }).where(eq(enrollments.id, enrollmentId));
   if (enrollment?.productId) {
-    await revokeProductAccess(studentUserId, enrollment.productId);
+    await revokeProductAccess(enrollment.userId, enrollment.productId);
   }
 
-  await logAudit({ actorUserId: admin.id, action: 'enrollment.revoked', targetType: 'enrollment', targetId: enrollmentId, metadata: { studentUserId } });
+  await logAudit({ actorUserId: admin.id, action: 'enrollment.revoked', targetType: 'enrollment', targetId: enrollmentId, metadata: { studentUserId: enrollment?.userId ?? studentUserId } });
   revalidatePath(`/admin/students/${studentUserId}`);
 }
