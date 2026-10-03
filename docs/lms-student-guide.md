@@ -4,7 +4,7 @@
 
 ## Getting started
 
-Register (full name, email, password, country, optional phone/username — nothing more than that, per the brief's "don't collect unnecessary personal information" rule) → verify email → browse `/learn/courses` and `/learn/roadmap` freely, no account required for browsing → enroll (PKR 800 membership and/or a specific paid course) → gain dashboard access.
+Register (full name, email, password, country, optional phone/username — nothing more than that, per the brief's "don't collect unnecessary personal information" rule) → verify email → browse freely with no account required, no login-walled catalog. **Revision (2026-10):** course browsing moved from the static marketing site to this app's own homepage (`/`) and catalog (`/courses`, `/courses/[slug]`) — login-aware throughout, so the same page shows "Log in to enroll" to a guest, "Buy Course"/"Enroll for free" to a logged-in visitor who doesn't own it yet, and "Continue Learning" once they do, computed server-side every time rather than from anything the client claims. `/learn/roadmap` on the marketing site is unchanged. Enroll (a paid course via manual bank transfer, pending admin approval, or a free course instantly) → gain dashboard access.
 
 ## Dashboard
 

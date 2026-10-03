@@ -68,16 +68,32 @@ Turns out Hostinger's Node.js "Web App" hosting is locked on your current plan �
 
 The domain-transfer blocker above never materialized (the app deployed to Hostinger directly instead). What I genuinely still cannot do myself, as of Phases 5–12: provide real online-payment-gateway merchant credentials, or give the Phase 15 go-live sign-off — both need you specifically.
 
+## Architecture rework (2026-10, separate from the numbered phases above)
+
+You sent a "master prompt" after the app had already shipped, reporting real production gaps: courses and products were disconnected (a published course could have no price at all), the admin panel's logo acted like a logout button, and several admin sections were missing edit/delete. This was audited and fixed as its own sequence, numbered independently from Phases 0–15 above to avoid confusion with the original plan:
+
+- **Phase 0–1 — Unify courses and products.** `products.course_id` (unique, nullable FK) is now the single link between a course's content and its commerce record. Every course — free or paid — gets exactly one linked product via `syncCourseProduct()`, called from the same transaction as every course create/update. A free course is a product with `prices.amount = 0`, not "no product," so free self-enrollment goes through the same `orders`/`payments`/`enrollments` tables a real purchase does (`payments.method: 'free'`, a new enum value, keeps it distinguishable in the ledger). This also fixed the actual production bug: a paid enrollment's `enrollments.course_id` wasn't being set, so a student who'd paid had no visible access — every enrollment-creation path now resolves it through one shared function (`resolveCourseIdForProduct`).
+- **Phase 2 — Real public homepage, course catalog, and detail pages**, built inside this app (not the static marketing site): login-aware CTAs (browse → buy/enroll-free/continue-learning, computed server-side, never from client state), real published-course data only, no fabricated ratings or reviews.
+- **Phase 4 — Closed admin CRUD gaps**: Announcements (previously create-only) got edit/delete; Students got a secure "Add Student" invite flow (admin enters name + email only — a one-time activation link, reusing the password-reset token infrastructure, lets the student set their own password, never an admin-visible one) plus a profile-edit form separate from suspend/reactivate; every destructive-looking admin action (delete, revoke, suspend, reject, archive) now sits behind a confirm dialog.
+- **Phase 5 — Full end-to-end verification**, actually executed against a running dev server and real database (not just reasoned about): free enrollment, a full paid purchase → manual-payment-approval → access flow, and archive-not-delete semantics (an archived course disappears from the public catalog and 404s for a guest, but a student who already has an active enrollment keeps access) — 28/28 live checks passed.
+- **Phase 6 — Admin Add/Edit/Remove audit.** Grepped every admin action's export against its UI call sites and found two with working backend logic and no button ever calling them (`updateCommunity`, `updateModule`); wired both up and verified live.
+- **Phase 7 — Security review** of everything touched by this rework. Found and fixed two real bugs: `approveManualPayment` had no idempotency guard (a double-click inserted a second enrollment for the same order — confirmed live, then fixed and re-confirmed exactly one enrollment results); and `revokeEnrollment` trusted a caller-supplied student ID for its membership/community side effect instead of deriving it from the enrollment row itself (an IDOR-shaped trust gap, not exploitable through the current UI, closed anyway). Everything else — RBAC guard coverage on every admin action, published-only scoping on every public query, thumbnail-URL SSRF prevention, server-side re-validation of free-enrollment price/type — checked out clean.
+- **Phase 8 — Performance review.** Found the homepage and full course catalog each calling the access-state check once per rendered card (an N+1 the same as this project's own earlier Phase 13 perf pass had already fixed for pricing elsewhere) — replaced with one batched query per page load regardless of how many courses are shown.
+
+Every phase above ran the full test suite (84/84), a `tsc`/eslint pass, and a production build before being pushed; the ones with user-facing behavior were also verified live via a real headless-browser run against the dev server, not assumed from reading the code.
+
 ## Next
 
 1. You: create the real "Learn with Shahid Enrollment" product + PKR price in `/admin/products` if you haven't already (Phase 6 fixed the code path, but the actual production row is yours to create — never fabricated on your behalf). Fill in `/admin/settings`'s bank transfer instructions so `/dashboard/checkout` shows real payment details instead of a placeholder.
-2. You: choose and provide credentials for a real online payment gateway when ready for Phase 7's "one properly integrated provider" — manual bank transfer works today without it.
+2. You: choose and provide credentials for a real online payment gateway when ready for Phase 7's "one properly integrated provider" — manual bank transfer works today without it. (Explicitly on hold per your own decision during the 2026-10 rework above — do not interpret this line as a pending ask.)
 3. You: explicit sign-off for Phase 15 (production launch) — not assumed from any earlier approval.
-4. Me: continue building V2 features once you want them scoped (certificates, coupons, live classes, subscriptions, corporate training — all listed in `LMS_V1_SCOPE.md`'s exclusion table, all schema-ready, none built).
+4. You: rotate `MIGRATE_SECRET` now that the 2026-10 schema migration is done and the value has been used in cleartext several times during that work.
+5. You: a leftover duplicate draft course ("Introduction to Cybersecurity") exists in production from before the unification fix — low-priority cleanup, safe to delete yourself from `/admin/courses` whenever convenient.
+6. Me: continue building V2 features once you want them scoped (certificates, coupons, live classes, subscriptions, corporate training — all listed in `LMS_V1_SCOPE.md`'s exclusion table, all schema-ready, none built).
 
 ## Blocked
 
-Only on things that need something only you have: real payment gateway credentials (Phase 7's online provider), and your explicit go-live approval (Phase 15). Nothing else is blocked.
+Only on things that need something only you have: real payment gateway credentials (Phase 7's online provider, on hold by your own choice), and your explicit go-live approval (Phase 15). Nothing else is blocked.
 
 ## Not started
 
