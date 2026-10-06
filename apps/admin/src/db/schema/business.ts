@@ -24,6 +24,12 @@ export const businessSettings = mysqlTable('business_settings', {
   latitude: text('latitude'),
   longitude: text('longitude'),
   openingHours: json('opening_hours').$type<Record<string, string>>(),
+  // The real "write a review" short link for the business's actual
+  // Google Business Profile — set once by hand (e.g. from Google Maps'
+  // own share/review button) until Phase 9+'s Google OAuth integration
+  // can read it directly. Review requests have nothing to send until
+  // this is set; never auto-generated or guessed.
+  googleReviewUrl: text('google_review_url'),
   logoMediaId: fkColumn('logo_media_id'),
   updatedByUserId: fkColumn('updated_by_user_id'),
   updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),

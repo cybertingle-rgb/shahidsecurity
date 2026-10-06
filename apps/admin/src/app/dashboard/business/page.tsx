@@ -62,6 +62,13 @@ export default async function BusinessSettingsPage() {
           </div>
         </fieldset>
 
+        <Field
+          label="Google review link"
+          name="googleReviewUrl"
+          placeholder="https://g.page/r/.../review"
+          defaultValue={settings.googleReviewUrl ?? ''}
+        />
+
         <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
           Save
         </button>
