@@ -1,5 +1,13 @@
 # Deployment
 
+This doc covers deploying **the admin app itself** (`apps/admin`, a
+separate Next.js application). For how publishing content *from* the
+admin reaches the **public Astro site**'s own separate deploy pipeline
+(`.github/workflows/deploy.yml`, build→deploy with no new infrastructure
+added for it), see `docs/ADMIN_PUBLIC_SITE_INTEGRATION.md` and
+`docs/CONTENT_PUBLISHING.md` instead — those two pipelines are
+independent of each other on purpose.
+
 `apps/admin` deploys the same proven way `apps/learn` already does on
 this Hostinger account: `output: 'standalone'`, a dedicated Node.js App
 in hPanel, its own subdomain, and `.github/workflows/deploy-admin.yml`
