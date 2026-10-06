@@ -8,6 +8,7 @@ import { seoPages, seoRedirects } from '@/db/schema';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
 import { getSeoPageById } from '@/lib/seo';
+import { publishSeoOverrideToWebsite } from '@/lib/publish/seoPublish';
 
 function normalizePath(raw: string): string {
   const trimmed = raw.trim();
@@ -63,6 +64,13 @@ export async function deleteSeoPageOverride(id: string) {
   await db.delete(seoPages).where(eq(seoPages.id, id));
   await logAudit({ actorUserId: admin.id, action: 'seo_page.deleted', targetType: 'seo_page', targetId: id });
   revalidatePath('/dashboard/seo/pages');
+}
+
+/** Actually pushes this override to the live site's generated SEO-overrides file — gated separately from seo.manage. */
+export async function publishSeoOverride(id: string) {
+  const admin = await requireAdminAction('seo.publish');
+  await publishSeoOverrideToWebsite(id, admin.id);
+  revalidatePath(`/dashboard/seo/pages/${id}`);
 }
 
 export async function createSeoRedirect(formData: FormData) {
