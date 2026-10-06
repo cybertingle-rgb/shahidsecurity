@@ -1,0 +1,125 @@
+name: Deploy Shahid Security Admin
+
+# Separate workflow, separate trigger path, separate deploy target from
+# deploy.yml (the marketing site) and deploy-lms.yml (the LMS) — three
+# independent Node.js apps on the same Hostinger account, same pattern
+# as deploy-lms.yml. Only runs when apps/admin/** actually changes.
+on:
+  push:
+    branches:
+      - claude/wizardly-keller-yg0bj7
+    paths:
+      - 'apps/admin/**'
+      - '.github/workflows/deploy-admin.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-admin
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    # Required secrets (see docs/DATABASE.md and docs/DEPLOYMENT.md):
+    #   ADMIN_DATABASE_ADMIN_URL — full-privilege MySQL user (Hostinger
+    #                              hPanel-issued) — runs migrations and
+    #                              apply-grants; needs GRANT OPTION.
+    #   ADMIN_DATABASE_URL       — the narrower runtime user's connection
+    #                              string — apply-grants.ts creates the
+    #                              MySQL user and its grants automatically.
+    #   ADMIN_SESSION_SECRET     — random, 32+ chars, distinct from any
+    #                              other app's session secret.
+    #   ADMIN_TOKEN_ENCRYPTION_KEY — 32 bytes hex (64 chars) — encrypts
+    #                              Google OAuth tokens at rest. Generate
+    #                              with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+    #   ADMIN_APP_URL            — e.g. https://admin.shahidiqbal.com
+    #   ADMIN_MIGRATE_SECRET, ADMIN_PUBLISH_SCHEDULED_SECRET,
+    #   ADMIN_LEADS_INTAKE_SECRET, ADMIN_AI_QUESTIONS_INTAKE_SECRET —
+    #                              each a distinct random value; see the
+    #                              matching env vars' comments in
+    #                              apps/admin/.env.example.
+    #   ADMIN_GOOGLE_CLIENT_ID, ADMIN_GOOGLE_CLIENT_SECRET — optional,
+    #                              only once Google Cloud Console
+    #                              credentials exist (see
+    #                              docs/GOOGLE_INTEGRATION_SETUP.md).
+    # Reused from the existing marketing-site workflow (same Hostinger
+    # account, different target path):
+    #   DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: apps/admin
+        env:
+          DATABASE_URL: ${{ secrets.ADMIN_DATABASE_URL }}
+          SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+          TOKEN_ENCRYPTION_KEY: ${{ secrets.ADMIN_TOKEN_ENCRYPTION_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.ADMIN_APP_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.ADMIN_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.ADMIN_GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REDIRECT_URI: ${{ secrets.ADMIN_APP_URL }}/api/google/callback
+        run: pnpm build
+
+      - name: Assemble standalone deploy bundle
+        run: |
+          cp -r apps/admin/.next/static apps/admin/.next/standalone/.next/static
+          if [ -d apps/admin/public ]; then cp -r apps/admin/public apps/admin/.next/standalone/public; fi
+
+      - name: Run pending database migrations
+        working-directory: apps/admin
+        env:
+          DATABASE_ADMIN_URL: ${{ secrets.ADMIN_DATABASE_ADMIN_URL }}
+        run: pnpm db:migrate
+
+      - name: Provision the narrow runtime user and its grants (idempotent)
+        working-directory: apps/admin
+        env:
+          DATABASE_ADMIN_URL: ${{ secrets.ADMIN_DATABASE_ADMIN_URL }}
+          DATABASE_URL: ${{ secrets.ADMIN_DATABASE_URL }}
+        run: pnpm db:apply-grants
+
+      - name: Deploy standalone bundle over SSH
+        uses: easingthemes/ssh-deploy@v6
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
+          REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
+          REMOTE_USER: ${{ secrets.DEPLOY_USER }}
+          # The subdomain directory you created in hPanel — a sibling of
+          # the marketing site's and LMS's directories, never inside them.
+          TARGET: ${{ secrets.DEPLOY_ADMIN_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/admin' }}
+          SOURCE: apps/admin/.next/standalone/
+          # --exclude (not --delete-excluded) deliberately leaves the
+          # remote `data/` directory alone — that's where the media
+          # library's uploaded files actually live (see
+          # src/lib/media.ts), created at runtime, never part of the
+          # build output. A plain `--delete` without this exclusion
+          # would erase every uploaded file on every deploy.
+          ARGS: '-rltzv --delete --exclude=data'
+
+      - name: Restart the app (Passenger convention — verify this actually works in hPanel)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            APP_DIR="${{ secrets.DEPLOY_ADMIN_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/admin' }}"
+            mkdir -p "$APP_DIR/tmp"
+            touch "$APP_DIR/tmp/restart.txt"
