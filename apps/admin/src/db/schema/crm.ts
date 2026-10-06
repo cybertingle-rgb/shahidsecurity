@@ -13,7 +13,9 @@ import { idColumn, fkColumn } from './columns';
 export const leads = mysqlTable('leads', {
   id: idColumn(),
   fullName: text('full_name').notNull(),
-  email: varchar('email', { length: 255 }).notNull(),
+  // Nullable: a lead created from the booking form (book.php) genuinely
+  // never collects an email — see the consultations table's comment.
+  email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   company: text('company'),
   message: text('message'),
@@ -27,13 +29,19 @@ export const leads = mysqlTable('leads', {
 /**
  * Booking requests from the Astro site's native booking system
  * (public/api/book.php), mirrored here for admin visibility/workflow —
- * same cross-boundary reasoning as `leads` above.
+ * same cross-boundary reasoning as `leads` above. Email is nullable
+ * because book.php genuinely never collects one (by its own documented
+ * design — confirmation happens over phone/WhatsApp), not an oversight.
  */
 export const consultations = mysqlTable('consultations', {
   id: idColumn(),
   leadId: fkColumn('lead_id'),
   fullName: text('full_name').notNull(),
-  email: varchar('email', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  phone: varchar('phone', { length: 50 }),
+  // Free text, not an ISO code — book.php collects "Please enter your
+  // country" as an open text field, not a country-code picker.
+  country: varchar('country', { length: 100 }),
   requestedAt: datetime('requested_at').notNull(),
   status: mysqlEnum('status', ['requested', 'confirmed', 'completed', 'cancelled', 'no_show']).notNull().default('requested'),
   notes: text('notes'),
@@ -43,7 +51,9 @@ export const consultations = mysqlTable('consultations', {
 export const customers = mysqlTable('customers', {
   id: idColumn(),
   fullName: text('full_name').notNull(),
-  email: varchar('email', { length: 255 }).notNull(),
+  // Nullable: a customer converted from a booking-only lead (see leads'
+  // schema comment) genuinely has no email on file.
+  email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   company: text('company'),
   convertedFromLeadId: fkColumn('converted_from_lead_id'),
@@ -127,4 +137,5 @@ export const payments = mysqlTable('payments', {
 });
 
 export type Lead = typeof leads.$inferSelect;
+export type Consultation = typeof consultations.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;

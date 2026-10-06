@@ -27,6 +27,44 @@ function shahid_root(): string
 // Keep in sync with `whatsappNumber` in src/lib/site.ts.
 const WHATSAPP_NUMBER = '923116234126';
 
+/**
+ * Best-effort, fire-and-forget notification to the Shahid Security
+ * admin app's lead intake endpoint (apps/admin), so a real submission
+ * here also becomes a tracked lead there — see
+ * apps/admin/src/app/api/public/leads-intake/route.ts and
+ * docs/LEADS_INTAKE.md. Deliberately called AFTER the real email has
+ * already sent successfully, with a short timeout and every error
+ * suppressed: this form's only real job is sending that email, and it
+ * must keep working identically even if the admin app is down,
+ * unreachable, or simply not configured (the common case until
+ * ADMIN_LEADS_INTAKE_URL/_SECRET are set in shahid-security-config.php).
+ */
+function notify_admin_leads_intake(array $payload): void
+{
+    if (!defined('ADMIN_LEADS_INTAKE_URL') || !defined('ADMIN_LEADS_INTAKE_SECRET')) {
+        return;
+    }
+    if (ADMIN_LEADS_INTAKE_URL === '' || ADMIN_LEADS_INTAKE_SECRET === '') {
+        return;
+    }
+
+    try {
+        $ch = curl_init(ADMIN_LEADS_INTAKE_URL);
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'x-leads-intake-secret: ' . ADMIN_LEADS_INTAKE_SECRET],
+            CURLOPT_TIMEOUT => 3,
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_RETURNTRANSFER => true,
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
+    } catch (\Throwable $e) {
+        error_log('[shahid-contact] Admin leads intake notify failed (non-fatal): ' . $e->getMessage());
+    }
+}
+
 function json_response(int $status, array $body): never
 {
     http_response_code($status);
@@ -313,5 +351,15 @@ function send_mail(string $email, string $name, string $company, string $phone, 
 if (!send_mail($email, $name, $company, $phone, $service, $message, $ndaRequested)) {
     fail('Sorry, something went wrong sending your message. Please WhatsApp us instead.', [], 500);
 }
+
+notify_admin_leads_intake([
+    'type' => 'lead',
+    'fullName' => $name,
+    'email' => $email,
+    'phone' => $phone !== '' ? $phone : null,
+    'company' => $company !== '' ? $company : null,
+    'message' => $message,
+    'source' => 'contact_form',
+]);
 
 succeed();
