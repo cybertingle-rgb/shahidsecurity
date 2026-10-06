@@ -4,7 +4,7 @@ import { getCachedBusinessProfile } from '@/lib/google/businessProfile';
 import { getSearchConsoleSelection } from '@/lib/google/searchConsole';
 import { getAnalyticsSelection } from '@/lib/google/analytics';
 import { googleOAuthConfigured, type GoogleScopeName } from '@/lib/google/oauth';
-import { disconnectGoogleScope, syncGoogleBusinessProfile } from './actions';
+import { disconnectGoogleScope } from './actions';
 
 const SCOPES: Array<{ key: GoogleScopeName; label: string; description: string }> = [
   { key: 'business_profile', label: 'Google Business Profile', description: 'Reads the connected location’s real name, address, and review count/rating as Google reports them.' },
@@ -73,24 +73,15 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
                 </p>
               )}
               {isConnected && s.key === 'business_profile' && (
-                <div className="mt-3 space-y-2 border-t border-border pt-3">
-                  {cachedProfile ? (
-                    <div className="text-xs text-text-muted">
-                      <p>Location: {cachedProfile.locationName ?? cachedProfile.googleLocationId}</p>
-                      <p className="mt-1">
-                        Rating/review count: not yet synced — reading those requires a different Google API than the
-                        location-name sync this button runs; see the comment on google_business_profiles in
-                        src/db/schema/google.ts.
-                      </p>
-                    </div>
+                <div className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
+                  {cachedProfile?.googleLocationId ? (
+                    <p>Selected location: {cachedProfile.locationName ?? cachedProfile.googleLocationId}</p>
                   ) : (
-                    <p className="text-xs text-text-muted">Not synced yet.</p>
+                    <p>No location selected yet.</p>
                   )}
-                  <form action={syncGoogleBusinessProfile}>
-                    <button type="submit" className="rounded-md border border-border px-3 py-1 text-xs text-text-muted">
-                      Sync now
-                    </button>
-                  </form>
+                  <Link href="/dashboard/google/business-profile" className="mt-1 inline-block text-neon underline">
+                    {cachedProfile?.googleLocationId ? 'Manage / change location' : 'Select an account and location'}
+                  </Link>
                 </div>
               )}
               {isConnected && s.key === 'search_console' && (

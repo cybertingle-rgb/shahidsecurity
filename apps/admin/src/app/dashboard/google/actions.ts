@@ -6,7 +6,7 @@ import { googleConnections } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
-import { disconnectScope, getConnectionForScope } from '@/lib/google/connections';
+import { disconnectScope, getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
 import { isGoogleScopeName } from '@/lib/google/oauth';
 import { syncBusinessProfile } from '@/lib/google/businessProfile';
 
@@ -24,8 +24,11 @@ export async function syncGoogleBusinessProfile() {
   const connection = await getConnectionForScope('business_profile');
   if (!connection || connection.status !== 'connected') throw new Error('Business Profile is not connected.');
 
+  const accessToken = await getValidAccessToken(connection);
+  if (!accessToken) throw new Error('No usable access token for this connection — reconnect Business Profile.');
+
   try {
-    await syncBusinessProfile(connection);
+    await syncBusinessProfile(connection, accessToken);
     await db.update(googleConnections).set({ lastSyncedAt: new Date() }).where(eq(googleConnections.id, connection.id));
     await logAudit({ actorUserId: admin.id, action: 'google_connection.synced.business_profile', targetType: 'google_connection', targetId: connection.id });
   } catch (err) {
