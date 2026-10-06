@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { googleConnections, type GoogleConnection } from '@/db/schema';
+import { googleConnections, googleSyncLogs, type GoogleConnection } from '@/db/schema';
 import { decryptSecret, encryptSecret } from '@/lib/crypto';
 import { refreshGoogleAccessToken, type GoogleScopeName } from './oauth';
 
@@ -105,4 +105,22 @@ export async function getValidAccessToken(connection: GoogleConnection): Promise
 export function decryptRefreshToken(connection: GoogleConnection): string | null {
   if (!connection.refreshTokenEnc) return null;
   return decryptSecret(connection.refreshTokenEnc);
+}
+
+/** Records a failed sync/selection attempt for a connection — never logs the token itself, only the real error message. */
+export async function logSyncError(connectionId: string, syncType: string, errorMessage: string): Promise<void> {
+  await db.insert(googleSyncLogs).values({ id: crypto.randomUUID(), connectionId, syncType, status: 'error', errorMessage });
+}
+
+/** The most recent error logged for this connection, across every sync/selection type — shown in the Connections Center as "Last error". */
+export async function getLatestError(connectionId: string): Promise<{ syncType: string; errorMessage: string | null; createdAt: Date } | null> {
+  const rows = await db
+    .select({ syncType: googleSyncLogs.syncType, errorMessage: googleSyncLogs.errorMessage, createdAt: googleSyncLogs.createdAt, status: googleSyncLogs.status })
+    .from(googleSyncLogs)
+    .where(eq(googleSyncLogs.connectionId, connectionId))
+    .orderBy(desc(googleSyncLogs.createdAt))
+    .limit(1);
+  const [latest] = rows;
+  if (!latest || latest.status !== 'error') return null;
+  return latest;
 }

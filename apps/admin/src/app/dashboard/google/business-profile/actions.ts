@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
-import { getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
+import { getConnectionForScope, getValidAccessToken, logSyncError } from '@/lib/google/connections';
 import { listLocationsForAccount, testBusinessProfileAccess, saveBusinessProfileSelection } from '@/lib/google/businessProfile';
 
 /**
@@ -26,20 +26,25 @@ export async function selectBusinessLocation(formData: FormData) {
   const accessToken = await getValidAccessToken(connection);
   if (!accessToken) throw new Error('No usable access token for this connection — reconnect Business Profile.');
 
-  const locations = await listLocationsForAccount(accessToken, accountId);
-  const match = locations.find((l) => l.locationId === locationId);
-  if (!match) throw new Error('That location is not in this account\'s accessible locations list.');
+  try {
+    const locations = await listLocationsForAccount(accessToken, accountId);
+    const match = locations.find((l) => l.locationId === locationId);
+    if (!match) throw new Error('That location is not in this account\'s accessible locations list.');
 
-  await testBusinessProfileAccess(accessToken, locationId);
-  await saveBusinessProfileSelection(connection.id, { accountId, locationId: match.locationId, locationName: match.title });
+    await testBusinessProfileAccess(accessToken, locationId);
+    await saveBusinessProfileSelection(connection.id, { accountId, locationId: match.locationId, locationName: match.title });
 
-  await logAudit({
-    actorUserId: admin.id,
-    action: 'GOOGLE_LOCATION_CHANGED',
-    targetType: 'google_connection',
-    targetId: connection.id,
-    metadata: { scope: 'business_profile', accountId, locationId: match.locationId },
-  });
+    await logAudit({
+      actorUserId: admin.id,
+      action: 'GOOGLE_LOCATION_CHANGED',
+      targetType: 'google_connection',
+      targetId: connection.id,
+      metadata: { scope: 'business_profile', accountId, locationId: match.locationId },
+    });
+  } catch (err) {
+    await logSyncError(connection.id, 'business_profile_selection', err instanceof Error ? err.message : 'Unknown error.');
+    throw err;
+  }
 
   revalidatePath('/dashboard/google/business-profile');
   revalidatePath('/dashboard/google');

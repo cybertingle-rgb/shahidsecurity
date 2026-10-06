@@ -74,6 +74,16 @@ post or an SEO override is published from the admin, editing the
 generated file directly in the repo would be overwritten by the next
 publish — the admin UI is where it's edited from that point on.
 
+A separate case, not content migration but worth naming here: which
+Search Console property, Analytics property, and Business Profile
+location this app reads from is **only** ever stored in this app's own
+database (`search_console_connections`/`analytics_connections`/
+`google_business_profiles`), set by an admin's explicit picker choice
+(`docs/GOOGLE_SEARCH_CONSOLE.md`, `docs/GOOGLE_ANALYTICS.md`,
+`docs/GOOGLE_BUSINESS_PROFILE.md`) — never hard-coded, never guessed
+from "the first result," and never duplicated into the public Astro
+site (which has no notion of these selections at all).
+
 ## Credential handling (Section 18C)
 
 The admin server needs `contents:write` on this one repository to

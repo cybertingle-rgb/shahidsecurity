@@ -60,7 +60,11 @@ export const googleSyncLogs = mysqlTable('google_sync_logs', {
   syncType: varchar('sync_type', { length: 100 }).notNull(),
   status: mysqlEnum('status', ['success', 'error']).notNull(),
   errorMessage: text('error_message'),
-  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  // Millisecond precision (plain DATETIME truncates to whole seconds) —
+  // getLatestError (src/lib/google/connections.ts) orders by this column
+  // to find the single most recent attempt, and two selection attempts
+  // retried in quick succession could otherwise tie.
+  createdAt: datetime('created_at', { fsp: 3 }).notNull().$defaultFn(() => new Date()),
 });
 
 export const analyticsConnections = mysqlTable('analytics_connections', {

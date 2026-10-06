@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
-import { getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
+import { getConnectionForScope, getValidAccessToken, logSyncError } from '@/lib/google/connections';
 import { listAccessibleProperties, getPropertyDetails, testAnalyticsAccess, saveAnalyticsSelection } from '@/lib/google/analytics';
 
 /**
@@ -24,26 +24,31 @@ export async function selectAnalyticsProperty(formData: FormData) {
   const accessToken = await getValidAccessToken(connection);
   if (!accessToken) throw new Error('No usable access token for this connection — reconnect Analytics.');
 
-  const properties = await listAccessibleProperties(accessToken);
-  const match = properties.find((p) => p.propertyId === propertyId);
-  if (!match) throw new Error('That property is not in this Google account\'s accessible properties list.');
+  try {
+    const properties = await listAccessibleProperties(accessToken);
+    const match = properties.find((p) => p.propertyId === propertyId);
+    if (!match) throw new Error('That property is not in this Google account\'s accessible properties list.');
 
-  await testAnalyticsAccess(accessToken, propertyId);
-  const details = await getPropertyDetails(accessToken, propertyId);
-  await saveAnalyticsSelection(connection.id, {
-    propertyId: match.propertyId,
-    propertyName: match.propertyName,
-    timezone: details.timezone,
-    currency: details.currency,
-  });
+    await testAnalyticsAccess(accessToken, propertyId);
+    const details = await getPropertyDetails(accessToken, propertyId);
+    await saveAnalyticsSelection(connection.id, {
+      propertyId: match.propertyId,
+      propertyName: match.propertyName,
+      timezone: details.timezone,
+      currency: details.currency,
+    });
 
-  await logAudit({
-    actorUserId: admin.id,
-    action: 'GOOGLE_PROPERTY_CHANGED',
-    targetType: 'google_connection',
-    targetId: connection.id,
-    metadata: { scope: 'analytics', propertyId: match.propertyId },
-  });
+    await logAudit({
+      actorUserId: admin.id,
+      action: 'GOOGLE_PROPERTY_CHANGED',
+      targetType: 'google_connection',
+      targetId: connection.id,
+      metadata: { scope: 'analytics', propertyId: match.propertyId },
+    });
+  } catch (err) {
+    await logSyncError(connection.id, 'analytics_selection', err instanceof Error ? err.message : 'Unknown error.');
+    throw err;
+  }
 
   revalidatePath('/dashboard/google/analytics');
 }

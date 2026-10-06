@@ -48,3 +48,9 @@ export async function getLastPublishedPublication(contentType: 'blog_post' | 'se
   const rows = await listPublicationsForContent(contentType, contentId);
   return rows.find((r) => r.status === 'published') ?? null;
 }
+
+/** The single most recent publish attempt across every content item — shown on the central dashboard's "Last content publish" card. */
+export async function getLatestPublication(): Promise<Publication | null> {
+  const rows = await db.select().from(publications).orderBy(desc(publications.createdAt)).limit(1);
+  return rows[0] ?? null;
+}

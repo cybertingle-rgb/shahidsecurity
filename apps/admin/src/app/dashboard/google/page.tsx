@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { listAllConnections } from '@/lib/google/connections';
+import { listAllConnections, getLatestError } from '@/lib/google/connections';
 import { getCachedBusinessProfile } from '@/lib/google/businessProfile';
 import { getSearchConsoleSelection } from '@/lib/google/searchConsole';
 import { getAnalyticsSelection } from '@/lib/google/analytics';
@@ -72,6 +72,7 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
                   Connected, Google account: {conn.googleAccountEmail ?? 'unknown'}. Last synced: {conn.lastSyncedAt ? conn.lastSyncedAt.toLocaleString() : 'never'}.
                 </p>
               )}
+              {isConnected && <LastError connectionId={conn.id} /> }
               {isConnected && s.key === 'business_profile' && (
                 <div className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
                   {cachedProfile?.googleLocationId ? (
@@ -113,5 +114,15 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
         })}
       </div>
     </div>
+  );
+}
+
+async function LastError({ connectionId }: { connectionId: string }) {
+  const latestError = await getLatestError(connectionId);
+  if (!latestError) return null;
+  return (
+    <p className="mt-1 text-xs text-danger">
+      Last error ({latestError.createdAt.toLocaleString()}): {latestError.errorMessage ?? 'unknown error'}
+    </p>
   );
 }

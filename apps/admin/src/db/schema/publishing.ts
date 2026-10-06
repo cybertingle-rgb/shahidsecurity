@@ -30,8 +30,12 @@ export const publications = mysqlTable('publications', {
   workflowRunId: varchar('workflow_run_id', { length: 50 }),
   errorMessage: text('error_message'),
   publishedByUserId: fkColumn('published_by_user_id').notNull(),
-  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
-  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
+  // Millisecond precision — the dashboard's "most recent publish across
+  // every content item" query orders by this, and plain-second DATETIME
+  // can tie when a publish and its immediate rollback land in the same
+  // second.
+  createdAt: datetime('created_at', { fsp: 3 }).notNull().$defaultFn(() => new Date()),
+  updatedAt: datetime('updated_at', { fsp: 3 }).notNull().$defaultFn(() => new Date()),
 });
 
 export type Publication = typeof publications.$inferSelect;
