@@ -35,6 +35,11 @@ export const googleConnections = mysqlTable('google_connections', {
 export const googleBusinessProfiles = mysqlTable('google_business_profiles', {
   id: idColumn(),
   connectionId: fkColumn('connection_id').notNull(),
+  // The account this location belongs to — needed alongside the
+  // location id for every subsequent API call. Explicitly selected by
+  // the admin from a real list (see src/lib/google/businessProfile.ts's
+  // listAccountsAndLocations) — never assumed to be the first result.
+  googleAccountId: text('google_account_id'),
   googleLocationId: text('google_location_id'),
   locationName: text('location_name'),
   // Populated by src/lib/google/businessProfile.ts's sync once it calls
@@ -61,15 +66,28 @@ export const googleSyncLogs = mysqlTable('google_sync_logs', {
 export const analyticsConnections = mysqlTable('analytics_connections', {
   id: idColumn(),
   connectionId: fkColumn('connection_id').notNull(),
+  // Explicitly selected by the admin from a real list of accessible GA4
+  // properties (src/lib/google/analytics.ts's listAccessibleProperties)
+  // — never hard-coded, never assumed.
   propertyId: text('property_id'),
+  propertyName: text('property_name'),
+  timezone: text('timezone'),
+  currency: text('currency'),
   createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
 });
 
 export const searchConsoleConnections = mysqlTable('search_console_connections', {
   id: idColumn(),
   connectionId: fkColumn('connection_id').notNull(),
+  // Explicitly selected from the authenticated user's real accessible
+  // properties (src/lib/google/searchConsole.ts's listAccessibleSites)
+  // — a sc-domain: property or a URL-prefix property, whichever
+  // actually exists for this site; never guessed.
   siteUrl: text('site_url'),
+  permissionLevel: text('permission_level'),
   createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
 });
 
 export type GoogleConnection = typeof googleConnections.$inferSelect;

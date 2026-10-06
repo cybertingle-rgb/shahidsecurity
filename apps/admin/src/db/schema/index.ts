@@ -4,3 +4,4 @@ export * from './content';
 export * from './crm';
 export * from './google';
 export * from './seo';
+export * from './publishing';

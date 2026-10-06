@@ -10,7 +10,7 @@ export const testDb = drizzle(pool, { schema, mode: 'default' });
 // deliberately has no DROP grant on audit_logs (src/db/apply-grants.ts),
 // which is exactly what security.test.ts verifies. Local test only;
 // never wired to a staging or production connection string.
-const adminPool = mysql.createPool({ uri: process.env.TEST_DB_ADMIN_URL ?? 'mysql://admin_dev:admin_dev_password@127.0.0.1:3306/shahid_security_admin_test', timezone: 'Z' });
+const adminPool = mysql.createPool({ uri: process.env.TEST_DB_ADMIN_URL ?? 'mysql://root@127.0.0.1:3306/shahid_security_admin_test', timezone: 'Z' });
 
 /** Wipes all application tables (including audit_logs) between tests — this is the isolated test database, never dev or production. */
 export async function truncateAll() {
