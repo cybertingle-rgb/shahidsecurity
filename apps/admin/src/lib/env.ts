@@ -26,6 +26,17 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().optional(),
   EMAIL_PROVIDER_API_KEY: z.string().optional(),
 
+  // SMTP for password-reset emails (src/lib/email.ts) — same Hostinger
+  // mailbox pattern as apps/learn. Optional: without these, a reset
+  // request still works but the email is only logged to the server
+  // console, never actually delivered — see docs/ADMIN_AUTH.md.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM_EMAIL: z.string().optional(),
+  SMTP_FROM_NAME: z.string().optional(),
+
   // Payment provider abstraction — 'manual' (bank transfer, recorded by
   // hand) is always available with no credentials. A real provider only
   // activates once both of these are set to real values.
@@ -46,6 +57,12 @@ export const env = envSchema.parse({
   GOOGLE_ANALYTICS_PROPERTY_ID: process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
   EMAIL_FROM: process.env.EMAIL_FROM,
   EMAIL_PROVIDER_API_KEY: process.env.EMAIL_PROVIDER_API_KEY,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+  SMTP_FROM_EMAIL: process.env.SMTP_FROM_EMAIL,
+  SMTP_FROM_NAME: process.env.SMTP_FROM_NAME,
   PAYMENT_PROVIDER: process.env.PAYMENT_PROVIDER,
   PAYMENT_API_KEY: process.env.PAYMENT_API_KEY,
   PAYMENT_SECRET: process.env.PAYMENT_SECRET,
