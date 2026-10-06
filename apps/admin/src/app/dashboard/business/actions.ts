@@ -39,6 +39,7 @@ export async function updateBusinessSettings(formData: FormData) {
       postalCode: String(formData.get('postalCode') ?? '').trim() || null,
       countryCode: String(formData.get('countryCode') ?? '').trim().toUpperCase().slice(0, 2) || null,
       openingHours: Object.keys(openingHours).length > 0 ? openingHours : null,
+      googleReviewUrl: String(formData.get('googleReviewUrl') ?? '').trim() || null,
       updatedByUserId: admin.id,
       updatedAt: new Date(),
     })

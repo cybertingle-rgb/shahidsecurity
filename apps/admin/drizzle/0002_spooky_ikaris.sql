@@ -1,0 +1,1 @@
+ALTER TABLE `business_settings` ADD `google_review_url` text;
