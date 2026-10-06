@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+/* Same brand tokens as apps/learn/src/app/globals.css, which itself
+   copied them from the Astro site's src/styles/global.css — kept
+   consistent across all three properties. */
+@theme {
+  --color-bg: #05070a;
+  --color-bg-elevated: #0b0f14;
+  --color-surface: #10161d;
+  --color-border: #1a2a22;
+  --color-border-strong: #23402f;
+  --color-text: #e6f1ea;
+  --color-text-muted: #8aa396;
+  --color-neon: #00bf63;
+  --color-neon-soft: #1aff8c;
+  --color-neon-dim: rgba(0, 191, 99, 0.12);
+  --color-danger: #ff3b5c;
+  --color-warn: #ffb020;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}

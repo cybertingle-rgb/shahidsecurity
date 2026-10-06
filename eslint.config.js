@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', '.astro/**', 'node_modules/**', 'php/vendor/**', 'public/og/**'],
+    ignores: ['dist/**', '.astro/**', 'node_modules/**', 'php/vendor/**', 'public/og/**', '**/.next/**', '**/drizzle/**'],
   },
   ...tseslint.configs.recommended,
   ...eslintPluginAstro.configs['flat/recommended'],
