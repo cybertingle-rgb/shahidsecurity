@@ -7,9 +7,10 @@ dist/
 npm-debug.log*
 pnpm-debug.log*
 
-# Next.js (apps/learn)
+# Next.js (apps/learn, apps/admin)
 .next/
 apps/*/next-env.d.ts
+apps/*/*.tsbuildinfo
 
 # PHP
 php/vendor/
