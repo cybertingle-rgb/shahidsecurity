@@ -1,0 +1,54 @@
+---
+title: 'Cybersecurity for AI Applications: A Practical Security Checklist for Businesses'
+description: 'Authentication, prompt injection, tool permissions, data isolation and twelve other areas to check before an AI application goes into production — a practical checklist, not a theoretical framework.'
+publishedAt: 2026-10-06
+tags: ['ai-security', 'web-application-security']
+author: Shahid Iqbal
+relatedService: penetration-testing
+relatedPosts: ['prompt-injection-attacks-explained', 'ai-agent-security', 'api-security-best-practices']
+faqs:
+  - q: Is this checklist meant to replace a formal security assessment?
+    a: No. It is a starting point for internal review before you engage a formal assessment — useful for catching obvious gaps early and for scoping conversations with whoever does the deeper testing. Several of these areas (prompt injection, tool-chaining abuse) genuinely need dedicated testing designed for how AI applications actually behave, not just a checklist review.
+  - q: Our AI application is just a chatbot with no tool access — do we still need most of this?
+    a: Several items (data isolation, secrets management, rate limiting, logging) still fully apply. Others (tool permissions, RAG security, model access control) are only relevant once the system has tool access or pulls in external data — but it is worth confirming that is genuinely true of your system today, since AI applications tend to gain capabilities over time without a corresponding security review each time.
+  - q: What is RAG security, in one sentence?
+    a: 'RAG (Retrieval-Augmented Generation) security means treating every document your AI system might retrieve and feed into its context as a potential prompt-injection vector — because from the model''s perspective, retrieved content and legitimate instructions look identical.'
+draft: false
+---
+
+AI applications inherit every traditional web and API security concern, plus a set of risks specific to how language models and agents actually behave — risks that a standard application security checklist won't catch because it wasn't written with this architecture in mind. This is a practical starting checklist, organized the way a review should actually proceed, not a theoretical framework.
+
+## The checklist
+
+- [ ] **Authentication** — Standard identity verification for users of the AI application, no different in principle from any other application, but worth confirming explicitly rather than assuming it inherited proper controls from elsewhere in the stack.
+- [ ] **Authorization** — Confirm the AI system enforces *what* an authenticated user can access and do, not just *that* they're logged in. This is the most commonly missed item, because it's easy to confirm login works and much easier to overlook that the model itself has no inherent concept of per-user data boundaries unless explicitly built in.
+- [ ] **Prompt injection protection** — Input/output controls, scoped permissions, and isolation between content the system reads and actions it can take. See [Prompt Injection Attacks Explained](/blog/prompt-injection-attacks-explained/) for the full mechanics.
+- [ ] **Data isolation** — Confirm one user's data, context, or conversation history cannot leak into another's — a risk that's easy to introduce accidentally in systems that share model context, caching, or retrieval infrastructure across users.
+- [ ] **Secrets management** — API keys, model provider credentials, and database connection strings used by the AI system need the same secrets-management discipline as any other application component — not stored in prompts, logs, or anywhere the model's own context could inadvertently expose them.
+- [ ] **API security** — Every API the AI application calls, or that calls it, needs standard API security review (see [API Security Best Practices](/blog/api-security-best-practices/)) — AI doesn't replace this need, it adds to it.
+- [ ] **Tool permissions** — If the system has any tool access (see [AI Agent Security](/blog/ai-agent-security/)), confirm those permissions are scoped to what's genuinely needed, not granted broadly for convenience.
+- [ ] **Logging** — Capture enough detail to reconstruct not just *what* the system did, but *why* — the reasoning or retrieved context that led to a given output or action, since that's what distinguishes a manipulated system from a correctly functioning one during an investigation.
+- [ ] **Monitoring** — Active monitoring tuned for AI-specific anomalies (unusual tool usage patterns, unexpected output types), not just infrastructure-level monitoring that was built for conventional applications.
+- [ ] **Rate limiting** — Applies both to protect the AI application from abuse and to control cost, since unmetered model API usage can be an expensive consequence of an exploited vulnerability even before any data is actually compromised.
+- [ ] **Data leakage prevention** — Review what the system might inadvertently reveal in its outputs — training data artifacts, internal context bleeding into a response, system prompt details — not just what it might be tricked into revealing via injection.
+- [ ] **RAG security** — If the system retrieves external documents to ground its answers, treat every retrievable document as a potential prompt-injection vector, since the model has no inherent way to distinguish "data to reference" from "instructions to follow" once both arrive as retrieved text.
+- [ ] **Model access control** — Confirm which internal systems, data sources, and tools the underlying model has access to by default versus per-request, and that this matches what's actually documented and intended — default access tends to expand quietly over an application's lifecycle.
+- [ ] **Third-party AI risk** — If you call an external model API, you've extended your trust boundary to that provider. Review their data handling, retention, and security posture the way you would any other vendor with access to your data.
+- [ ] **Human approval** — For any action with real consequence (financial, data-deletion, access-granting), confirm a human checkpoint exists and isn't bypassable through a sufficiently clever request.
+- [ ] **Incident response** — Confirm your incident response plan actually covers an AI-specific scenario (a manipulated agent, a data leak via prompt injection) rather than only covering conventional breach patterns — the response steps genuinely differ.
+
+## Why this needs to be a checklist, not a one-time setup task
+
+AI applications tend to gain capabilities incrementally — a chatbot gets tool access added later, a RAG system starts pulling from a new document source, an agent gets a new integration. Each addition can reintroduce risk this checklist was designed to catch, which means it's worth treating as a recurring review tied to every meaningful capability change, not a one-time pre-launch gate.
+
+## Key takeaways
+
+AI application security isn't a separate discipline from standard application security — it's standard application security plus a specific, well-documented set of additional risks (prompt injection, tool abuse, RAG-specific exposure) that generic checklists weren't written to cover. The sixteen areas above are a practical starting point for internal review; several of them — prompt injection and tool-chaining abuse specifically — genuinely benefit from dedicated testing designed around how these systems actually behave.
+
+**Need an AI application security assessment** — Shahid Security's [Penetration Testing](/services/penetration-testing/) engagements can scope specifically to the items above, including prompt-injection and tool-permission testing most generic assessments miss.
+
+[Book a free consultation](/book/) to talk through what your AI application actually needs tested.
+
+---
+
+Sources: [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/).
