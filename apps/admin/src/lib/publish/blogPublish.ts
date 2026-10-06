@@ -154,6 +154,9 @@ export async function rollbackBlogPublication(publicationId: string, actorUserId
 
   const publication = await getPublicationById(publicationId);
   if (!publication) throw new PublicationNotFoundError('Publication not found.');
+  if (publication.contentType !== 'blog_post') {
+    throw new Error('This publication is not a blog post — use the SEO rollback path for an seo_page publication.');
+  }
   if (!publication.previousCommitSha) {
     throw new Error('This publication has no recorded previous commit to roll back to.');
   }
