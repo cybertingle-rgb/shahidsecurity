@@ -187,4 +187,22 @@ describe('rollbackBlogPublication', () => {
 
     await expect(rollbackBlogPublication(id, userId)).rejects.toThrow(/no recorded previous commit/);
   });
+
+  it('refuses to roll back an seo_page publication through the blog rollback path', async () => {
+    const userId = await makeAdminUser();
+    const id = crypto.randomUUID();
+    await testDb.insert(schema.publications).values({
+      id,
+      contentType: 'seo_page',
+      contentId: crypto.randomUUID(),
+      targetSlugOrPath: '/about/',
+      status: 'published',
+      commitSha: 'abc',
+      previousCommitSha: 'def',
+      publishedByUserId: userId,
+    });
+
+    await expect(rollbackBlogPublication(id, userId)).rejects.toThrow(/not a blog post/);
+    expect(githubContents.restoreFileToCommit).not.toHaveBeenCalled();
+  });
 });
