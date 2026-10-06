@@ -30,6 +30,38 @@ function json_response(int $status, array $body): never
     exit;
 }
 
+/**
+ * Same best-effort, fire-and-forget admin-app notification as
+ * contact.php's identical function — see that file's comment for the
+ * full reasoning (never blocks or fails this form; no-ops entirely
+ * unless ADMIN_LEADS_INTAKE_URL/_SECRET are configured).
+ */
+function notify_admin_leads_intake(array $payload): void
+{
+    if (!defined('ADMIN_LEADS_INTAKE_URL') || !defined('ADMIN_LEADS_INTAKE_SECRET')) {
+        return;
+    }
+    if (ADMIN_LEADS_INTAKE_URL === '' || ADMIN_LEADS_INTAKE_SECRET === '') {
+        return;
+    }
+
+    try {
+        $ch = curl_init(ADMIN_LEADS_INTAKE_URL);
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'x-leads-intake-secret: ' . ADMIN_LEADS_INTAKE_SECRET],
+            CURLOPT_TIMEOUT => 3,
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_RETURNTRANSFER => true,
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
+    } catch (\Throwable $e) {
+        error_log('[shahid-book] Admin leads intake notify failed (non-fatal): ' . $e->getMessage());
+    }
+}
+
 function wants_json(): bool
 {
     $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
@@ -271,6 +303,25 @@ function send_booking_mail(string $name, string $country, string $phone, string 
 
 if (!send_booking_mail($name, $country, $phone, $dateRaw, $time)) {
     fail('Sorry, something went wrong sending your request. Please WhatsApp us instead.', [], 500);
+}
+
+// Requested times are entered in PKT (see the $time validation above) —
+// convert to UTC before sending, since that's what the admin app's
+// intake schema (and every other timestamp in its database) expects.
+try {
+    $requestedAtUtc = (new \DateTime("$dateRaw $time:00", new \DateTimeZone('Asia/Karachi')))
+        ->setTimezone(new \DateTimeZone('UTC'))
+        ->format('Y-m-d\TH:i:s.000\Z');
+    notify_admin_leads_intake([
+        'type' => 'consultation',
+        'fullName' => $name,
+        'phone' => $phone !== '' ? $phone : null,
+        'country' => $country,
+        'requestedAt' => $requestedAtUtc,
+        'source' => 'booking_form',
+    ]);
+} catch (\Throwable $e) {
+    error_log('[shahid-book] Could not build requestedAt for admin intake (non-fatal): ' . $e->getMessage());
 }
 
 succeed();
