@@ -37,6 +37,13 @@ export const googleBusinessProfiles = mysqlTable('google_business_profiles', {
   connectionId: fkColumn('connection_id').notNull(),
   googleLocationId: text('google_location_id'),
   locationName: text('location_name'),
+  // Populated by src/lib/google/businessProfile.ts's sync once it calls
+  // whichever Google API actually returns review stats (the Business
+  // Information API's locations.get doesn't — this needs the Business
+  // Profile Performance API or legacy My Business API v4's reviews
+  // resource, not yet wired since it can't be verified against a real
+  // response without live credentials). Columns exist now so a later
+  // sync can fill them without a schema change; left null until then.
   averageRating: text('average_rating'),
   reviewCount: text('review_count'),
   lastFetchedAt: datetime('last_fetched_at'),
