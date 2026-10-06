@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { checkRateLimit } from '@/lib/auth/rateLimit';
 import { env } from '@/lib/env';
 import { LUNA_SYSTEM_PROMPT, matchLunaFaq } from '@/lib/luna';
+import { notifyAdminUnansweredQuestion } from '@/lib/admin/aiQuestionsIntake';
 
 // Public, unauthenticated, cross-origin by design — this is the one real
 // server in the project (the Astro marketing site is static, with no
@@ -75,6 +76,14 @@ export async function POST(request: NextRequest) {
     });
 
     const text = response.content.find((block) => block.type === 'text')?.text ?? "Sorry, I couldn't put together an answer for that — try rephrasing, or reach out at info@shahidiqbal.com.";
+
+    // Fire-and-forget: this question fell through the curated FAQ fast
+    // path, which is exactly the real-gap signal the admin review queue
+    // wants. Never awaited into the response — a slow/unreachable admin
+    // app must never add latency to or break Luna's actual answer.
+    if (lastUserMessage) {
+      void notifyAdminUnansweredQuestion(lastUserMessage.content);
+    }
 
     return NextResponse.json({ reply: text }, { headers: CORS_HEADERS });
   } catch (err) {
