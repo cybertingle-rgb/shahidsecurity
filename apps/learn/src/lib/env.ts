@@ -20,6 +20,12 @@ const envSchema = z.object({
   // (it responds with a clear "not configured" error) rather than
   // breaking every other unrelated env var check.
   ANTHROPIC_API_KEY: z.string().optional(),
+  // Best-effort logging of questions Luna's curated FAQ fast-path
+  // didn't cover, to apps/admin's AI knowledge-review queue — both unset
+  // simply disables the call (see src/app/api/luna/chat/route.ts) rather
+  // than affecting Luna's own responses. See docs/AI_ASSISTANT_WORKFLOW.md.
+  ADMIN_AI_QUESTIONS_INTAKE_URL: z.string().optional(),
+  ADMIN_AI_QUESTIONS_INTAKE_SECRET: z.string().optional(),
 });
 
 export const env = envSchema.parse({
@@ -30,4 +36,6 @@ export const env = envSchema.parse({
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  ADMIN_AI_QUESTIONS_INTAKE_URL: process.env.ADMIN_AI_QUESTIONS_INTAKE_URL,
+  ADMIN_AI_QUESTIONS_INTAKE_SECRET: process.env.ADMIN_AI_QUESTIONS_INTAKE_SECRET,
 });

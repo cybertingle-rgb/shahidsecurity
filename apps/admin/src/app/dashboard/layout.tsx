@@ -13,6 +13,7 @@ const NAV_SECTIONS = [
   { href: '/dashboard/payments', label: 'Payments' },
   { href: '/dashboard/testimonials', label: 'Reviews' },
   { href: '/dashboard/google', label: 'Google' },
+  { href: '/dashboard/ai', label: 'AI Assistant' },
   { href: '/dashboard/media', label: 'Media' },
   { href: '/dashboard/users', label: 'Users' },
 ];
