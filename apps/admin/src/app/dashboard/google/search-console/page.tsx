@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
 import { listAccessibleSites, querySearchAnalytics, getSearchConsoleSelection, type SearchConsoleSite } from '@/lib/google/searchConsole';
+import { findSeoOpportunities, pathFromFullUrl } from '@/lib/google/seoOpportunities';
 import { selectSearchConsoleSite } from './actions';
 
 function dateNDaysAgo(n: number): string {
@@ -99,14 +100,16 @@ export default async function SearchConsolePage({ searchParams }: { searchParams
 async function PerformancePanel({ accessToken, siteUrl }: { accessToken: string; siteUrl: string }) {
   let topQueries: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
   let topPages: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
+  let opportunityRows: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
   let fetchError: string | null = null;
 
   try {
     const startDate = dateNDaysAgo(28);
     const endDate = dateNDaysAgo(0);
-    [topQueries, topPages] = await Promise.all([
+    [topQueries, topPages, opportunityRows] = await Promise.all([
       querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['query'], rowLimit: 10 }),
       querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['page'], rowLimit: 10 }),
+      querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['page'], rowLimit: 50 }),
     ]);
   } catch (err) {
     fetchError = err instanceof Error ? err.message : 'Failed to load Search Console performance data.';
@@ -116,11 +119,44 @@ async function PerformancePanel({ accessToken, siteUrl }: { accessToken: string;
     return <p className="text-sm text-danger">{fetchError}</p>;
   }
 
+  const opportunities = findSeoOpportunities(opportunityRows);
+
   return (
     <div className="space-y-4">
       <p className="text-xs text-text-muted">Last 28 days — Source: Google Search Console API</p>
       <PerformanceTable title="Top queries" rows={topQueries} />
       <PerformanceTable title="Top pages" rows={topPages} />
+
+      <div className="rounded-lg border border-border bg-bg-elevated/60 p-4">
+        <h2 className="mb-1 font-medium">SEO opportunities</h2>
+        <p className="mb-3 text-xs text-text-muted">
+          Pages with real impression volume whose click-through rate is notably below typical for their position —
+          worth a human look, not a promise that changing anything will move rankings.
+        </p>
+        {opportunities.length === 0 ? (
+          <p className="text-sm text-text-muted">No flagged pages for this period.</p>
+        ) : (
+          <ul className="space-y-3">
+            {opportunities.map((opp) => (
+              <li key={opp.page} className="flex items-center justify-between gap-3 border-t border-border pt-3 text-sm">
+                <div>
+                  <p className="font-medium">{opp.page}</p>
+                  <p className="text-xs text-text-muted">
+                    {opp.impressions} impressions, {opp.clicks} clicks, {(opp.ctr * 100).toFixed(2)}% CTR, avg.
+                    position {opp.position.toFixed(1)} — {opp.note}
+                  </p>
+                </div>
+                <a
+                  href={`/dashboard/seo/pages/new?path=${encodeURIComponent(pathFromFullUrl(opp.page))}`}
+                  className="shrink-0 rounded-md border border-border px-3 py-1.5 text-xs text-text-muted"
+                >
+                  Review
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
