@@ -19,7 +19,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   super_admin: ['*'],
   administrator: [
     'business.manage', 'services.manage', 'blog.manage', 'seo.manage', 'leads.manage',
-    'payments.manage', 'testimonials.manage', 'media.manage', 'ai.manage',
+    'payments.manage', 'testimonials.manage', 'media.manage', 'ai.manage', 'google.manage',
   ],
   editor: ['blog.manage', 'services.manage', 'media.manage'],
   seo_manager: ['seo.manage', 'blog.manage'],
