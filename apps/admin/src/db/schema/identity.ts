@@ -97,6 +97,24 @@ export const rateLimitHits = mysqlTable('rate_limit_hits', {
 });
 
 /**
+ * Single-use, short-lived password reset tokens — same shape and
+ * reasoning as apps/learn's passwordResetTokens: only a SHA-256 hash of
+ * the token is stored (a database read alone can never be replayed as a
+ * valid reset link), consumed atomically (usedAt set the moment it's
+ * redeemed), and expires in 1 hour.
+ */
+export const adminPasswordResetTokens = mysqlTable('admin_password_reset_tokens', {
+  id: idColumn(),
+  userId: fkColumn('user_id')
+    .notNull()
+    .references(() => adminUsers.id, { onDelete: 'cascade' }),
+  tokenHash: text('token_hash').notNull(),
+  expiresAt: datetime('expires_at').notNull(),
+  usedAt: datetime('used_at'),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+});
+
+/**
  * Insert-only audit trail for every sensitive admin action — content
  * published, lead status changed, payment recorded, Google account
  * connected/disconnected, role changed, etc. Never logs passwords, OAuth

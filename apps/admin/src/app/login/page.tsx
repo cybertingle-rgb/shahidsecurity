@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -73,6 +74,11 @@ export default function LoginPage() {
         >
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
+        <p className="text-center text-sm">
+          <Link href="/forgot-password" className="text-text-muted underline">
+            Forgot password?
+          </Link>
+        </p>
       </form>
     </div>
   );

@@ -32,19 +32,47 @@ jobs:
     #   ADMIN_TOKEN_ENCRYPTION_KEY — 32 bytes hex (64 chars) — encrypts
     #                              Google OAuth tokens at rest. Generate
     #                              with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-    #   ADMIN_APP_URL            — e.g. https://admin.shahidiqbal.com
+    #   ADMIN_APP_URL            — https://shahidiqbal.com/admin (a path
+    #                              on the main domain — see
+    #                              next.config.mjs's basePath — not a
+    #                              subdomain).
     #   ADMIN_MIGRATE_SECRET, ADMIN_PUBLISH_SCHEDULED_SECRET,
-    #   ADMIN_LEADS_INTAKE_SECRET, ADMIN_AI_QUESTIONS_INTAKE_SECRET —
-    #                              each a distinct random value; see the
-    #                              matching env vars' comments in
-    #                              apps/admin/.env.example.
+    #   ADMIN_LEADS_INTAKE_SECRET, ADMIN_AI_QUESTIONS_INTAKE_SECRET,
+    #   ADMIN_SEED_SECRET, ADMIN_SMTP_HOST, ADMIN_SMTP_PORT,
+    #   ADMIN_SMTP_USER, ADMIN_SMTP_PASSWORD —
+    #                              each a distinct random value (the
+    #                              SMTP ones are the real mailbox
+    #                              credentials); see the matching env
+    #                              vars' comments in
+    #                              apps/admin/.env.example and
+    #                              docs/ADMIN_AUTH.md. These are runtime
+    #                              env vars, not read at build time by
+    #                              this workflow's "Build" step — they
+    #                              must also be set directly on the
+    #                              Hostinger Node.js App itself
+    #                              (hPanel → that app → Environment
+    #                              variables), since GitHub Actions'
+    #                              build-time secrets don't carry into
+    #                              the deployed running process.
     #   ADMIN_GOOGLE_CLIENT_ID, ADMIN_GOOGLE_CLIENT_SECRET — optional,
     #                              only once Google Cloud Console
     #                              credentials exist (see
     #                              docs/GOOGLE_INTEGRATION_SETUP.md).
+    #   DEPLOY_ADMIN_PATH        — e.g.
+    #                              /home/<your-hostinger-user-id>/domains/shahidiqbal.com/public_html/admin
+    #                              — required, no fallback (a wrong
+    #                              guessed path previously hardcoded
+    #                              here pointed at a different
+    #                              Hostinger account entirely).
     # Reused from the existing marketing-site workflow (same Hostinger
     # account, different target path):
     #   DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER
+    #
+    # IMPORTANT — this workflow is UNTESTED against the real Hostinger
+    # account: every run to date has failed at the Build step because
+    # none of the secrets above exist yet (see docs/DEPLOYMENT.md). Once
+    # they're set, this should work, but treat the first real run as a
+    # first real run, not a known-good path.
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -76,9 +104,15 @@ jobs:
         run: pnpm build
 
       - name: Assemble standalone deploy bundle
+        # outputFileTracingRoot (next.config.mjs) points at the monorepo
+        # root, so the standalone output nests under apps/admin/ inside
+        # .next/standalone/ rather than sitting at its own root —
+        # confirmed by actually inspecting a real build, not assumed.
+        # Static assets and public/ must go into that same nested path,
+        # next to the server.js Passenger will actually run.
         run: |
-          cp -r apps/admin/.next/static apps/admin/.next/standalone/.next/static
-          if [ -d apps/admin/public ]; then cp -r apps/admin/public apps/admin/.next/standalone/public; fi
+          cp -r apps/admin/.next/static apps/admin/.next/standalone/apps/admin/.next/static
+          if [ -d apps/admin/public ]; then cp -r apps/admin/public apps/admin/.next/standalone/apps/admin/public; fi
 
       - name: Run pending database migrations
         working-directory: apps/admin
@@ -100,9 +134,14 @@ jobs:
           REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
           REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
           REMOTE_USER: ${{ secrets.DEPLOY_USER }}
-          # The subdomain directory you created in hPanel — a sibling of
-          # the marketing site's and LMS's directories, never inside them.
-          TARGET: ${{ secrets.DEPLOY_ADMIN_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/admin' }}
+          # Served at shahidiqbal.com/admin (see next.config.mjs's
+          # basePath) — a subdirectory of the SAME domain's public_html,
+          # not a separate subdomain. No hardcoded fallback here on
+          # purpose (unlike this workflow's earlier version): a wrong
+          # guessed path fails loudly by requiring this secret, rather
+          # than silently deploying to a path on a different Hostinger
+          # account. Real example shape: /home/<your-hostinger-user-id>/domains/shahidiqbal.com/public_html/admin
+          TARGET: ${{ secrets.DEPLOY_ADMIN_PATH }}
           SOURCE: apps/admin/.next/standalone/
           # --exclude (not --delete-excluded) deliberately leaves the
           # remote `data/` directory alone — that's where the media
@@ -120,6 +159,6 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            APP_DIR="${{ secrets.DEPLOY_ADMIN_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/admin' }}"
+            APP_DIR="${{ secrets.DEPLOY_ADMIN_PATH }}"
             mkdir -p "$APP_DIR/tmp"
             touch "$APP_DIR/tmp/restart.txt"

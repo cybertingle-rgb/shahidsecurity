@@ -11,6 +11,14 @@ const nextConfig = {
   // same pattern as apps/learn (see that app's next.config.mjs).
   output: 'standalone',
   poweredByHeader: false,
+  // Served at shahidiqbal.com/admin, not its own subdomain — every
+  // internal link, asset path, and router.push() call is automatically
+  // rewritten under this prefix. This only handles the Next.js side;
+  // Hostinger's Node.js App for this deployment must itself be
+  // configured with an Application URL of shahidiqbal.com/admin (a path
+  // on the existing domain, not a new subdomain) so requests under
+  // /admin/* actually reach this process — see docs/DEPLOYMENT.md.
+  basePath: '/admin',
   // This app lives two levels below the pnpm workspace root
   // (repo-root/apps/admin) — same reasoning as apps/learn's identical
   // setting (see that file's comment): without this, the standalone

@@ -43,6 +43,13 @@
       "when": 1791307801046,
       "tag": "0005_certain_albert_cleary",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1791313299440,
+      "tag": "0006_spotty_shockwave",
+      "breakpoints": true
     }
   ]
 }
