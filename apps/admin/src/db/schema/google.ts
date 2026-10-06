@@ -91,3 +91,5 @@ export const searchConsoleConnections = mysqlTable('search_console_connections',
 });
 
 export type GoogleConnection = typeof googleConnections.$inferSelect;
+export type SearchConsoleConnection = typeof searchConsoleConnections.$inferSelect;
+export type AnalyticsConnection = typeof analyticsConnections.$inferSelect;

@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { listAllConnections } from '@/lib/google/connections';
 import { getCachedBusinessProfile } from '@/lib/google/businessProfile';
+import { getSearchConsoleSelection } from '@/lib/google/searchConsole';
 import { googleOAuthConfigured, type GoogleScopeName } from '@/lib/google/oauth';
 import { disconnectGoogleScope, syncGoogleBusinessProfile } from './actions';
 
@@ -15,6 +17,8 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
   const connectionByScope = new Map(connections.map((c) => [c.scope, c]));
   const businessProfileConnection = connectionByScope.get('business_profile');
   const cachedProfile = businessProfileConnection?.status === 'connected' ? await getCachedBusinessProfile(businessProfileConnection.id) : null;
+  const searchConsoleConnection = connectionByScope.get('search_console');
+  const searchConsoleSelection = searchConsoleConnection?.status === 'connected' ? await getSearchConsoleSelection(searchConsoleConnection.id) : null;
 
   return (
     <div className="max-w-2xl space-y-4">
@@ -86,11 +90,22 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
                   </form>
                 </div>
               )}
-              {isConnected && (s.key === 'analytics' || s.key === 'search_console') && (
+              {isConnected && s.key === 'search_console' && (
+                <div className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
+                  {searchConsoleSelection ? (
+                    <p>Selected property: {searchConsoleSelection.siteUrl}</p>
+                  ) : (
+                    <p>No property selected yet.</p>
+                  )}
+                  <Link href="/dashboard/google/search-console" className="mt-1 inline-block text-neon underline">
+                    {searchConsoleSelection ? 'View performance / change property' : 'Select a property'}
+                  </Link>
+                </div>
+              )}
+              {isConnected && s.key === 'analytics' && (
                 <p className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
-                  Connected, but data sync isn&apos;t built yet for this scope — unlike Business Profile (a single
-                  location per account), Analytics and Search Console each need a second step to pick which
-                  property/site to read from an account that can have several. Deferred rather than guessed at.
+                  Connected, but the property picker isn&apos;t built yet for Analytics — deferred rather than
+                  guessed at (it needs the same select-then-test flow as Search Console above).
                 </p>
               )}
             </div>
