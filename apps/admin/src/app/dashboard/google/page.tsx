@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { listAllConnections } from '@/lib/google/connections';
 import { getCachedBusinessProfile } from '@/lib/google/businessProfile';
 import { getSearchConsoleSelection } from '@/lib/google/searchConsole';
+import { getAnalyticsSelection } from '@/lib/google/analytics';
 import { googleOAuthConfigured, type GoogleScopeName } from '@/lib/google/oauth';
 import { disconnectGoogleScope, syncGoogleBusinessProfile } from './actions';
 
@@ -19,6 +20,8 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
   const cachedProfile = businessProfileConnection?.status === 'connected' ? await getCachedBusinessProfile(businessProfileConnection.id) : null;
   const searchConsoleConnection = connectionByScope.get('search_console');
   const searchConsoleSelection = searchConsoleConnection?.status === 'connected' ? await getSearchConsoleSelection(searchConsoleConnection.id) : null;
+  const analyticsConnection = connectionByScope.get('analytics');
+  const analyticsSelection = analyticsConnection?.status === 'connected' ? await getAnalyticsSelection(analyticsConnection.id) : null;
 
   return (
     <div className="max-w-2xl space-y-4">
@@ -103,10 +106,16 @@ export default async function GoogleIntegrationsPage({ searchParams }: { searchP
                 </div>
               )}
               {isConnected && s.key === 'analytics' && (
-                <p className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
-                  Connected, but the property picker isn&apos;t built yet for Analytics — deferred rather than
-                  guessed at (it needs the same select-then-test flow as Search Console above).
-                </p>
+                <div className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
+                  {analyticsSelection ? (
+                    <p>Selected property: {analyticsSelection.propertyName} ({analyticsSelection.propertyId})</p>
+                  ) : (
+                    <p>No property selected yet.</p>
+                  )}
+                  <Link href="/dashboard/google/analytics" className="mt-1 inline-block text-neon underline">
+                    {analyticsSelection ? 'View data / change property' : 'Select a property'}
+                  </Link>
+                </div>
               )}
             </div>
           );
