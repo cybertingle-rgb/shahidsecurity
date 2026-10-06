@@ -8,6 +8,7 @@ import { blogPosts } from '@/db/schema';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
 import { slugify, getBlogPostById, setPostTags, setPostFaqs } from '@/lib/blog';
+import { publishBlogPostToWebsite, refreshPublicationStatus, rollbackBlogPublication } from '@/lib/publish/blogPublish';
 
 function readCommonFields(formData: FormData) {
   return {
@@ -106,6 +107,31 @@ export async function scheduleBlogPost(id: string, formData: FormData) {
   await logAudit({ actorUserId: admin.id, action: 'blog_post.scheduled', targetType: 'blog_post', targetId: id, metadata: { scheduledFor: scheduledFor.toISOString() } });
   revalidatePath(`/dashboard/content/blog/${id}`);
   revalidatePath('/dashboard/content/blog');
+}
+
+/**
+ * Actually deploys this post to the live Astro site — distinct from
+ * publishBlogPost above, which only flips this CMS's own draft/published
+ * flag. Gated by a separate, narrower permission than blog.manage: not
+ * every role that can edit posts should be able to push to production.
+ * See docs/CONTENT_PUBLISHING.md.
+ */
+export async function publishBlogPostToLiveSite(id: string) {
+  const admin = await requireAdminAction('content.publish');
+  await publishBlogPostToWebsite(id, admin.id);
+  revalidatePath(`/dashboard/content/blog/${id}`);
+}
+
+export async function refreshBlogPublicationStatus(publicationId: string) {
+  await requireAdminAction('content.publish');
+  const publication = await refreshPublicationStatus(publicationId);
+  revalidatePath(`/dashboard/content/blog/${publication.contentId}`);
+}
+
+export async function rollbackBlogPostPublication(publicationId: string) {
+  const admin = await requireAdminAction('deployment.rollback');
+  const publication = await rollbackBlogPublication(publicationId, admin.id);
+  revalidatePath(`/dashboard/content/blog/${publication.contentId}`);
 }
 
 /** Only a never-published draft can be hard-deleted — same archive-over-delete rule as services. */

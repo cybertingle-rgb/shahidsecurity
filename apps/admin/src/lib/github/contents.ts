@@ -1,5 +1,13 @@
 import { getOctokit, getGitHubRepoConfig } from './client';
 
+/** Returns the current commit SHA at the tip of the target branch — the "previous commit" a publish records for rollback. */
+export async function getBranchHeadSha(): Promise<string> {
+  const octokit = getOctokit();
+  const { owner, repo, branch } = getGitHubRepoConfig();
+  const res = await octokit.repos.getBranch({ owner, repo, branch });
+  return res.data.commit.sha;
+}
+
 /** Returns the existing file's blob SHA (needed to update it) and decoded content, or null if it doesn't exist yet. */
 export async function getExistingFile(path: string): Promise<{ sha: string; content: string } | null> {
   const octokit = getOctokit();

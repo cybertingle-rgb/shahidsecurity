@@ -20,6 +20,10 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   administrator: [
     'business.manage', 'services.manage', 'blog.manage', 'seo.manage', 'leads.manage',
     'payments.manage', 'testimonials.manage', 'media.manage', 'ai.manage', 'google.manage',
+    // Deliberately not given to editor/seo_manager/finance/support — per
+    // Phase 18U, publishing to the live site and rolling back a
+    // deployment are not automatically available to every admin role.
+    'content.publish', 'seo.publish', 'deployment.rollback',
   ],
   editor: ['blog.manage', 'services.manage', 'media.manage'],
   seo_manager: ['seo.manage', 'blog.manage'],
