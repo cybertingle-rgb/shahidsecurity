@@ -12,6 +12,7 @@ import { site } from '@/lib/site';
 import { translations } from '@/lib/i18n';
 import { absoluteUrl, pageTitle, twitterHandle } from '@/lib/seo';
 import { organizationSchema, websiteSchema, webPageSchema } from '@/lib/schema';
+import { getSeoOverride } from '@/lib/seoOverrides';
 
 interface Props {
   title: string;
@@ -34,10 +35,10 @@ interface Props {
 }
 
 const {
-  title,
-  description,
+  title: propsTitle,
+  description: propsDescription,
   path,
-  noindex = false,
+  noindex: propsNoindex = false,
   ogImage,
   isHome = false,
   jsonLd = [],
@@ -49,7 +50,16 @@ const {
   noCanonical = false,
 } = Astro.props;
 
-const canonical = absoluteUrl(path);
+// An admin-published SEO override for this exact path wins when one
+// exists — see src/lib/seoOverrides.ts. Every page with no override
+// (every page until one is explicitly published) behaves exactly as
+// before this existed.
+const seoOverride = getSeoOverride(path);
+const title = seoOverride?.title ?? propsTitle;
+const description = seoOverride?.description ?? propsDescription;
+const noindex = seoOverride?.robotsDirective ? seoOverride.robotsDirective.includes('noindex') : propsNoindex;
+
+const canonical = seoOverride?.canonicalUrl ?? absoluteUrl(path);
 const resolvedOgImage = ogImage ? absoluteUrl(ogImage) : absoluteUrl('/brand/og-default.png');
 const fullTitle = pageTitle(title, isHome);
 const hideSocialRail = path.startsWith('/book');
