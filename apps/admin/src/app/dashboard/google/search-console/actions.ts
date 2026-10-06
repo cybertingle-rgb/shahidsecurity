@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
-import { getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
+import { getConnectionForScope, getValidAccessToken, logSyncError } from '@/lib/google/connections';
 import { listAccessibleSites, testSearchConsoleAccess, saveSearchConsoleSelection } from '@/lib/google/searchConsole';
 
 /**
@@ -25,20 +25,25 @@ export async function selectSearchConsoleSite(formData: FormData) {
   const accessToken = await getValidAccessToken(connection);
   if (!accessToken) throw new Error('No usable access token for this connection — reconnect Search Console.');
 
-  const sites = await listAccessibleSites(accessToken);
-  const match = sites.find((s) => s.siteUrl === siteUrl);
-  if (!match) throw new Error('That site is not in this Google account\'s accessible sites list.');
+  try {
+    const sites = await listAccessibleSites(accessToken);
+    const match = sites.find((s) => s.siteUrl === siteUrl);
+    if (!match) throw new Error('That site is not in this Google account\'s accessible sites list.');
 
-  await testSearchConsoleAccess(accessToken, siteUrl);
-  await saveSearchConsoleSelection(connection.id, match.siteUrl, match.permissionLevel);
+    await testSearchConsoleAccess(accessToken, siteUrl);
+    await saveSearchConsoleSelection(connection.id, match.siteUrl, match.permissionLevel);
 
-  await logAudit({
-    actorUserId: admin.id,
-    action: 'GOOGLE_PROPERTY_CHANGED',
-    targetType: 'google_connection',
-    targetId: connection.id,
-    metadata: { scope: 'search_console', siteUrl: match.siteUrl },
-  });
+    await logAudit({
+      actorUserId: admin.id,
+      action: 'GOOGLE_PROPERTY_CHANGED',
+      targetType: 'google_connection',
+      targetId: connection.id,
+      metadata: { scope: 'search_console', siteUrl: match.siteUrl },
+    });
+  } catch (err) {
+    await logSyncError(connection.id, 'search_console_selection', err instanceof Error ? err.message : 'Unknown error.');
+    throw err;
+  }
 
   revalidatePath('/dashboard/google/search-console');
 }
