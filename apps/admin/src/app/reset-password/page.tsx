@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 
 function ResetPasswordForm() {
@@ -95,8 +96,8 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6">
-      <div className="text-center">
-        <p className="text-sm font-medium tracking-wide text-neon">Shahid Security</p>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Image src="/brand/logo-stacked-dark-bg.png" alt="Shahid Security" width={800} height={1255} className="h-20 w-auto" priority />
         <h1 className="text-lg font-semibold">Set a new password</h1>
       </div>
       <Suspense fallback={null}>

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
@@ -34,7 +35,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div className="flex min-h-screen">
       <aside className="w-56 shrink-0 border-r border-border bg-bg-elevated p-4">
-        <p className="mb-6 text-sm font-medium text-neon">Shahid Security — Admin</p>
+        <Link href="/dashboard" className="mb-6 block">
+          <Image src="/brand/logo-horizontal-dark-bg-nav.png" alt="Shahid Security" width={340} height={162} className="h-10 w-auto" priority />
+        </Link>
         <nav className="space-y-1 text-sm">
           {NAV_SECTIONS.map((section) => (
             <Link key={section.href} href={section.href} className="block rounded px-2 py-1.5 text-text-muted hover:bg-surface hover:text-text">

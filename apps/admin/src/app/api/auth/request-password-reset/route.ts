@@ -37,8 +37,6 @@ export async function POST(request: NextRequest) {
   if (!user) return genericResponse;
 
   const token = await createPasswordResetToken(user.id);
-  // NEXT_PUBLIC_APP_URL already includes the basePath (e.g.
-  // https://shahidiqbal.com/admin) — see next.config.mjs.
   const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
   await sendEmail(
     email,
