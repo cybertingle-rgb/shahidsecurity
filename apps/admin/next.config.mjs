@@ -20,6 +20,17 @@ const nextConfig = {
   // for why that nesting has to be collapsed back out after the build.
   output: 'standalone',
   outputFileTracingRoot: path.join(dirname, '../../'),
+  // The standalone build only bundles files actually imported by traced
+  // code — the drizzle-kit migrator reads these SQL files and
+  // meta/_journal.json from disk at runtime (migrationsFolder: './drizzle'),
+  // so they'd otherwise be silently missing from the deployed output.
+  // Needed by /api/internal/migrate, which runs migrations from inside
+  // the already-running server on hosts with no separate shell access to
+  // the build environment (confirmed missing against a real deploy —
+  // "Can't find meta/_journal.json file" — not assumed).
+  outputFileTracingIncludes: {
+    '/api/internal/migrate/route': ['./drizzle/**/*'],
+  },
   poweredByHeader: false,
   // Served at shahidiqbal.com/admin, not its own subdomain — every
   // internal link, asset path, and router.push() call is automatically
