@@ -1,20 +1,25 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Deliberately NOT output: 'standalone' here, unlike apps/learn. On
-  // Hostinger's git-connected "Web App" product, a monorepo's standalone
-  // output nests an extra apps/admin/ level inside .next/standalone
-  // (outputFileTracingRoot points at the workspace root so hoisted
-  // node_modules trace correctly), and that product's own publish step
-  // doesn't preserve the sibling node_modules folder when it copies that
-  // nested output to its deploy version — every run crashes instantly
-  // with "Error: Cannot find module 'next'" (confirmed against a real
-  // deploy, not assumed). Leaving output unset makes Hostinger fall back
-  // to running the app directly against the full pnpm install it already
-  // did during the build (the same one `pnpm build` used), so module
-  // resolution just works. If this app ever moves to a deploy mechanism
-  // that handles monorepo standalone output correctly (e.g. the
-  // GitHub-Actions-over-SSH path in .github/workflows/deploy-admin.yml),
-  // standalone can be reinstated there.
+  // Standalone output, same as apps/learn — required on this host (no
+  // shell access to install deps at runtime). outputFileTracingRoot MUST
+  // stay pointed at the pnpm workspace root: this app's real
+  // node_modules entries are symlinks out to the workspace's shared
+  // .pnpm store, and Turbopack refuses to resolve/compile anything
+  // outside the configured tracing root at all (confirmed — narrowing
+  // this to the app's own directory breaks the build outright, not just
+  // the deploy). The unavoidable side effect is that the standalone
+  // output nests an extra apps/admin/ level inside itself
+  // (.next/standalone/apps/admin/server.js, with node_modules sitting
+  // one level up as a sibling, not inside that folder) — see
+  // scripts/flatten-standalone.mjs, run as part of `pnpm build` below,
+  // for why that nesting has to be collapsed back out after the build.
+  output: 'standalone',
+  outputFileTracingRoot: path.join(dirname, '../../'),
   poweredByHeader: false,
   // Served at shahidiqbal.com/admin, not its own subdomain — every
   // internal link, asset path, and router.push() call is automatically
