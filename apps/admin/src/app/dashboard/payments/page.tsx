@@ -16,9 +16,14 @@ export default async function PaymentsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Invoices</h1>
-        <Link href="/dashboard/payments/new" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
-          New invoice
-        </Link>
+        <div className="flex gap-3">
+          <Link href="/dashboard/payments/methods" className="rounded-md border border-border px-4 py-2 text-sm font-medium text-text">
+            Payment methods
+          </Link>
+          <Link href="/dashboard/payments/new" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+            New invoice
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-bg-elevated/60 p-4 text-sm text-text-muted">
