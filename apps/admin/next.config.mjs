@@ -32,13 +32,9 @@ const nextConfig = {
     '/api/internal/migrate/route': ['./drizzle/**/*'],
   },
   poweredByHeader: false,
-  // Served at shahidiqbal.com/admin, not its own subdomain — every
-  // internal link, asset path, and router.push() call is automatically
-  // rewritten under this prefix. This only handles the Next.js side;
-  // the Hostinger Web App for this deployment must itself be configured
-  // so requests under /admin/* reach this process — see
-  // docs/DEPLOYMENT.md.
-  basePath: '/admin',
+  // Served at admin.shahidiqbal.com (its own subdomain, not a path) —
+  // no basePath needed since the app already sits at the subdomain's
+  // root. See docs/DEPLOYMENT.md.
   experimental: {
     // Same Turbopack workaround as apps/learn's next.config.mjs — avoids a
     // process-spawn panic seen under load on this host.
