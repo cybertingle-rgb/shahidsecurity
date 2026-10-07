@@ -1,4 +1,4 @@
-import { datetime, decimal, json, mysqlEnum, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
+import { boolean, datetime, decimal, int, json, mysqlEnum, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
 import { idColumn, fkColumn } from './columns';
 
 /**
@@ -136,6 +136,27 @@ export const payments = mysqlTable('payments', {
   createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
 });
 
+/**
+ * Admin-configurable manual payment options (bank transfer, crypto
+ * wallet, etc.) shown to staff when recording a payment by hand — same
+ * shape and purpose as apps/learn's payment_methods table (a deliberate
+ * naming distinction: this app's existing `paymentMethods` table above
+ * is unrelated scaffolding for a tokenized gateway reference, not this
+ * concept). Not surfaced to the public; shahidiqbal.com has no
+ * self-serve checkout of its own.
+ */
+export const manualPaymentMethods = mysqlTable('manual_payment_methods', {
+  id: idColumn(),
+  name: text('name').notNull(),
+  type: mysqlEnum('type', ['bank_transfer', 'crypto', 'mobile_wallet', 'other']).notNull(),
+  instructions: text('instructions'),
+  walletAddress: text('wallet_address'),
+  isActive: boolean('is_active').notNull().default(true),
+  sortOrder: int('sort_order').notNull().default(0),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+});
+
 export type Lead = typeof leads.$inferSelect;
 export type Consultation = typeof consultations.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
+export type ManualPaymentMethod = typeof manualPaymentMethods.$inferSelect;
