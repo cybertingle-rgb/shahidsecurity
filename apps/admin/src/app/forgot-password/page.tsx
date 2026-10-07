@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -26,8 +27,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6">
-      <div className="text-center">
-        <p className="text-sm font-medium tracking-wide text-neon">Shahid Security</p>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Image src="/brand/logo-stacked-dark-bg.png" alt="Shahid Security" width={800} height={1255} className="h-20 w-auto" priority />
         <h1 className="text-lg font-semibold">Reset your password</h1>
       </div>
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-bg-elevated/60 p-6">
