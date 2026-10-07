@@ -102,17 +102,17 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.ADMIN_GOOGLE_CLIENT_SECRET }}
           GOOGLE_REDIRECT_URI: ${{ secrets.ADMIN_APP_URL }}/api/google/callback
         run: pnpm build
-
-      - name: Assemble standalone deploy bundle
-        # outputFileTracingRoot (next.config.mjs) points at the monorepo
-        # root, so the standalone output nests under apps/admin/ inside
-        # .next/standalone/ rather than sitting at its own root —
-        # confirmed by actually inspecting a real build, not assumed.
-        # Static assets and public/ must go into that same nested path,
-        # next to the server.js Passenger will actually run.
-        run: |
-          cp -r apps/admin/.next/static apps/admin/.next/standalone/apps/admin/.next/static
-          if [ -d apps/admin/public ]; then cp -r apps/admin/public apps/admin/.next/standalone/apps/admin/public; fi
+        # pnpm build (package.json) already runs
+        # scripts/flatten-standalone.mjs after next build — it collapses
+        # the monorepo nesting out of .next/standalone (outputFileTracingRoot
+        # points at the workspace root so Turbopack can resolve this app's
+        # symlinked node_modules, which nests the output under apps/admin/
+        # as a side effect), copies in .next/static and public/, and
+        # rewrites the one absolute-path symlink Next's bundler emits for
+        # node_modules/next into a relative one. All confirmed against a
+        # real build moved to a different absolute path — see that
+        # script's comments for why each step exists. No separate
+        # assembly step needed here anymore.
 
       - name: Run pending database migrations
         working-directory: apps/admin
