@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@types/js-yaml": "4.0.9",
-    "dotenv": "18.0.4",
+    "dotenv": "18.0.5",
     "drizzle-kit": "0.31.11",
     "tsx": "4.23.15",
     "vitest": "5.0.2"
