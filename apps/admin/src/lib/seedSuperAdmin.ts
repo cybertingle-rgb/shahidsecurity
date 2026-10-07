@@ -21,6 +21,13 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'business.manage', 'services.manage', 'blog.manage', 'seo.manage', 'leads.manage',
     'payments.manage', 'testimonials.manage', 'media.manage', 'ai.manage', 'google.manage',
     'content.publish', 'seo.publish', 'deployment.rollback',
+    // Prefixed with learn. — a distinct namespace from this app's own
+    // keys above (e.g. payments.manage already means something else
+    // here: this app's own invoices, not Learn's checkout/orders).
+    // One broad key, same coarse-grained style as business.manage,
+    // covering everything under /dashboard/learn — see
+    // src/db/learnDb.ts for why this app can reach that data at all.
+    'learn.manage',
   ],
   editor: ['blog.manage', 'services.manage', 'media.manage'],
   seo_manager: ['seo.manage', 'blog.manage'],
