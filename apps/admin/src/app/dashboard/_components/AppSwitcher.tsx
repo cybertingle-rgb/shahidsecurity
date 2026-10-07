@@ -18,13 +18,11 @@ export function AppSwitcher() {
             : 'scale-95 text-text-muted hover:scale-100 hover:bg-white/5 hover:text-text'
         }`}
       >
-        <Image
-          src="/brand/shahid-icon-square.png"
-          alt=""
-          width={192}
-          height={192}
-          className={`h-7 w-7 rounded-md object-contain transition-transform duration-200 ${!inLearn ? 'drop-shadow-sm' : 'opacity-80 group-hover:opacity-100'}`}
-        />
+        {/* A solid white chip behind the mark — both logos are green-on-transparent, so without this
+            backdrop a logo disappears into the pill's own green active-state background. */}
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white p-1 shadow-sm">
+          <Image src="/brand/shahid-icon-square.png" alt="" width={192} height={192} className="h-full w-full object-contain" />
+        </span>
         Shahid Admin
       </a>
       <a
@@ -35,13 +33,9 @@ export function AppSwitcher() {
             : 'scale-95 text-text-muted hover:scale-100 hover:bg-white/5 hover:text-text'
         }`}
       >
-        <Image
-          src="/brand/learn-icon-square.png"
-          alt=""
-          width={192}
-          height={192}
-          className={`h-7 w-7 rounded-md object-contain transition-transform duration-200 ${inLearn ? 'drop-shadow-sm' : 'opacity-80 group-hover:opacity-100'}`}
-        />
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white p-1 shadow-sm">
+          <Image src="/brand/learn-icon-square.png" alt="" width={192} height={192} className="h-full w-full object-contain" />
+        </span>
         Learn Admin
       </a>
     </div>
