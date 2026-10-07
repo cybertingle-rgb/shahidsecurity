@@ -13,6 +13,13 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3200'),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 
+  // apps/learn's own public URL — the unified /dashboard/learn section
+  // still reads/writes that app's database directly, but any link a
+  // *student* follows (an invite/activation email, a password-reset
+  // link) must point at learn.shahidiqbal.com, where that account
+  // actually logs in, never at this app's own domain.
+  LEARN_APP_URL: z.string().url().default('http://localhost:3000'),
+
   // Google OAuth — optional. Unset disables every "Connect Google ___"
   // button (it renders disabled with a "not configured" note) rather than
   // breaking the rest of the app. See docs/GOOGLE_INTEGRATION_SETUP.md.
@@ -51,6 +58,7 @@ export const env = envSchema.parse({
   TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NODE_ENV: process.env.NODE_ENV,
+  LEARN_APP_URL: process.env.LEARN_APP_URL,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,

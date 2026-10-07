@@ -1,0 +1,62 @@
+import Link from 'next/link';
+import { getAdminOverviewStats } from '@/lib/learn/analytics';
+
+const SECTIONS = [
+  { href: '/dashboard/learn/students', label: 'Students', description: 'Search, view profiles, suspend/reactivate, manual enroll' },
+  { href: '/dashboard/learn/courses', label: 'Courses', description: 'Create, edit, and publish courses' },
+  { href: '/dashboard/learn/products', label: 'Products & Pricing', description: 'Catalog items and their per-currency/country prices' },
+  { href: '/dashboard/learn/enrollments', label: 'Enrollments', description: 'All enrollments across every student' },
+  { href: '/dashboard/learn/orders', label: 'Orders', description: 'Order history and status' },
+  { href: '/dashboard/learn/payments', label: 'Payments', description: 'Manual payment verification queue' },
+  { href: '/dashboard/learn/communities', label: 'Communities', description: 'Discord/Facebook/Telegram invite links and eligibility rules' },
+  { href: '/dashboard/learn/announcements', label: 'Announcements', description: 'Publish updates to students' },
+  { href: '/dashboard/learn/payment-methods', label: 'Payment Methods', description: 'Bank transfer, crypto wallets, mobile wallets' },
+  { href: '/dashboard/learn/exchange-rates', label: 'Exchange Rates', description: "Set today's USD conversion rate per currency" },
+  { href: '/dashboard/learn/settings', label: 'Settings', description: 'Support email' },
+  { href: '/dashboard/learn/roadmap', label: 'Roadmap', description: 'The 18-stage cybersecurity roadmap shown on shahidiqbal.com/learn/roadmap' },
+];
+
+export default async function LearnOverviewPage() {
+  const stats = await getAdminOverviewStats();
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Learn with Shahid — Admin</h1>
+        <p className="text-text-muted">Managed from this one admin panel, reading and writing learn.shahidiqbal.com's own database directly.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Total students</p>
+          <p className="mt-1 text-2xl font-semibold">{stats.totalStudents}</p>
+        </div>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Active enrollments</p>
+          <p className="mt-1 text-2xl font-semibold">{stats.activeEnrollments}</p>
+        </div>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Total orders</p>
+          <p className="mt-1 text-2xl font-semibold">{stats.totalOrders}</p>
+        </div>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-xs text-text-muted">Revenue (paid orders)</p>
+          <p className="mt-1 text-2xl font-semibold text-neon">USD {(stats.totalRevenueMinorUnits / 100).toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {SECTIONS.map((section) => (
+          <Link
+            key={section.href}
+            href={section.href}
+            className="rounded-lg border border-border p-4 transition-colors hover:border-border-strong hover:bg-surface"
+          >
+            <p className="font-medium text-neon">{section.label}</p>
+            <p className="mt-1 text-sm text-text-muted">{section.description}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
