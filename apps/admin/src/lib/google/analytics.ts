@@ -91,6 +91,33 @@ export async function runAnalyticsReport(
   }));
 }
 
+export type DailyVisitorCount = { date: string; activeUsers: number };
+
+/**
+ * Real daily active-user counts for the dashboard's visitors widget —
+ * a thin wrapper around runAnalyticsReport with the date dimension.
+ * GA4 returns `date` as YYYYMMDD; reformatted here to YYYY-MM-DD and
+ * sorted ascending (GA4's own ordering isn't guaranteed chronological).
+ */
+export async function getDailyVisitorCounts(accessToken: string, propertyId: string, days: number): Promise<DailyVisitorCount[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const startDate = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const rows = await runAnalyticsReport(accessToken, propertyId, {
+    startDate,
+    endDate: today,
+    dimensions: ['date'],
+    metrics: ['activeUsers'],
+    limit: days,
+  });
+  return rows
+    .map((row) => {
+      const raw = row.dimensionValues[0] ?? '';
+      const date = raw.length === 8 ? `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}` : raw;
+      return { date, activeUsers: row.metricValues[0] ?? 0 };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 /** A minimal real report used purely to confirm access before saving a property selection — throws if the account can't actually query it. */
 export async function testAnalyticsAccess(accessToken: string, propertyId: string): Promise<void> {
   const today = new Date().toISOString().slice(0, 10);
