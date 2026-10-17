@@ -122,6 +122,7 @@ jobs:
         working-directory: apps/admin
         env:
           DATABASE_URL: ${{ secrets.ADMIN_DATABASE_URL }}
+          LEARN_DATABASE_URL: ${{ secrets.LEARN_DATABASE_URL }}
           SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
           TOKEN_ENCRYPTION_KEY: ${{ secrets.ADMIN_TOKEN_ENCRYPTION_KEY }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.ADMIN_APP_URL }}
