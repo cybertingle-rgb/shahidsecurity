@@ -1,0 +1,74 @@
+---
+title: 'AI Model Supply Chain Security: The Risk of Pulling Pretrained Models From the Internet'
+description: 'Your developers are downloading pretrained AI models from public hubs the same way they install npm packages — and the same supply-chain risks apply. Heres what researchers have found, and how to vet a model before you deploy it.'
+publishedAt: 2026-10-17
+tags: ['supply-chain-security', 'ai-security', 'secure-development']
+author: Shahid Iqbal
+relatedService: secure-website-development
+relatedPosts: ['software-supply-chain-security', 'ai-application-security-checklist']
+faqs:
+  - q: 'How is AI model supply chain risk different from regular software supply chain risk (like the npm attacks)?'
+    a: "The underlying pattern is the same — pulling a third-party artifact into your systems without full visibility into what's inside it. The difference is the file formats and distribution channels: AI models are often distributed as Python pickle files, which can execute arbitrary code the moment they're loaded, not just when run — a meaningfully more dangerous default than most package formats."
+  - q: 'Are model hosting platforms like Hugging Face unsafe to use?'
+    a: "No — they're the standard way most organizations access pretrained models, and the platforms do run automated scanning. The issue is that scanning has documented gaps (researchers have shown techniques that evade it) and that popularity or download count doesn't verify safety the way a security review would. Use them, but verify what you pull, the same way you'd vet any other third-party dependency."
+  - q: 'What is a safer alternative to the pickle format for loading model weights?'
+    a: "Safetensors, a format designed specifically to store model weights without the ability to execute arbitrary code on load. Many major model hubs and frameworks now support it, and it's a straightforward substitution for pickle-based model loading wherever the model is available in that format."
+draft: false
+---
+
+Software supply chain attacks — malicious npm packages, compromised build pipelines — have been a known, serious risk for years. A newer and less-discussed version of the same problem is emerging in AI development: the pretrained models developers pull from public hubs to build AI features carry many of the same risks, with some specific to how models are packaged and distributed.
+
+## Why AI models are a supply chain risk at all
+
+When a developer downloads a pretrained model to fine-tune or deploy, they're pulling in a third-party artifact the same way they'd pull in an npm package or a Docker image — except the file format most commonly used for model weights has a dangerous default built in.
+
+**Python's pickle format**, widely used for serializing and storing model weights, allows arbitrary code execution at the moment the file is *loaded* — not just when it's explicitly run. A model file that looks like ordinary numerical data can contain code that executes the instant your application calls the function to load it. This vulnerability class has been repeatedly exploited in the wild on public model hubs since at least March 2024, and it remains one of the most direct risks in the AI supply chain today.
+
+## What security researchers have found
+
+A cluster of 2026 research, much of it from the Cloud Security Alliance and independent security teams, maps out a supply chain that looks uncomfortably similar to the npm ecosystem's worst years:
+
+- **Scanner evasion.** Security researchers at ReversingLabs documented a technique using malformed pickle files compressed with 7z that passed undetected through a major model hub's automated malware scanning. Separately, PickleScan — the leading open-source tool specifically built to detect malicious pickle payloads — was found in December 2025 to carry three zero-day bypass vulnerabilities of its own, meaning the detection tool itself had exploitable gaps.
+- **Typosquatting.** Academic researchers identified over 1,500 potentially malicious typosquatting models on a major public hub — models with names deliberately similar to popular, legitimate ones, banking on developers making a copy-paste or spelling mistake.
+- **Namespace reuse.** Researchers at Palo Alto Networks' Unit 42 showed that deleted accounts on a major model hub aren't permanently reserved — meaning an attacker can re-register an abandoned username and publish malicious models under an identity that pipelines referencing that namespace by name (without pinning a specific version) will still pull from automatically.
+- **Framework-level vulnerabilities.** A critical vulnerability (CVSS 9.8) was found in a popular robotics AI framework, exposing installations to unauthenticated remote code execution through unsafe pickle deserialization — a reminder that this risk sits in the frameworks and tooling around models, not just the model files themselves.
+- **Cheap poisoning.** Researchers demonstrated in 2026 that open-weight AI models can be poisoned — backdoored to behave maliciously under specific trigger conditions while behaving normally otherwise — for under $100 in compute cost, a strikingly low bar for an attack that's hard to detect through normal testing.
+- **Agent skill marketplaces.** As AI agents gain the ability to install "skills" or plugins from community marketplaces, the same pattern is repeating there too — one documented campaign involved over a thousand malicious skill packages traced back to a small number of author accounts.
+
+## Why this is easy to miss
+
+Unlike a traditional code dependency, where a security-conscious developer can at least skim the source, a model's weights are opaque by nature — millions or billions of numbers that no human can meaningfully review for malicious behavior. That opacity is normal and unavoidable for the model itself, but it means the *loading mechanism* and *distribution chain* carry disproportionate weight as the actual place to apply security controls, since reviewing the model's internals directly isn't realistic the way code review is.
+
+Download counts and popularity on a model hub also don't function as a safety signal the way they might loosely for a popular npm package — scanning gaps mean a popular, widely-downloaded model can still carry an undetected malicious payload, and typosquatting specifically targets the assumption that a plausible-looking name is safe to trust.
+
+## Practical steps for vetting AI models before deployment
+
+- **Prefer safetensors over pickle wherever available.** Safetensors is a format built specifically to store model weights without the ability to execute code on load — a direct fix for the most dangerous default in the ecosystem. Many popular models now ship in both formats; choose safetensors when given the option.
+- **Pin exact model versions and sources**, not just a model name — never reference a model by name alone without pinning a specific, verified revision, which closes the namespace-reuse risk directly.
+- **Treat model downloads like any other third-party dependency**, with the same review discipline your software supply chain policy already applies to code packages — if you wouldn't `npm install` an unreviewed package directly into production, don't do the equivalent with an unreviewed model.
+- **Run models in sandboxed or restricted environments** during evaluation, before granting them access to production data or systems, specifically because loading itself can be the point of compromise.
+- **Watch for typosquatting** when referencing well-known models — double-check the exact publisher namespace against the authoritative source, not just a plausible-looking name.
+- **Keep scanning tools updated**, and don't treat a clean scan result as a guarantee — documented scanner-evasion and scanner-vulnerability findings mean scanning is one layer, not a complete answer.
+
+## AI model supply chain checklist
+
+- [ ] Inventory which pretrained models are in use across your AI projects, and from which sources
+- [ ] Prefer safetensors format over pickle for model weights wherever available
+- [ ] Pin exact, verified model versions — never reference by name alone without a pinned revision
+- [ ] Apply the same third-party dependency review process to models that you apply to code packages
+- [ ] Evaluate new models in a sandboxed environment before granting production data access
+- [ ] Verify publisher namespaces carefully to catch typosquatting attempts
+- [ ] Keep model-scanning tools current, and treat a clean scan as one signal, not a guarantee
+- [ ] Extend the same scrutiny to AI agent "skills" or plugins pulled from community marketplaces
+
+## Key takeaways
+
+The AI model supply chain is repeating patterns the software supply chain already learned the hard way — opaque third-party artifacts, popularity mistaken for safety, and a widely-used file format (pickle) with a genuinely dangerous default. The fix isn't avoiding pretrained models, which would be impractical for almost any business building AI features today; it's applying the same dependency-review discipline to models that mature software teams already apply to code packages, and defaulting to the safer safetensors format wherever it's available.
+
+Shahid Security's [Secure Website & Software Development](/services/secure-website-development/) work includes dependency and supply chain review for AI-integrated projects — models included, not just code packages.
+
+**Building AI features and want a security review of what's actually in your stack?** [Book a free consultation](/book/).
+
+---
+
+Sources: [Cloud Security Alliance: Poisoned Pipelines — Malicious AI Model and Skill Repositories](https://labs.cloudsecurityalliance.org/research/csa-research-note-malicious-ai-model-repositories-attack-sur/), [Cloud Security Alliance: Model Hub Typosquatting](https://labs.cloudsecurityalliance.org/research-rb/csa-research-note-huggingface-model-supply-chain-attack-2026/), [SC World: Hugging Face compromised with malicious AI models](https://www.scworld.com/brief/hugging-face-compromised-with-malicious-ai-models).

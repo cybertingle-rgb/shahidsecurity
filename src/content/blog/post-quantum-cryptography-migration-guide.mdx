@@ -1,0 +1,86 @@
+---
+title: 'Post-Quantum Cryptography: A Practical Migration Guide for Businesses'
+description: 'NIST finalized its post-quantum encryption standards in 2024. Here is what "harvest now, decrypt later" actually means for your business, and the practical first steps to take before quantum computing makes todays encryption obsolete.'
+publishedAt: 2026-10-17
+tags: ['post-quantum-cryptography', 'cryptography', 'compliance']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['cloud-token-theft', 'gcc-cybersecurity-compliance-sama-nesa']
+faqs:
+  - q: 'Do I need to worry about quantum computing if no cryptographically relevant quantum computer exists yet?'
+    a: "Yes, if any of your data needs to stay confidential for years — contracts, health records, IP, customer PII, anything with long-term sensitivity. The risk isn't that a quantum computer exists today; it's that attackers can record encrypted traffic now and decrypt it once one does. That's the 'harvest now, decrypt later' threat, and it makes the migration timeline longer than it looks."
+  - q: 'What is "harvest now, decrypt later"?'
+    a: "It's a strategy where an attacker — often a well-resourced one, like a nation-state — captures and stores encrypted data today, with no ability to read it yet, betting that a future quantum computer will be able to break today's encryption and decrypt it retroactively. Anything encrypted with RSA or ECC today and captured today is a candidate, regardless of when a quantum computer actually arrives."
+  - q: 'Does a small or mid-size business actually need to do anything about this right now?'
+    a: "Most SMEs don't need a full migration project today, but they do need two things: a basic inventory of where long-lived sensitive data is encrypted, and a plan to adopt post-quantum-ready software and hardware as vendors roll it out — which many already have. The cost of inaction is low this year and compounds every year you wait, since cryptographic migrations in established systems take years to execute even once you start."
+draft: false
+---
+
+In August 2024, the U.S. National Institute of Standards and Technology (NIST) finalized its first three post-quantum cryptography (PQC) standards — FIPS 203, FIPS 204, and FIPS 205 — after an eight-year public evaluation process. That milestone quietly started a clock most businesses haven't noticed yet: the encryption protecting your email, your VPN, your customer data, and your backups today is built on math that a sufficiently powerful quantum computer will eventually be able to break.
+
+## Why this matters before quantum computers are actually dangerous
+
+The uncomfortable part of this threat isn't "quantum computers will break encryption someday." It's that the attack doesn't require a quantum computer to exist *today* — only for one to exist eventually, and for an attacker to have captured your encrypted data in the meantime.
+
+This is called **"harvest now, decrypt later" (HNDL)**: a well-resourced attacker — typically a nation-state or an organization capable of large-scale data interception — records encrypted traffic or exfiltrated data today, stores it, and waits. The moment a cryptographically relevant quantum computer exists, everything in that archive that was encrypted with vulnerable algorithms (RSA, ECC — the two underpinning the overwhelming majority of internet encryption today) becomes readable, retroactively, including data that was captured years earlier.
+
+For most day-to-day business data, this doesn't matter much — a quarterly sales report that's stale in six months isn't worth harvesting. But a surprising amount of business data has a shelf life measured in years or decades: contracts, M&A documents, health and legal records, source code, long-term customer PII, trade secrets. If any of that is being transmitted or stored with RSA or ECC encryption today, it's a candidate for harvesting right now, regardless of when the decryption capability actually arrives.
+
+## When does the threat actually arrive?
+
+Estimates vary, and treating any single date as certain would be a mistake — but the direction is consistent across sources:
+
+- NIST's own guidance anticipates deprecating RSA and ECC around 2030, with full disallowance by 2035.
+- The NSA's Commercial National Security Algorithm Suite 2.0 already mandates post-quantum algorithms for new U.S. national security systems starting in 2027 — a signal of how seriously the agency most focused on this threat is treating the timeline.
+- Major infrastructure providers aren't waiting for certainty: Cloudflare, Google, and Apple have already deployed hybrid post-quantum key exchange (classical algorithms running alongside post-quantum ones) to billions of users, as a hedge against both the uncertainty and the slow pace of full migrations.
+
+The honest takeaway: nobody knows the exact year a cryptographically relevant quantum computer will exist, and estimates from credible sources range from the early 2030s to considerably later. What's certain is that cryptographic migrations in real organizations — updating libraries, hardware, certificates, and third-party integrations across an entire estate — take years even once a business commits to starting. The gap between "we should start" and "we're done" is where most of the risk sits.
+
+## What actually changed with NIST's 2024 standards
+
+NIST's finalized standards give the industry something concrete to build toward, after years of candidate algorithms being evaluated and narrowed down:
+
+- **FIPS 203 (ML-KEM)** — a key encapsulation mechanism, used for establishing shared secrets (replacing RSA/ECC key exchange).
+- **FIPS 204 (ML-DSA)** — a digital signature algorithm, for authenticating software, documents, and identities.
+- **FIPS 205 (SLH-DSA)** — a stateless hash-based signature scheme, offering a different security foundation as a hedge against any future weakness found in the lattice-based math behind the first two.
+
+A second set of algorithms is still working through NIST's evaluation process, which is normal — cryptographic standards evolve in waves, not single releases.
+
+## Why key exchange comes first, not signatures
+
+If you're prioritizing what to migrate first, the guidance from NIST and major cloud providers is consistent: **protect key establishment before you worry about signatures.**
+
+The reasoning is directly tied to the HNDL threat model. Key exchange protects data confidentiality *right now* — it's what an attacker needs to break to decrypt a captured session, retroactively, years later. Digital signatures, by contrast, protect integrity and authenticity *at the moment of use* — a quantum computer breaking a signature algorithm in 2032 doesn't let an attacker forge a signature on a document that was validly signed in 2026. Signatures for long-lived software, firmware, and identity certificates still matter, but they're the second wave, not the first.
+
+## A realistic first step: cryptographic inventory
+
+Every credible source on PQC migration agrees on one starting point that has nothing to do with quantum computers at all: **most organizations don't actually know where and how they use cryptography.** TLS versions, VPN configurations, embedded certificates in IoT devices, signing keys baked into legacy software, third-party SaaS integrations — all of it adds up to a cryptographic footprint that's rarely been fully mapped.
+
+A practical inventory doesn't need to be exhaustive on day one. It needs to answer:
+
+- Where is long-lived sensitive data (contracts, health/legal records, IP, customer PII with multi-year retention) encrypted, and with what?
+- Which systems use RSA or ECC for key exchange versus which already support hybrid or PQC modes (many modern TLS stacks, browsers, and cloud providers already do)?
+- Which vendors and SaaS platforms have published their own PQC roadmap, and which haven't been asked yet?
+
+## Post-quantum migration checklist for SMEs
+
+- [ ] Identify data categories with multi-year confidentiality requirements (contracts, health/legal records, IP, long-retention customer data)
+- [ ] Inventory where that data is encrypted in transit and at rest, and with what algorithms
+- [ ] Check whether your TLS termination points (load balancers, CDN, reverse proxies) already support hybrid post-quantum key exchange — many do by default now
+- [ ] Ask key vendors (cloud provider, VPN, backup provider, identity provider) for their PQC roadmap and timeline
+- [ ] Prioritize key-exchange protection over signature migration, per NIST and major cloud providers' guidance
+- [ ] Avoid hard-coding cryptographic algorithm choices in new software — use configurable, upgradeable crypto libraries
+- [ ] Revisit the inventory annually — this is a multi-year migration, not a one-time project
+- [ ] Don't panic-migrate everything at once — start with the highest-value, longest-lived data
+
+## Key takeaways
+
+Quantum computers capable of breaking today's encryption don't exist yet, and estimates for when they will range widely. But "harvest now, decrypt later" means the risk clock started the moment any of your long-lived sensitive data began being encrypted with RSA or ECC and transmitted or stored somewhere an attacker could capture it — which, for most businesses, is already happening today. The actionable step isn't a crash migration; it's a cryptographic inventory and a realistic multi-year plan, starting with the data that actually needs to stay confidential for a decade or more.
+
+Shahid Security's [Compliance & Risk Assessment](/services/compliance-risk-assessment/) engagements can include a cryptographic inventory as part of a broader risk review — identifying where your long-lived sensitive data actually sits and how it's protected today.
+
+**Not sure where to start with a cryptographic inventory?** [Book a free consultation](/book/) and we'll walk through it together.
+
+---
+
+Sources: [NIST Post-Quantum Cryptography Standardization](https://www.nist.gov/pqcrypto), [Entrust: How to Migrate Your Platform for Post-Quantum Cryptography](https://www.entrust.com/blog/2026/08/migrating-for-post-quantum-cryptography), [AppViewX: Post-Quantum Cryptography (PQC) Readiness in 2026](https://www.appviewx.com/blogs/pqc-readiness-2026/).

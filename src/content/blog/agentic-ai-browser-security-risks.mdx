@@ -1,0 +1,77 @@
+---
+title: 'Agentic AI Browsers: The New Prompt-Injection Attack Surface Businesses Are Ignoring'
+description: 'ChatGPT Atlas, Perplexity Comet, and other AI browsers can click, fill forms, and shop with your credentials. Here is how attackers are already hijacking them — and what to actually do about it.'
+publishedAt: 2026-10-17
+tags: ['ai-security', 'prompt-injection', 'web-application-security']
+author: Shahid Iqbal
+relatedService: ai-automation
+relatedPosts: ['prompt-injection-attacks-explained', 'ai-agent-security']
+faqs:
+  - q: 'How is an agentic AI browser different from a regular browser with an AI assistant?'
+    a: "A regular AI browser assistant summarizes or answers questions about what's on a page you're already looking at. An agentic AI browser takes actions on your behalf — clicking links, filling forms, completing purchases, logging into accounts — using your existing credentials, cookies, and sessions. That's what makes it a meaningfully larger attack surface: it's not reading content for you, it's acting with your authority."
+  - q: 'What is indirect prompt injection in an agentic browser, specifically?'
+    a: 'It means an attacker hides instructions inside ordinary-looking web content — text in a product listing, a comment, or even text rendered invisibly on the page — that the AI agent reads as part of "the page" and may treat as a command rather than as data. The user never sees the injected instruction; the agent just acts on it.'
+  - q: 'Should my business just ban AI browsers for employees?'
+    a: "That's a reasonable short-term default for anyone with access to sensitive systems or data, but it rarely holds for long — employees adopt convenient tools regardless of policy, which is exactly the shadow-AI pattern already playing out with chatbots. A sturdier approach pairs a clear policy with technical controls: no agentic browsing with privileged/admin accounts, and a named list of what the agent is and isn't allowed to do unsupervised."
+draft: false
+---
+
+In late 2025 and through 2026, a wave of "agentic" AI browsers — OpenAI's Atlas, Perplexity's Comet, and others — moved from demo to daily use. They don't just answer questions about a webpage; they click, scroll, fill out forms, and complete purchases on a user's behalf, using that user's logged-in sessions, cookies, and credentials. Security researchers found the attack surface almost immediately — and it's a genuinely new category of risk, not a rehash of ordinary phishing.
+
+## Why agentic browsing breaks the old trust model
+
+Traditional web browsers are built on a simple trust boundary: the browser renders content, and the *user* decides what to click, what to type, and where to type it. That boundary is what keeps most web content "just data" — a malicious paragraph on a webpage can't make your browser do anything on its own.
+
+Agentic AI browsers collapse that boundary. The AI reads the page, and the AI decides what to click and fill in, acting with the user's actual credentials and sessions. Brave's security team put it directly: an AI that can click, scroll, and fill forms on your behalf blurs the line between trusted and untrusted content, because the agent can't always tell the difference between "instructions from the user" and "text that happens to be on the page it's looking at."
+
+That distinction — instruction versus content — is exactly what indirect prompt injection exploits.
+
+## How the attacks actually work
+
+The pattern reported across multiple independent disclosures follows a consistent shape:
+
+1. **Hide an instruction in ordinary web content.** This can be visible text in a product listing or comment, or genuinely invisible text (tiny font, matching background color) that a human would never notice but the AI reads anyway.
+2. **The agent treats page content as a command.** Instead of summarizing or acting only on what the user asked, the agent follows the embedded instruction — because nothing in its design reliably distinguishes "the user told me to do this" from "I read this on a page I was told to look at."
+3. **The agent acts with the user's real access.** It might pull data from an open tab, read stored credentials, or initiate a transaction — all under the user's actual logged-in identity, which is what makes the resulting damage real rather than theoretical.
+
+Brave's security team disclosed one striking variant with Perplexity's Comet browser in August 2025: instructions hidden in a webpage's near-invisible text were read by the AI via OCR when a user simply took a screenshot of the page — no click required. A separate, independently documented exploit class nicknamed "CometJacking" demonstrated extracting sensitive user information (email addresses, one-time passwords) and forwarding it to an attacker-controlled endpoint. OpenAI's Atlas was found vulnerable to indirect prompt injection shortly after its own launch.
+
+Even OpenAI's own Chief Information Security Officer has acknowledged the scope of the problem publicly, describing prompt injection in agentic contexts as a "frontier, unsolved security problem" — not a bug waiting on a patch, but an open research question the industry hasn't solved yet.
+
+## Why this matters more for businesses than individual consumers
+
+A consumer using an agentic browser to shop risks their own accounts and payment methods. An employee using one risks whatever that employee's session has access to — which, in most businesses, includes far more than online shopping: internal tools, SaaS admin panels, shared drives, customer systems, email.
+
+The threat model is the same one that makes over-privileged accounts dangerous generally: the AI agent doesn't need its own exploit against your systems if it can simply be tricked, through a webpage it was asked to visit, into using an employee's own valid access to do something the employee never actually authorized.
+
+## What to actually do about it
+
+This isn't a risk you eliminate — the industry itself hasn't solved prompt injection in agentic contexts yet, and pretending a single control fixes it would be dishonest. It's a risk you manage with layered, practical controls:
+
+- **Never pair agentic browsing with privileged accounts.** If an employee's browser session has admin access to anything sensitive, agentic/autonomous browsing shouldn't run under that same session.
+- **Treat agentic browser purchases and form submissions as requiring confirmation**, not full autonomy, for anything involving money, credentials, or data submission — most agentic browsers support a "confirm before acting" mode; use it for anything consequential.
+- **Keep agentic browsing off devices and accounts with access to core business systems** until your organization has evaluated the specific product's security track record.
+- **Write a short, specific policy** (same approach as shadow AI generally): name what agentic browsing is and isn't approved for, rather than a vague "be careful with AI tools."
+- **Watch for unusual outbound activity** from endpoints running agentic browsers — unexpected form submissions, new account logins, or data leaving via browser-automated paths are a newer category DLP and endpoint tools are only beginning to cover well.
+
+## Agentic AI browser security checklist
+
+- [ ] Inventory which employees or departments are using agentic AI browsers today (most organizations don't know)
+- [ ] Prohibit agentic browsing sessions from running under privileged/admin accounts
+- [ ] Require confirmation (not full autonomy) for any purchase, credential entry, or form submission the agent initiates
+- [ ] Write a specific policy naming approved use cases, not a blanket "be careful" statement
+- [ ] Review the specific agentic browser's security disclosures and update cadence before approving it organization-wide
+- [ ] Monitor outbound traffic from endpoints running agentic browsers for unusual patterns
+- [ ] Revisit this policy quarterly — the product landscape and attack techniques are both moving fast
+
+## Key takeaways
+
+Agentic AI browsers are a genuinely new attack surface, not a rebrand of ordinary phishing or prompt injection against chatbots. The core issue — an AI that can't always distinguish a user's instruction from text it read on a webpage, while holding the user's real credentials — has already been demonstrated against multiple major products, and even the vendors building these tools describe it as unsolved. Until the industry closes that gap, the practical defense is scoping what these tools can touch, not trusting them with everything a human employee can access.
+
+Shahid Security's [AI Automation](/services/ai-automation/) engagements include security review for AI tooling your team is adopting — agentic browsers, assistants, and automation alike — so access scope gets set deliberately rather than by default.
+
+**Rolling out AI browsing tools for your team and want a security review first?** [Book a free consultation](/book/).
+
+---
+
+Sources: [Brave: ChatGPT Atlas to Comet — agentic AI browsers pose security risks](https://www.digit.in/features/general/chatgpt-atlas-to-comet-agentic-ai-browsers-pose-security-risks-says-brave-report.html/amp/), [Security Arsenal: AI browser prompt injection — why OpenAI Atlas, Perplexity Comet, and Copilot still leak](https://securityarsenal.com/blog/ai-browser-prompt-injection-why-openai-atlas-perplexity-comet-and-copilot-still-leak-and-how-to-defend-your-enterprise), [threatcluster.io: AI Browsers Face Serious Security Risks from Prompt Injection Attacks](https://threatcluster.io/cluster/how-to-use-ai-browsers-without-getting-hacked-e29e2c36).
