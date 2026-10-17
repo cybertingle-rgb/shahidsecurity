@@ -63,22 +63,22 @@ try {
     <ol class="grid gap-6 sm:grid-cols-2">
       {stages.map((stage) => (
         <li class="glass-card corner-brackets p-6">
-          <span class="font-mono text-xs text-(--color-neon)">{`// level ${stage.levelNumber}`}</span>
+          <span class="font-mono text-xs text-(--color-text-muted)">{`// level ${stage.levelNumber}`}</span>
           <h2 class="mt-2 font-display text-lg font-semibold text-(--color-text)">{stage.title}</h2>
           {stage.description && <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{stage.description}</p>}
           {stage.prerequisitesText && (
             <p class="mt-3 text-xs text-(--color-text-muted)">
-              <span class="text-(--color-neon-soft)">{stage.isRequired ? 'Prerequisite: ' : 'Helpful: '}</span>
+              <span class="text-(--color-text-muted) font-medium">{stage.isRequired ? 'Prerequisite: ' : 'Helpful: '}</span>
               {stage.prerequisitesText}
             </p>
           )}
           {stage.course && (
-            <a href={`https://learn.shahidiqbal.com/register`} class="mt-3 inline-block text-sm text-(--color-neon)">
+            <a href={`https://learn.shahidiqbal.com/register`} class="mt-3 inline-block text-sm text-(--color-text) hover:underline">
               → {stage.course.title}
             </a>
           )}
           {stage.externalLinks?.map((link) => (
-            <a href={link.url} class="mt-1 block text-sm text-(--color-neon)">
+            <a href={link.url} class="mt-1 block text-sm text-(--color-text) hover:underline">
               → {link.label}
             </a>
           ))}
