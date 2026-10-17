@@ -17,6 +17,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Decode deploy key
+        # DEPLOY_SSH_KEY_B64 is the private key run through `base64 -w0` on
+        # the server before being pasted into this secret — a multi-line
+        # OpenSSH key pasted directly into a GitHub secret has repeatedly
+        # come out corrupted here (confirmed: "error in libcrypto" from a
+        # freshly generated key that `ssh -i` verified works fine read
+        # straight off disk, so the key itself was never the problem — only
+        # the copy into the secret was). A single base64 line has no
+        # special characters, line breaks, or BEGIN/END markers to drop
+        # mid-paste, so there's nothing left for a paste to corrupt.
+        id: deploy_key
+        env:
+          KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
+        run: |
+          DELIM="SSHKEY_${{ github.run_id }}_${{ github.run_attempt }}"
+          echo "key<<$DELIM" >> "$GITHUB_OUTPUT"
+          echo "$KEY_B64" | base64 -d >> "$GITHUB_OUTPUT"
+          echo "$DELIM" >> "$GITHUB_OUTPUT"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -37,7 +56,7 @@ jobs:
       - name: Deploy dist/ over SSH
         uses: easingthemes/ssh-deploy@v6
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_PRIVATE_KEY: ${{ steps.deploy_key.outputs.key }}
           REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
           REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
           REMOTE_USER: ${{ secrets.DEPLOY_USER }}
@@ -51,7 +70,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           port: ${{ secrets.DEPLOY_PORT }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key: ${{ steps.deploy_key.outputs.key }}
           script: |
             find ${{ secrets.DEPLOY_PATH }} -type d -exec chmod 755 {} \;
             find ${{ secrets.DEPLOY_PATH }} -type f -exec chmod 644 {} \;

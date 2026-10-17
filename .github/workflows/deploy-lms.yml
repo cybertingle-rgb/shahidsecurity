@@ -39,6 +39,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Decode deploy key
+        # See deploy.yml's identical step for why this exists: a
+        # multi-line OpenSSH key pasted directly into a GitHub secret
+        # kept coming out corrupted ("error in libcrypto") even for a
+        # freshly generated key independently verified to work. A single
+        # base64 line (DEPLOY_SSH_KEY_B64 = `base64 -w0` of the key file)
+        # has nothing a paste can corrupt.
+        id: deploy_key
+        env:
+          KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
+        run: |
+          DELIM="SSHKEY_${{ github.run_id }}_${{ github.run_attempt }}"
+          echo "key<<$DELIM" >> "$GITHUB_OUTPUT"
+          echo "$KEY_B64" | base64 -d >> "$GITHUB_OUTPUT"
+          echo "$DELIM" >> "$GITHUB_OUTPUT"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -86,7 +102,7 @@ jobs:
       - name: Deploy standalone bundle over SSH
         uses: easingthemes/ssh-deploy@v6
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_PRIVATE_KEY: ${{ steps.deploy_key.outputs.key }}
           REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
           REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
           REMOTE_USER: ${{ secrets.DEPLOY_USER }}
@@ -102,7 +118,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           port: ${{ secrets.DEPLOY_PORT }}
           username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key: ${{ steps.deploy_key.outputs.key }}
           script: |
             APP_DIR="${{ secrets.DEPLOY_LMS_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/learn' }}"
             mkdir -p "$APP_DIR/tmp"
