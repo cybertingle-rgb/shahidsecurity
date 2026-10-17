@@ -17,13 +17,13 @@ const lines = [
     <span class="terminal-dot terminal-dot-red size-2.5 rounded-full"></span>
     <span class="terminal-dot terminal-dot-yellow size-2.5 rounded-full"></span>
     <span class="terminal-dot terminal-dot-green size-2.5 rounded-full"></span>
-    <span class="ml-3 text-(--color-text-muted)">shahid@security:~$</span>
+    <span class="ml-3 text-white">shahid@security:~$</span>
   </div>
   <div class="terminal-body relative min-h-52 p-4 sm:min-h-56 sm:p-6">
-    <pre class="terminal-static whitespace-pre-wrap text-(--color-text-muted)">{lines
+    <pre class="terminal-static whitespace-pre-wrap">{lines
       .map((l) => (l.prompt ? `shahid@security:~$ ${l.text}` : l.text))
       .join('\n')}</pre>
-    <pre class="terminal-typed absolute inset-0 whitespace-pre-wrap p-4 text-(--color-neon-soft) sm:p-6"></pre>
+    <pre class="terminal-typed absolute inset-0 whitespace-pre-wrap p-4 sm:p-6"></pre>
   </div>
 </div>
 
@@ -40,6 +40,15 @@ const lines = [
     background: #28c840;
   }
 
+  /* Classic phosphor-terminal green — deliberately NOT the brand accent,
+     which shifted to blue/purple. A CRT-style text-glow sells the "old
+     terminal" look the white header label (set inline above) plays off. */
+  .terminal-static,
+  .terminal-typed {
+    color: #33ff66;
+    text-shadow: 0 0 6px rgba(51, 255, 102, 0.45);
+  }
+
   .terminal-typed {
     display: none;
   }
@@ -52,7 +61,8 @@ const lines = [
   .terminal-typed .cursor {
     display: inline-block;
     width: 0.55em;
-    background: var(--color-neon);
+    background: #33ff66;
+    box-shadow: 0 0 6px rgba(51, 255, 102, 0.6);
     margin-left: 1px;
   }
 </style>

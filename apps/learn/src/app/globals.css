@@ -125,6 +125,10 @@ tbody tr:hover {
    simply invisible rather than broken. */
 .bg-neon {
   border-radius: 999px;
+  /* Overrides the many text-bg utility classes already on these buttons
+     (dark text, meant for the old flat fill) — white reads far better on
+     the violet gradient. */
+  color: white;
   background-image: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--color-neon) 40%, transparent),
@@ -361,11 +365,40 @@ textarea:focus {
 }
 
 .portal-sidebar-scroll {
+  position: relative;
   display: flex;
   flex-direction: column;
   margin-top: 0.4rem;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* "Liquid glass" sliding active/hover indicator — one shared pill,
+   positioned via inline transform/width/height from PortalSidebar.tsx's
+   measurements, instead of each item drawing its own static highlight.
+   Matches the public site's header nav-indicator treatment. */
+.portal-sidebar-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-neon) 22%, transparent);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent);
+  opacity: 0;
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms ease-out;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+.portal-sidebar-indicator.is-ready {
+  opacity: 1;
 }
 
 .portal-sidebar-section {
@@ -387,6 +420,8 @@ textarea:focus {
 }
 
 .portal-sidebar-item {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -398,22 +433,15 @@ textarea:focus {
   color: var(--color-text-muted);
   text-align: left;
   white-space: nowrap;
-  transition:
-    background-color 150ms ease-out,
-    color 150ms ease-out,
-    transform 150ms ease-out;
+  transition: color 150ms ease-out;
 }
 
 .portal-sidebar-item:hover {
-  background: color-mix(in oklab, white 6%, transparent);
   color: var(--color-text);
-  transform: translateX(2px);
 }
 
 .portal-sidebar-item.is-active {
-  background: color-mix(in oklab, var(--color-neon) 20%, transparent);
   color: var(--color-text);
-  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 12%, transparent);
 }
 
 .portal-sidebar-item.is-accent {
@@ -449,9 +477,11 @@ textarea:focus {
     transition: none;
   }
   .rounded-lg.border.border-border:hover,
-  .bg-neon:hover,
-  .portal-sidebar-item:hover {
+  .bg-neon:hover {
     transform: none;
+  }
+  .portal-sidebar-indicator {
+    transition: opacity 150ms ease-out;
   }
 }
 
