@@ -1,9 +1,19 @@
 name: Deploy Learn with Shahid (LMS)
 
-# Separate workflow, separate trigger path, separate deploy target from
-# deploy.yml (the marketing site) — the two apps share a repo and a
-# Hostinger account but nothing else, per docs/LMS_DECISIONS.md #1/#7.
-# This workflow only runs when apps/learn/** actually changes.
+# apps/learn is deployed by Hostinger's own native Git-connected build
+# pipeline (hPanel → learn.shahidiqbal.com → Deployments), not by this
+# workflow — confirmed it auto-builds and serves this repo's commits
+# directly. This workflow's only remaining job is running database
+# migrations and grants afterward, which that native pipeline has no way
+# to know about: it runs `pnpm install && pnpm build`, nothing else, and
+# the database is only reachable from the already-deployed server process,
+# never from GitHub's runners (confirmed: a prior version of this workflow
+# that ran `pnpm db:migrate` directly here got ECONNREFUSED every time).
+#
+# A previous version of this workflow also did its own build + SSH/rsync
+# deploy — removed because it was redundant with (and raced) Hostinger's
+# native pipeline, deploying to a target the live site wasn't even served
+# from.
 on:
   push:
     branches:
@@ -18,125 +28,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  migrate:
     runs-on: ubuntu-latest
-    # Required secrets (see docs/LMS_PRE_PHASE_2_REVIEW.md §11 and
-    # apps/learn/README.md's "Two database users" section):
-    #   LMS_DATABASE_ADMIN_URL — full-privilege MySQL user (Hostinger's
-    #                            hPanel-issued database user) — runs
-    #                            migrations and apply-grants; needs
-    #                            GRANT OPTION for apply-grants to work
-    #   LMS_DATABASE_URL       — the narrower runtime user's connection
-    #                            string (a name/password you choose —
-    #                            apply-grants.ts creates the MySQL user
-    #                            and its grants automatically)
-    #   LMS_SESSION_SECRET     — random, 32+ chars, distinct from any dev value
-    #   LMS_APP_URL            — e.g. https://learn.shahidiqbal.com
-    #   LMS_MIGRATE_SECRET     — random value this workflow sends as the
-    #                            x-migrate-secret header when it calls
-    #                            /api/internal/migrate and
-    #                            /api/internal/apply-grants after deploy
-    #                            (see that step's comment for why this
-    #                            runs over HTTP, not as a CI step). Must
-    #                            match MIGRATE_SECRET set directly on the
-    #                            Hostinger Node.js App's own environment
-    #                            variables (hPanel → that app →
-    #                            Environment variables) — GitHub Actions
-    #                            secrets never reach the deployed process.
-    # Reused from the existing marketing-site workflow (same Hostinger
-    # account, different target path — see the deploy step below):
-    #   DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER
+    # Required secrets:
+    #   LMS_APP_URL        — e.g. https://learn.shahidiqbal.com
+    #   LMS_MIGRATE_SECRET — sent as the x-migrate-secret header to
+    #                        /api/internal/migrate and
+    #                        /api/internal/apply-grants. Must match
+    #                        MIGRATE_SECRET set in Hostinger's own
+    #                        Environment variables panel for this app
+    #                        (hPanel → learn.shahidiqbal.com →
+    #                        Environment variables) — a GitHub Actions
+    #                        secret never reaches the deployed process on
+    #                        its own.
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Decode deploy key
-        # See deploy.yml's identical step for why this exists: a
-        # multi-line OpenSSH key pasted directly into a GitHub secret
-        # kept coming out corrupted ("error in libcrypto") even for a
-        # freshly generated key independently verified to work. A single
-        # base64 line (DEPLOY_SSH_KEY_B64 = `base64 -w0` of the key file)
-        # has nothing a paste can corrupt.
-        id: deploy_key
-        env:
-          KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
-        run: |
-          DELIM="SSHKEY_${{ github.run_id }}_${{ github.run_attempt }}"
-          echo "key<<$DELIM" >> "$GITHUB_OUTPUT"
-          echo "$KEY_B64" | base64 -d >> "$GITHUB_OUTPUT"
-          echo "$DELIM" >> "$GITHUB_OUTPUT"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        working-directory: apps/learn
-        env:
-          DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
-          SESSION_SECRET: ${{ secrets.LMS_SESSION_SECRET }}
-          NEXT_PUBLIC_APP_URL: ${{ secrets.LMS_APP_URL }}
-        run: pnpm build
-
-      - name: Assemble standalone deploy bundle
-        # Next.js's `output: 'standalone'` produces a trimmed server +
-        # node_modules in .next/standalone, but deliberately does NOT copy
-        # static assets or public/ into it — that's a manual step per
-        # Next.js's own documented deployment instructions.
-        run: |
-          cp -r apps/learn/.next/static apps/learn/.next/standalone/.next/static
-          if [ -d apps/learn/public ]; then cp -r apps/learn/public apps/learn/.next/standalone/public; fi
-
-      - name: Deploy standalone bundle over SSH
-        uses: easingthemes/ssh-deploy@v6
-        with:
-          SSH_PRIVATE_KEY: ${{ steps.deploy_key.outputs.key }}
-          REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
-          REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
-          REMOTE_USER: ${{ secrets.DEPLOY_USER }}
-          # The subdomain directory you created in hPanel — a sibling of
-          # the marketing site's public_html, never inside it.
-          TARGET: ${{ secrets.DEPLOY_LMS_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/learn' }}
-          SOURCE: apps/learn/.next/standalone/
-          ARGS: '-rltzv --delete'
-
-      - name: Restart the app (Passenger convention — verify this actually works in hPanel)
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          port: ${{ secrets.DEPLOY_PORT }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ steps.deploy_key.outputs.key }}
-          script: |
-            APP_DIR="${{ secrets.DEPLOY_LMS_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/learn' }}"
-            mkdir -p "$APP_DIR/tmp"
-            touch "$APP_DIR/tmp/restart.txt"
-
       - name: Run database migrations
-        # Confirmed against a real run: the GitHub Actions runner can't
-        # reach the production database directly (DATABASE_ADMIN_URL's
-        # host is "localhost", meaning Hostinger's own server — from the
-        # runner that resolves to the runner's own loopback, not
-        # Hostinger's, so a direct `pnpm db:migrate` CI step gets
-        # ECONNREFUSED on 127.0.0.1:3306 every time). Calling
-        # /api/internal/migrate instead runs the exact same migration
-        # logic from inside the already-deployed server process, which
-        # does have DB access. --retry-connrefused covers the brief
-        # window right after the Passenger restart above before the app
-        # has finished coming back up.
+        # The retry window (up to ~10 minutes) is deliberately generous:
+        # this job fires on the same push that triggers Hostinger's native
+        # build, with no way to know when that finishes, so it has to wait
+        # it out. --retry-all-errors (not just --retry-connrefused) is
+        # required here because the old code (or a 404 while nothing has
+        # deployed yet) still returns a real HTTP response, which plain
+        # --retry does not retry on by default.
         run: |
           curl --fail-with-body --show-error --silent \
-            --retry 6 --retry-delay 5 --retry-connrefused \
+            --retry 30 --retry-delay 20 --retry-all-errors \
             -X POST "${{ secrets.LMS_APP_URL }}/api/internal/migrate" \
             -H "x-migrate-secret: ${{ secrets.LMS_MIGRATE_SECRET }}"
           echo
@@ -146,7 +62,7 @@ jobs:
         # apps/learn/src/app/api/internal/apply-grants/route.ts.
         run: |
           curl --fail-with-body --show-error --silent \
-            --retry 6 --retry-delay 5 --retry-connrefused \
+            --retry 30 --retry-delay 20 --retry-all-errors \
             -X POST "${{ secrets.LMS_APP_URL }}/api/internal/apply-grants" \
             -H "x-migrate-secret: ${{ secrets.LMS_MIGRATE_SECRET }}"
           echo
