@@ -44,6 +44,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="min-h-screen bg-bg text-text">
+      <div className="portal-bg-orbs" aria-hidden="true" />
       <header className="portal-header sticky top-0 z-10 flex flex-col items-center gap-2 px-6 py-5">
         <Link href="/">
           <Image src="/logo.png" alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />

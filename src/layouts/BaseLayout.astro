@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Preloader from '@/components/Preloader.astro';
+import AmbientOrbs from '@/components/AmbientOrbs.astro';
 import AmbientDoodles from '@/components/AmbientDoodles.astro';
 import CursorParticles from '@/components/CursorParticles.astro';
 import LunaWidget from '@/components/LunaWidget.astro';
@@ -91,7 +92,7 @@ const allJsonLd = [
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#05070a" />
+    <meta name="theme-color" content="#05060d" />
 
     <meta property="og:type" content={ogType} />
     <meta property="og:title" content={fullTitle} />
@@ -127,6 +128,7 @@ const allJsonLd = [
   </head>
   <body>
     <Preloader />
+    <AmbientOrbs />
     <AmbientDoodles />
     <CursorParticles />
     <a href="#main-content" class="skip-link">

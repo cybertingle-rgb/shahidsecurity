@@ -4,13 +4,18 @@
 @import '@fontsource-variable/jetbrains-mono';
 
 @theme {
-  --color-bg: #05070a;
-  --color-bg-elevated: #0b0f14;
-  --color-surface: #10161d;
-  --color-border: #1a2a22;
-  --color-border-strong: #23402f;
-  --color-text: #e6f1ea;
-  --color-text-muted: #8aa396;
+  /* Neutrals: cool/indigo-tinted near-black and off-white, matching the
+     blue/purple accent below. Previously these carried a faint green tint
+     left over from the original green brand (#1a2a22, #8aa396, …) — that
+     read as a mismatch once the accent moved to violet-blue, so they've
+     been re-tuned to the same lightness on a neutral/cool hue instead. */
+  --color-bg: #05060d;
+  --color-bg-elevated: #0c0e18;
+  --color-surface: #12141f;
+  --color-border: #1c2032;
+  --color-border-strong: #343a5c;
+  --color-text: #eef0f8;
+  --color-text-muted: #9aa0ba;
   /* Electric violet-blue — replaces the original brand green (#00BF63) per
      an explicit request to match a blue/purple glassmorphism reference.
      Chosen at the same saturation the green held, hue rotated into the
@@ -19,6 +24,12 @@
   /* Brighter glow variant — glows, hover light, blinking cursor only, never large fills. */
   --color-neon-soft: #6726ff;
   --color-neon-dim: rgba(67, 0, 224, 0.12);
+  /* Ambient background orbs only (AmbientOrbs.astro) — a distinct
+     magenta-purple/blue duo, richer than the UI accent above, matching the
+     two-tone glow in the glassmorphism reference. Never used on
+     buttons/links/focus states, only the big decorative blurred circles. */
+  --color-orb-purple: #8b2fe0;
+  --color-orb-blue: #2f6bff;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 
@@ -77,7 +88,7 @@
 
   ::selection {
     background: var(--color-neon);
-    color: #05070a;
+    color: #05060d;
   }
 
   :focus-visible {
@@ -230,7 +241,7 @@
 
   .btn-primary {
     background: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
-    color: #05070a;
+    color: #05060d;
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-neon-soft) 45%, transparent),
       0 8px 24px -6px color-mix(in oklab, var(--color-neon-soft) 65%, transparent),
@@ -316,7 +327,7 @@
     left: 1rem;
     top: -4rem;
     background: var(--color-neon);
-    color: #05070a;
+    color: #05060d;
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-family: var(--font-mono);

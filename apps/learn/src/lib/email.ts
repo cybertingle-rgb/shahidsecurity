@@ -71,11 +71,11 @@ export function authEmailHtml(opts: {
   const { heading, intro, buttonLabel, buttonUrl, footer } = opts;
   return `<!doctype html>
 <html>
-  <body style="margin:0;padding:0;background-color:#05070a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#05070a;padding:32px 16px;">
+  <body style="margin:0;padding:0;background-color:#05060d;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#05060d;padding:32px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#0b0f14;border:1px solid #1a2a22;border-radius:16px;overflow:hidden;">
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#0c0e18;border:1px solid #1c2032;border-radius:16px;overflow:hidden;">
             <tr>
               <td style="padding:32px 32px 8px 32px;text-align:center;">
                 <span style="display:inline-block;font-size:14px;font-weight:600;letter-spacing:0.04em;color:#4300e0;text-transform:uppercase;">Learn with Shahid</span>
@@ -83,31 +83,31 @@ export function authEmailHtml(opts: {
             </tr>
             <tr>
               <td style="padding:16px 32px 0 32px;text-align:center;">
-                <h1 style="margin:0;font-size:22px;line-height:1.3;color:#e6f1ea;">${heading}</h1>
+                <h1 style="margin:0;font-size:22px;line-height:1.3;color:#eef0f8;">${heading}</h1>
               </td>
             </tr>
             <tr>
               <td style="padding:16px 32px 0 32px;text-align:center;">
-                <p style="margin:0;font-size:15px;line-height:1.6;color:#8aa396;">${intro}</p>
+                <p style="margin:0;font-size:15px;line-height:1.6;color:#9aa0ba;">${intro}</p>
               </td>
             </tr>
             <tr>
               <td style="padding:28px 32px 8px 32px;text-align:center;">
-                <a href="${buttonUrl}" style="display:inline-block;background-color:#4300e0;color:#05070a;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">${buttonLabel}</a>
+                <a href="${buttonUrl}" style="display:inline-block;background-color:#4300e0;color:#05060d;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">${buttonLabel}</a>
               </td>
             </tr>
             <tr>
               <td style="padding:16px 32px 0 32px;text-align:center;">
-                <p style="margin:0;font-size:12px;line-height:1.6;color:#8aa396;">
+                <p style="margin:0;font-size:12px;line-height:1.6;color:#9aa0ba;">
                   If the button doesn't work, copy and paste this link into your browser:<br />
                   <a href="${buttonUrl}" style="color:#4300e0;word-break:break-all;">${buttonUrl}</a>
                 </p>
               </td>
             </tr>
-            ${footer ? `<tr><td style="padding:24px 32px 0 32px;text-align:center;"><p style="margin:0;font-size:12px;line-height:1.6;color:#8aa396;">${footer}</p></td></tr>` : ''}
+            ${footer ? `<tr><td style="padding:24px 32px 0 32px;text-align:center;"><p style="margin:0;font-size:12px;line-height:1.6;color:#9aa0ba;">${footer}</p></td></tr>` : ''}
             <tr>
-              <td style="padding:28px 32px 32px 32px;text-align:center;border-top:1px solid #1a2a22;margin-top:24px;">
-                <p style="margin:16px 0 0 0;font-size:12px;color:#8aa396;">Learn with Shahid — a Shahid Security project</p>
+              <td style="padding:28px 32px 32px 32px;text-align:center;border-top:1px solid #1c2032;margin-top:24px;">
+                <p style="margin:16px 0 0 0;font-size:12px;color:#9aa0ba;">Learn with Shahid — a Shahid Security project</p>
               </td>
             </tr>
           </table>

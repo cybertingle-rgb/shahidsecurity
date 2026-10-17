@@ -16,7 +16,7 @@ import { site, whatsappLink } from '@/lib/site';
     target="_blank"
     rel="noopener"
     class="social-pill"
-    style="--accent: #25D366"
+    data-accent="whatsapp"
     aria-label="WhatsApp"
   >
     <span class="social-icon">
@@ -29,7 +29,7 @@ import { site, whatsappLink } from '@/lib/site';
     <span class="social-label">WhatsApp</span>
   </a>
 
-  <a href={site.social.facebook} target="_blank" rel="noopener" class="social-pill" style="--accent: #1877F2" aria-label="Facebook">
+  <a href={site.social.facebook} target="_blank" rel="noopener" class="social-pill" data-accent="facebook" aria-label="Facebook">
     <span class="social-icon">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path
@@ -40,7 +40,7 @@ import { site, whatsappLink } from '@/lib/site';
     <span class="social-label">Facebook</span>
   </a>
 
-  <a href={site.social.instagram} target="_blank" rel="noopener" class="social-pill" style="--accent: #E4405F" aria-label="Instagram">
+  <a href={site.social.instagram} target="_blank" rel="noopener" class="social-pill" data-accent="instagram" aria-label="Instagram">
     <span class="social-icon">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path
@@ -51,7 +51,7 @@ import { site, whatsappLink } from '@/lib/site';
     <span class="social-label">Instagram</span>
   </a>
 
-  <a href={site.social.x} target="_blank" rel="noopener" class="social-pill" style="--accent: #e6f1ea" aria-label="X (Twitter)">
+  <a href={site.social.x} target="_blank" rel="noopener" class="social-pill" data-accent="x" aria-label="X (Twitter)">
     <span class="social-icon">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path
@@ -95,9 +95,42 @@ import { site, whatsappLink } from '@/lib/site';
 
   .social-pill:hover {
     width: 9.5rem;
-    border-color: var(--accent, var(--color-neon));
+    border-color: var(--color-neon);
     color: var(--color-text);
-    box-shadow: 0 0 20px -6px var(--accent, var(--color-neon));
+    box-shadow: 0 0 20px -6px var(--color-neon);
+  }
+
+  /* Per-platform brand-color hover accents. CSS custom properties can't be
+     set via an inline style="" attribute under this site's strict CSP (no
+     unsafe-inline for style-src-attr — only Astro's own hashed <style>
+     blocks are allowed), so each platform gets a plain class here instead. */
+  .social-pill[data-accent='whatsapp']:hover {
+    border-color: #25d366;
+    box-shadow: 0 0 20px -6px #25d366;
+  }
+  .social-pill[data-accent='whatsapp']:hover .social-icon svg {
+    color: #25d366;
+  }
+  .social-pill[data-accent='facebook']:hover {
+    border-color: #1877f2;
+    box-shadow: 0 0 20px -6px #1877f2;
+  }
+  .social-pill[data-accent='facebook']:hover .social-icon svg {
+    color: #1877f2;
+  }
+  .social-pill[data-accent='instagram']:hover {
+    border-color: #e4405f;
+    box-shadow: 0 0 20px -6px #e4405f;
+  }
+  .social-pill[data-accent='instagram']:hover .social-icon svg {
+    color: #e4405f;
+  }
+  .social-pill[data-accent='x']:hover {
+    border-color: #eef0f8;
+    box-shadow: 0 0 20px -6px #eef0f8;
+  }
+  .social-pill[data-accent='x']:hover .social-icon svg {
+    color: #eef0f8;
   }
 
   .social-icon {
@@ -116,7 +149,7 @@ import { site, whatsappLink } from '@/lib/site';
   }
 
   .social-pill:hover .social-icon svg {
-    color: var(--accent, var(--color-neon));
+    color: var(--color-neon);
   }
 
   .social-label {

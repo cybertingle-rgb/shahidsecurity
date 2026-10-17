@@ -86,6 +86,7 @@ export default function EduBackground() {
     <div className="edu-bg" aria-hidden="true">
       <div className="edu-bg-orb edu-bg-orb-a" />
       <div className="edu-bg-orb edu-bg-orb-b" />
+      <div className="edu-bg-orb edu-bg-orb-c" />
       <div
         className="edu-bg-doodles"
         style={{ backgroundImage: `url("${TILE_DATA_URI}")`, backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px` }}
