@@ -23,8 +23,19 @@ import mysql from 'mysql2/promise';
  * this reports that rather than failing the whole deploy over something
  * no connection string on this host was ever going to be allowed to do.
  */
-const isPrivilegeError = (err: unknown) =>
-  err instanceof Error && /access denied/i.test(err.message) && /privilege/i.test(err.message);
+const isPrivilegeError = (err: unknown): boolean => {
+  // Confirmed against a real run: MySQL phrases this differently per
+  // statement — CREATE USER's denial says "Access denied; you need ...
+  // privilege(s)", but GRANT's says "GRANT command denied to user ...",
+  // neither of which the other's wording matches. mysql2 error objects
+  // carry a stable `.code` (e.g. ER_SPECIFIC_ACCESS_DENIED_ERROR,
+  // ER_TABLEACCESS_DENIED_ERROR, ER_DBACCESS_DENIED_ERROR) across every
+  // privilege-denial variant, which is what this actually checks; the
+  // message regex is only a fallback for whatever that code check misses.
+  const code = (err as { code?: unknown } | null | undefined)?.code;
+  if (typeof code === 'string' && /ACCESS_DENIED/.test(code)) return true;
+  return err instanceof Error && /denied/i.test(err.message);
+};
 export async function POST(request: NextRequest) {
   const secret = process.env.MIGRATE_SECRET;
   const provided = request.headers.get('x-migrate-secret');
