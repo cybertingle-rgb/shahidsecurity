@@ -253,17 +253,13 @@
 
   /* Primary CTAs are green rather than the blue UI accent — a "go"/positive
      cue (book, submit, buy) that stands apart from links and navigation,
-     which stay the blue accent. */
+     which stay the blue accent. Text is dark (not white) on this fill: white
+     text at AA weight only reaches ~2.4:1 against this green and previously
+     needed a black outline hack to stay legible — dark text on the bright
+     fill clears 8:1+ with a clean solid color and no stroke. */
   .btn-primary {
     background: linear-gradient(180deg, var(--color-success-soft) 0%, var(--color-success) 100%);
-    color: white;
-    /* White fill on bright green had weak contrast — a solid black outline
-       around each letter (not a shadow/glow) keeps the fill white but makes
-       it readable. paint-order puts the stroke under the fill so it doesn't
-       eat into the letterforms. text-shadow is a fallback for the rare
-       browser without text-stroke support. */
-    -webkit-text-stroke: 1.5px black;
-    paint-order: stroke fill;
+    color: var(--color-bg);
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-success-soft) 45%, transparent),
       0 8px 24px -6px color-mix(in oklab, var(--color-success-soft) 65%, transparent),
@@ -276,16 +272,6 @@
       0 10px 32px -4px color-mix(in oklab, var(--color-success-soft) 85%, transparent),
       inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent);
     transform: translateY(-1px);
-  }
-
-  @supports not (-webkit-text-stroke: 1px black) {
-    .btn-primary {
-      text-shadow:
-        -1px -1px 0 black,
-        1px -1px 0 black,
-        -1px 1px 0 black,
-        1px 1px 0 black;
-    }
   }
 
   /* Frosted-glass pill — translucent + blurred, not flat transparent, so it reads as the
@@ -301,7 +287,7 @@
 
   .btn-secondary:hover {
     border-color: color-mix(in oklab, var(--color-neon-soft) 55%, transparent);
-    color: var(--color-neon-soft);
+    color: var(--color-text);
     background: color-mix(in oklab, var(--color-surface) 65%, transparent);
   }
 
@@ -313,7 +299,7 @@
   }
 
   .btn-ghost:hover {
-    color: var(--color-neon-soft);
+    color: var(--color-text);
     background: color-mix(in oklab, white 7%, transparent);
   }
 
@@ -413,8 +399,12 @@
   }
 
   .prose-content a {
-    color: var(--color-neon-soft);
+    color: var(--color-text-muted);
     text-decoration: underline;
+  }
+
+  .prose-content a:hover {
+    color: var(--color-text);
   }
 
   .prose-content code {
@@ -626,7 +616,7 @@
   }
 
   .report-gate-close:hover {
-    color: var(--color-neon);
+    color: var(--color-text);
   }
 }
 

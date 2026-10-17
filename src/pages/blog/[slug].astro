@@ -113,7 +113,7 @@ const relatedPosts =
           <div>
             <p class="font-display text-sm font-semibold text-(--color-text)">
               Written by{' '}
-              <a href="/about/" class="hover:text-(--color-neon)">
+              <a href="/about/" class="hover:text-(--color-text)">
                 {post.data.author}
               </a>
             </p>
@@ -135,7 +135,7 @@ const relatedPosts =
             </p>
             <a
               href={`/services/${relatedService.id}/`}
-              class="mt-3 inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)"
+              class="mt-3 inline-flex items-center gap-1 font-mono text-xs text-(--color-text-muted) hover:text-(--color-text)"
             >
               See {relatedService.data.title}
               <Icon name="lucide:arrow-right" class="size-3.5" aria-hidden="true" />
@@ -153,7 +153,7 @@ const relatedPosts =
                 <li>
                   <a
                     href={`/blog/${p.id}/`}
-                    class="text-sm text-(--color-text) hover:text-(--color-neon)"
+                    class="text-sm text-(--color-text) hover:text-(--color-text-muted) underline"
                   >
                     {p.data.title}
                   </a>
@@ -172,7 +172,7 @@ const relatedPosts =
           </p>
           <a
             href="/book/"
-            class="mt-3 inline-flex items-center gap-1 font-mono text-xs text-(--color-neon-soft)"
+            class="mt-3 inline-flex items-center gap-1 font-mono text-xs text-(--color-text-muted) hover:text-(--color-text)"
           >
             Book a consultation
             <Icon name="lucide:arrow-right" class="size-3.5" aria-hidden="true" />
