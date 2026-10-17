@@ -5,12 +5,42 @@ import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
+import { logoutAction } from '@/app/dashboard/logout-action';
+import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
+
+const NAV_SECTIONS: PortalNavSection[] = [
+  {
+    label: 'Menu',
+    items: [
+      { href: '/admin', label: 'Overview', icon: 'home' },
+      { href: '/admin/students', label: 'Students', icon: 'users' },
+      { href: '/admin/courses', label: 'Courses', icon: 'book-open' },
+      { href: '/admin/products', label: 'Products & Pricing', icon: 'tag' },
+      { href: '/admin/enrollments', label: 'Enrollments', icon: 'user-plus' },
+      { href: '/admin/orders', label: 'Orders', icon: 'receipt' },
+      { href: '/admin/payments', label: 'Payments', icon: 'credit-card' },
+      { href: '/admin/communities', label: 'Communities', icon: 'users' },
+      { href: '/admin/announcements', label: 'Announcements', icon: 'megaphone' },
+    ],
+  },
+  {
+    items: [
+      { href: '/admin/payment-methods', label: 'Payment Methods', icon: 'wallet' },
+      { href: '/admin/exchange-rates', label: 'Exchange Rates', icon: 'trending-up' },
+      { href: '/admin/roadmap', label: 'Roadmap', icon: 'map' },
+      { href: '/admin/settings', label: 'Settings', icon: 'settings' },
+    ],
+  },
+  {
+    items: [{ href: '/dashboard', label: 'Student dashboard', icon: 'graduation-cap', accent: true }],
+  },
+];
 
 // admin.shahidiqbal.com is a separate Next.js app with its own login —
 // this switches the browser to its dashboard, it cannot carry this
@@ -72,7 +102,16 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <p className="text-lg font-semibold">{user.fullName}</p>
         </div>
       </header>
-      <main className="p-6">{children}</main>
+      <div className="flex flex-col gap-6 p-6 sm:flex-row">
+        <PortalSidebar
+          sections={NAV_SECTIONS}
+          userName={user.fullName}
+          userRole={roleNames.has('super_admin') ? 'Super Admin' : 'Admin'}
+          logoutAction={logoutAction}
+          storageKey="learn-admin-sidebar-collapsed"
+        />
+        <main className="flex-1">{children}</main>
+      </div>
     </div>
   );
 }
