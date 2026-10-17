@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
 import { logoutAction } from './logout-action';
+import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -13,16 +14,25 @@ export const metadata: Metadata = {
 
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 
-const NAV = [
-  { href: '/dashboard', label: 'Overview' },
-  { href: '/courses', label: 'Browse Courses' },
-  { href: '/dashboard/courses', label: 'My Courses' },
-  { href: '/dashboard/membership', label: 'Membership' },
-  { href: '/dashboard/checkout', label: 'Buy' },
-  { href: '/dashboard/community', label: 'Community' },
-  { href: '/dashboard/orders', label: 'Orders' },
-  { href: '/dashboard/profile', label: 'Profile' },
-  { href: '/dashboard/settings', label: 'Settings' },
+const NAV_SECTIONS: PortalNavSection[] = [
+  {
+    label: 'Menu',
+    items: [
+      { href: '/dashboard', label: 'Overview', icon: 'home' },
+      { href: '/courses', label: 'Browse Courses', icon: 'book-open' },
+      { href: '/dashboard/courses', label: 'My Courses', icon: 'graduation-cap' },
+      { href: '/dashboard/membership', label: 'Membership', icon: 'credit-card' },
+      { href: '/dashboard/checkout', label: 'Buy', icon: 'shopping-cart' },
+      { href: '/dashboard/community', label: 'Community', icon: 'users' },
+      { href: '/dashboard/orders', label: 'Orders', icon: 'receipt' },
+    ],
+  },
+  {
+    items: [
+      { href: '/dashboard/profile', label: 'Profile', icon: 'user' },
+      { href: '/dashboard/settings', label: 'Settings', icon: 'settings' },
+    ],
+  },
 ];
 
 /**
@@ -42,6 +52,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const roleNames = await getUserRoleNames(user.id);
   const isAdmin = [...roleNames].some((name) => ADMIN_ROLE_NAMES.has(name));
 
+  const sections: PortalNavSection[] = isAdmin
+    ? [...NAV_SECTIONS, { items: [{ href: '/admin', label: 'Admin panel', icon: 'shield', accent: true }] }]
+    : NAV_SECTIONS;
+
   return (
     <div className="min-h-screen bg-bg text-text">
       <div className="portal-bg-orbs" aria-hidden="true" />
@@ -55,23 +69,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
       </header>
       <div className="flex flex-col gap-6 p-6 sm:flex-row">
-        <nav className="portal-nav-panel flex shrink-0 gap-1 overflow-x-auto p-3 sm:w-52 sm:flex-col">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="whitespace-nowrap px-3 py-2 text-sm text-text-muted hover:text-text">
-              {item.label}
-            </Link>
-          ))}
-          {isAdmin && (
-            <Link href="/admin" className="whitespace-nowrap px-3 py-2 text-sm font-medium text-neon">
-              Admin panel →
-            </Link>
-          )}
-          <form action={logoutAction} className="sm:mt-4">
-            <button type="submit" className="w-full whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger/10">
-              Log out
-            </button>
-          </form>
-        </nav>
+        <PortalSidebar
+          sections={sections}
+          userName={user.fullName}
+          userRole={isAdmin ? 'Admin' : 'Student'}
+          profileHref="/dashboard/profile"
+          logoutAction={logoutAction}
+          storageKey="learn-dashboard-sidebar-collapsed"
+        />
         <main className="flex-1">{children}</main>
       </div>
     </div>
