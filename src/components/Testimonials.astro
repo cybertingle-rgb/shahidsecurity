@@ -176,7 +176,9 @@ const track = [...reviews, ...reviews];
     display: flex;
     gap: 1.5rem;
     width: max-content;
-    animation: testimonials-scroll 48s linear infinite;
+    /* Slow, ambient drift rather than a brisk scroll — give a reader time
+       to actually catch a quote as it passes, not just a blur of cards. */
+    animation: testimonials-scroll 150s linear infinite;
   }
 
   .testimonials-wrap:hover .testimonials-track,

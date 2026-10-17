@@ -1,13 +1,13 @@
 ---
 // Persistent decorative circuit-trace doodles for the empty side gutters
 // that exist on any page once the viewport is wide enough that the
-// 1200px content column ('--container-content' in global.css) doesn't
+// 1440px content column ('--container-content' in global.css) doesn't
 // fill it. Rendered once, site-wide, from BaseLayout. Fixed to the
 // viewport (not tied to page length or any one section) so it's present
 // on every page and every scroll position. Purely cosmetic: aria-hidden,
 // pointer-events limited to the glow layer only so it never blocks
 // clicks on real content, and it never renders below the width where its
-// own footprint would start overlapping the 1200px content column.
+// own footprint would start overlapping the 1440px content column.
 ---
 
 <div class="ambient-doodles" aria-hidden="true">
@@ -79,7 +79,7 @@
      the screen. On narrow screens it's a small, low-opacity strip right
      at the edge — enough presence to read as ambient decoration without
      ever covering real content, since there's no real "gutter" on
-     mobile the way there is once the page's 1200px content column stops
+     mobile the way there is once the page's 1440px content column stops
      filling the viewport. */
   .ambient-doodle {
     display: block;
@@ -116,10 +116,10 @@
     }
   }
 
-  /* Only reaches full size once the gutter beyond the 1200px content
+  /* Only reaches full size once the gutter beyond the 1440px content
      column is wide enough to hold it without overlapping full-width
      content like service/industry card grids. */
-  @media (min-width: 1560px) {
+  @media (min-width: 1800px) {
     .ambient-doodle {
       width: 140px;
       height: 407px;
