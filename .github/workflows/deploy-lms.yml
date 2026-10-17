@@ -32,6 +32,17 @@ jobs:
     #                            and its grants automatically)
     #   LMS_SESSION_SECRET     — random, 32+ chars, distinct from any dev value
     #   LMS_APP_URL            — e.g. https://learn.shahidiqbal.com
+    #   LMS_MIGRATE_SECRET     — random value this workflow sends as the
+    #                            x-migrate-secret header when it calls
+    #                            /api/internal/migrate and
+    #                            /api/internal/apply-grants after deploy
+    #                            (see that step's comment for why this
+    #                            runs over HTTP, not as a CI step). Must
+    #                            match MIGRATE_SECRET set directly on the
+    #                            Hostinger Node.js App's own environment
+    #                            variables (hPanel → that app →
+    #                            Environment variables) — GitHub Actions
+    #                            secrets never reach the deployed process.
     # Reused from the existing marketing-site workflow (same Hostinger
     # account, different target path — see the deploy step below):
     #   DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER
@@ -86,19 +97,6 @@ jobs:
           cp -r apps/learn/.next/static apps/learn/.next/standalone/.next/static
           if [ -d apps/learn/public ]; then cp -r apps/learn/public apps/learn/.next/standalone/public; fi
 
-      - name: Run pending database migrations
-        working-directory: apps/learn
-        env:
-          DATABASE_ADMIN_URL: ${{ secrets.LMS_DATABASE_ADMIN_URL }}
-        run: pnpm db:migrate
-
-      - name: Provision the narrow runtime user and its grants (idempotent)
-        working-directory: apps/learn
-        env:
-          DATABASE_ADMIN_URL: ${{ secrets.LMS_DATABASE_ADMIN_URL }}
-          DATABASE_URL: ${{ secrets.LMS_DATABASE_URL }}
-        run: pnpm db:apply-grants
-
       - name: Deploy standalone bundle over SSH
         uses: easingthemes/ssh-deploy@v6
         with:
@@ -123,3 +121,32 @@ jobs:
             APP_DIR="${{ secrets.DEPLOY_LMS_PATH || '/home/u397210942/domains/shahidiqbal.com/public_html/learn' }}"
             mkdir -p "$APP_DIR/tmp"
             touch "$APP_DIR/tmp/restart.txt"
+
+      - name: Run database migrations
+        # Confirmed against a real run: the GitHub Actions runner can't
+        # reach the production database directly (DATABASE_ADMIN_URL's
+        # host is "localhost", meaning Hostinger's own server — from the
+        # runner that resolves to the runner's own loopback, not
+        # Hostinger's, so a direct `pnpm db:migrate` CI step gets
+        # ECONNREFUSED on 127.0.0.1:3306 every time). Calling
+        # /api/internal/migrate instead runs the exact same migration
+        # logic from inside the already-deployed server process, which
+        # does have DB access. --retry-connrefused covers the brief
+        # window right after the Passenger restart above before the app
+        # has finished coming back up.
+        run: |
+          curl --fail-with-body --show-error --silent \
+            --retry 6 --retry-delay 5 --retry-connrefused \
+            -X POST "${{ secrets.LMS_APP_URL }}/api/internal/migrate" \
+            -H "x-migrate-secret: ${{ secrets.LMS_MIGRATE_SECRET }}"
+          echo
+
+      - name: Apply database grants (idempotent)
+        # Same reasoning as the migrations step above — see
+        # apps/learn/src/app/api/internal/apply-grants/route.ts.
+        run: |
+          curl --fail-with-body --show-error --silent \
+            --retry 6 --retry-delay 5 --retry-connrefused \
+            -X POST "${{ secrets.LMS_APP_URL }}/api/internal/apply-grants" \
+            -H "x-migrate-secret: ${{ secrets.LMS_MIGRATE_SECRET }}"
+          echo

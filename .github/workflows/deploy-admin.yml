@@ -36,7 +36,18 @@ jobs:
     #                              on the main domain — see
     #                              next.config.mjs's basePath — not a
     #                              subdomain).
-    #   ADMIN_MIGRATE_SECRET, ADMIN_PUBLISH_SCHEDULED_SECRET,
+    #   ADMIN_MIGRATE_SECRET   — also used directly by this workflow: sent
+    #                            as the x-migrate-secret header when it
+    #                            calls /api/internal/migrate and
+    #                            /api/internal/apply-grants after deploy
+    #                            (see that step's comment for why — the
+    #                            GitHub Actions runner can't reach the
+    #                            production database directly). Must match
+    #                            MIGRATE_SECRET set directly on the
+    #                            Hostinger Node.js App's own environment
+    #                            variables, same as every other runtime var
+    #                            listed below.
+    #   ADMIN_PUBLISH_SCHEDULED_SECRET,
     #   ADMIN_LEADS_INTAKE_SECRET, ADMIN_AI_QUESTIONS_INTAKE_SECRET,
     #   ADMIN_SEED_SECRET, ADMIN_SMTP_HOST, ADMIN_SMTP_PORT,
     #   ADMIN_SMTP_USER, ADMIN_SMTP_PASSWORD —
@@ -130,19 +141,6 @@ jobs:
         # script's comments for why each step exists. No separate
         # assembly step needed here anymore.
 
-      - name: Run pending database migrations
-        working-directory: apps/admin
-        env:
-          DATABASE_ADMIN_URL: ${{ secrets.ADMIN_DATABASE_ADMIN_URL }}
-        run: pnpm db:migrate
-
-      - name: Provision the narrow runtime user and its grants (idempotent)
-        working-directory: apps/admin
-        env:
-          DATABASE_ADMIN_URL: ${{ secrets.ADMIN_DATABASE_ADMIN_URL }}
-          DATABASE_URL: ${{ secrets.ADMIN_DATABASE_URL }}
-        run: pnpm db:apply-grants
-
       - name: Deploy standalone bundle over SSH
         uses: easingthemes/ssh-deploy@v6
         with:
@@ -178,3 +176,31 @@ jobs:
             APP_DIR="${{ secrets.DEPLOY_ADMIN_PATH }}"
             mkdir -p "$APP_DIR/tmp"
             touch "$APP_DIR/tmp/restart.txt"
+
+      - name: Run database migrations
+        # Confirmed against apps/learn's identical setup: the GitHub
+        # Actions runner can't reach the production database directly
+        # (DATABASE_ADMIN_URL's host is "localhost", meaning Hostinger's
+        # own server — from the runner that resolves to the runner's own
+        # loopback, not Hostinger's). Calling /api/internal/migrate
+        # instead runs the exact same migration logic from inside the
+        # already-deployed server process, which does have DB access.
+        # --retry-connrefused covers the brief window right after the
+        # Passenger restart above before the app has finished coming
+        # back up.
+        run: |
+          curl --fail-with-body --show-error --silent \
+            --retry 6 --retry-delay 5 --retry-connrefused \
+            -X POST "${{ secrets.ADMIN_APP_URL }}/api/internal/migrate" \
+            -H "x-migrate-secret: ${{ secrets.ADMIN_MIGRATE_SECRET }}"
+          echo
+
+      - name: Apply database grants (idempotent)
+        # Same reasoning as the migrations step above — see
+        # apps/admin/src/app/api/internal/apply-grants/route.ts.
+        run: |
+          curl --fail-with-body --show-error --silent \
+            --retry 6 --retry-delay 5 --retry-connrefused \
+            -X POST "${{ secrets.ADMIN_APP_URL }}/api/internal/apply-grants" \
+            -H "x-migrate-secret: ${{ secrets.ADMIN_MIGRATE_SECRET }}"
+          echo
