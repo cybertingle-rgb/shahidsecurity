@@ -6,18 +6,29 @@
  * "Learn with Shahid must look like it belongs to Shahid Security").
  */
 @theme {
-  --color-bg: #05070a;
-  --color-bg-elevated: #0b0f14;
-  --color-surface: #10161d;
-  --color-border: #1a2a22;
-  --color-border-strong: #23402f;
-  --color-text: #e6f1ea;
-  --color-text-muted: #8aa396;
+  /* Neutrals: cool/indigo-tinted near-black and off-white, matching the
+     blue/purple accent below. Previously these carried a faint green tint
+     left over from the original green brand (#1a2a22, #8aa396, …) — that
+     read as a mismatch once the accent moved to violet-blue, so they've
+     been re-tuned to the same lightness on a neutral/cool hue instead. */
+  --color-bg: #05060d;
+  --color-bg-elevated: #0c0e18;
+  --color-surface: #12141f;
+  --color-border: #1c2032;
+  --color-border-strong: #343a5c;
+  --color-text: #eef0f8;
+  --color-text-muted: #9aa0ba;
   /* Electric violet-blue — replaces the original brand green (#00BF63), same
      palette change as the root site's src/styles/global.css. */
   --color-neon: #4300e0;
   --color-neon-soft: #6726ff;
   --color-neon-dim: rgba(67, 0, 224, 0.12);
+  /* Ambient background orbs only (EduBackground.tsx) — a distinct
+     magenta-purple/blue duo, richer than the UI accent above, matching
+     the two-tone glow in the glassmorphism reference. Never used on
+     buttons/links/focus states, only the big decorative blurred circles. */
+  --color-orb-purple: #8b2fe0;
+  --color-orb-blue: #2f6bff;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 }
@@ -182,6 +193,21 @@ textarea:focus {
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-neon) 18%, transparent);
 }
 
+/* Static two-tone ambient glow behind the dashboard/admin shell, so the
+   glass header/nav panel has something to blur — same purple/blue duo as
+   the public-side EduBackground orbs, just without the doodle pattern or
+   drift animation (kept calm over real data tables). */
+.portal-bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vw 60vw at 5% -5%, color-mix(in oklab, var(--color-orb-purple) 30%, transparent), transparent 70%),
+    radial-gradient(70vw 70vw at 100% 105%, color-mix(in oklab, var(--color-orb-blue) 32%, transparent), transparent 70%);
+  filter: blur(40px);
+}
+
 /* The admin/dashboard header bars (a border-bottom + flex row today) —
    a touch of glass instead of a flat line. */
 .portal-header {
@@ -239,36 +265,55 @@ textarea:focus {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 900px 600px at 20% -10%, color-mix(in oklab, var(--color-neon) 14%, transparent), transparent 60%),
-    radial-gradient(ellipse 900px 700px at 90% 110%, color-mix(in oklab, var(--color-neon) 10%, transparent), transparent 60%),
-    var(--color-bg);
+  background: var(--color-bg);
 }
 
+/* Three big, dominant, overlapping circles — matching the glassmorphism
+   reference's two-tone purple-to-blue gradient mesh rather than small
+   corner glows. Sized well past the viewport so the blurred edge never
+   shows a hard circular boundary. */
 .edu-bg-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.35;
-  animation: edu-orb-drift 18s ease-in-out infinite alternate;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: edu-orb-drift 22s ease-in-out infinite alternate;
 }
 
 .edu-bg-orb-a {
-  top: -10%;
-  left: 10%;
-  width: 380px;
-  height: 380px;
-  background: color-mix(in oklab, var(--color-neon) 55%, transparent);
+  top: -25%;
+  left: -15%;
+  width: 90vw;
+  height: 90vw;
+  max-width: 1100px;
+  max-height: 1100px;
+  background: radial-gradient(circle at 40% 40%, var(--color-orb-purple), transparent 70%);
 }
 
 .edu-bg-orb-b {
-  bottom: -15%;
-  right: 5%;
-  width: 420px;
-  height: 420px;
-  background: color-mix(in oklab, #3b9bff 45%, transparent);
-  animation-duration: 24s;
+  bottom: -35%;
+  right: -20%;
+  width: 100vw;
+  height: 100vw;
+  max-width: 1300px;
+  max-height: 1300px;
+  background: radial-gradient(circle at 60% 60%, var(--color-orb-blue), transparent 70%);
+  opacity: 0.6;
+  animation-duration: 28s;
   animation-delay: -6s;
+}
+
+.edu-bg-orb-c {
+  top: 20%;
+  right: 10%;
+  width: 45vw;
+  height: 45vw;
+  max-width: 520px;
+  max-height: 520px;
+  background: radial-gradient(circle, var(--color-orb-purple), transparent 70%);
+  opacity: 0.3;
+  animation-duration: 20s;
+  animation-delay: -12s;
 }
 
 @keyframes edu-orb-drift {

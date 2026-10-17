@@ -14,9 +14,9 @@ const lines = [
   aria-hidden="true"
 >
   <div class="flex items-center gap-2 border-b border-(--color-border) bg-(--color-bg-elevated) px-4 py-3">
-    <span class="size-2.5 rounded-full bg-(--color-danger)/70"></span>
-    <span class="size-2.5 rounded-full bg-(--color-warn)/70"></span>
-    <span class="size-2.5 rounded-full bg-(--color-neon)/70"></span>
+    <span class="terminal-dot terminal-dot-red size-2.5 rounded-full"></span>
+    <span class="terminal-dot terminal-dot-yellow size-2.5 rounded-full"></span>
+    <span class="terminal-dot terminal-dot-green size-2.5 rounded-full"></span>
     <span class="ml-3 text-(--color-text-muted)">shahid@security:~$</span>
   </div>
   <div class="terminal-body relative min-h-52 p-4 sm:min-h-56 sm:p-6">
@@ -28,6 +28,18 @@ const lines = [
 </div>
 
 <style>
+  /* True macOS traffic-light colors — not the brand accent, which shifts
+     with the theme. These three stay fixed regardless of accent color. */
+  .terminal-dot-red {
+    background: #ff5f57;
+  }
+  .terminal-dot-yellow {
+    background: #febc2e;
+  }
+  .terminal-dot-green {
+    background: #28c840;
+  }
+
   .terminal-typed {
     display: none;
   }

@@ -59,6 +59,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <div className="min-h-screen bg-bg text-text">
+      <div className="portal-bg-orbs" aria-hidden="true" />
       <header className="portal-header relative sticky top-0 z-10 flex flex-col items-center gap-2 px-6 py-5">
         <div className="absolute right-6 top-5">
           <AppSwitcher />
