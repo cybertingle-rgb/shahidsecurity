@@ -14,7 +14,7 @@ export default async function MembershipPage() {
         <div className="rounded-lg border border-border p-4">
           <p className="font-medium">{membership.productName}</p>
           <p className="mt-1 text-sm text-text-muted">
-            Status: <span className={membership.status === 'active' ? 'text-neon-soft' : 'text-danger'}>{membership.status}</span>
+            Status: <span className={membership.status === 'active' ? 'text-success' : 'text-danger'}>{membership.status}</span>
           </p>
           <p className="text-sm text-text-muted">Started: {membership.startedAt.toLocaleDateString()}</p>
           {membership.expiresAt && <p className="text-sm text-text-muted">Expires: {membership.expiresAt.toLocaleDateString()}</p>}

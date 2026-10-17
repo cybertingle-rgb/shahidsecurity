@@ -18,17 +18,22 @@
   --color-border-strong: #343a5c;
   --color-text: #eef0f8;
   --color-text-muted: #9aa0ba;
-  /* Electric violet-blue — replaces the original brand green (#00BF63), same
-     palette change as the root site's src/styles/global.css. */
-  --color-neon: #4300e0;
-  --color-neon-soft: #6726ff;
-  --color-neon-dim: rgba(67, 0, 224, 0.12);
+  /* Neon electric blue — the deep violet this held before read as dim and
+     low-contrast for small/mono text (links, labels) against the near-black
+     background. This is brighter and more saturated — genuinely "neon" —
+     so text set in it stays legible. Same change as the root site. */
+  --color-neon: #0ea5ff;
+  --color-neon-soft: #4dd4ff;
+  --color-neon-dim: rgba(14, 165, 255, 0.14);
   /* Ambient background orbs only (EduBackground.tsx) — a distinct
      magenta-purple/blue duo, richer than the UI accent above, matching
      the two-tone glow in the glassmorphism reference. Never used on
      buttons/links/focus states, only the big decorative blurred circles. */
   --color-orb-purple: #8b2fe0;
   --color-orb-blue: #2f6bff;
+  /* Success / "active" / "published" — a fixed semantic green (the
+     original brand green), independent of the blue UI accent above. */
+  --color-success: #00bf63;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 }

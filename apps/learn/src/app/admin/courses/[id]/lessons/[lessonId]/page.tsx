@@ -179,7 +179,7 @@ export default async function EditLessonPage({ params }: { params: Promise<{ id:
                       </form>
                     </div>
                     {q.options && <p className="mt-1 text-xs text-text-muted">Options: {q.options.join(', ')}</p>}
-                    <p className="mt-1 text-xs text-neon-soft">Correct: {JSON.stringify(q.correctAnswer)}</p>
+                    <p className="mt-1 text-xs text-success">Correct: {JSON.stringify(q.correctAnswer)}</p>
                   </li>
                 ))}
                 {quiz.questions.length === 0 && <li className="text-sm text-text-muted">No questions yet.</li>}

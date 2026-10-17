@@ -16,20 +16,24 @@
   --color-border-strong: #343a5c;
   --color-text: #eef0f8;
   --color-text-muted: #9aa0ba;
-  /* Electric violet-blue — replaces the original brand green (#00BF63) per
-     an explicit request to match a blue/purple glassmorphism reference.
-     Chosen at the same saturation the green held, hue rotated into the
-     violet-blue range the reference sits in. Primary accent. */
-  --color-neon: #4300e0;
+  /* Neon electric blue — the deep violet this held before read as dim and
+     low-contrast for small/mono text (eyebrows, pills, links) against the
+     near-black background. This is brighter and more saturated — genuinely
+     "neon," not just dark purple — so text set in it stays legible. */
+  --color-neon: #0ea5ff;
   /* Brighter glow variant — glows, hover light, blinking cursor only, never large fills. */
-  --color-neon-soft: #6726ff;
-  --color-neon-dim: rgba(67, 0, 224, 0.12);
+  --color-neon-soft: #4dd4ff;
+  --color-neon-dim: rgba(14, 165, 255, 0.14);
   /* Ambient background orbs only (AmbientOrbs.astro) — a distinct
      magenta-purple/blue duo, richer than the UI accent above, matching the
      two-tone glow in the glassmorphism reference. Never used on
      buttons/links/focus states, only the big decorative blurred circles. */
   --color-orb-purple: #8b2fe0;
   --color-orb-blue: #2f6bff;
+  /* Success / "low severity" — a fixed semantic green (the original brand
+     green), independent of the blue UI accent above. Used for positive
+     states (low-severity tags, success indicators), not as a theme color. */
+  --color-success: #00bf63;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 
@@ -120,7 +124,10 @@
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-neon);
+    /* White, not the accent blue — this is a small-caps label, not a link,
+       and at this size/weight the accent color read as low-contrast and
+       hard to read against the dark background. */
+    color: var(--color-text);
   }
 
   .prompt::before {
@@ -312,8 +319,10 @@
   }
 
   .pill-low {
-    color: var(--color-neon-soft);
-    background: rgba(0, 255, 156, 0.08);
+    /* Fixed severity green (critical/high=red, medium=yellow, low=green) —
+       independent of the blue UI accent, the same way the dots are fixed. */
+    color: var(--color-success);
+    background: rgba(0, 191, 99, 0.08);
   }
 
   .tap-target {
