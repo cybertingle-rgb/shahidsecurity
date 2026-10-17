@@ -14,7 +14,18 @@ import mysql from 'mysql2/promise';
  * (and apps/learn's twin, which explains the reasoning in full) for why
  * MySQL's additive privilege model requires granting table-by-table
  * rather than revoking from a broad grant.
+ *
+ * Tolerates lacking CREATE USER / GRANT privilege: confirmed against a
+ * real Hostinger-issued "admin" MySQL user — shared hosting routinely
+ * gives customers full rights on their own database but never
+ * account-level CREATE USER/GRANT rights (those stay behind hPanel's own
+ * UI). When that's the case, DATABASE_URL's user has to already exist
+ * (created by hand in hPanel) with whatever privileges it already has —
+ * this reports that rather than failing the whole deploy over something
+ * no connection string on this host was ever going to be allowed to do.
  */
+const isPrivilegeError = (err: unknown) =>
+  err instanceof Error && /access denied/i.test(err.message) && /privilege/i.test(err.message);
 export async function POST(request: NextRequest) {
   const secret = process.env.MIGRATE_SECRET;
   const provided = request.headers.get('x-migrate-secret');
@@ -45,8 +56,14 @@ export async function POST(request: NextRequest) {
   }
 
   const connection = await mysql.createConnection({ uri: adminConnectionString, multipleStatements: true });
+  const notes: string[] = [];
   try {
-    await connection.query(`CREATE USER IF NOT EXISTS '${appUser}'@'${appHost}' IDENTIFIED BY ${connection.escape(appPassword)}`);
+    try {
+      await connection.query(`CREATE USER IF NOT EXISTS '${appUser}'@'${appHost}' IDENTIFIED BY ${connection.escape(appPassword)}`);
+    } catch (err) {
+      if (!isPrivilegeError(err)) throw err;
+      notes.push(`Skipped CREATE USER (no privilege) — assuming '${appUser}'@'${appHost}' already exists via hPanel.`);
+    }
 
     const [tableRows] = await connection.query<mysql.RowDataPacket[]>(
       `SELECT table_name AS tableName FROM information_schema.tables WHERE table_schema = ?`,
@@ -57,18 +74,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `No tables found in ${database} — run migrations before this.` }, { status: 500 });
     }
 
+    let granted = 0;
+    const deniedTables: string[] = [];
     for (const table of tableNames) {
       const privileges = table === 'audit_logs' ? 'SELECT, INSERT' : 'SELECT, INSERT, UPDATE, DELETE';
-      await connection.query(`GRANT ${privileges} ON \`${database}\`.\`${table}\` TO '${appUser}'@'${appHost}'`);
+      try {
+        await connection.query(`GRANT ${privileges} ON \`${database}\`.\`${table}\` TO '${appUser}'@'${appHost}'`);
+        granted += 1;
+      } catch (err) {
+        if (!isPrivilegeError(err)) throw err;
+        deniedTables.push(table);
+      }
     }
-    await connection.query('FLUSH PRIVILEGES');
+    if (deniedTables.length > 0) {
+      notes.push(
+        `No GRANT privilege — could not set table-level grants for: ${deniedTables.join(', ')}. ` +
+          `'${appUser}'@'${appHost}' is relying on whatever privileges hPanel already gave it (likely broader than intended, since this couldn't narrow them to SELECT/INSERT/UPDATE/DELETE per table).`,
+      );
+    } else {
+      try {
+        await connection.query('FLUSH PRIVILEGES');
+      } catch (err) {
+        if (!isPrivilegeError(err)) throw err;
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      message: `Granted privileges on ${tableNames.length} tables to '${appUser}'@'${appHost}'.`,
+      message: `Granted privileges on ${granted}/${tableNames.length} tables to '${appUser}'@'${appHost}'.`,
+      notes,
     });
   } catch (err) {
-    return NextResponse.json({ success: false, error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    return NextResponse.json({ success: false, error: err instanceof Error ? err.message : String(err), notes }, { status: 500 });
   } finally {
     await connection.end();
   }
