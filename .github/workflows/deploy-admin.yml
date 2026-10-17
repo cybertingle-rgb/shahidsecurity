@@ -32,7 +32,11 @@ jobs:
   migrate:
     runs-on: ubuntu-latest
     # Required secrets:
-    #   ADMIN_APP_URL        — https://shahidiqbal.com/admin
+    #   ADMIN_APP_URL        — https://admin.shahidiqbal.com (its own
+    #                          subdomain — see next.config.mjs's comment;
+    #                          an earlier version of this file incorrectly
+    #                          documented this as a /admin path on the
+    #                          main domain)
     #   ADMIN_MIGRATE_SECRET — sent as the x-migrate-secret header to
     #                          /api/internal/migrate and
     #                          /api/internal/apply-grants. Must match
