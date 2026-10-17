@@ -4,7 +4,7 @@ import { listCourses } from '@/lib/admin/courses';
 const STATUS_COLOR: Record<string, string> = {
   draft: 'text-text-muted',
   review: 'text-warn',
-  published: 'text-neon-soft',
+  published: 'text-success',
   archived: 'text-danger',
 };
 

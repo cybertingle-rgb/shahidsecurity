@@ -7,9 +7,21 @@ import path from 'node:path';
 // component's compiled output during the production build, not its source.
 const shieldSvg = readFileSync(path.join(process.cwd(), 'public/brand/shield-icon.svg'), 'utf8');
 const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
+
+// A field of small shield icons raining top-to-bottom behind the main
+// logo — fixed column positions/sizes/timing (not random per-request, so
+// SSR output is deterministic) matching CSS rules of the same index below.
+const RAIN_ICONS = Array.from({ length: 22 }, (_, i) => i);
 ---
 
 <div id="preloader" role="presentation" aria-hidden="true">
+  <div class="preloader-rain">
+    {RAIN_ICONS.map((i) => (
+      <svg viewBox="0 0 1024 1024" class="preloader-rain-icon" data-i={i} xmlns="http://www.w3.org/2000/svg">
+        <path fill="#4dd4ff" fill-rule="evenodd" d={shieldPath}></path>
+      </svg>
+    ))}
+  </div>
   <div class="preloader-shield-wrap">
     <svg viewBox="0 0 1024 1024" class="preloader-shield" xmlns="http://www.w3.org/2000/svg">
       <path fill="#00bf63" fill-rule="evenodd" d={shieldPath}></path>
@@ -42,7 +54,63 @@ const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
     pointer-events: none;
   }
 
+  /* Full-screen field of small shield icons falling top-to-bottom behind
+     the main logo — the "rain" look, in the neon blue accent, at 80%
+     layer opacity so it reads as a dense backdrop without competing with
+     the big green shield on top of it. */
+  .preloader-rain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .preloader-rain-icon {
+    position: absolute;
+    top: -15%;
+    filter: drop-shadow(0 0 5px rgba(77, 212, 255, 0.7));
+    animation-name: preloader-rain-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .preloader-rain-icon[data-i='0'] { left: 1%; width: 18px; animation-duration: 3.4s; animation-delay: -0.6s; }
+  .preloader-rain-icon[data-i='1'] { left: 6%; width: 24px; animation-duration: 4.6s; animation-delay: -2.1s; }
+  .preloader-rain-icon[data-i='2'] { left: 11%; width: 15px; animation-duration: 3s; animation-delay: -1.4s; }
+  .preloader-rain-icon[data-i='3'] { left: 16%; width: 28px; animation-duration: 5.2s; animation-delay: -3.8s; }
+  .preloader-rain-icon[data-i='4'] { left: 21%; width: 20px; animation-duration: 3.8s; animation-delay: -0.2s; }
+  .preloader-rain-icon[data-i='5'] { left: 27%; width: 16px; animation-duration: 3.3s; animation-delay: -2.6s; }
+  .preloader-rain-icon[data-i='6'] { left: 33%; width: 26px; animation-duration: 4.9s; animation-delay: -1s; }
+  .preloader-rain-icon[data-i='7'] { left: 39%; width: 19px; animation-duration: 3.6s; animation-delay: -4.2s; }
+  .preloader-rain-icon[data-i='8'] { left: 45%; width: 22px; animation-duration: 4.1s; animation-delay: -1.8s; }
+  .preloader-rain-icon[data-i='9'] { left: 51%; width: 15px; animation-duration: 3.1s; animation-delay: -3.3s; }
+  .preloader-rain-icon[data-i='10'] { left: 57%; width: 27px; animation-duration: 5s; animation-delay: -0.5s; }
+  .preloader-rain-icon[data-i='11'] { left: 63%; width: 18px; animation-duration: 3.5s; animation-delay: -2.9s; }
+  .preloader-rain-icon[data-i='12'] { left: 69%; width: 24px; animation-duration: 4.4s; animation-delay: -1.2s; }
+  .preloader-rain-icon[data-i='13'] { left: 75%; width: 16px; animation-duration: 3.2s; animation-delay: -4.6s; }
+  .preloader-rain-icon[data-i='14'] { left: 80%; width: 29px; animation-duration: 5.4s; animation-delay: -2.3s; }
+  .preloader-rain-icon[data-i='15'] { left: 85%; width: 20px; animation-duration: 3.9s; animation-delay: -0.8s; }
+  .preloader-rain-icon[data-i='16'] { left: 90%; width: 17px; animation-duration: 3.3s; animation-delay: -3.6s; }
+  .preloader-rain-icon[data-i='17'] { left: 95%; width: 25px; animation-duration: 4.7s; animation-delay: -1.6s; }
+  .preloader-rain-icon[data-i='18'] { left: 4%; width: 21px; animation-duration: 4s; animation-delay: -5s; }
+  .preloader-rain-icon[data-i='19'] { left: 60%; width: 14px; animation-duration: 2.9s; animation-delay: -2s; }
+  .preloader-rain-icon[data-i='20'] { left: 48%; width: 30px; animation-duration: 5.5s; animation-delay: -3.1s; }
+  .preloader-rain-icon[data-i='21'] { left: 97%; width: 19px; animation-duration: 3.7s; animation-delay: -0.4s; }
+
+  @keyframes preloader-rain-fall {
+    from {
+      transform: translateY(-20vh);
+    }
+    to {
+      transform: translateY(120vh);
+    }
+  }
+
   .preloader-shield-wrap {
+    position: relative;
+    z-index: 1;
     width: min(35vw, 35vh);
     height: min(35vw, 35vh);
     opacity: 0;
@@ -58,6 +126,8 @@ const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
   }
 
   .preloader-terminal {
+    position: relative;
+    z-index: 1;
     font-size: clamp(0.75rem, 2vw, 1.1rem);
     letter-spacing: 0.06em;
     color: var(--color-neon);
@@ -172,6 +242,9 @@ const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
     .preloader-terminal {
       animation: none;
       opacity: 1;
+    }
+    .preloader-rain {
+      display: none;
     }
   }
 </style>

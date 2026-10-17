@@ -80,7 +80,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Pro
                 <td className="px-4 py-2 text-text-muted">{student.email}</td>
                 <td className="px-4 py-2 text-text-muted">{student.roleNames.join(', ') || '—'}</td>
                 <td className="px-4 py-2">
-                  <span className={student.status === 'suspended' ? 'text-danger' : 'text-neon-soft'}>{student.status}</span>
+                  <span className={student.status === 'suspended' ? 'text-danger' : 'text-success'}>{student.status}</span>
                 </td>
                 <td className="px-4 py-2 text-text-muted">{student.createdAt.toLocaleDateString()}</td>
               </tr>
