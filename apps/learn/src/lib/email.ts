@@ -78,7 +78,7 @@ export function authEmailHtml(opts: {
           <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#0b0f14;border:1px solid #1a2a22;border-radius:16px;overflow:hidden;">
             <tr>
               <td style="padding:32px 32px 8px 32px;text-align:center;">
-                <span style="display:inline-block;font-size:14px;font-weight:600;letter-spacing:0.04em;color:#00bf63;text-transform:uppercase;">Learn with Shahid</span>
+                <span style="display:inline-block;font-size:14px;font-weight:600;letter-spacing:0.04em;color:#4300e0;text-transform:uppercase;">Learn with Shahid</span>
               </td>
             </tr>
             <tr>
@@ -93,14 +93,14 @@ export function authEmailHtml(opts: {
             </tr>
             <tr>
               <td style="padding:28px 32px 8px 32px;text-align:center;">
-                <a href="${buttonUrl}" style="display:inline-block;background-color:#00bf63;color:#05070a;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">${buttonLabel}</a>
+                <a href="${buttonUrl}" style="display:inline-block;background-color:#4300e0;color:#05070a;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">${buttonLabel}</a>
               </td>
             </tr>
             <tr>
               <td style="padding:16px 32px 0 32px;text-align:center;">
                 <p style="margin:0;font-size:12px;line-height:1.6;color:#8aa396;">
                   If the button doesn't work, copy and paste this link into your browser:<br />
-                  <a href="${buttonUrl}" style="color:#00bf63;word-break:break-all;">${buttonUrl}</a>
+                  <a href="${buttonUrl}" style="color:#4300e0;word-break:break-all;">${buttonUrl}</a>
                 </p>
               </td>
             </tr>

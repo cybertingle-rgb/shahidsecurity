@@ -65,11 +65,11 @@ async function renderOgImage(title, outPath) {
     </linearGradient>
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)" />
-  <rect x="0" y="0" width="10" height="${HEIGHT}" fill="#00bf63" />
+  <rect x="0" y="0" width="10" height="${HEIGHT}" fill="#4300e0" />
   <g transform="translate(760, 40) scale(0.42)" opacity="0.16">
     ${shieldInner}
   </g>
-  <text x="80" y="90" font-family="DejaVu Sans, sans-serif" font-size="28" letter-spacing="4" fill="#00bf63" font-weight="700">SHAHID SECURITY</text>
+  <text x="80" y="90" font-family="DejaVu Sans, sans-serif" font-size="28" letter-spacing="4" fill="#4300e0" font-weight="700">SHAHID SECURITY</text>
   <text font-family="DejaVu Sans, sans-serif" font-size="56" font-weight="700" fill="#e6f1ea">
     ${titleTspans}
   </text>

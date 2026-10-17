@@ -11,11 +11,14 @@
   --color-border-strong: #23402f;
   --color-text: #e6f1ea;
   --color-text-muted: #8aa396;
-  /* Brand green (#00BF63) is the exact color from the logo — primary accent. */
-  --color-neon: #00bf63;
+  /* Electric violet-blue — replaces the original brand green (#00BF63) per
+     an explicit request to match a blue/purple glassmorphism reference.
+     Chosen at the same saturation the green held, hue rotated into the
+     violet-blue range the reference sits in. Primary accent. */
+  --color-neon: #4300e0;
   /* Brighter glow variant — glows, hover light, blinking cursor only, never large fills. */
-  --color-neon-soft: #1aff8c;
-  --color-neon-dim: rgba(0, 191, 99, 0.12);
+  --color-neon-soft: #6726ff;
+  --color-neon-dim: rgba(67, 0, 224, 0.12);
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 
@@ -115,10 +118,15 @@
   }
 
   .glass-card {
-    background: color-mix(in oklab, var(--color-surface) 88%, transparent);
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-    backdrop-filter: blur(6px);
+    background: color-mix(in oklab, var(--color-surface) 55%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-neon-soft) 14%, var(--color-border-strong));
+    border-radius: 1.25rem;
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow:
+      0 16px 40px -16px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
     position: relative;
     transition:
       border-color 200ms ease,
@@ -127,10 +135,24 @@
   }
 
   .glass-card:hover {
-    border-color: var(--color-border-strong);
+    border-color: color-mix(in oklab, var(--color-neon-soft) 40%, var(--color-border-strong));
     box-shadow:
-      0 0 0 1px var(--color-border-strong),
-      0 0 32px -8px color-mix(in oklab, var(--color-neon-soft) 45%, transparent);
+      0 20px 48px -16px rgba(0, 0, 0, 0.65),
+      inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.3),
+      0 0 40px -10px color-mix(in oklab, var(--color-neon-soft) 50%, transparent);
+  }
+
+  /* A lighter glass surface for nested panels inside a .glass-card, or standalone chrome
+     like a sticky header — same frosted treatment, less visually heavy. */
+  .glass-panel {
+    background: color-mix(in oklab, var(--color-bg-elevated) 45%, transparent);
+    border: 1px solid color-mix(in oklab, white 8%, var(--color-border));
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    box-shadow:
+      0 8px 32px -12px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 0 color-mix(in oklab, white 8%, transparent);
   }
 
   .corner-brackets::before,
@@ -164,20 +186,22 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    /* Fully rounded, Apple-style pill — not the sharper 0.5rem corners this used before. */
+    border-radius: 999px;
     font-weight: 500;
     transition:
       transform 150ms ease,
       box-shadow 150ms ease,
       background-color 150ms ease,
-      border-color 150ms ease;
+      border-color 150ms ease,
+      backdrop-filter 150ms ease;
     position: relative;
     overflow: hidden;
   }
 
   .btn:active {
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.98);
   }
 
   .btn::after {
@@ -205,37 +229,49 @@
   }
 
   .btn-primary {
-    background: var(--color-neon);
+    background: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
     color: #05070a;
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-neon-soft) 45%, transparent),
-      0 0 24px -4px color-mix(in oklab, var(--color-neon-soft) 65%, transparent);
+      0 8px 24px -6px color-mix(in oklab, var(--color-neon-soft) 65%, transparent),
+      inset 0 1px 0 0 color-mix(in oklab, white 35%, transparent);
   }
 
   .btn-primary:hover {
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-neon-soft) 65%, transparent),
-      0 0 36px -2px color-mix(in oklab, var(--color-neon-soft) 85%, transparent);
+      0 10px 32px -4px color-mix(in oklab, var(--color-neon-soft) 85%, transparent),
+      inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent);
+    transform: translateY(-1px);
   }
 
+  /* Frosted-glass pill — translucent + blurred, not flat transparent, so it reads as the
+     same glass material as .glass-card/.glass-panel rather than a plain outlined button. */
   .btn-secondary {
-    background: transparent;
+    background: color-mix(in oklab, var(--color-surface) 50%, transparent);
     color: var(--color-text);
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid color-mix(in oklab, white 12%, var(--color-border-strong));
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent);
   }
 
   .btn-secondary:hover {
-    border-color: var(--color-neon);
-    color: var(--color-neon);
+    border-color: color-mix(in oklab, var(--color-neon-soft) 55%, transparent);
+    color: var(--color-neon-soft);
+    background: color-mix(in oklab, var(--color-surface) 65%, transparent);
   }
 
   .btn-ghost {
-    background: transparent;
+    background: color-mix(in oklab, white 4%, transparent);
     color: var(--color-text-muted);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .btn-ghost:hover {
-    color: var(--color-neon);
+    color: var(--color-neon-soft);
+    background: color-mix(in oklab, white 7%, transparent);
   }
 
   .pill {
