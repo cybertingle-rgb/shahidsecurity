@@ -13,9 +13,11 @@
   --color-border-strong: #23402f;
   --color-text: #e6f1ea;
   --color-text-muted: #8aa396;
-  --color-neon: #00bf63;
-  --color-neon-soft: #1aff8c;
-  --color-neon-dim: rgba(0, 191, 99, 0.12);
+  /* Electric violet-blue — replaces the original brand green (#00BF63), same
+     palette change as the root site's src/styles/global.css. */
+  --color-neon: #4300e0;
+  --color-neon-soft: #6726ff;
+  --color-neon-dim: rgba(67, 0, 224, 0.12);
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 }
@@ -43,7 +45,15 @@ body {
 .rounded-lg.border.border-dashed.border-border-strong {
   position: relative;
   border-radius: 1.1rem !important;
-  background: linear-gradient(160deg, color-mix(in oklab, var(--color-surface) 94%, white 5%), var(--color-bg-elevated));
+  /* Translucent instead of the near-opaque gradient this used to be, plus a real
+     backdrop blur — genuine frosted glass, not just a dark 3D card. */
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--color-surface) 55%, transparent),
+    color-mix(in oklab, var(--color-bg-elevated) 50%, transparent)
+  );
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   box-shadow:
     0 1px 0 0 color-mix(in oklab, white 8%, transparent) inset,
     0 0 0 1px color-mix(in oklab, var(--color-border-strong) 50%, transparent),
@@ -96,11 +106,19 @@ tbody tr:hover {
 }
 
 /* Primary CTA buttons (bg-neon) — every "Save"/"Add"/"Approve" action
-   across both portals shares this class already. */
+   across both portals shares this class already. Fully rounded (Apple-style
+   pill) and a gradient fill with an inset top highlight instead of a flat
+   solid color — same treatment as the public site's .btn-primary. Safe on
+   the one non-button use (a progress-bar fill, src/app/dashboard/page.tsx)
+   since that element's parent clips overflow, so the radius/glow there is
+   simply invisible rather than broken. */
 .bg-neon {
+  border-radius: 999px;
+  background-image: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--color-neon) 40%, transparent),
-    0 8px 20px -8px color-mix(in oklab, var(--color-neon) 70%, transparent);
+    0 8px 20px -8px color-mix(in oklab, var(--color-neon) 70%, transparent),
+    inset 0 1px 0 0 color-mix(in oklab, white 35%, transparent);
   transition:
     transform 150ms ease-out,
     box-shadow 150ms ease-out,
@@ -111,12 +129,39 @@ tbody tr:hover {
   filter: brightness(1.08);
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--color-neon) 55%, transparent),
-    0 10px 28px -8px color-mix(in oklab, var(--color-neon) 85%, transparent);
+    0 10px 28px -8px color-mix(in oklab, var(--color-neon) 85%, transparent),
+    inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent);
   transform: translateY(-1px);
 }
 
 .bg-neon:active {
   transform: translateY(0);
+}
+
+/* Secondary/outline buttons (rounded-md + border-border-strong) — the other
+   half of the button vocabulary used everywhere. Same frosted-glass pill
+   treatment as the public site's .btn-secondary: translucent + blurred,
+   not a flat outline. Scoped to <a>/<button> only — this exact class combo
+   is also used on one static info panel (a <p>), which should stay a
+   normal rounded box, not a pill. */
+a.rounded-md.border.border-border-strong,
+button.rounded-md.border.border-border-strong {
+  border-radius: 999px !important;
+  background: color-mix(in oklab, var(--color-surface) 50%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent);
+  transition:
+    border-color 150ms ease-out,
+    color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+a.rounded-md.border.border-border-strong:hover,
+button.rounded-md.border.border-border-strong:hover {
+  border-color: color-mix(in oklab, var(--color-neon-soft) 55%, transparent);
+  color: var(--color-neon-soft);
+  background: color-mix(in oklab, var(--color-surface) 65%, transparent);
 }
 
 /* Text inputs/selects/textareas — a visible lift on focus instead of the
@@ -140,24 +185,27 @@ textarea:focus {
 /* The admin/dashboard header bars (a border-bottom + flex row today) —
    a touch of glass instead of a flat line. */
 .portal-header {
-  background: linear-gradient(180deg, color-mix(in oklab, var(--color-surface) 55%, transparent), transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid color-mix(in oklab, var(--color-border-strong) 60%, transparent);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--color-surface) 40%, transparent), transparent);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-bottom: 1px solid color-mix(in oklab, white 8%, var(--color-border-strong) 40%);
 }
 
 .portal-nav-panel {
-  background: linear-gradient(160deg, color-mix(in oklab, var(--color-surface) 85%, white 2%), var(--color-bg-elevated));
-  border: 1px solid var(--color-border);
-  border-radius: 1.1rem;
+  background: color-mix(in oklab, var(--color-surface) 45%, transparent);
+  border: 1px solid color-mix(in oklab, white 8%, var(--color-border));
+  border-radius: 1.25rem;
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
   box-shadow:
-    0 1px 0 0 color-mix(in oklab, white 6%, transparent) inset,
+    0 1px 0 0 color-mix(in oklab, white 8%, transparent) inset,
     0 0 0 1px color-mix(in oklab, var(--color-border-strong) 40%, transparent),
     0 18px 36px -20px rgba(0, 0, 0, 0.75);
 }
 
 .portal-nav-panel a {
-  border-radius: 0.6rem;
+  /* Fully rounded pill nav rows, matching the reference glass-sidebar look. */
+  border-radius: 999px;
   transition:
     background-color 150ms ease-out,
     color 150ms ease-out,
@@ -345,9 +393,9 @@ textarea:focus {
    AuthCard.tsx carry the hacker-terminal read. */
 .auth-card {
   position: relative;
-  border-radius: 1.1rem;
+  border-radius: 1.5rem;
   padding: 2rem;
-  background-color: rgba(2, 8, 6, 0.5);
+  background-color: rgba(2, 8, 6, 0.42);
   background-image: repeating-linear-gradient(
     0deg,
     color-mix(in oklab, var(--color-neon) 5%, transparent) 0px,
@@ -355,10 +403,12 @@ textarea:focus {
     transparent 1px,
     transparent 3px
   );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid color-mix(in oklab, var(--color-neon) 30%, var(--color-border-strong));
-  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 20px 60px -20px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent);
 }
 
 .auth-card-termbar {

@@ -43,10 +43,11 @@ function mulberry32(seed: number) {
 const TILE_SIZE = 260;
 const TILE_COLS = 4;
 const TILE_ROWS = 4;
-// A muted, slightly-visible green — baked directly into the tile's SVG
+// A muted, slightly-visible violet-blue — baked directly into the tile's SVG
 // markup since a background-image data: URI can't reference a CSS custom
-// property; opacity is controlled separately on the container div.
-const DOODLE_STROKE = '#2fcf8a';
+// property; opacity is controlled separately on the container div. Matches
+// the --color-neon-soft accent.
+const DOODLE_STROKE = '#8a63ff';
 
 function buildTileDataUri(): string {
   const rand = mulberry32(20260930);
