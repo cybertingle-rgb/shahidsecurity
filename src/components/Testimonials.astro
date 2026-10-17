@@ -177,8 +177,10 @@ const track = [...reviews, ...reviews];
     gap: 1.5rem;
     width: max-content;
     /* Slow, ambient drift rather than a brisk scroll — give a reader time
-       to actually catch a quote as it passes, not just a blur of cards. */
-    animation: testimonials-scroll 150s linear infinite;
+       to actually catch a quote as it passes, not just a blur of cards.
+       Runs continuously (infinite) over the duplicated track so the loop
+       never visibly resets. */
+    animation: testimonials-scroll 240s linear infinite;
   }
 
   .testimonials-wrap:hover .testimonials-track,

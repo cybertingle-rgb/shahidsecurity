@@ -1,69 +1,72 @@
 ---
-// Persistent decorative circuit-trace doodles for the empty side gutters
-// that exist on any page once the viewport is wide enough that the
-// 1440px content column ('--container-content' in global.css) doesn't
-// fill it. Rendered once, site-wide, from BaseLayout. Fixed to the
-// viewport (not tied to page length or any one section) so it's present
-// on every page and every scroll position. Purely cosmetic: aria-hidden,
-// pointer-events limited to the glow layer only so it never blocks
-// clicks on real content, and it never renders below the width where its
-// own footprint would start overlapping the 1440px content column.
+import { Icon } from 'astro-icon/components';
+
+// Colorful ambient icon doodles for the empty side gutters that exist
+// on any page once the viewport is wide enough that the 1440px content
+// column ('--container-content' in global.css) doesn't fill it.
+// Rendered once, site-wide, from BaseLayout. Fixed to the viewport (not
+// tied to page length or any one section) so it's present on every page
+// and every scroll position. Purely cosmetic: aria-hidden, pointer-events
+// none throughout.
+//
+// Each vertical slot (matched by [data-i] in the stylesheet below) holds
+// two different security-themed icons stacked on the same spot; a CSS
+// keyframe fades one in, holds it, fades it out, then — offset by half
+// the cycle — fades the other in. That reads as "an icon forms, then
+// vanishes, and a different one takes its place" without any JS, since
+// both are just two SVGs animated out of phase. Icons round-robin
+// through a multi-hue palette (blue/green/purple/pink/amber/cyan)
+// rather than a single color, for the "colorful" look.
+//
+// Position/timing per slot live as static rules in the <style> block
+// (keyed by [data-i]), not inline style="" attributes — this site's CSP
+// has no 'unsafe-inline' for style-src, so inline styles are silently
+// dropped by the browser. Only icon choice and color class vary via the
+// template, since those are ordinary attributes, not inline styles.
+const ICONS = [
+  'lucide:shield',
+  'lucide:lock',
+  'lucide:terminal',
+  'lucide:wifi',
+  'lucide:bug',
+  'lucide:key-round',
+  'lucide:server',
+  'lucide:fingerprint',
+];
+
+const PALETTE = ['neon', 'success', 'purple', 'pink', 'amber', 'cyan'];
+
+function buildSlots(offset: number) {
+  return Array.from({ length: 6 }, (_, i) => ({
+    iconA: ICONS[(i * 2 + offset) % ICONS.length],
+    iconB: ICONS[(i * 2 + 1 + offset) % ICONS.length],
+    colorA: PALETTE[(i * 2 + offset) % PALETTE.length],
+    colorB: PALETTE[(i * 2 + 1 + offset) % PALETTE.length],
+  }));
+}
+
+const leftSlots = buildSlots(0);
+const rightSlots = buildSlots(1);
 ---
 
 <div class="ambient-doodles" aria-hidden="true">
-  <svg
-    class="ambient-doodle ambient-doodle-left"
-    viewBox="0 0 220 640"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-  >
-    <path
-      class="doodle-trace"
-      d="M0 40 H90 V140 H40 V240 H120 V320 H60 V420 H140 V520 H80 V600 H180"
-      stroke="currentColor"
-      stroke-width="2"
-    ></path>
-    <path
-      class="doodle-trace doodle-trace-alt"
-      d="M0 300 H50 V180 H150 V80"
-      stroke="currentColor"
-      stroke-width="2"
-    ></path>
-    <circle class="doodle-node" cx="90" cy="40" r="5"></circle>
-    <circle class="doodle-node" cx="40" cy="240" r="4"></circle>
-    <circle class="doodle-node" cx="120" cy="320" r="5"></circle>
-    <circle class="doodle-node" cx="140" cy="520" r="4"></circle>
-    <circle class="doodle-node" cx="180" cy="600" r="5"></circle>
-    <circle class="doodle-node" cx="150" cy="80" r="4"></circle>
-    <circle class="doodle-pulse" cx="90" cy="40" r="3"></circle>
-  </svg>
+  <div class="ambient-gutter ambient-gutter-left">
+    {leftSlots.map((slot, i) => (
+      <span class="ambient-slot" data-i={i}>
+        <Icon name={slot.iconA} class={`ambient-icon ambient-icon-a ambient-${slot.colorA}`} />
+        <Icon name={slot.iconB} class={`ambient-icon ambient-icon-b ambient-${slot.colorB}`} />
+      </span>
+    ))}
+  </div>
 
-  <svg
-    class="ambient-doodle ambient-doodle-right"
-    viewBox="0 0 220 640"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-  >
-    <path
-      class="doodle-trace"
-      d="M220 60 H130 V160 H180 V260 H100 V340 H160 V440 H80 V540 H140 V620 H40"
-      stroke="currentColor"
-      stroke-width="2"
-    ></path>
-    <path
-      class="doodle-trace doodle-trace-alt"
-      d="M220 320 H170 V200 H70 V100"
-      stroke="currentColor"
-      stroke-width="2"
-    ></path>
-    <circle class="doodle-node" cx="130" cy="60" r="5"></circle>
-    <circle class="doodle-node" cx="180" cy="260" r="4"></circle>
-    <circle class="doodle-node" cx="100" cy="340" r="5"></circle>
-    <circle class="doodle-node" cx="80" cy="540" r="4"></circle>
-    <circle class="doodle-node" cx="40" cy="620" r="5"></circle>
-    <circle class="doodle-node" cx="70" cy="100" r="4"></circle>
-    <circle class="doodle-pulse" cx="130" cy="60" r="3"></circle>
-  </svg>
+  <div class="ambient-gutter ambient-gutter-right">
+    {rightSlots.map((slot, i) => (
+      <span class="ambient-slot" data-i={i}>
+        <Icon name={slot.iconA} class={`ambient-icon ambient-icon-a ambient-${slot.colorA}`} />
+        <Icon name={slot.iconB} class={`ambient-icon ambient-icon-b ambient-${slot.colorB}`} />
+      </span>
+    ))}
+  </div>
 </div>
 
 <style>
@@ -75,44 +78,172 @@
     overflow: hidden;
   }
 
-  /* Visible at every viewport size (mobile included), scaling up with
-     the screen. On narrow screens it's a small, low-opacity strip right
-     at the edge — enough presence to read as ambient decoration without
-     ever covering real content, since there's no real "gutter" on
-     mobile the way there is once the page's 1440px content column stops
-     filling the viewport. */
-  .ambient-doodle {
-    display: block;
+  .ambient-gutter {
     position: fixed;
-    top: 50%;
-    width: 30px;
-    height: 87px;
-    transform: translateY(-50%);
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    /* Scales up with viewport the same way the previous circuit-trace
+       doodles did — a small, low-opacity presence on mobile, growing
+       once there's real gutter beyond the content column to use. */
+    opacity: 0.55;
+  }
+
+  .ambient-gutter-left {
+    left: 0;
+  }
+
+  .ambient-gutter-right {
+    right: 0;
+  }
+
+  /* Each slot is a fixed point; the two icons inside it are absolutely
+     stacked on that same point and take turns being visible (see the
+     fade keyframes below) rather than the slot itself moving. Position
+     and timing per slot, static (not inline — see frontmatter note). */
+  .ambient-slot {
+    position: absolute;
+    display: block;
+    width: 22px;
+    height: 22px;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .ambient-gutter-left .ambient-slot[data-i='0'] { top: 8%; left: 6px; animation-duration: 10s; animation-delay: -0s; }
+  .ambient-gutter-left .ambient-slot[data-i='1'] { top: 24%; left: 14px; animation-duration: 11.5s; animation-delay: -2.3s; }
+  .ambient-gutter-left .ambient-slot[data-i='2'] { top: 40%; left: 8px; animation-duration: 13s; animation-delay: -4.6s; }
+  .ambient-gutter-left .ambient-slot[data-i='3'] { top: 56%; left: 18px; animation-duration: 14.5s; animation-delay: -6.9s; }
+  .ambient-gutter-left .ambient-slot[data-i='4'] { top: 72%; left: 10px; animation-duration: 10s; animation-delay: -9.2s; }
+  .ambient-gutter-left .ambient-slot[data-i='5'] { top: 88%; left: 16px; animation-duration: 11.5s; animation-delay: -1.1s; }
+
+  .ambient-gutter-right .ambient-slot[data-i='0'] { top: 14%; right: 8px; animation-duration: 12.5s; animation-delay: -3.4s; }
+  .ambient-gutter-right .ambient-slot[data-i='1'] { top: 30%; right: 16px; animation-duration: 10.5s; animation-delay: -6.1s; }
+  .ambient-gutter-right .ambient-slot[data-i='2'] { top: 46%; right: 6px; animation-duration: 14s; animation-delay: -0.8s; }
+  .ambient-gutter-right .ambient-slot[data-i='3'] { top: 62%; right: 20px; animation-duration: 11s; animation-delay: -8.5s; }
+  .ambient-gutter-right .ambient-slot[data-i='4'] { top: 78%; right: 12px; animation-duration: 13.5s; animation-delay: -5.2s; }
+  .ambient-gutter-right .ambient-slot[data-i='5'] { top: 94%; right: 18px; animation-duration: 10.5s; animation-delay: -2s; }
+
+  .ambient-icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation-duration: inherit;
+    animation-delay: inherit;
+    animation-timing-function: inherit;
+    animation-iteration-count: inherit;
+  }
+
+  .ambient-icon-a {
+    animation-name: ambient-icon-fade-a;
+  }
+
+  .ambient-icon-b {
+    animation-name: ambient-icon-fade-b;
+  }
+
+  @keyframes ambient-icon-fade-a {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    8% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    32% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    42% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+  }
+
+  @keyframes ambient-icon-fade-b {
+    0%,
+    48%,
+    100% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    58% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    82% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    92% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+  }
+
+  .ambient-neon {
     color: var(--color-neon);
-    opacity: 0.16;
+    filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-neon) 70%, transparent));
+  }
+
+  .ambient-success {
+    color: var(--color-success);
+    filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-success) 70%, transparent));
+  }
+
+  .ambient-purple {
+    color: var(--color-orb-purple);
+    filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-orb-purple) 70%, transparent));
+  }
+
+  .ambient-pink {
+    color: #ec4899;
+    filter: drop-shadow(0 0 5px rgba(236, 72, 153, 0.6));
+  }
+
+  .ambient-amber {
+    color: #f5a623;
+    filter: drop-shadow(0 0 5px rgba(245, 166, 35, 0.6));
+  }
+
+  .ambient-cyan {
+    color: var(--color-neon-soft);
+    filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-neon-soft) 70%, transparent));
   }
 
   @media (min-width: 640px) {
-    .ambient-doodle {
-      width: 55px;
-      height: 160px;
-      opacity: 0.2;
+    .ambient-slot {
+      width: 26px;
+      height: 26px;
+    }
+    .ambient-gutter {
+      opacity: 0.65;
     }
   }
 
   @media (min-width: 768px) {
-    .ambient-doodle {
-      width: 85px;
-      height: 247px;
-      opacity: 0.24;
+    .ambient-slot {
+      width: 32px;
+      height: 32px;
+    }
+    .ambient-gutter {
+      width: 90px;
+      opacity: 0.7;
     }
   }
 
   @media (min-width: 1024px) {
-    .ambient-doodle {
-      width: 115px;
-      height: 335px;
-      opacity: 0.28;
+    .ambient-slot {
+      width: 38px;
+      height: 38px;
+    }
+    .ambient-gutter {
+      width: 120px;
+      opacity: 0.78;
     }
   }
 
@@ -120,100 +251,26 @@
      column is wide enough to hold it without overlapping full-width
      content like service/industry card grids. */
   @media (min-width: 1800px) {
-    .ambient-doodle {
-      width: 140px;
-      height: 407px;
-      opacity: 0.3;
+    .ambient-slot {
+      width: 44px;
+      height: 44px;
     }
-  }
-
-  .ambient-doodle-left {
-    left: 0;
-  }
-
-  .ambient-doodle-right {
-    right: 0;
-  }
-
-  .doodle-trace {
-    filter: drop-shadow(0 0 3px currentColor);
-  }
-
-  .doodle-trace-alt {
-    opacity: 0.6;
-  }
-
-  .doodle-node {
-    fill: var(--color-neon-soft);
-    filter: drop-shadow(0 0 4px currentColor);
-    animation: doodle-node-pulse 3s ease-in-out infinite;
-  }
-
-  .doodle-node:nth-of-type(2) {
-    animation-delay: 0.4s;
-  }
-  .doodle-node:nth-of-type(3) {
-    animation-delay: 0.8s;
-  }
-  .doodle-node:nth-of-type(4) {
-    animation-delay: 1.2s;
-  }
-  .doodle-node:nth-of-type(5) {
-    animation-delay: 1.6s;
-  }
-  .doodle-node:nth-of-type(6) {
-    animation-delay: 2s;
-  }
-
-  .doodle-pulse {
-    fill: var(--color-neon-soft);
-    offset-rotate: 0deg;
-    animation: doodle-travel 6s linear infinite;
-  }
-
-  .ambient-doodle-left .doodle-pulse {
-    offset-path: path('M0 40 H90 V140 H40 V240 H120 V320 H60 V420 H140 V520 H80 V600 H180');
-  }
-
-  .ambient-doodle-right .doodle-pulse {
-    offset-path: path('M220 60 H130 V160 H180 V260 H100 V340 H160 V440 H80 V540 H140 V620 H40');
-  }
-
-  @keyframes doodle-travel {
-    from {
-      offset-distance: 0%;
-      opacity: 0;
-    }
-    5% {
-      opacity: 1;
-    }
-    95% {
-      opacity: 1;
-    }
-    to {
-      offset-distance: 100%;
-      opacity: 0;
-    }
-  }
-
-  @keyframes doodle-node-pulse {
-    0%,
-    100% {
-      opacity: 0.5;
-      r: 4;
-    }
-    50% {
-      opacity: 1;
-      r: 5.5;
+    .ambient-gutter {
+      width: 150px;
+      opacity: 0.85;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .doodle-node,
-    .doodle-pulse {
+    .ambient-icon-a,
+    .ambient-icon-b {
       animation: none;
     }
-    .doodle-pulse {
+    .ambient-icon-a {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .ambient-icon-b {
       opacity: 0;
     }
   }
