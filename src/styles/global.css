@@ -46,7 +46,10 @@
   --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
-  --container-content: 1200px;
+  /* Widened from 1200px — at wide/ultra-wide viewports the narrower
+     column left large, unbalanced gutters on either side and made the
+     whole site read as a boxed-in central strip. */
+  --container-content: 1440px;
 }
 
 @layer base {

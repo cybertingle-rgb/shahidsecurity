@@ -34,7 +34,7 @@ const currentPath = Astro.url.pathname;
       </picture>
     </a>
 
-    <nav id="primary-nav" class="relative hidden lg:flex items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] p-1 backdrop-blur-sm" aria-label="Primary">
+    <nav id="primary-nav" class="relative hidden lg:flex items-center gap-2 rounded-full border border-white/5 bg-white/[0.03] p-1.5 backdrop-blur-sm" aria-label="Primary">
       <span id="nav-indicator" class="nav-indicator" aria-hidden="true"></span>
       {nav.map((item) => (
         <a
@@ -42,7 +42,7 @@ const currentPath = Astro.url.pathname;
           data-i18n={item.i18n}
           data-nav-link
           class:list={[
-            'tap-target relative z-10 rounded-full px-3 py-1.5 font-mono text-sm transition-colors duration-200',
+            'nav-link tap-target relative z-10 rounded-full px-5 py-2.5 font-mono text-[0.95rem] transition-colors duration-200',
             currentPath.startsWith(item.href)
               ? 'text-(--color-text)'
               : 'text-(--color-text-muted) hover:text-(--color-text)',
@@ -54,9 +54,9 @@ const currentPath = Astro.url.pathname;
       ))}
     </nav>
 
-    <div class="hidden lg:flex items-center gap-3">
+    <div class="hidden lg:flex items-center gap-4">
       <LanguageSwitcher />
-      <a href="/book/" data-i18n="nav.book" class="btn btn-primary text-xs px-4 py-2">
+      <a href="/book/" data-i18n="nav.book" class="btn btn-primary text-sm px-6 py-3">
         Book a consultation
       </a>
     </div>
@@ -147,9 +147,43 @@ const currentPath = Astro.url.pathname;
     opacity: 1;
   }
 
+  /* Playful squash-and-stretch on hover/focus — a soft bubble wobble
+     rather than a flat scale, so the link itself feels alive while the
+     liquid-glass indicator glides underneath it. */
+  .nav-link {
+    transform-origin: center;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    animation: nav-bubble-wobble 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes nav-bubble-wobble {
+    0% {
+      transform: scale(1, 1);
+    }
+    30% {
+      transform: scale(1.1, 0.9);
+    }
+    50% {
+      transform: scale(0.94, 1.08);
+    }
+    70% {
+      transform: scale(1.04, 0.97);
+    }
+    100% {
+      transform: scale(1, 1);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nav-indicator {
       transition: opacity 150ms ease-out;
+    }
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      animation: none;
     }
   }
 </style>
