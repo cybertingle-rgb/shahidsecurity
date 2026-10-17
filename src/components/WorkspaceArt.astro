@@ -1,0 +1,199 @@
+---
+// Original line-art spot illustration for text-only sections that leave a
+// large empty gap at wide viewports (e.g. "Secure development & AI
+// automation"). A stylized dev workspace — desk, monitor running a mini
+// terminal, keyboard, plant, a window with a small skyline behind — hand
+// built in the site's existing geometric/circuit visual language. No AI
+// image generation is available in this environment, so this is vector
+// art rather than a photo.
+---
+
+<svg
+  class="workspace-art"
+  viewBox="0 0 480 400"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Illustration of a developer workspace with a terminal on screen"
+>
+  <defs>
+    <radialGradient id="workspace-glow-a" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--color-orb-blue)" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="var(--color-orb-blue)" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="workspace-glow-b" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--color-orb-purple)" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="var(--color-orb-purple)" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <circle cx="300" cy="150" r="160" fill="url(#workspace-glow-a)" />
+  <circle cx="140" cy="260" r="130" fill="url(#workspace-glow-b)" />
+
+  <!-- window + skyline behind the desk -->
+  <rect x="300" y="40" width="150" height="190" rx="8" fill="var(--color-bg-elevated)" stroke="var(--color-border-strong)" stroke-width="3" />
+  <rect x="300" y="40" width="150" height="190" rx="8" fill="none" stroke="var(--color-border)" stroke-width="1" />
+  <line x1="375" y1="40" x2="375" y2="230" stroke="var(--color-border-strong)" stroke-width="2" />
+  <line x1="300" y1="135" x2="450" y2="135" stroke="var(--color-border-strong)" stroke-width="2" />
+
+  <g class="art-skyline">
+    <rect x="312" y="150" width="20" height="68" fill="var(--color-surface)" />
+    <rect x="338" y="120" width="24" height="98" fill="var(--color-surface)" />
+    <rect x="368" y="165" width="18" height="53" fill="var(--color-surface)" />
+    <rect x="392" y="100" width="22" height="118" fill="var(--color-surface)" />
+    <rect x="420" y="140" width="20" height="78" fill="var(--color-surface)" />
+    <circle class="art-window-light" cx="348" cy="140" r="2.5" />
+    <circle class="art-window-light" cx="400" cy="120" r="2.5" />
+    <circle class="art-window-light" cx="428" cy="155" r="2.5" />
+    <circle class="art-window-light" cx="320" cy="170" r="2.5" />
+  </g>
+
+  <!-- floating circuit-dot accents -->
+  <circle class="art-dot" cx="60" cy="70" r="4" />
+  <circle class="art-dot art-dot-2" cx="40" cy="160" r="3.5" />
+  <path class="art-dot-trace" d="M60 70 L60 110 L90 110" stroke="var(--color-neon)" stroke-width="2" fill="none" />
+
+  <!-- desk -->
+  <path d="M30 300 L450 300 L450 312 L30 312 Z" fill="var(--color-border-strong)" />
+  <path d="M40 312 L40 350" stroke="var(--color-border-strong)" stroke-width="8" stroke-linecap="round" />
+  <path d="M440 312 L440 350" stroke="var(--color-border-strong)" stroke-width="8" stroke-linecap="round" />
+
+  <!-- monitor -->
+  <path d="M190 292 L202 262" stroke="var(--color-border-strong)" stroke-width="8" stroke-linecap="round" />
+  <rect x="140" y="140" width="190" height="124" rx="8" fill="var(--color-bg-elevated)" stroke="var(--color-neon-soft)" stroke-width="3" />
+  <rect x="152" y="152" width="166" height="100" rx="3" fill="var(--color-bg)" />
+
+  <!-- mini terminal chrome + lines, matching TerminalWindow.astro's look -->
+  <circle cx="162" cy="162" r="3" fill="var(--color-danger)" />
+  <circle cx="172" cy="162" r="3" fill="var(--color-warn)" />
+  <circle cx="182" cy="162" r="3" fill="var(--color-success)" />
+
+  <g class="art-code-lines">
+    <rect x="160" y="178" width="70" height="4" rx="2" fill="var(--color-success)" />
+    <rect x="160" y="190" width="100" height="4" rx="2" fill="var(--color-text-muted)" />
+    <rect x="160" y="202" width="55" height="4" rx="2" fill="var(--color-neon-soft)" />
+    <rect x="172" y="214" width="85" height="4" rx="2" fill="var(--color-text-muted)" />
+    <rect x="160" y="226" width="40" height="4" rx="2" fill="var(--color-success)" />
+    <rect class="art-cursor" x="202" y="226" width="6" height="4" rx="1" fill="var(--color-success)" />
+  </g>
+
+  <!-- keyboard -->
+  <rect x="150" y="300" width="130" height="18" rx="4" fill="var(--color-surface)" stroke="var(--color-border-strong)" stroke-width="2" />
+
+  <!-- mug -->
+  <path d="M350 282 L384 282 L380 310 Q367 318 354 310 Z" fill="var(--color-surface)" stroke="var(--color-border-strong)" stroke-width="2.5" />
+  <path d="M384 288 Q398 288 398 298 Q398 308 384 306" fill="none" stroke="var(--color-border-strong)" stroke-width="2.5" />
+  <path class="art-steam" d="M360 272 Q356 262 362 254" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" />
+  <path class="art-steam art-steam-2" d="M372 272 Q368 262 374 254" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" />
+
+  <!-- plant -->
+  <path d="M92 282 L128 282 L122 312 L98 312 Z" fill="var(--color-surface)" stroke="var(--color-border-strong)" stroke-width="2.5" />
+  <path d="M110 282 C110 255 96 240 80 234 C86 258 96 274 110 282 Z" fill="var(--color-success)" opacity="0.85" />
+  <path d="M110 282 C110 250 122 232 142 224 C138 252 126 272 110 282 Z" fill="var(--color-success)" opacity="0.65" />
+  <path d="M110 282 C110 262 108 248 100 238 C104 258 106 272 110 282 Z" fill="var(--color-success)" />
+</svg>
+
+<style>
+  .workspace-art {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .art-window-light {
+    fill: var(--color-neon-soft);
+    filter: drop-shadow(0 0 3px currentColor);
+    animation: workspace-light-flicker 4s ease-in-out infinite;
+  }
+
+  .art-window-light:nth-of-type(2) {
+    animation-delay: 1s;
+  }
+  .art-window-light:nth-of-type(3) {
+    animation-delay: 2s;
+  }
+  .art-window-light:nth-of-type(4) {
+    animation-delay: 3s;
+  }
+
+  .art-dot {
+    fill: var(--color-neon-soft);
+    filter: drop-shadow(0 0 5px currentColor);
+    animation: workspace-dot-pulse 3s ease-in-out infinite;
+  }
+
+  .art-dot-2 {
+    animation-delay: 0.8s;
+  }
+
+  .art-dot-trace {
+    opacity: 0.45;
+  }
+
+  .art-cursor {
+    animation: workspace-cursor-blink 1s step-end infinite;
+  }
+
+  .art-steam {
+    opacity: 0.5;
+    animation: workspace-steam-drift 3s ease-in-out infinite;
+  }
+
+  .art-steam-2 {
+    animation-delay: 1.2s;
+  }
+
+  @keyframes workspace-light-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes workspace-dot-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+      r: 3.5;
+    }
+    50% {
+      opacity: 1;
+      r: 5;
+    }
+  }
+
+  @keyframes workspace-cursor-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes workspace-steam-drift {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-4px);
+      opacity: 0.2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .art-window-light,
+    .art-dot,
+    .art-cursor,
+    .art-steam {
+      animation: none;
+    }
+  }
+</style>

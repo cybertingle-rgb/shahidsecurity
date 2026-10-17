@@ -1,0 +1,141 @@
+---
+// Original line-art spot illustration for the "Learn with Shahid" section's
+// empty right-hand gap at wide viewports — a student figure at a laptop,
+// with the real brand shield mark rendered on the laptop screen (not a
+// stock photo; no AI image generation is available in this environment, so
+// this is a hand-built SVG in the same geometric/circuit visual language as
+// the rest of the site, read from the actual brand/shield-icon.svg so the
+// "logo on the laptop" is the genuine mark, not an approximation).
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+const shieldSvg = readFileSync(path.join(process.cwd(), 'public/brand/shield-icon.svg'), 'utf8');
+const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
+---
+
+<svg
+  class="student-art"
+  viewBox="0 0 400 460"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Illustration of a student studying cybersecurity on a laptop"
+>
+  <defs>
+    <radialGradient id="student-glow-a" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--color-orb-purple)" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="var(--color-orb-purple)" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="student-glow-b" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--color-orb-blue)" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="var(--color-orb-blue)" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <circle cx="190" cy="260" r="175" fill="url(#student-glow-a)" />
+  <circle cx="250" cy="150" r="130" fill="url(#student-glow-b)" />
+
+  <ellipse class="art-shadow" cx="200" cy="420" rx="120" ry="14" fill="var(--color-bg)" opacity="0.5" />
+
+  <!-- floating circuit-dot accents -->
+  <circle class="art-dot art-dot-1" cx="70" cy="110" r="4" />
+  <circle class="art-dot art-dot-2" cx="330" cy="90" r="3.5" />
+  <circle class="art-dot art-dot-3" cx="340" cy="230" r="4" />
+  <circle class="art-dot art-dot-4" cx="55" cy="300" r="3.5" />
+  <path class="art-dot-trace" d="M70 110 L70 150 L95 150" stroke="var(--color-neon)" stroke-width="2" fill="none" />
+  <path class="art-dot-trace" d="M330 90 L330 130 L300 130" stroke="var(--color-neon-soft)" stroke-width="2" fill="none" />
+
+  <!-- torso / hoodie -->
+  <path
+    class="art-line"
+    d="M152 248 C150 196 165 164 200 164 C235 164 250 196 248 248 L250 330 C250 352 150 352 150 330 Z"
+    fill="var(--color-surface)"
+    stroke="var(--color-text-muted)"
+    stroke-width="3.5"
+  />
+
+  <!-- head -->
+  <circle class="art-line" cx="200" cy="128" r="38" fill="var(--color-bg-elevated)" stroke="var(--color-text-muted)" stroke-width="3.5" />
+
+  <!-- graduation cap -->
+  <path class="art-cap" d="M160 104 L200 86 L240 104 L200 122 Z" fill="var(--color-success)" />
+  <path class="art-cap" d="M200 122 L200 142" stroke="var(--color-success)" stroke-width="3" stroke-linecap="round" />
+  <circle class="art-cap" cx="200" cy="144" r="4" fill="var(--color-success)" />
+
+  <!-- arms resting toward the laptop -->
+  <path class="art-arm" d="M165 230 C140 258 128 288 136 316" fill="none" stroke="var(--color-text-muted)" stroke-width="11" stroke-linecap="round" />
+  <path class="art-arm" d="M235 230 C260 258 272 288 264 316" fill="none" stroke="var(--color-text-muted)" stroke-width="11" stroke-linecap="round" />
+
+  <!-- laptop base -->
+  <path
+    class="art-line"
+    d="M118 318 L282 318 L300 342 L100 342 Z"
+    fill="var(--color-bg-elevated)"
+    stroke="var(--color-border-strong)"
+    stroke-width="3"
+  />
+
+  <!-- laptop screen -->
+  <path
+    class="art-line"
+    d="M136 238 L264 238 L282 318 L118 318 Z"
+    fill="var(--color-bg)"
+    stroke="var(--color-neon-soft)"
+    stroke-width="3"
+  />
+
+  <!-- brand shield, scaled onto the laptop screen -->
+  <g transform="translate(170, 256) scale(0.055)">
+    <path class="art-shield" d={shieldPath} fill="var(--color-success)" />
+  </g>
+</svg>
+
+<style>
+  .student-art {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .art-shield {
+    filter: drop-shadow(0 0 14px color-mix(in oklab, var(--color-success) 70%, transparent));
+  }
+
+  .art-dot {
+    fill: var(--color-neon-soft);
+    filter: drop-shadow(0 0 5px currentColor);
+    animation: student-dot-pulse 3s ease-in-out infinite;
+  }
+
+  .art-dot-2 {
+    animation-delay: 0.6s;
+  }
+  .art-dot-3 {
+    animation-delay: 1.2s;
+  }
+  .art-dot-4 {
+    animation-delay: 1.8s;
+  }
+
+  .art-dot-trace {
+    opacity: 0.45;
+  }
+
+  @keyframes student-dot-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+      r: 3.5;
+    }
+    50% {
+      opacity: 1;
+      r: 5;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .art-dot {
+      animation: none;
+    }
+  }
+</style>

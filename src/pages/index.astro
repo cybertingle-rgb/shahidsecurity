@@ -11,6 +11,8 @@ import HeroBackdrop from '@/components/HeroBackdrop.astro';
 import TerminalWindow from '@/components/TerminalWindow.astro';
 import ScanDivider from '@/components/ScanDivider.astro';
 import Testimonials from '@/components/Testimonials.astro';
+import StudentLaptopArt from '@/components/StudentLaptopArt.astro';
+import WorkspaceArt from '@/components/WorkspaceArt.astro';
 
 const homeServiceCards = [
   {
@@ -130,29 +132,34 @@ const trustItems = [
   <ScanDivider />
 
   <Section bordered>
-    <div class="flex flex-col items-center gap-8 text-center sm:flex-row sm:items-center sm:text-left">
-      <img
-        src="/brand/learn-with-shahid-logo.png"
-        alt="Learn with Shahid"
-        width="180"
-        height="180"
-        class="h-32 w-32 shrink-0 drop-shadow-[0_0_24px_rgba(0,191,99,0.4)] sm:h-40 sm:w-40"
-      />
-      <div>
-        <SectionHeading
-          eyebrow="// LEARN WITH SHAHID"
-          title="Learn Cyber Security with Shahid"
-          intro="A structured, hands-on roadmap from fundamentals to offensive security — courses, live sessions, and a community of learners, built by a working security consultant."
-          as="h2"
+    <div class="flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
+      <div class="flex flex-col items-center gap-8 text-center sm:flex-row sm:items-center sm:text-left">
+        <img
+          src="/brand/learn-with-shahid-logo.png"
+          alt="Learn with Shahid"
+          width="180"
+          height="180"
+          class="h-32 w-32 shrink-0 drop-shadow-[0_0_24px_rgba(0,191,99,0.4)] sm:h-40 sm:w-40"
         />
-        <div class="mt-8 flex flex-wrap justify-center gap-4 sm:justify-start">
-          <Button href="https://learn.shahidiqbal.com/register" variant="primary">
-            Register
-          </Button>
-          <Button href="https://learn.shahidiqbal.com/login" variant="secondary">
-            Log in
-          </Button>
+        <div>
+          <SectionHeading
+            eyebrow="// LEARN WITH SHAHID"
+            title="Learn Cyber Security with Shahid"
+            intro="A structured, hands-on roadmap from fundamentals to offensive security — courses, live sessions, and a community of learners, built by a working security consultant."
+            as="h2"
+          />
+          <div class="mt-8 flex flex-wrap justify-center gap-4 sm:justify-start">
+            <Button href="https://learn.shahidiqbal.com/register" variant="primary">
+              Register
+            </Button>
+            <Button href="https://learn.shahidiqbal.com/login" variant="secondary">
+              Log in
+            </Button>
+          </div>
         </div>
+      </div>
+      <div class="hidden shrink-0 lg:block">
+        <StudentLaptopArt />
       </div>
     </div>
   </Section>
@@ -212,23 +219,28 @@ const trustItems = [
       ))}
     </div>
 
-    <div class="mt-12 border-t border-(--color-border) pt-10">
-      <p class="eyebrow">// also available</p>
-      <h3 class="mt-2 font-display text-lg font-semibold text-(--color-text)">
-        Secure development & AI automation
-      </h3>
-      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-(--color-text-muted)">
-        A secondary capability for clients who want their next build done securely from day one —
-        websites, software and AI workflows, built by the same team that tests them.
-      </p>
-      <div class="mt-4">
-        <a
-          href="/services/#build"
-          class="inline-flex items-center gap-1 font-mono text-xs text-(--color-text-muted) hover:text-(--color-text)"
-        >
-          See secure development services
-          <span aria-hidden="true">→</span>
-        </a>
+    <div class="mt-12 flex flex-col items-center gap-10 border-t border-(--color-border) pt-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
+      <div>
+        <p class="eyebrow">// also available</p>
+        <h3 class="mt-2 font-display text-lg font-semibold text-(--color-text)">
+          Secure development & AI automation
+        </h3>
+        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-(--color-text-muted)">
+          A secondary capability for clients who want their next build done securely from day one —
+          websites, software and AI workflows, built by the same team that tests them.
+        </p>
+        <div class="mt-4">
+          <a
+            href="/services/#build"
+            class="inline-flex items-center gap-1 font-mono text-xs text-(--color-text-muted) hover:text-(--color-text)"
+          >
+            See secure development services
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+      <div class="hidden shrink-0 lg:block">
+        <WorkspaceArt />
       </div>
     </div>
   </Section>
