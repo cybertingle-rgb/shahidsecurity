@@ -34,6 +34,11 @@
      green), independent of the blue UI accent above. Used for positive
      states (low-severity tags, success indicators), not as a theme color. */
   --color-success: #00bf63;
+  /* Brighter glow variant of success green — gradient highlight + glow on
+     primary buttons only, same role --color-neon-soft plays for the blue
+     accent. Never used for status text (that stays the fixed --color-success
+     above, for contrast). */
+  --color-success-soft: #2fe08a;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 
@@ -246,19 +251,22 @@
     }
   }
 
+  /* Primary CTAs are green rather than the blue UI accent — a "go"/positive
+     cue (book, submit, buy) that stands apart from links and navigation,
+     which stay the blue accent. */
   .btn-primary {
-    background: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
+    background: linear-gradient(180deg, var(--color-success-soft) 0%, var(--color-success) 100%);
     color: white;
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--color-neon-soft) 45%, transparent),
-      0 8px 24px -6px color-mix(in oklab, var(--color-neon-soft) 65%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--color-success-soft) 45%, transparent),
+      0 8px 24px -6px color-mix(in oklab, var(--color-success-soft) 65%, transparent),
       inset 0 1px 0 0 color-mix(in oklab, white 35%, transparent);
   }
 
   .btn-primary:hover {
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--color-neon-soft) 65%, transparent),
-      0 10px 32px -4px color-mix(in oklab, var(--color-neon-soft) 85%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--color-success-soft) 65%, transparent),
+      0 10px 32px -4px color-mix(in oklab, var(--color-success-soft) 85%, transparent),
       inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent);
     transform: translateY(-1px);
   }

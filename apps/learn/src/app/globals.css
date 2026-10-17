@@ -34,6 +34,11 @@
   /* Success / "active" / "published" — a fixed semantic green (the
      original brand green), independent of the blue UI accent above. */
   --color-success: #00bf63;
+  /* Brighter glow variant of success green — gradient highlight + glow on
+     primary buttons only, same role --color-neon-soft plays for the blue
+     accent. Never used for status text (that stays the fixed --color-success
+     above, for contrast). */
+  --color-success-soft: #2fe08a;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 }
@@ -128,16 +133,19 @@ tbody tr:hover {
    the one non-button use (a progress-bar fill, src/app/dashboard/page.tsx)
    since that element's parent clips overflow, so the radius/glow there is
    simply invisible rather than broken. */
+/* Green rather than the blue UI accent — a "go"/positive cue (save, add,
+   approve, enroll) that stands apart from links and navigation, which stay
+   the blue accent. */
 .bg-neon {
   border-radius: 999px;
   /* Overrides the many text-bg utility classes already on these buttons
      (dark text, meant for the old flat fill) — white reads far better on
-     the violet gradient. */
+     the gradient. */
   color: white;
-  background-image: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
+  background-image: linear-gradient(180deg, var(--color-success-soft) 0%, var(--color-success) 100%);
   box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--color-neon) 40%, transparent),
-    0 8px 20px -8px color-mix(in oklab, var(--color-neon) 70%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-success) 40%, transparent),
+    0 8px 20px -8px color-mix(in oklab, var(--color-success) 70%, transparent),
     inset 0 1px 0 0 color-mix(in oklab, white 35%, transparent);
   transition:
     transform 150ms ease-out,
@@ -148,8 +156,8 @@ tbody tr:hover {
 .bg-neon:hover {
   filter: brightness(1.08);
   box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--color-neon) 55%, transparent),
-    0 10px 28px -8px color-mix(in oklab, var(--color-neon) 85%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-success) 55%, transparent),
+    0 10px 28px -8px color-mix(in oklab, var(--color-success) 85%, transparent),
     inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent);
   transform: translateY(-1px);
 }
