@@ -33,7 +33,22 @@ if (!existsSync(nestedAppDir)) {
   process.exit(0);
 }
 
-cpSync(nestedAppDir, standaloneDir, { recursive: true });
+// Copy entry-by-entry, removing each destination path first, rather than
+// one bulk recursive cpSync straight onto standaloneDir. Confirmed against
+// a real Hostinger build: its build environment reuses the working
+// directory across deploys instead of starting from a clean checkout, so
+// .next/standalone/node_modules (etc.) can already exist from a previous
+// run. fs.cpSync refuses to copy a directory over an existing path of a
+// different type — e.g. a stale symlink where this run wants a real
+// directory — even with force: true (its default), and throws EEXIST.
+// Removing the destination first makes this safe to re-run against a
+// dirty build directory, not just a pristine one.
+for (const entry of readdirSync(nestedAppDir)) {
+  const src = path.join(nestedAppDir, entry);
+  const dest = path.join(standaloneDir, entry);
+  rmSync(dest, { recursive: true, force: true });
+  cpSync(src, dest, { recursive: true });
+}
 rmSync(path.join(standaloneDir, 'apps'), { recursive: true, force: true });
 
 // Next's own standalone bundler (confirmed against a real build, this
@@ -70,11 +85,16 @@ console.log(`flatten-standalone: rewrote ${fixedCount} absolute symlink(s) to re
 // Standalone output never includes static assets or public/ — Next's own
 // docs require copying these in manually (see
 // https://nextjs.org/docs/app/api-reference/config/next-config-js/output).
-cpSync(path.join(appDir, '.next', 'static'), path.join(standaloneDir, '.next', 'static'), { recursive: true });
+// Same remove-before-copy reasoning as above applies here too.
+const staticDest = path.join(standaloneDir, '.next', 'static');
+rmSync(staticDest, { recursive: true, force: true });
+cpSync(path.join(appDir, '.next', 'static'), staticDest, { recursive: true });
 
 const publicDir = path.join(appDir, 'public');
 if (existsSync(publicDir)) {
-  cpSync(publicDir, path.join(standaloneDir, 'public'), { recursive: true });
+  const publicDest = path.join(standaloneDir, 'public');
+  rmSync(publicDest, { recursive: true, force: true });
+  cpSync(publicDir, publicDest, { recursive: true });
 }
 
 console.log('flatten-standalone: done — .next/standalone/server.js is now self-contained.');
