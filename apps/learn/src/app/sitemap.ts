@@ -9,7 +9,16 @@ import { env } from '@/lib/env';
  * dashboard and admin panel (robots: noindex on both) have no business in
  * a sitemap. Course URLs are generated from real published courses, never
  * a hardcoded list, so this stays accurate as courses are added/archived.
+ *
+ * force-dynamic: without this, Next prerenders this route at `next build`
+ * time, which queries the live database from wherever the build runs. The
+ * production database is only reachable from the Hostinger server itself,
+ * not from GitHub Actions' runners, so a build-time query here fails the
+ * deploy with ECONNREFUSED. Rendering at request time instead means the
+ * query only ever runs on the server that actually has DB access.
  */
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
 
