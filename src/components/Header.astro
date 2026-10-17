@@ -34,16 +34,18 @@ const currentPath = Astro.url.pathname;
       </picture>
     </a>
 
-    <nav class="hidden lg:flex items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] p-1 backdrop-blur-sm" aria-label="Primary">
+    <nav id="primary-nav" class="relative hidden lg:flex items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] p-1 backdrop-blur-sm" aria-label="Primary">
+      <span id="nav-indicator" class="nav-indicator" aria-hidden="true"></span>
       {nav.map((item) => (
         <a
           href={item.href}
           data-i18n={item.i18n}
+          data-nav-link
           class:list={[
-            'tap-target rounded-full px-3 py-1.5 font-mono text-sm transition-all duration-200',
+            'tap-target relative z-10 rounded-full px-3 py-1.5 font-mono text-sm transition-colors duration-200',
             currentPath.startsWith(item.href)
-              ? 'bg-(--color-neon-dim) text-(--color-neon-soft) shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]'
-              : 'text-(--color-text-muted) hover:bg-white/5 hover:text-(--color-text)',
+              ? 'text-(--color-neon-soft)'
+              : 'text-(--color-text-muted) hover:text-(--color-text)',
           ]}
           aria-current={currentPath.startsWith(item.href) ? 'page' : undefined}
         >
@@ -114,6 +116,42 @@ const currentPath = Astro.url.pathname;
       0 8px 32px -16px rgba(0, 0, 0, 0.5),
       inset 0 -1px 0 0 color-mix(in oklab, white 4%, transparent);
   }
+
+  /* "Liquid glass" sliding nav indicator — one shared pill, positioned and
+     resized via JS (below) instead of each link getting its own static
+     active background, so moving between items/hover reads as the pill
+     itself flowing to the new position rather than two boxes swapping. */
+  .nav-indicator {
+    position: absolute;
+    top: 0.25rem;
+    left: 0;
+    height: calc(100% - 0.5rem);
+    width: 0;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-surface) 70%, transparent);
+    border: 1px solid color-mix(in oklab, white 14%, transparent);
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in oklab, white 16%, transparent),
+      0 2px 10px -4px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition:
+      transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 200ms ease-out;
+    pointer-events: none;
+    will-change: transform, width;
+  }
+  .nav-indicator.is-ready {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-indicator {
+      transition: opacity 150ms ease-out;
+    }
+  }
 </style>
 
 <script>
@@ -179,4 +217,40 @@ const currentPath = Astro.url.pathname;
   });
 
   menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
+
+  // Liquid-glass sliding nav indicator: one shared pill that moves/resizes
+  // to whichever link is active or hovered, instead of each link drawing
+  // its own static highlight.
+  const navEl = document.getElementById('primary-nav');
+  const indicator = document.getElementById('nav-indicator');
+  if (navEl && indicator) {
+    const links = Array.from(navEl.querySelectorAll<HTMLAnchorElement>('[data-nav-link]'));
+    const activeLink = links.find((a) => a.getAttribute('aria-current') === 'page') ?? null;
+
+    function moveIndicatorTo(el: HTMLElement | null) {
+      if (!el || !indicator || !navEl) {
+        if (indicator) indicator.classList.remove('is-ready');
+        return;
+      }
+      const navRect = navEl.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      indicator.style.width = `${elRect.width}px`;
+      indicator.style.transform = `translateX(${elRect.left - navRect.left}px)`;
+      indicator.classList.add('is-ready');
+    }
+
+    moveIndicatorTo(activeLink);
+
+    links.forEach((link) => {
+      link.addEventListener('mouseenter', () => moveIndicatorTo(link));
+      link.addEventListener('focus', () => moveIndicatorTo(link));
+    });
+    navEl.addEventListener('mouseleave', () => moveIndicatorTo(activeLink));
+    navEl.addEventListener('focusout', (e) => {
+      const next = (e as FocusEvent).relatedTarget as Node | null;
+      if (!next || !navEl.contains(next)) moveIndicatorTo(activeLink);
+    });
+
+    window.addEventListener('resize', () => moveIndicatorTo(activeLink));
+  }
 </script>

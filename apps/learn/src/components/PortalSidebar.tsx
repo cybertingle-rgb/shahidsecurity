@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PortalIcon, type PortalIconName } from './PortalIcon';
@@ -40,17 +40,60 @@ function initials(name: string) {
   return (first + last).toUpperCase();
 }
 
+interface IndicatorRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
 export default function PortalSidebar({ sections, userName, userRole, profileHref, logoutAction, storageKey }: PortalSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState<IndicatorRect | null>(null);
+  const [indicatorReady, setIndicatorReady] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     try {
       setCollapsed(window.localStorage.getItem(storageKey) === '1');
     } catch {
       // Private browsing / blocked storage — default to expanded.
     }
   }, [storageKey]);
+
+  function measure(el: HTMLElement | null) {
+    const container = scrollRef.current;
+    if (!el || !container) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    setIndicator({
+      top: elRect.top - containerRect.top + container.scrollTop,
+      left: elRect.left - containerRect.left,
+      width: elRect.width,
+      height: elRect.height,
+    });
+    setIndicatorReady(true);
+  }
+
+  function moveToActive() {
+    const container = scrollRef.current;
+    const active = container?.querySelector<HTMLElement>('.portal-sidebar-item.is-active');
+    if (active) measure(active);
+    else setIndicatorReady(false);
+  }
+
+  // Re-measure on route change and on collapse/expand (item widths/positions shift).
+  useLayoutEffect(() => {
+    moveToActive();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, collapsed]);
+
+  useLayoutEffect(() => {
+    const onResize = () => moveToActive();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   function toggle() {
     setCollapsed((prev) => {
@@ -97,7 +140,20 @@ export default function PortalSidebar({ sections, userName, userRole, profileHre
         userRow
       )}
 
-      <div className="portal-sidebar-scroll">
+      <div className="portal-sidebar-scroll" ref={scrollRef} onMouseLeave={moveToActive}>
+        <span
+          className={`portal-sidebar-indicator${indicatorReady ? ' is-ready' : ''}`}
+          aria-hidden="true"
+          style={
+            indicator
+              ? {
+                  transform: `translate(${indicator.left}px, ${indicator.top}px)`,
+                  width: indicator.width,
+                  height: indicator.height,
+                }
+              : undefined
+          }
+        />
         {sections.map((section, i) => (
           <div key={section.label ?? i} className="portal-sidebar-section">
             {section.label && !collapsed && <p className="portal-sidebar-label">{section.label}</p>}
@@ -109,6 +165,7 @@ export default function PortalSidebar({ sections, userName, userRole, profileHre
                   href={item.href}
                   className={`portal-sidebar-item${active ? ' is-active' : ''}${item.accent ? ' is-accent' : ''}`}
                   title={collapsed ? item.label : undefined}
+                  onMouseEnter={(e) => measure(e.currentTarget)}
                 >
                   <PortalIcon name={item.icon} className="portal-sidebar-icon" />
                   {!collapsed && <span className="portal-sidebar-item-label">{item.label}</span>}
@@ -120,7 +177,12 @@ export default function PortalSidebar({ sections, userName, userRole, profileHre
 
         <div className="portal-sidebar-section">
           <form action={logoutAction}>
-            <button type="submit" className="portal-sidebar-item portal-sidebar-logout" title={collapsed ? 'Log out' : undefined}>
+            <button
+              type="submit"
+              className="portal-sidebar-item portal-sidebar-logout"
+              title={collapsed ? 'Log out' : undefined}
+              onMouseEnter={(e) => measure(e.currentTarget)}
+            >
               <PortalIcon name="log-out" className="portal-sidebar-icon" />
               {!collapsed && <span className="portal-sidebar-item-label">Log out</span>}
             </button>

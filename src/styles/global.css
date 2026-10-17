@@ -241,7 +241,7 @@
 
   .btn-primary {
     background: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
-    color: #05060d;
+    color: white;
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-neon-soft) 45%, transparent),
       0 8px 24px -6px color-mix(in oklab, var(--color-neon-soft) 65%, transparent),
