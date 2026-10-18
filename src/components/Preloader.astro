@@ -8,18 +8,58 @@ import path from 'node:path';
 const shieldSvg = readFileSync(path.join(process.cwd(), 'public/brand/shield-icon.svg'), 'utf8');
 const shieldPath = shieldSvg.match(/ d="([^"]+)"/)?.[1] ?? '';
 
-// A dense field of shield icons raining top-to-bottom behind the main
-// logo — fixed column positions/sizes/timing (not random per-request, so
-// SSR output is deterministic) matching CSS rules of the same index below.
-const RAIN_ICONS = Array.from({ length: 40 }, (_, i) => i);
+// A dense field of Linux commands raining top-to-bottom behind the main
+// logo, each one "typing" itself out as it falls (a width-reveal on the
+// text, timed to the same duration as its fall) rather than appearing
+// all at once — basic-to-advanced commands, fitting the ethical-hacking
+// brand. Fixed per-column left/duration/delay (not random per-request,
+// so SSR output is deterministic) reused from the icon-rain field this
+// replaced; each is paired with a command and its character count, which
+// sets the CSS custom property the typing animation reveals to.
+const RAIN_COMMANDS = [
+  'ls -la', 'pwd', 'whoami', 'cd /var/log', 'mkdir project', 'cp file.txt backup/',
+  'rm -rf tmp/', 'touch notes.txt', 'cat README.md', 'history | tail',
+  'chmod 755 scan.sh', 'chown root:root key.pem', 'ps aux | grep nginx', 'df -h',
+  'du -sh *', 'grep -r "error" /var/log', 'tar -xzvf archive.tar.gz', 'ssh user@10.0.0.5',
+  'scp report.pdf host:/tmp', 'kill -9 1337', 'sudo systemctl restart nginx',
+  'iptables -L -n -v', 'nmap -sV -p- 10.0.0.1', 'netstat -tulpn', "awk '{print $1}' access.log",
+  'find / -perm -4000 2>/dev/null', 'openssl req -x509 -newkey rsa:4096',
+  'journalctl -u sshd --since today', 'tcpdump -i eth0 port 443',
+];
+const RAIN_POSITIONS = [
+  { left: 2.4, dur: 5.39, delay: -5.13 }, { left: 9.1, dur: 3.52, delay: -1.51 },
+  { left: 16.4, dur: 4.86, delay: -1.44 }, { left: 23.5, dur: 5.93, delay: -3.73 },
+  { left: 30.9, dur: 3.51, delay: -5.25 }, { left: 38.0, dur: 5.89, delay: -4.52 },
+  { left: 44.9, dur: 3.9, delay: -5.13 }, { left: 51.7, dur: 4.97, delay: -2.69 },
+  { left: 58.4, dur: 4.1, delay: -0.88 }, { left: 64.0, dur: 6.45, delay: -4.21 },
+  { left: 70.4, dur: 3.47, delay: -4.13 }, { left: 77.3, dur: 3.71, delay: -3.23 },
+  { left: 84.3, dur: 5.12, delay: -2.5 }, { left: 3.1, dur: 3.82, delay: -1.57 },
+  { left: 11.4, dur: 3.26, delay: -3.98 }, { left: 18.4, dur: 5.52, delay: -5.61 },
+  { left: 25.3, dur: 5.82, delay: -5.06 }, { left: 33.9, dur: 4.45, delay: -5.24 },
+  { left: 40.6, dur: 3.71, delay: -5.15 }, { left: 47.5, dur: 3.48, delay: -5.83 },
+  { left: 54.4, dur: 3.74, delay: -3.78 }, { left: 61.1, dur: 4.26, delay: -4.42 },
+  { left: 68.1, dur: 3.58, delay: -4.17 }, { left: 74.2, dur: 3.24, delay: -3.93 },
+  { left: 81.6, dur: 3.14, delay: -2.75 }, { left: 88.3, dur: 3.01, delay: -5.99 },
+  { left: 5.6, dur: 3.94, delay: -3.66 }, { left: 94.9, dur: 4.28, delay: -5.04 },
+];
+const RAIN = RAIN_POSITIONS.map((pos, i) => ({
+  ...pos,
+  text: RAIN_COMMANDS[i % RAIN_COMMANDS.length],
+  chars: RAIN_COMMANDS[i % RAIN_COMMANDS.length].length,
+  variant: i % 2 === 0 ? 'a' : 'b',
+}));
 ---
 
 <div id="preloader" role="presentation" aria-hidden="true">
   <div class="preloader-rain">
-    {RAIN_ICONS.map((i) => (
-      <svg viewBox="0 0 1024 1024" class="preloader-rain-icon" data-i={i} xmlns="http://www.w3.org/2000/svg">
-        <path fill="#4dd4ff" fill-rule="evenodd" d={shieldPath}></path>
-      </svg>
+    {RAIN.map((item, i) => (
+      <div
+        class={`preloader-rain-cmd preloader-rain-cmd-${item.variant}`}
+        data-i={i}
+        style={`left:${item.left}%; --dur:${item.dur}s; --delay:${item.delay}s; --chars:${item.chars}ch;`}
+      >
+        <span class="preloader-rain-cmd-text font-mono">{item.text}</span>
+      </div>
     ))}
   </div>
   <div class="preloader-shield-backdrop" aria-hidden="true"></div>
@@ -55,7 +95,7 @@ const RAIN_ICONS = Array.from({ length: 40 }, (_, i) => i);
     pointer-events: none;
   }
 
-  /* Full-screen field of small shield icons falling top-to-bottom behind
+  /* Full-screen field of Linux commands falling top-to-bottom behind
      the main logo — the "rain" look, in the neon blue accent, at 80%
      layer opacity so it reads as a dense backdrop without competing with
      the big green shield on top of it. */
@@ -68,93 +108,75 @@ const RAIN_ICONS = Array.from({ length: 40 }, (_, i) => i);
     pointer-events: none;
   }
 
-  /* Each icon is roughly half the main shield's size (that one is
-     min(35vw, 35vh); these range ~13–19vw/vh, centered on half) — square
-     via aspect-ratio so only width needs setting per icon below. `left` is
-     each icon's horizontal center (translateX(-50%), composed into the
-     fall keyframes below since a keyframe's transform replaces rather
-     than adds to the element's own). Full-width coverage — the shield
-     staying visually in front of anything passing behind it is handled
-     by .preloader-shield-backdrop below, not by keeping rain out of that
-     area, so the field can be dense edge-to-edge. */
-  .preloader-rain-icon {
+  /* Each column is one falling command. `left` (set inline per item in
+     the markup, along with --dur/--delay/--chars) is the column's left
+     edge — unlike the old icon rain this isn't centered/transformed,
+     since text reading left-to-right as it "types" looks right growing
+     from a fixed left edge, not from the middle. Two fall variants
+     (a/b, picked per item in the markup) give the field slight drift
+     variety without the per-icon rotation that read oddly on text.
+     Full-width coverage — the shield staying visually in front of
+     anything passing behind it is handled by .preloader-shield-backdrop
+     below, not by keeping rain out of that area. */
+  .preloader-rain-cmd {
     position: absolute;
-    top: -15%;
-    aspect-ratio: 1;
-    filter: drop-shadow(0 0 8px rgba(77, 212, 255, 0.75));
+    top: -8%;
+    max-width: 90vw;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
+    animation-duration: var(--dur);
+    animation-delay: var(--delay);
   }
 
-  .preloader-rain-icon[data-i='0'] { left: 25.9%; width: min(17.1vw, 17.1vh); animation-duration: 5.39s; animation-delay: -5.13s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='1'] { left: 18.6%; width: min(14.4vw, 14.4vh); animation-duration: 3.52s; animation-delay: -1.51s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='2'] { left: 73.4%; width: min(13.8vw, 13.8vh); animation-duration: 4.86s; animation-delay: -1.44s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='3'] { left: 29.5%; width: min(15.6vw, 15.6vh); animation-duration: 5.93s; animation-delay: -3.73s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='4'] { left: 1.4%; width: min(14.7vw, 14.7vh); animation-duration: 3.51s; animation-delay: -5.25s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='5'] { left: 81.0%; width: min(17.8vw, 17.8vh); animation-duration: 5.89s; animation-delay: -4.52s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='6'] { left: 94.9%; width: min(17.8vw, 17.8vh); animation-duration: 3.9s; animation-delay: -5.13s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='7'] { left: 48.7%; width: min(17.5vw, 17.5vh); animation-duration: 4.97s; animation-delay: -2.69s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='8'] { left: 36.4%; width: min(15.6vw, 15.6vh); animation-duration: 4.1s; animation-delay: -0.88s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='9'] { left: 82.0%; width: min(17.8vw, 17.8vh); animation-duration: 6.45s; animation-delay: -4.21s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='10'] { left: 55.4%; width: min(17.5vw, 17.5vh); animation-duration: 3.47s; animation-delay: -4.13s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='11'] { left: 44.3%; width: min(14.1vw, 14.1vh); animation-duration: 3.71s; animation-delay: -3.23s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='12'] { left: 25.3%; width: min(15.8vw, 15.8vh); animation-duration: 5.12s; animation-delay: -2.5s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='13'] { left: 13.1%; width: min(15.9vw, 15.9vh); animation-duration: 3.82s; animation-delay: -1.57s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='14'] { left: 19.4%; width: min(15.2vw, 15.2vh); animation-duration: 3.26s; animation-delay: -3.98s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='15'] { left: 95.4%; width: min(15.3vw, 15.3vh); animation-duration: 5.52s; animation-delay: -5.61s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='16'] { left: 4.3%; width: min(13.9vw, 13.9vh); animation-duration: 5.82s; animation-delay: -5.06s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='17'] { left: 63.9%; width: min(14vw, 14vh); animation-duration: 4.45s; animation-delay: -5.24s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='18'] { left: 88.6%; width: min(17.8vw, 17.8vh); animation-duration: 3.71s; animation-delay: -5.15s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='19'] { left: 37.5%; width: min(17.3vw, 17.3vh); animation-duration: 3.48s; animation-delay: -5.83s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='20'] { left: 60.4%; width: min(17.3vw, 17.3vh); animation-duration: 3.74s; animation-delay: -3.78s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='21'] { left: 58.1%; width: min(16.5vw, 16.5vh); animation-duration: 4.26s; animation-delay: -4.42s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='22'] { left: 34.1%; width: min(14.8vw, 14.8vh); animation-duration: 3.58s; animation-delay: -4.17s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='23'] { left: 11.2%; width: min(14.4vw, 14.4vh); animation-duration: 3.24s; animation-delay: -3.93s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='24'] { left: 55.6%; width: min(16.3vw, 16.3vh); animation-duration: 3.14s; animation-delay: -2.75s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='25'] { left: 34.3%; width: min(13.6vw, 13.6vh); animation-duration: 3.01s; animation-delay: -5.99s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='26'] { left: 12.2%; width: min(14.8vw, 14.8vh); animation-duration: 3.94s; animation-delay: -3.66s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='27'] { left: 7.7%; width: min(15.8vw, 15.8vh); animation-duration: 4.28s; animation-delay: -5.04s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='28'] { left: 0.6%; width: min(15vw, 15vh); animation-duration: 4.74s; animation-delay: -5.82s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='29'] { left: 51.7%; width: min(15.8vw, 15.8vh); animation-duration: 5.34s; animation-delay: -1.92s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='30'] { left: 3.2%; width: min(16vw, 16vh); animation-duration: 6.19s; animation-delay: -4.48s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='31'] { left: 25.8%; width: min(17.1vw, 17.1vh); animation-duration: 5.97s; animation-delay: -1.7s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='32'] { left: 58.8%; width: min(15.1vw, 15.1vh); animation-duration: 3.85s; animation-delay: -1.87s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='33'] { left: 20.4%; width: min(15.1vw, 15.1vh); animation-duration: 3.13s; animation-delay: -2.51s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='34'] { left: 8.7%; width: min(17.5vw, 17.5vh); animation-duration: 5.1s; animation-delay: -0.22s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='35'] { left: 77.4%; width: min(14.1vw, 14.1vh); animation-duration: 4.68s; animation-delay: -3.42s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='36'] { left: 33.3%; width: min(14.7vw, 14.7vh); animation-duration: 4.52s; animation-delay: -0.99s; animation-name: preloader-rain-fall-a; }
-  .preloader-rain-icon[data-i='37'] { left: 86.4%; width: min(13.7vw, 13.7vh); animation-duration: 5.88s; animation-delay: -1.47s; animation-name: preloader-rain-fall-b; }
-  .preloader-rain-icon[data-i='38'] { left: 30.3%; width: min(15.3vw, 15.3vh); animation-duration: 3.12s; animation-delay: -0.94s; animation-name: preloader-rain-fall-c; }
-  .preloader-rain-icon[data-i='39'] { left: 36.1%; width: min(15.7vw, 15.7vh); animation-duration: 6.07s; animation-delay: -5.94s; animation-name: preloader-rain-fall-a; }
+  .preloader-rain-cmd-a {
+    animation-name: preloader-rain-fall-a;
+  }
 
-  /* Three fall variants (different sway direction/rotation) so the field
-     doesn't look like one icon repeated — each fades in, drifts and
-     rotates gently through the fall, and fades out before the loop
-     restarts, rather than a flat linear drop. The X component is always
-     calc(-50% + sway) — the -50% centers the icon on its `left` position
-     (set per-icon above), composed with the sway itself since a CSS
-     animation's keyframe transform fully replaces the element's own,
-     rather than adding to it. */
+  .preloader-rain-cmd-b {
+    animation-name: preloader-rain-fall-b;
+  }
+
+  /* The command text itself: starts at zero width with hidden overflow,
+     then animates open to its full character width (--chars, set inline
+     per item) on the same duration/delay as its column's fall — reading
+     as the command "typing itself out" as it drops down the screen. */
+  .preloader-rain-cmd-text {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+    font-size: clamp(0.6rem, 1.35vw, 0.85rem);
+    color: #4dd4ff;
+    text-shadow: 0 0 8px rgba(77, 212, 255, 0.75);
+    animation: preloader-rain-type var(--dur) linear var(--delay) infinite;
+  }
+
+  /* Two fall variants (slightly different horizontal drift) so the field
+     doesn't look like one column repeated — each fades in, drifts gently
+     downward, and fades out before the loop restarts, rather than a flat
+     linear drop. */
   @keyframes preloader-rain-fall-a {
-    0% { transform: translate(calc(-50% + 0vw), -20vh) rotate(-4deg); opacity: 0; }
+    0% { transform: translate(0vw, -10vh); opacity: 0; }
     10% { opacity: 1; }
-    50% { transform: translate(calc(-50% + 2.5vw), 50vh) rotate(4deg); }
+    50% { transform: translate(1.5vw, 55vh); }
     90% { opacity: 1; }
-    100% { transform: translate(calc(-50% - 2vw), 120vh) rotate(-6deg); opacity: 0; }
+    100% { transform: translate(-1vw, 120vh); opacity: 0; }
   }
   @keyframes preloader-rain-fall-b {
-    0% { transform: translate(calc(-50% + 0vw), -20vh) rotate(5deg); opacity: 0; }
+    0% { transform: translate(0vw, -10vh); opacity: 0; }
     10% { opacity: 1; }
-    50% { transform: translate(calc(-50% - 3vw), 50vh) rotate(-5deg); }
+    50% { transform: translate(-1.5vw, 55vh); }
     90% { opacity: 1; }
-    100% { transform: translate(calc(-50% + 2vw), 120vh) rotate(6deg); opacity: 0; }
+    100% { transform: translate(1vw, 120vh); opacity: 0; }
   }
-  @keyframes preloader-rain-fall-c {
-    0% { transform: translate(calc(-50% + 0vw), -20vh) rotate(0deg); opacity: 0; }
-    10% { opacity: 1; }
-    50% { transform: translate(calc(-50% + 1.5vw), 50vh) rotate(2deg); }
-    90% { opacity: 1; }
-    100% { transform: translate(calc(-50% - 1.5vw), 120vh) rotate(-2deg); opacity: 0; }
+
+  /* The "typing" reveal — opens to the command's full width early in the
+     fall (by 35%) and holds it open for the rest, rather than widening
+     across the whole fall, so it reads as a quick type-out rather than a
+     slow stretch. */
+  @keyframes preloader-rain-type {
+    0% { width: 0; }
+    35%, 100% { width: var(--chars); }
   }
 
   /* Opaque halo sitting between the rain and the shield, bigger than the
