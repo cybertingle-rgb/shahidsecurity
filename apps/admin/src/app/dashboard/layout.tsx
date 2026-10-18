@@ -2,31 +2,30 @@ import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
-import { SidebarNav } from './_components/SidebarNav';
-import { SidebarBrand } from './_components/SidebarBrand';
-import { AppSwitcher } from './_components/AppSwitcher';
+import { logoutAction } from './logout-action';
+import { DashboardShell } from './_components/DashboardShell';
 
+/**
+ * Same glass-portal shell as apps/learn/src/app/dashboard/layout.tsx —
+ * this app's own shell had drifted onto a bare utility-class sidebar
+ * (no glass styling, no collapse, no sliding active indicator) while
+ * learn's got the full treatment, which is why the two apps read as
+ * visually inconsistent. Ported PortalSidebar/PortalIcon over; the
+ * actual rendering (which needs usePathname() to pick the Business vs
+ * Learn nav section and brand logo) lives in the client DashboardShell
+ * component below, same split the old SidebarBrand.tsx already used.
+ */
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const user = await getSessionUser();
-  if (!user) { redirect('/login'); }
+  if (!user) {
+    redirect('/login');
+  }
+
   const roleNames = await getUserRoleNames(user.id);
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-56 shrink-0 border-r border-border bg-bg-elevated p-4">
-        <SidebarBrand />
-        <SidebarNav />
-        <div className="mt-8 border-t border-border pt-4 text-xs text-text-muted">
-          <p>{user.fullName}</p>
-          <p>{[...roleNames].join(', ') || 'No role assigned'}</p>
-        </div>
-      </aside>
-      <main className="flex-1 p-6">
-        <div className="mb-6 flex justify-end">
-          <AppSwitcher />
-        </div>
-        {children}
-      </main>
-    </div>
+    <DashboardShell userName={user.fullName} userRole={[...roleNames].join(', ') || 'No role assigned'} logoutAction={logoutAction}>
+      {children}
+    </DashboardShell>
   );
 }
