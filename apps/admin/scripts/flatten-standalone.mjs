@@ -19,7 +19,7 @@
 // directly beside the already-correct node_modules, so
 // .next/standalone/server.js ends up fully self-contained — the
 // layout Next's own docs assume and Hostinger's product expects.
-import { cpSync, existsSync, readdirSync, readlinkSync, rmSync, symlinkSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readlinkSync, rmSync, symlinkSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -106,6 +106,65 @@ function fixAbsoluteSymlinks(dir) {
 }
 fixAbsoluteSymlinks(path.join(standaloneDir, 'node_modules'));
 console.log(`flatten-standalone: rewrote ${fixedCount} absolute symlink(s) to relative.`);
+
+// Next's tracer only pre-creates a handful of top-level node_modules
+// symlinks (confirmed against a real deploy: just `next` and `sharp`)
+// for packages it expects compiled code to require by bare name at
+// runtime — but that set isn't complete or predictable. A real deploy
+// crashed with "Cannot find module
+// '.../node_modules/@swc/helpers/esm/_interop_require_default.js'":
+// Turbopack's compiled runtime chunk does an externalRequire for
+// @swc/helpers, which was never given a top-level symlink even though
+// the real package sits right there in node_modules/.pnpm. Rather than
+// guess which specific packages Turbopack's runtime will decide to
+// require externally (it clearly isn't limited to `next`/`sharp`, and
+// there's no documented list), this gives every real package actually
+// stored under .pnpm a top-level symlink, matching what a flat (non-
+// monorepo) install would already provide for free. Pure filesystem
+// introspection, not pnpm folder-name parsing (version strings and
+// peer-dep suffixes in those names make that fragile) — each .pnpm/<X>
+// entry has exactly one real (non-symlink) package directory inside
+// its own node_modules, found by walking it directly.
+function findRealPackageDir(nodeModulesDir) {
+  for (const entry of readdirSync(nodeModulesDir, { withFileTypes: true })) {
+    if (entry.isSymbolicLink() || !entry.isDirectory()) continue;
+    const fullPath = path.join(nodeModulesDir, entry.name);
+    if (entry.name.startsWith('@')) {
+      for (const scopedEntry of readdirSync(fullPath, { withFileTypes: true })) {
+        if (scopedEntry.isSymbolicLink() || !scopedEntry.isDirectory()) continue;
+        return { name: path.join(entry.name, scopedEntry.name), dir: path.join(fullPath, scopedEntry.name) };
+      }
+    } else {
+      return { name: entry.name, dir: fullPath };
+    }
+  }
+  return null;
+}
+
+const nodeModulesDir = path.join(standaloneDir, 'node_modules');
+const pnpmDir = path.join(nodeModulesDir, '.pnpm');
+let linkedCount = 0;
+if (existsSync(pnpmDir)) {
+  for (const entry of readdirSync(pnpmDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const entryNodeModules = path.join(pnpmDir, entry.name, 'node_modules');
+    if (!existsSync(entryNodeModules)) continue;
+    const pkg = findRealPackageDir(entryNodeModules);
+    if (!pkg) continue;
+    const linkPath = path.join(nodeModulesDir, pkg.name);
+    if (existsSync(linkPath)) continue; // already linked (e.g. next, sharp)
+    const linkParent = path.dirname(linkPath);
+    // linkParent is nodeModulesDir itself for an unscoped package (already
+    // exists) or a scope dir like node_modules/@swc for a scoped one,
+    // which may not exist yet if this is its first package — never remove
+    // it first, only create it if missing, so sibling scoped packages
+    // already linked here are never touched.
+    if (!existsSync(linkParent)) mkdirSync(linkParent, { recursive: true });
+    symlinkSync(path.relative(linkParent, pkg.dir), linkPath);
+    linkedCount += 1;
+  }
+}
+console.log(`flatten-standalone: added ${linkedCount} missing top-level node_modules symlink(s).`);
 
 // Standalone output never includes static assets or public/ — Next's own
 // docs require copying these in manually (see
