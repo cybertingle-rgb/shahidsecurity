@@ -483,3 +483,226 @@ textarea:focus {
     transition: opacity 150ms ease-out;
   }
 }
+
+/* Preloader (Preloader.tsx + PreloaderController.tsx) — ported from   */
+/* the root Astro site's src/components/Preloader.astro. See that      */
+/* file's comments for the full design reasoning (falling, self-typing */
+/* Linux commands behind the green shield, same 80%-opacity blue field  */
+/* this app's own cards already use for other glass accents).           */
+/* ------------------------------------------------------------------ */
+
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  background: var(--color-bg);
+  transition: opacity 300ms ease;
+}
+
+#preloader.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preloader-rain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.preloader-rain-cmd {
+  position: absolute;
+  top: -8%;
+  max-width: 90vw;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-duration: var(--dur);
+  animation-delay: var(--delay);
+}
+
+.preloader-rain-cmd-a {
+  animation-name: preloader-rain-fall-a;
+}
+
+.preloader-rain-cmd-b {
+  animation-name: preloader-rain-fall-b;
+}
+
+.preloader-rain-cmd-text {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  font-size: clamp(0.6rem, 1.35vw, 0.85rem);
+  color: #4dd4ff;
+  text-shadow: 0 0 8px rgba(77, 212, 255, 0.75);
+  animation: preloader-rain-type var(--dur) linear var(--delay) infinite;
+}
+
+@keyframes preloader-rain-fall-a {
+  0% { transform: translate(0vw, -10vh); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(1.5vw, 55vh); }
+  90% { opacity: 1; }
+  100% { transform: translate(-1vw, 120vh); opacity: 0; }
+}
+@keyframes preloader-rain-fall-b {
+  0% { transform: translate(0vw, -10vh); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(-1.5vw, 55vh); }
+  90% { opacity: 1; }
+  100% { transform: translate(1vw, 120vh); opacity: 0; }
+}
+@keyframes preloader-rain-type {
+  0% { width: 0; }
+  35%, 100% { width: var(--chars); }
+}
+
+.preloader-shield-backdrop {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: min(46vw, 46vh);
+  height: min(46vw, 46vh);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-bg) 0%, var(--color-bg) 55%, transparent 78%);
+  pointer-events: none;
+}
+
+.preloader-shield-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(35vw, 35vh);
+  height: min(35vw, 35vh);
+  opacity: 0;
+  animation: shield-flicker-in 900ms steps(12, end) 80ms forwards;
+}
+
+.preloader-shield {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 24px rgba(0, 191, 99, 0.7));
+  animation: shield-flicker 2.2s linear infinite;
+  animation-delay: 900ms;
+}
+
+.preloader-terminal {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(0.75rem, 2vw, 1.1rem);
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+  opacity: 0;
+  text-align: center;
+  animation: status-fade-in 400ms ease forwards 500ms;
+}
+
+.preloader-prompt {
+  color: var(--color-text-muted);
+  margin-right: 0.6em;
+}
+
+.preloader-typed {
+  display: none;
+}
+
+.preloader-terminal.is-animated .preloader-static {
+  display: none;
+}
+
+.preloader-terminal.is-animated .preloader-typed {
+  display: inline;
+}
+
+@keyframes shield-flicker-in {
+  0% { opacity: 0; }
+  8% { opacity: 0.8; }
+  12% { opacity: 0.1; }
+  20% { opacity: 0.9; }
+  26% { opacity: 0.2; }
+  34% { opacity: 1; }
+  40% { opacity: 0.3; }
+  48% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes shield-flicker {
+  0%, 91%, 100% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: drop-shadow(0 0 26px rgba(0, 191, 99, 0.85)) brightness(1.05);
+  }
+  92% {
+    opacity: 0.35;
+    transform: translateX(-2px);
+    filter: drop-shadow(0 0 6px rgba(0, 191, 99, 0.3)) brightness(0.6);
+  }
+  93% {
+    opacity: 1;
+    transform: translateX(1px);
+  }
+  94% {
+    opacity: 0.5;
+    transform: translateX(0);
+    filter: drop-shadow(0 0 10px rgba(0, 191, 99, 0.4)) brightness(0.7);
+  }
+  95%, 96.5% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: drop-shadow(0 0 26px rgba(0, 191, 99, 0.85)) brightness(1.05);
+  }
+  97% {
+    opacity: 0.2;
+    filter: drop-shadow(0 0 4px rgba(0, 191, 99, 0.25)) brightness(0.5);
+  }
+  97.5% {
+    opacity: 1;
+  }
+}
+
+@keyframes status-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes blink-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink-cursor 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader-shield-wrap {
+    opacity: 1;
+    animation: none;
+  }
+  .preloader-shield {
+    animation: none;
+    filter: drop-shadow(0 0 24px rgba(0, 191, 99, 0.7));
+  }
+  .preloader-terminal {
+    animation: none;
+    opacity: 1;
+  }
+  .preloader-rain {
+    display: none;
+  }
+  .cursor-blink {
+    animation: none;
+    opacity: 1;
+  }
+}
