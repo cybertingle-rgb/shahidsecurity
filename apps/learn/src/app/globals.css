@@ -831,7 +831,7 @@ textarea:focus {
   z-index: 40;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 
 .social-ring {
@@ -844,9 +844,9 @@ textarea:focus {
 .social-ring::after {
   content: '';
   position: absolute;
-  inset: -3px;
+  inset: -4px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 2.5px;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -895,22 +895,22 @@ textarea:focus {
 /* "Expand through the border" on hover — the ring sits further out and
    grows thicker/brighter instead of just sitting still. */
 .social-ring:hover::before {
-  inset: -5px;
-  padding: 3px;
+  inset: -7px;
+  padding: 4px;
 }
 
 .social-ring:hover::after {
-  inset: -6px;
-  padding: 4px;
-  filter: blur(10px);
+  inset: -8px;
+  padding: 5px;
+  filter: blur(12px);
   opacity: 1;
 }
 
 .social-pill {
   display: flex;
   align-items: center;
-  height: 2.75rem;
-  width: 2.75rem;
+  height: 3.5rem;
+  width: 3.5rem;
   overflow: hidden;
   border-radius: 999px;
   border: 1px solid var(--color-border-strong);
@@ -925,7 +925,7 @@ textarea:focus {
 }
 
 .social-pill:hover {
-  width: 9.5rem;
+  width: 11.5rem;
   border-color: var(--color-neon);
   color: var(--color-text);
   box-shadow: 0 0 20px -6px var(--color-neon);
@@ -965,13 +965,13 @@ textarea:focus {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 3.5rem;
+  height: 3.5rem;
 }
 
 .social-icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.6rem;
+  height: 1.6rem;
   transition: color 220ms ease;
 }
 
@@ -981,9 +981,9 @@ textarea:focus {
 
 .social-label {
   white-space: nowrap;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  padding-right: 1rem;
+  padding-right: 1.1rem;
   opacity: 0;
   transition: opacity 180ms ease 60ms;
 }
@@ -1004,14 +1004,14 @@ textarea:focus {
 
   .social-pill,
   .social-pill:hover {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3.25rem;
+    height: 3.25rem;
     background: color-mix(in oklab, var(--color-bg) 92%, transparent);
   }
 
   .social-icon {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3.25rem;
+    height: 3.25rem;
   }
 
   .social-label {
