@@ -1,9 +1,16 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
 
 /*
  * Brand tokens copied from the existing site's src/styles/global.css
  * (values only, not components — see docs/lms-architecture.md §5:
  * "Learn with Shahid must look like it belongs to Shahid Security").
+ * Fonts were never ported alongside the color tokens, though — this app
+ * was falling back to system fonts the whole time instead of the brand's
+ * Inter/Space Grotesk/JetBrains Mono, unlike the Astro site. Added here
+ * to close that gap.
  */
 @theme {
   /* Neutrals: cool/indigo-tinted near-black and off-white, matching the
@@ -41,6 +48,10 @@
   --color-success-soft: #2fe08a;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 
 body {
@@ -49,6 +60,17 @@ body {
     radial-gradient(ellipse 1000px 800px at 100% 100%, color-mix(in oklab, #3b9bff 6%, transparent), transparent 55%),
     var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
 
 /* ------------------------------------------------------------------ */
