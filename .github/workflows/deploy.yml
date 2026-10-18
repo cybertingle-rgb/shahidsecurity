@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Decode deploy key
         # DEPLOY_SSH_KEY_B64 is the private key run through `base64 -w0` on
