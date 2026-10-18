@@ -1,6 +1,7 @@
 'use client';
 
 import { useLayoutEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PortalIcon, type PortalIconName } from './PortalIcon';
@@ -27,6 +28,8 @@ interface PortalSidebarProps {
   sections: PortalNavSection[];
   userName: string;
   userRole: string;
+  /** A real photo instead of the generated initials circle, when one is set for this account. */
+  avatarUrl?: string;
   profileHref?: string;
   logoutAction: () => void | Promise<void>;
   /** Separate localStorage key per sidebar instance so collapse state doesn't leak between them. */
@@ -52,7 +55,7 @@ interface IndicatorRect {
   height: number;
 }
 
-export default function PortalSidebar({ sections, userName, userRole, profileHref, logoutAction, storageKey }: PortalSidebarProps) {
+export default function PortalSidebar({ sections, userName, userRole, avatarUrl, profileHref, logoutAction, storageKey }: PortalSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -114,7 +117,11 @@ export default function PortalSidebar({ sections, userName, userRole, profileHre
 
   const userRow = (
     <div className="portal-sidebar-user">
-      <span className="portal-sidebar-avatar">{initials(userName)}</span>
+      {avatarUrl ? (
+        <Image src={avatarUrl} alt="" width={80} height={80} className="portal-sidebar-avatar portal-sidebar-avatar-img" />
+      ) : (
+        <span className="portal-sidebar-avatar">{initials(userName)}</span>
+      )}
       {!collapsed && (
         <span className="portal-sidebar-user-text">
           <span className="portal-sidebar-user-name">{userName}</span>

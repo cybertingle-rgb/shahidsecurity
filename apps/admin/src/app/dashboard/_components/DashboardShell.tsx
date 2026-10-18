@@ -11,6 +11,7 @@ import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar
 interface DashboardShellProps {
   userName: string;
   userRole: string;
+  avatarUrl?: string;
   logoutAction: () => void | Promise<void>;
   children: ReactNode;
 }
@@ -23,7 +24,7 @@ interface DashboardShellProps {
  * actual session/role lookup stays in layout.tsx (a Server Component),
  * which passes the already-resolved userName/userRole down as props.
  */
-export function DashboardShell({ userName, userRole, logoutAction, children }: DashboardShellProps) {
+export function DashboardShell({ userName, userRole, avatarUrl, logoutAction, children }: DashboardShellProps) {
   const pathname = usePathname();
   const inLearn = pathname?.startsWith(LEARN_SECTION_PREFIX) ?? false;
   const sections: PortalNavSection[] = inLearn ? [{ items: LEARN_NAV }] : [{ items: BUSINESS_NAV }];
@@ -52,6 +53,7 @@ export function DashboardShell({ userName, userRole, logoutAction, children }: D
           sections={sections}
           userName={userName}
           userRole={userRole}
+          avatarUrl={avatarUrl}
           logoutAction={logoutAction}
           storageKey="admin-dashboard-sidebar-collapsed"
         />

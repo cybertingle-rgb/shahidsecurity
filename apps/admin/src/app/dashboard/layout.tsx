@@ -22,9 +22,15 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   const roleNames = await getUserRoleNames(user.id);
+  const isSuperAdmin = roleNames.has('super_admin');
 
   return (
-    <DashboardShell userName={user.fullName} userRole={[...roleNames].join(', ') || 'No role assigned'} logoutAction={logoutAction}>
+    <DashboardShell
+      userName={isSuperAdmin ? 'Shahid Iqbal' : user.fullName}
+      userRole={[...roleNames].join(', ') || 'No role assigned'}
+      avatarUrl={isSuperAdmin ? '/avatars/shahid.jpg' : undefined}
+      logoutAction={logoutAction}
+    >
       {children}
     </DashboardShell>
   );
