@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import EduBackground from '@/components/EduBackground';
+import RainField from '@/components/RainField';
 import AuthCard from '@/components/AuthCard';
 
 type Status = 'verifying' | 'success' | 'error';
@@ -76,7 +76,7 @@ function VerifyEmailInner() {
 export default function VerifyEmailPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
-      <EduBackground />
+      <RainField />
       <Suspense
         fallback={
           <AuthCard title="Verifying…">

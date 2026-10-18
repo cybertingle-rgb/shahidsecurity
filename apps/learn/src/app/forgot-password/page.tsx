@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import EduBackground from '@/components/EduBackground';
+import RainField from '@/components/RainField';
 import AuthCard from '@/components/AuthCard';
 
 export default function ForgotPasswordPage() {
@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
-      <EduBackground />
+      <RainField />
       <AuthCard title="Reset your password">
         {message ? (
           <p className="text-center text-sm text-text-muted">{message}</p>

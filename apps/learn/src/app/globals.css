@@ -850,6 +850,21 @@ textarea:focus {
   pointer-events: none;
 }
 
+/* Persistent version of the preloader's command rain (RainField.tsx) —
+   sits fixed behind auth forms instead of as a one-time full-screen
+   overlay. Reuses the exact same .preloader-rain-cmd/-text rules and
+   keyframes above (same visual, just a different, non-removing
+   container) rather than duplicating them under a new name. */
+.rain-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.55;
+  pointer-events: none;
+  background: var(--color-bg);
+}
+
 .preloader-rain {
   position: absolute;
   inset: 0;
