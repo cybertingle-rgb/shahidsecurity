@@ -40,9 +40,34 @@ if (!existsSync(nestedAppDir)) {
 // an existing path of a different type — even with force: true (its
 // default) — and throws EEXIST. Removing the destination first makes this
 // safe to re-run against a dirty build directory, not just a pristine one.
+//
+// node_modules is handled separately (merged, not replaced): confirmed
+// against a real deploy of the sibling admin app that the naive version
+// of this loop — rmSync the destination, then cpSync the source, for
+// every entry including node_modules — was silently destroying the real,
+// comprehensive node_modules that Next's bundler already places at the
+// top level of .next/standalone (see this file's header comment),
+// replacing it with nestedAppDir's own node_modules, which contains only
+// the handful of per-app-hoisted symlinks pnpm creates there (e.g. just
+// `next`) — not the actual dependency tree. The deployed app ended up
+// with a node_modules holding a single, now-dangling `next` symlink and
+// nothing else, crashing with "Cannot find module 'next'" despite this
+// script having reported success. Merging each nested node_modules entry
+// into the existing top-level one (instead of wiping the directory
+// first) keeps the real tree intact while still layering in whatever the
+// nested one has.
 for (const entry of readdirSync(nestedAppDir)) {
   const src = path.join(nestedAppDir, entry);
   const dest = path.join(standaloneDir, entry);
+  if (entry === 'node_modules') {
+    for (const subEntry of readdirSync(src)) {
+      const subSrc = path.join(src, subEntry);
+      const subDest = path.join(dest, subEntry);
+      rmSync(subDest, { recursive: true, force: true });
+      cpSync(subSrc, subDest, { recursive: true });
+    }
+    continue;
+  }
   rmSync(dest, { recursive: true, force: true });
   cpSync(src, dest, { recursive: true });
 }
