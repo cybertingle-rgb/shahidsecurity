@@ -368,6 +368,11 @@ textarea:focus {
   background: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
 }
 
+.portal-sidebar-avatar-img {
+  object-fit: cover;
+  border: 1px solid color-mix(in oklab, white 15%, transparent);
+}
+
 .portal-sidebar-user-text {
   display: flex;
   min-width: 0;
@@ -869,7 +874,7 @@ textarea:focus {
   z-index: 40;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1.6rem;
 }
 
 .social-ring {
@@ -926,19 +931,22 @@ textarea:focus {
     transparent 280deg,
     transparent 360deg
   );
-  filter: blur(7px);
-  opacity: 0.8;
+  filter: blur(4px);
+  opacity: 0.55;
 }
 
+/* Kept modest (not the huge blur this used to be) specifically so the
+   hovered icon's glow doesn't visually bleed into its neighbors a mere
+   1.6rem away and make the whole rail look lit up at once. */
 .social-ring:hover::before {
-  inset: -7px;
-  padding: 4px;
+  inset: -5px;
+  padding: 3px;
 }
 
 .social-ring:hover::after {
-  inset: -8px;
-  padding: 5px;
-  filter: blur(12px);
+  inset: -6px;
+  padding: 3.5px;
+  filter: blur(6px);
   opacity: 1;
 }
 
@@ -1068,6 +1076,14 @@ textarea:focus {
     transition: none;
     animation: none;
   }
+}
+
+/* MatrixCursor.tsx — canvas the Matrix-digit cursor trail draws into. */
+.cursor-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
 }
 
 /* A dark, half-opaque "terminal window" rather than a plain glass

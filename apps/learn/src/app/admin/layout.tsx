@@ -86,6 +86,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!isAdmin) {
     notFound();
   }
+  const isSuperAdmin = roleNames.has('super_admin');
 
   return (
     <div className="min-h-screen bg-bg text-text">
@@ -99,14 +100,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </Link>
         <div className="text-center">
           <p className="text-sm font-medium tracking-wide text-neon">Learn with Shahid — Admin</p>
-          <p className="text-lg font-semibold">{user.fullName}</p>
+          <p className="text-lg font-semibold">{isSuperAdmin ? 'Shahid Iqbal' : user.fullName}</p>
         </div>
       </header>
       <div className="flex flex-col gap-6 p-6 sm:flex-row">
         <PortalSidebar
           sections={NAV_SECTIONS}
-          userName={user.fullName}
-          userRole={roleNames.has('super_admin') ? 'Super Admin' : 'Admin'}
+          userName={isSuperAdmin ? 'Shahid Iqbal' : user.fullName}
+          userRole={isSuperAdmin ? 'Super Admin' : 'Admin'}
+          avatarUrl={isSuperAdmin ? '/avatars/shahid.jpg' : undefined}
           logoutAction={logoutAction}
           storageKey="learn-admin-sidebar-collapsed"
         />

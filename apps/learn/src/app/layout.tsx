@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
 import LunaWidget from '@/components/LunaWidget';
+import MatrixCursor from '@/components/MatrixCursor';
 import { Preloader } from '@/components/Preloader';
 import { env } from '@/lib/env';
 
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <Preloader />
+        <MatrixCursor />
         {children}
         <LunaWidget />
       </body>

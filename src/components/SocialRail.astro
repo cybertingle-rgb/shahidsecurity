@@ -80,7 +80,7 @@ import { site, whatsappLink } from '@/lib/site';
     z-index: 40;
     display: flex;
     flex-direction: column;
-    gap: 0.9rem;
+    gap: 1.6rem;
   }
 
   /* A registered custom property lets the browser animate the conic
@@ -151,8 +151,8 @@ import { site, whatsappLink } from '@/lib/site';
       transparent 280deg,
       transparent 360deg
     );
-    filter: blur(7px);
-    opacity: 0.8;
+    filter: blur(4px);
+    opacity: 0.55;
   }
 
   @keyframes social-ring-spin {
@@ -162,16 +162,19 @@ import { site, whatsappLink } from '@/lib/site';
   }
 
   /* "Expand through the border" on hover — the ring sits further out and
-     grows thicker/brighter instead of just sitting still. */
+     grows thicker/brighter instead of just sitting still. Kept modest
+     (not the huge blur this used to be) specifically so the hovered
+     icon's glow doesn't visually bleed into its neighbors a mere 1.6rem
+     away and make the whole rail look lit up at once. */
   .social-ring:hover::before {
-    inset: -7px;
-    padding: 4px;
+    inset: -5px;
+    padding: 3px;
   }
 
   .social-ring:hover::after {
-    inset: -8px;
-    padding: 5px;
-    filter: blur(12px);
+    inset: -6px;
+    padding: 3.5px;
+    filter: blur(6px);
     opacity: 1;
   }
 

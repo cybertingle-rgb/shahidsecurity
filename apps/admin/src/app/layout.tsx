@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
 import { Preloader } from '@/components/Preloader';
+import MatrixCursor from '@/components/MatrixCursor';
 
 // This entire application is a private administration panel — every
 // page gets noindex both here and via next.config.mjs's headers()
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className="min-h-screen antialiased">
         <Preloader />
+        <MatrixCursor />
         {children}
       </body>
     </html>
