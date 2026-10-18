@@ -28,6 +28,13 @@ const appDir = path.join(scriptDir, '..');
 const standaloneDir = path.join(appDir, '.next', 'standalone');
 const nestedAppDir = path.join(standaloneDir, 'apps', 'admin');
 
+// Printed unconditionally, before anything else in this script, so a
+// stale Hostinger checkout/cache that silently skips re-pulling this
+// file is visible directly from the build log instead of having to be
+// inferred from runtime crashes days later — bump this string any time
+// this file changes materially.
+console.log('flatten-standalone: running script version 2024-10-18-symlink-fix');
+
 if (!existsSync(nestedAppDir)) {
   console.log('flatten-standalone: no nested apps/admin/ in .next/standalone — nothing to flatten.');
   process.exit(0);
