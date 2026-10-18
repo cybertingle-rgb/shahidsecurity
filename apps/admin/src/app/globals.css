@@ -130,12 +130,20 @@ tbody tr:hover {
 
 /* Green rather than the blue UI accent — a "go"/positive cue (save, add,
    approve, enroll) that stands apart from links and navigation, which stay
-   the blue accent. */
+   the blue accent. Fully rounded (Apple-style pill), mono-font label and a
+   diagonal shine sweep on hover — the exact same .btn/.btn-primary
+   treatment the public site (shahidiqbal.com) uses, so a button looks
+   identical whether it's on the marketing site or inside a portal. Dark
+   text comes from the text-bg utility every call site already carries (no
+   color override here) — it hits 8:1+ contrast on this green per the
+   public site's own .btn-primary comment, no white-with-outline hack
+   needed. */
 .bg-neon {
   border-radius: 999px;
-  color: white;
-  -webkit-text-stroke: 1.5px black;
-  paint-order: stroke fill;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
   background-image: linear-gradient(180deg, var(--color-success-soft) 0%, var(--color-success) 100%);
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--color-success) 40%, transparent),
@@ -156,16 +164,6 @@ tbody tr:hover {
   transform: translateY(-1px);
 }
 
-@supports not (-webkit-text-stroke: 1px black) {
-  .bg-neon {
-    text-shadow:
-      -1px -1px 0 black,
-      1px -1px 0 black,
-      -1px 1px 0 black,
-      1px 1px 0 black;
-  }
-}
-
 .bg-neon:active {
   transform: translateY(0);
 }
@@ -173,6 +171,10 @@ tbody tr:hover {
 a.rounded-md.border.border-border-strong,
 button.rounded-md.border.border-border-strong {
   border-radius: 999px !important;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
   background: color-mix(in oklab, var(--color-surface) 50%, transparent);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
@@ -188,6 +190,31 @@ button.rounded-md.border.border-border-strong:hover {
   border-color: color-mix(in oklab, var(--color-neon-soft) 55%, transparent);
   color: var(--color-neon-soft);
   background: color-mix(in oklab, var(--color-surface) 65%, transparent);
+}
+
+/* Diagonal shine sweep on hover — same .btn::after treatment as the public
+   site, shared by both the primary and secondary pill buttons above. */
+.bg-neon::after,
+a.rounded-md.border.border-border-strong::after,
+button.rounded-md.border.border-border-strong::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 40%, color-mix(in oklab, white 35%, transparent) 50%, transparent 60%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.bg-neon:hover::after,
+a.rounded-md.border.border-border-strong:hover::after,
+button.rounded-md.border.border-border-strong:hover::after {
+  animation: btn-scan 500ms ease-out;
+}
+
+@keyframes btn-scan {
+  to {
+    transform: translateX(120%);
+  }
 }
 
 input:not([type='checkbox']):not([type='radio']),
