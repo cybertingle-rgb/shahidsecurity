@@ -19,7 +19,7 @@
 // directly beside the already-correct node_modules, so
 // .next/standalone/server.js ends up fully self-contained — the
 // layout Next's own docs assume and Hostinger's product expects.
-import { cpSync, existsSync, mkdirSync, readdirSync, readlinkSync, rmSync, symlinkSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readlinkSync, rmSync, symlinkSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,7 +33,7 @@ const nestedAppDir = path.join(standaloneDir, 'apps', 'admin');
 // file is visible directly from the build log instead of having to be
 // inferred from runtime crashes days later — bump this string any time
 // this file changes materially.
-console.log('flatten-standalone: running script version 2024-10-18-symlink-fix');
+console.log('flatten-standalone: running script version 2024-10-18-partial-dir-fix');
 
 if (!existsSync(nestedAppDir)) {
   console.log('flatten-standalone: no nested apps/admin/ in .next/standalone — nothing to flatten.');
@@ -159,7 +159,23 @@ if (existsSync(pnpmDir)) {
     const pkg = findRealPackageDir(entryNodeModules);
     if (!pkg) continue;
     const linkPath = path.join(nodeModulesDir, pkg.name);
-    if (existsSync(linkPath)) continue; // already linked (e.g. next, sharp)
+    // A pre-existing SYMLINK here (e.g. next, sharp, styled-jsx — which
+    // Next's own tracer wires up correctly) is left alone. A pre-existing
+    // REAL directory is not trustworthy, though: confirmed against a real
+    // deploy that Next's tracer sometimes nests a partial, trace-time-only
+    // subset of a package's files as a real directory under the nested
+    // apps/<app>/node_modules/<pkg> (not a symlink into .pnpm), which this
+    // file's main copy loop above then merges up to the top level
+    // verbatim — @swc/helpers ended up here as a real directory that
+    // "existed" but was missing esm/_interop_require_default.js, crashing
+    // Turbopack's runtime at require time despite the full package sitting
+    // right there in .pnpm. Replacing any such real directory with a
+    // symlink to the complete .pnpm package makes the top level always
+    // match what a flat (non-monorepo) install would have given for free.
+    if (existsSync(linkPath)) {
+      if (lstatSync(linkPath).isSymbolicLink()) continue;
+      rmSync(linkPath, { recursive: true, force: true });
+    }
     const linkParent = path.dirname(linkPath);
     // linkParent is nodeModulesDir itself for an unscoped package (already
     // exists) or a scope dir like node_modules/@swc for a scoped one,
