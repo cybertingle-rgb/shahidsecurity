@@ -15,6 +15,17 @@ name: Deploy Shahid Security Admin
 # deploy — removed because it was redundant with (and raced) Hostinger's
 # native pipeline, deploying to a target the live site wasn't even served
 # from.
+#
+# IMPORTANT, confirmed against a real deploy: hPanel's own "Redeploy"
+# button for the admin app is NOT reliable after a repo change — it can
+# say "Source: previous deployment source" / "Restoring previous source
+# files from the last successful deployment" instead of re-cloning, which
+# reused a stale pnpm-workspace.yaml and reintroduced an
+# ERR_PNPM_IGNORED_BUILDS failure that a fresh clone of the exact same
+# commit (triggered by this workflow's own push, moments earlier) did not
+# have. Always force a fresh clone by pushing a real commit (this workflow
+# re-running from a `push` event is enough) rather than clicking Redeploy
+# after a config/dependency change.
 on:
   push:
     branches:
