@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
 import LunaWidget from '@/components/LunaWidget';
+import { Preloader } from '@/components/Preloader';
 import { env } from '@/lib/env';
 
 // Revision (2026-10): the public homepage, course catalog, and course
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
+        <Preloader />
         {children}
         <LunaWidget />
       </body>

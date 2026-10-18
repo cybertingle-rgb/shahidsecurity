@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
+import { Preloader } from '@/components/Preloader';
 
 // This entire application is a private administration panel — every
 // page gets noindex both here and via next.config.mjs's headers()
@@ -16,7 +17,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        <Preloader />
+        {children}
+      </body>
     </html>
   );
 }
