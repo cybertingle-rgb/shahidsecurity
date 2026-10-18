@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import RainField from '@/components/RainField';
+import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
 import GoogleButton, { googleOAuthErrorMessage } from '@/components/GoogleButton';
 
@@ -104,6 +105,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text">
       <RainField />
+      <SocialRail />
       <Link href="/" className="relative z-10">
         <Image
           src="/logo.png"

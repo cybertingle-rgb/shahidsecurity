@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import RainField from '@/components/RainField';
+import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
 
 export default function LoginPage() {
@@ -39,6 +40,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text">
       <RainField />
+      <SocialRail />
       <Image
         src="/brand/logo-stacked-dark-bg.png"
         alt="Shahid Security"

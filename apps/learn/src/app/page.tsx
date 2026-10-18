@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import EduBackground from '@/components/EduBackground';
 import PublicHeader from '@/components/PublicHeader';
+import SocialRail from '@/components/SocialRail';
 import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
 import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
@@ -58,6 +59,7 @@ export default async function HomePage() {
     <div className="relative min-h-screen text-text">
       <EduBackground />
       <PublicHeader />
+      <SocialRail />
 
       {/* Hero */}
       <section className="relative z-10 px-6 py-16 text-center">
