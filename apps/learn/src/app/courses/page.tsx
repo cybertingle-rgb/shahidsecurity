@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PublicHeader from '@/components/PublicHeader';
+import SocialRail from '@/components/SocialRail';
 import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
 import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
@@ -23,6 +24,7 @@ export default async function CoursesCatalogPage({ searchParams }: { searchParam
   return (
     <div className="min-h-screen text-text">
       <PublicHeader />
+      <SocialRail />
       <div className="mx-auto max-w-6xl px-6 py-12">
         <h1 className="text-2xl font-semibold">All Courses</h1>
 

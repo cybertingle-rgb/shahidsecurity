@@ -809,8 +809,220 @@ textarea:focus {
   .edu-bg-orb,
   .edu-bg-doodles,
   .auth-card-glow::before,
-  .auth-card-glow::after {
+  .auth-card-glow::after,
+  .social-ring::before,
+  .social-ring::after {
     animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* SocialRail.tsx — ported from the root marketing site's               */
+/* SocialRail.astro: a floating left-edge rail of icon pills, each with */
+/* a rotating blue+green neon ring (reusing --auth-angle/auth-glow-spin */
+/* from the auth-card glow above) that expands outward on hover.        */
+/* ------------------------------------------------------------------ */
+
+.social-rail {
+  position: fixed;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.social-ring {
+  position: relative;
+  display: inline-flex;
+  border-radius: 999px;
+}
+
+.social-ring::before,
+.social-ring::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 2px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: auth-glow-spin 4s linear infinite;
+  transition:
+    inset 220ms ease,
+    padding 220ms ease,
+    filter 220ms ease,
+    opacity 220ms ease;
+}
+
+.social-ring::before {
+  background: conic-gradient(
+    from var(--auth-angle),
+    var(--color-success-soft) 0deg,
+    var(--color-success-soft) 30deg,
+    transparent 70deg,
+    transparent 180deg,
+    var(--color-neon-soft) 210deg,
+    var(--color-neon-soft) 240deg,
+    transparent 280deg,
+    transparent 360deg
+  );
+}
+
+.social-ring::after {
+  background: conic-gradient(
+    from var(--auth-angle),
+    transparent 0deg,
+    color-mix(in oklab, var(--color-success) 55%, transparent) 4deg,
+    var(--color-success-soft) 30deg,
+    transparent 70deg,
+    transparent 180deg,
+    color-mix(in oklab, var(--color-neon) 55%, transparent) 184deg,
+    var(--color-neon-soft) 240deg,
+    transparent 280deg,
+    transparent 360deg
+  );
+  filter: blur(7px);
+  opacity: 0.8;
+}
+
+/* "Expand through the border" on hover — the ring sits further out and
+   grows thicker/brighter instead of just sitting still. */
+.social-ring:hover::before {
+  inset: -5px;
+  padding: 3px;
+}
+
+.social-ring:hover::after {
+  inset: -6px;
+  padding: 4px;
+  filter: blur(10px);
+  opacity: 1;
+}
+
+.social-pill {
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  width: 2.75rem;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  background: color-mix(in oklab, var(--color-surface) 85%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--color-text-muted);
+  transition:
+    width 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.social-pill:hover {
+  width: 9.5rem;
+  border-color: var(--color-neon);
+  color: var(--color-text);
+  box-shadow: 0 0 20px -6px var(--color-neon);
+}
+
+.social-pill[data-accent='whatsapp']:hover {
+  border-color: #25d366;
+  box-shadow: 0 0 20px -6px #25d366;
+}
+.social-pill[data-accent='whatsapp']:hover .social-icon svg {
+  color: #25d366;
+}
+.social-pill[data-accent='facebook']:hover {
+  border-color: #1877f2;
+  box-shadow: 0 0 20px -6px #1877f2;
+}
+.social-pill[data-accent='facebook']:hover .social-icon svg {
+  color: #1877f2;
+}
+.social-pill[data-accent='instagram']:hover {
+  border-color: #e4405f;
+  box-shadow: 0 0 20px -6px #e4405f;
+}
+.social-pill[data-accent='instagram']:hover .social-icon svg {
+  color: #e4405f;
+}
+.social-pill[data-accent='x']:hover {
+  border-color: #eef0f8;
+  box-shadow: 0 0 20px -6px #eef0f8;
+}
+.social-pill[data-accent='x']:hover .social-icon svg {
+  color: #eef0f8;
+}
+
+.social-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.social-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: color 220ms ease;
+}
+
+.social-pill:hover .social-icon svg {
+  color: var(--color-neon);
+}
+
+.social-label {
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding-right: 1rem;
+  opacity: 0;
+  transition: opacity 180ms ease 60ms;
+}
+
+.social-pill:hover .social-label {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .social-rail {
+    left: 0.75rem;
+    top: auto;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    transform: none;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .social-pill,
+  .social-pill:hover {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+  }
+
+  .social-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .social-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-pill,
+  .social-label {
+    transition: none;
   }
 }
 

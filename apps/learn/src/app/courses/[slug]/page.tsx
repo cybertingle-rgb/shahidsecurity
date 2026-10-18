@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PublicHeader from '@/components/PublicHeader';
+import SocialRail from '@/components/SocialRail';
 import { getSessionUser } from '@/lib/auth/session';
 import { getPublicCourseBySlug, getCourseAccessState } from '@/lib/public/courses';
 
@@ -46,6 +47,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   return (
     <div className="min-h-screen text-text">
       <PublicHeader />
+      <SocialRail />
       <div className="mx-auto max-w-4xl px-6 py-12">
       <Link href="/courses" className="text-sm text-text-muted hover:text-text">
         ← All courses

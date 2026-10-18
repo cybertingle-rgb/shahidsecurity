@@ -4,6 +4,7 @@ import { Suspense, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import RainField from '@/components/RainField';
+import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
 
 function ResetPasswordInner() {
@@ -90,6 +91,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
       <RainField />
+      <SocialRail />
       <Suspense
         fallback={
           <AuthCard title="Set a new password">

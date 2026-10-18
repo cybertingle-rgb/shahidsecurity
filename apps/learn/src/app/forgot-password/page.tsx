@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import RainField from '@/components/RainField';
+import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
 
 export default function ForgotPasswordPage() {
@@ -29,6 +30,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
       <RainField />
+      <SocialRail />
       <AuthCard title="Reset your password">
         {message ? (
           <p className="text-center text-sm text-text-muted">{message}</p>
