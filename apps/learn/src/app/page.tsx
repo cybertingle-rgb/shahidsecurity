@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import EduBackground from '@/components/EduBackground';
+import PublicHeader from '@/components/PublicHeader';
 import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
-import { getUserRoleNames } from '@/lib/rbac';
 import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
 import { listPurchasableProducts } from '@/lib/checkout';
 
@@ -12,8 +11,6 @@ export const metadata: Metadata = {
   description: 'Learn cybersecurity through structured, instructor-built courses from Shahid Security — practical exercises and expert-guided learning, with free and paid courses.',
   alternates: { canonical: '/' },
 };
-
-const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 
 const FAQ_ITEMS = [
   {
@@ -49,7 +46,6 @@ function formatAmount(amountMinorUnits: number, currencyCode: string): string {
 
 export default async function HomePage() {
   const user = await getSessionUser();
-  const isAdmin = user ? [...(await getUserRoleNames(user.id))].some((r) => ADMIN_ROLE_NAMES.has(r)) : false;
 
   const [courses, categories, membershipProducts] = await Promise.all([listCatalogCourses(), listCourseCategories(), listPurchasableProducts()]);
 
@@ -61,55 +57,7 @@ export default async function HomePage() {
   return (
     <div className="relative min-h-screen text-text">
       <EduBackground />
-
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between border-b border-border px-6 py-4">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Shahid Security" width={36} height={36} />
-          <span className="hidden font-semibold sm:inline">Learn with Shahid</span>
-        </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/" className="hidden text-text-muted hover:text-text sm:inline">
-            Home
-          </Link>
-          <Link href="/courses" className="text-text-muted hover:text-text">
-            Browse Courses
-          </Link>
-          <a href="https://shahidiqbal.com/learn/roadmap" className="hidden text-text-muted hover:text-text sm:inline">
-            Learning Roadmap
-          </a>
-          <Link href="/dashboard/membership" className="hidden text-text-muted hover:text-text sm:inline">
-            Membership
-          </Link>
-          <a href="https://shahidiqbal.com/about" className="hidden text-text-muted hover:text-text sm:inline">
-            About
-          </a>
-          <a href="https://shahidiqbal.com/contact" className="hidden text-text-muted hover:text-text sm:inline">
-            Contact
-          </a>
-          {user ? (
-            <>
-              <Link href="/dashboard" className="rounded-md bg-neon px-3 py-1.5 font-medium text-bg">
-                Dashboard
-              </Link>
-              {isAdmin && (
-                <Link href="/admin" className="text-neon hover:underline">
-                  Admin panel
-                </Link>
-              )}
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="text-text-muted hover:text-text">
-                Log in
-              </Link>
-              <Link href="/register" className="rounded-md bg-neon px-3 py-1.5 font-medium text-bg">
-                Register
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
+      <PublicHeader />
 
       {/* Hero */}
       <section className="relative z-10 px-6 py-16 text-center">
