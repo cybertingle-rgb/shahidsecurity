@@ -1,24 +1,485 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
 
-/* Same brand tokens as apps/learn/src/app/globals.css, which itself
-   copied them from the Astro site's src/styles/global.css — kept
-   consistent across all three properties. */
+/* Brand tokens + component layer, kept identical to
+   apps/learn/src/app/globals.css (itself copied from the Astro site's
+   src/styles/global.css) — this app's own copy had drifted onto the
+   retired green palette (--color-neon: #00bf63 etc, the "faint green
+   tint" the other two properties moved away from) and never picked up
+   the matching component layer below, which is why this app read as
+   visually out of sync with learn.shahidiqbal.com and shahidiqbal.com
+   despite sharing the same underlying utility-class patterns
+   (rounded-lg border border-border, bg-neon, …) throughout its pages —
+   confirmed by grepping: those exact class combinations already appear
+   on 50+ files here, so this component layer applies to them for free,
+   no per-page markup changes needed. */
 @theme {
-  --color-bg: #05070a;
-  --color-bg-elevated: #0b0f14;
-  --color-surface: #10161d;
-  --color-border: #1a2a22;
-  --color-border-strong: #23402f;
-  --color-text: #e6f1ea;
-  --color-text-muted: #8aa396;
-  --color-neon: #00bf63;
-  --color-neon-soft: #1aff8c;
-  --color-neon-dim: rgba(0, 191, 99, 0.12);
+  --color-bg: #05060d;
+  --color-bg-elevated: #0c0e18;
+  --color-surface: #12141f;
+  --color-border: #1c2032;
+  --color-border-strong: #343a5c;
+  --color-text: #eef0f8;
+  --color-text-muted: #9aa0ba;
+  --color-neon: #0ea5ff;
+  --color-neon-soft: #4dd4ff;
+  --color-neon-dim: rgba(14, 165, 255, 0.14);
+  --color-orb-purple: #8b2fe0;
+  --color-orb-blue: #2f6bff;
+  --color-success: #00bf63;
+  --color-success-soft: #2fe08a;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 
 body {
-  background: var(--color-bg);
+  background:
+    radial-gradient(ellipse 1200px 700px at 15% -10%, color-mix(in oklab, var(--color-neon) 7%, transparent), transparent 55%),
+    radial-gradient(ellipse 1000px 800px at 100% 100%, color-mix(in oklab, #3b9bff 6%, transparent), transparent 55%),
+    var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Admin/student portal — 3D card language                             */
+/* ------------------------------------------------------------------ */
+/* Deliberately targets the *existing* utility-class combination every
+   admin/dashboard card, table, and form already carries
+   (rounded-lg + border + border-border), rather than introducing a new
+   class every page would need to adopt one by one — this single block
+   upgrades every such panel across both portals at once, and any new
+   page written the same way (which is the established pattern in this
+   codebase) picks it up automatically, no extra markup required. */
+
+.rounded-lg.border.border-border,
+.rounded-lg.border.border-dashed.border-border-strong {
+  position: relative;
+  border-radius: 1.1rem !important;
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--color-surface) 55%, transparent),
+    color-mix(in oklab, var(--color-bg-elevated) 50%, transparent)
+  );
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 8%, transparent) inset,
+    0 0 0 1px color-mix(in oklab, var(--color-border-strong) 50%, transparent),
+    0 18px 40px -18px rgba(0, 0, 0, 0.75),
+    0 6px 16px -4px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 200ms ease-out;
+}
+
+.rounded-lg.border.border-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, color-mix(in oklab, var(--color-neon) 22%, transparent), transparent 40%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.rounded-lg.border.border-border:hover {
+  border-color: color-mix(in oklab, var(--color-border-strong) 70%, var(--color-neon) 30%);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 10%, transparent) inset,
+    0 0 0 1px color-mix(in oklab, var(--color-neon) 30%, transparent),
+    0 28px 56px -20px rgba(0, 0, 0, 0.8),
+    0 0 32px -8px color-mix(in oklab, var(--color-neon) 35%, transparent);
+  transform: translateY(-4px) scale(1.006);
+}
+
+table .rounded-lg.border.border-border:hover,
+tr:hover {
+  transform: none;
+}
+
+tbody tr {
+  transition: background-color 150ms ease-out;
+}
+
+tbody tr:hover {
+  background: color-mix(in oklab, var(--color-neon) 4%, transparent);
+}
+
+/* Green rather than the blue UI accent — a "go"/positive cue (save, add,
+   approve, enroll) that stands apart from links and navigation, which stay
+   the blue accent. */
+.bg-neon {
+  border-radius: 999px;
+  color: white;
+  -webkit-text-stroke: 1.5px black;
+  paint-order: stroke fill;
+  background-image: linear-gradient(180deg, var(--color-success-soft) 0%, var(--color-success) 100%);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-success) 40%, transparent),
+    0 8px 20px -8px color-mix(in oklab, var(--color-success) 70%, transparent),
+    inset 0 1px 0 0 color-mix(in oklab, white 35%, transparent);
+  transition:
+    transform 150ms ease-out,
+    box-shadow 150ms ease-out,
+    filter 150ms ease-out;
+}
+
+.bg-neon:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-success) 55%, transparent),
+    0 10px 28px -8px color-mix(in oklab, var(--color-success) 85%, transparent),
+    inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent);
+  transform: translateY(-1px);
+}
+
+@supports not (-webkit-text-stroke: 1px black) {
+  .bg-neon {
+    text-shadow:
+      -1px -1px 0 black,
+      1px -1px 0 black,
+      -1px 1px 0 black,
+      1px 1px 0 black;
+  }
+}
+
+.bg-neon:active {
+  transform: translateY(0);
+}
+
+a.rounded-md.border.border-border-strong,
+button.rounded-md.border.border-border-strong {
+  border-radius: 999px !important;
+  background: color-mix(in oklab, var(--color-surface) 50%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent);
+  transition:
+    border-color 150ms ease-out,
+    color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+a.rounded-md.border.border-border-strong:hover,
+button.rounded-md.border.border-border-strong:hover {
+  border-color: color-mix(in oklab, var(--color-neon-soft) 55%, transparent);
+  color: var(--color-neon-soft);
+  background: color-mix(in oklab, var(--color-surface) 65%, transparent);
+}
+
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  transition:
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+input:not([type='checkbox']):not([type='radio']):focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-neon) 60%, var(--color-border));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-neon) 18%, transparent);
+}
+
+.portal-bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vw 60vw at 5% -5%, color-mix(in oklab, var(--color-orb-purple) 30%, transparent), transparent 70%),
+    radial-gradient(70vw 70vw at 100% 105%, color-mix(in oklab, var(--color-orb-blue) 32%, transparent), transparent 70%);
+  filter: blur(40px);
+}
+
+.portal-header {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--color-surface) 40%, transparent), transparent);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-bottom: 1px solid color-mix(in oklab, white 8%, var(--color-border-strong) 40%);
+}
+
+.portal-nav-panel {
+  background: color-mix(in oklab, var(--color-surface) 45%, transparent);
+  border: 1px solid color-mix(in oklab, white 8%, var(--color-border));
+  border-radius: 1.25rem;
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, white 8%, transparent) inset,
+    0 0 0 1px color-mix(in oklab, var(--color-border-strong) 40%, transparent),
+    0 18px 36px -20px rgba(0, 0, 0, 0.75);
+}
+
+/* ------------------------------------------------------------------ */
+/* PortalSidebar.tsx — structural rebuild of the dashboard/admin nav,   */
+/* matching the reference's collapsible glass sidebar: window-chrome    */
+/* dots, a user row, grouped+labelled sections, pill active state, and  */
+/* an edge-overlapping collapse toggle.                                 */
+/* ------------------------------------------------------------------ */
+
+.portal-sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 100%;
+  padding: 0.9rem 0.75rem 1rem;
+  transition: width 220ms ease-out;
+}
+
+@media (min-width: 640px) {
+  .portal-sidebar {
+    width: 15rem;
+  }
+  .portal-sidebar.is-collapsed {
+    width: 4.75rem;
+  }
+}
+
+.portal-sidebar-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.4rem 0.75rem;
+}
+
+.portal-sidebar-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+.portal-sidebar-dot-red {
+  background: #ff5f57;
+}
+.portal-sidebar-dot-yellow {
+  background: #febc2e;
+}
+.portal-sidebar-dot-green {
+  background: #28c840;
+}
+
+.portal-sidebar-toggle {
+  position: absolute;
+  top: 0.6rem;
+  right: -0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  color: var(--color-text);
+  background: color-mix(in oklab, var(--color-surface) 60%, transparent);
+  border: 1px solid color-mix(in oklab, white 10%, var(--color-border-strong));
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  z-index: 1;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+.portal-sidebar-toggle:hover {
+  background: color-mix(in oklab, var(--color-neon) 25%, transparent);
+  color: white;
+}
+
+.portal-sidebar-user-link {
+  display: block;
+  border-radius: 1rem;
+}
+
+.portal-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: 1rem;
+  transition: background-color 150ms ease-out;
+}
+.portal-sidebar-user-link:hover .portal-sidebar-user {
+  background: color-mix(in oklab, white 5%, transparent);
+}
+
+.portal-sidebar-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(180deg, var(--color-neon-soft) 0%, var(--color-neon) 100%);
+}
+
+.portal-sidebar-user-text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.portal-sidebar-user-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.portal-sidebar-user-role {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+.portal-sidebar-user-chevron {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.portal-sidebar-scroll {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.4rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.portal-sidebar-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-neon) 22%, transparent);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent);
+  opacity: 0;
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms ease-out;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+.portal-sidebar-indicator.is-ready {
+  opacity: 1;
+}
+
+.portal-sidebar-section {
+  padding: 0.6rem 0;
+  border-top: 1px solid color-mix(in oklab, white 6%, var(--color-border));
+}
+.portal-sidebar-section:first-child {
+  border-top: none;
+  padding-top: 0.2rem;
+}
+
+.portal-sidebar-label {
+  padding: 0 0.6rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.portal-sidebar-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  margin-bottom: 0.15rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: left;
+  white-space: nowrap;
+  transition: color 150ms ease-out;
+}
+
+.portal-sidebar-item:hover {
+  color: var(--color-text);
+}
+
+.portal-sidebar-item.is-active {
+  color: var(--color-text);
+}
+
+.portal-sidebar-item.is-accent {
+  color: var(--color-neon-soft);
+  font-weight: 600;
+}
+
+.portal-sidebar-item.portal-sidebar-logout {
+  color: var(--color-danger);
+}
+.portal-sidebar-item.portal-sidebar-logout:hover {
+  background: color-mix(in oklab, var(--color-danger) 12%, transparent);
+  color: var(--color-danger);
+}
+
+.portal-sidebar-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.portal-sidebar.is-collapsed .portal-sidebar-item {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rounded-lg.border.border-border,
+  .bg-neon,
+  .portal-sidebar,
+  .portal-sidebar-item,
+  .portal-sidebar-user {
+    transition: none;
+  }
+  .rounded-lg.border.border-border:hover,
+  .bg-neon:hover {
+    transform: none;
+  }
+  .portal-sidebar-indicator {
+    transition: opacity 150ms ease-out;
+  }
 }
