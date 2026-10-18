@@ -2,8 +2,16 @@ packages:
   - '.'
   - 'apps/*'
 
-allowBuilds:
-  esbuild: true
+# Allow-lists esbuild's postinstall/build script to actually run. pnpm
+# blocks build scripts for dependencies by default as a supply-chain
+# safety measure (introduced alongside minimumReleaseAge below) and
+# aborts the whole install with ERR_PNPM_IGNORED_BUILDS on a fresh/clean
+# install unless explicitly allow-listed here — confirmed against a real
+# Hostinger build failure. The field used before this (`allowBuilds:
+# esbuild: true`) is not a real pnpm-workspace.yaml key, so it was
+# silently ignored; `onlyBuiltDependencies` is the actual one.
+onlyBuiltDependencies:
+  - esbuild
 
 minimumReleaseAgeExclude:
   - nodemailer@10.0.11
