@@ -661,23 +661,33 @@ textarea:focus {
   border-radius: 1.25rem;
 }
 
-/* A single bright comet-head with a fading tail sweeping clockwise —
-   replaces the old multi-color RGB halo with just one line tracing the
-   border. A conic-gradient alone paints pie-slice wedges out from the
-   element's center, not a ring, so without masking, a wide-enough arc
-   shows as a wedge cutting across the card's own (half-opaque) interior
-   rather than a line along its edge. The padding + content-box/exclude
-   mask here is the same border-ring technique as the admin/dashboard 3D
-   cards above — it keeps the gradient confined to a ~2px band at the
-   perimeter no matter how wide the arc or how transparent the card body
-   behind it is. */
+/* Two bright comet-heads — one neon green, one neon blue — chasing each
+   other clockwise 180° apart, each with its own fading tail. A conic-
+   gradient alone paints pie-slice wedges out from the element's center,
+   not a ring, so without masking, a wide-enough arc shows as a wedge
+   cutting across the card's own (half-opaque) interior rather than a
+   line along its edge. The padding + content-box/exclude mask here is
+   the same border-ring technique as the admin/dashboard 3D cards above —
+   it keeps the gradient confined to a ~2px band at the perimeter no
+   matter how wide the arcs or how transparent the card body behind it
+   is. */
 .auth-card-glow::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   padding: 2px;
-  background: conic-gradient(from var(--auth-angle), transparent 0deg, transparent 335deg, var(--color-neon-soft) 350deg, var(--color-neon-soft) 360deg);
+  background: conic-gradient(
+    from var(--auth-angle),
+    var(--color-success-soft) 0deg,
+    var(--color-success-soft) 8deg,
+    transparent 24deg,
+    transparent 176deg,
+    var(--color-neon-soft) 184deg,
+    var(--color-neon-soft) 192deg,
+    transparent 208deg,
+    transparent 360deg
+  );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -695,9 +705,14 @@ textarea:focus {
   background: conic-gradient(
     from var(--auth-angle),
     transparent 0deg,
-    transparent 320deg,
-    color-mix(in oklab, var(--color-neon) 50%, transparent) 345deg,
-    var(--color-neon-soft) 360deg
+    color-mix(in oklab, var(--color-success) 45%, transparent) 2deg,
+    var(--color-success-soft) 8deg,
+    transparent 24deg,
+    transparent 176deg,
+    color-mix(in oklab, var(--color-neon) 45%, transparent) 178deg,
+    var(--color-neon-soft) 192deg,
+    transparent 208deg,
+    transparent 360deg
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
