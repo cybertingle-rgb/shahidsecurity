@@ -2,9 +2,10 @@ import type { ReactNode } from 'react';
 
 /**
  * Glass/terminal-style card used by /login and /register. Stays put —
- * no pointer-tracked tilt — with a single neon-green trace continuously
- * sweeping clockwise around the border (a conic-gradient rotated via the
- * registered --auth-angle custom property) instead of a multi-color halo.
+ * no pointer-tracked tilt — with two comet-heads (neon green + neon
+ * blue) chasing each other clockwise around the border, 180° apart (a
+ * conic-gradient rotated via the registered --auth-angle custom
+ * property).
  */
 export default function AuthCard({ title, children }: { title: string; children: ReactNode }) {
   return (

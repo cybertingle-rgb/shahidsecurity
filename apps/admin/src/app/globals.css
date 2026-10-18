@@ -509,6 +509,21 @@ textarea:focus {
   pointer-events: none;
 }
 
+/* Persistent version of the preloader's command rain (RainField.tsx) —
+   sits fixed behind auth forms instead of as a one-time full-screen
+   overlay. Reuses the exact same .preloader-rain-cmd/-text rules and
+   keyframes below (same visual, just a different, non-removing
+   container) rather than duplicating them under a new name. */
+.rain-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.55;
+  pointer-events: none;
+  background: var(--color-bg);
+}
+
 .preloader-rain {
   position: absolute;
   inset: 0;
@@ -705,4 +720,161 @@ textarea:focus {
     animation: none;
     opacity: 1;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Terminal-style auth card with a single neon-green border trace       */
+/* (AuthCard.tsx) — fixed in place, no pointer-tilt                     */
+/* ------------------------------------------------------------------ */
+
+.auth-card-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 26rem;
+}
+
+/* A registered custom property lets the browser animate the conic
+   gradient's own rotation angle directly — rotating the gradient
+   this way (instead of transform: rotate() on the box) keeps the glow
+   confined to the box's actual rectangular bounds. Transforming the
+   whole element instead sweeps its corners out past the card at 45°,
+   which is what produced a stray diamond shape earlier. */
+@property --auth-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.auth-card-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 1.25rem;
+}
+
+/* Two bright comet-heads — one neon green, one neon blue — chasing each
+   other clockwise 180° apart, each with its own fading tail. A conic-
+   gradient alone paints pie-slice wedges out from the element's center,
+   not a ring, so without masking, a wide-enough arc shows as a wedge
+   cutting across the card's own (half-opaque) interior rather than a
+   line along its edge. The padding + content-box/exclude mask here is
+   the same border-ring technique as the admin/dashboard 3D cards above —
+   it keeps the gradient confined to a ~2px band at the perimeter no
+   matter how wide the arcs or how transparent the card body behind it
+   is. */
+.auth-card-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--auth-angle),
+    var(--color-success-soft) 0deg,
+    var(--color-success-soft) 8deg,
+    transparent 24deg,
+    transparent 176deg,
+    var(--color-neon-soft) 184deg,
+    var(--color-neon-soft) 192deg,
+    transparent 208deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: auth-glow-spin 4s linear infinite;
+}
+
+.auth-card-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--auth-angle),
+    transparent 0deg,
+    color-mix(in oklab, var(--color-success) 45%, transparent) 2deg,
+    var(--color-success-soft) 8deg,
+    transparent 24deg,
+    transparent 176deg,
+    color-mix(in oklab, var(--color-neon) 45%, transparent) 178deg,
+    var(--color-neon-soft) 192deg,
+    transparent 208deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: blur(10px);
+  opacity: 0.85;
+  animation: auth-glow-spin 4s linear infinite;
+}
+
+@keyframes auth-glow-spin {
+  to {
+    --auth-angle: 360deg;
+  }
+}
+
+/* A dark, half-opaque "terminal window" rather than a plain glass
+   panel — a faint scanline texture plus the title-bar dots in
+   AuthCard.tsx carry the hacker-terminal read. */
+.auth-card {
+  position: relative;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  background-color: rgba(2, 8, 6, 0.42);
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in oklab, var(--color-neon) 5%, transparent) 0px,
+    color-mix(in oklab, var(--color-neon) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid color-mix(in oklab, var(--color-neon) 30%, var(--color-border-strong));
+  box-shadow:
+    0 20px 60px -20px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent);
+}
+
+.auth-card-termbar {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-card-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.auth-card-dot-red {
+  background: #ff5f57;
+}
+
+.auth-card-dot-yellow {
+  background: #febc2e;
+}
+
+.auth-card-dot-green {
+  background: #28c840;
+}
+
+.auth-card-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(90deg, var(--color-text), var(--color-neon-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

@@ -4,7 +4,7 @@ import { Suspense, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import EduBackground from '@/components/EduBackground';
+import RainField from '@/components/RainField';
 import AuthCard from '@/components/AuthCard';
 import GoogleButton, { googleOAuthErrorMessage } from '@/components/GoogleButton';
 
@@ -113,7 +113,7 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text">
-      <EduBackground />
+      <RainField />
       <Link href="/" className="relative z-10">
         <Image
           src="/logo.png"
