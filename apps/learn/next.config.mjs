@@ -36,6 +36,14 @@ const nextConfig = {
     // panicking the build mid-CSS-processing. workerThreads does the same
     // work in-process instead, sidestepping the spawn/connect race.
     turbopackPluginRuntimeStrategy: 'workerThreads',
+    // Defaults to os.cpus().length - 1 — this host reports ~60+ CPUs
+    // (a shared-hosting container, not a dedicated 60-core box), so the
+    // "Collecting page data" phase was spawning 60+ build workers, each
+    // initializing its own native Rust thread pool, and blowing through
+    // the container's real (much lower) OS thread/process ulimit:
+    // "OS can't spawn worker thread: Resource temporarily unavailable".
+    // Capped to a small, safe worker count regardless of detected CPUs.
+    cpus: 2,
   },
   async headers() {
     return [
