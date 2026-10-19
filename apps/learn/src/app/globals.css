@@ -1000,7 +1000,12 @@ textarea:focus {
   opacity: 1;
 }
 
-@media (max-width: 900px) {
+/* Matches Tailwind's lg breakpoint (1024px) exactly — the public/auth
+   pages add lg:pl-28 to clear this rail, so the rail's own mobile-layout
+   switch has to land on the same boundary or there's a window where the
+   vertical side rail is still showing but the page hasn't reserved space
+   for it yet. */
+@media (max-width: 1023px) {
   .social-rail {
     left: 0.75rem;
     top: auto;

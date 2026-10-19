@@ -76,7 +76,7 @@ function VerifyEmailInner() {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-6 text-text">
+    <div className="relative flex min-h-screen items-center justify-center px-6 text-text lg:pl-28">
       <RainField />
       <SocialRail />
       <Suspense
