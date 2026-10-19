@@ -61,6 +61,10 @@ export default async function HomePage() {
       <PublicHeader />
       <SocialRail />
 
+      {/* The fixed left-edge social rail sits in the same horizontal band as
+          this content on desktop widths — lg:pl-28 reserves a gutter so its
+          hover-expanded pills never sit on top of the heading/cards. */}
+      <div className="lg:pl-28">
       {/* Hero */}
       <section className="relative z-10 px-6 py-16 text-center">
         <h1 className="mx-auto max-w-2xl bg-gradient-to-r from-text to-neon-soft bg-clip-text text-3xl font-semibold text-transparent sm:text-4xl">
@@ -157,6 +161,7 @@ export default async function HomePage() {
           .
         </p>
       </footer>
+      </div>
 
       <script
         type="application/ld+json"

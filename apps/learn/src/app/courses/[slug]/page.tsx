@@ -48,7 +48,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     <div className="min-h-screen text-text">
       <PublicHeader />
       <SocialRail />
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto max-w-4xl px-6 py-12 lg:pl-28">
       <Link href="/courses" className="text-sm text-text-muted hover:text-text">
         ← All courses
       </Link>

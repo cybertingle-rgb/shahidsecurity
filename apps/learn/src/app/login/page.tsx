@@ -103,7 +103,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-text lg:pl-28">
       <RainField />
       <SocialRail />
       <Link href="/" className="relative z-10">

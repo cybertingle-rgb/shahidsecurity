@@ -25,7 +25,7 @@ export default async function CoursesCatalogPage({ searchParams }: { searchParam
     <div className="min-h-screen text-text">
       <PublicHeader />
       <SocialRail />
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="mx-auto max-w-6xl px-6 py-12 lg:pl-28">
         <h1 className="text-2xl font-semibold">All Courses</h1>
 
         {categories.length > 0 && (
