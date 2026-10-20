@@ -5,7 +5,8 @@
  * Deployed at public_html/api/book.php on Hostinger shared hosting. Same
  * validation/anti-spam/mail approach as contact.php (see that file's header
  * comment and README.md / php/README.md for setup) — this just handles a
- * different, smaller field set: name, country, phone, preferred date/time.
+ * different, smaller field set: name, email, country, phone (optional),
+ * preferred date/time.
  *
  * Note: this is a "request a time" form, not a live-availability calendar —
  * there is no database tracking existing bookings (by design, this site has
@@ -217,10 +218,13 @@ if ($country === '') {
     $fieldErrors['country'] = 'Please enter your country.';
 }
 
-$phone = clean_field($_POST['phone'] ?? '', 50);
-if ($phone === '') {
-    $fieldErrors['phone'] = 'Please enter a phone/WhatsApp number.';
+$emailRaw = clean_field($_POST['email'] ?? '', 254);
+$email = filter_var($emailRaw, FILTER_VALIDATE_EMAIL);
+if ($email === false) {
+    $fieldErrors['email'] = 'Please enter a valid email address.';
 }
+
+$phone = clean_field($_POST['phone'] ?? '', 50);
 
 $dateRaw = clean_field($_POST['date'] ?? '', 20);
 $date = \DateTime::createFromFormat('!Y-m-d', $dateRaw);
@@ -259,7 +263,7 @@ $vendorAutoload = shahid_root() . '/php/vendor/autoload.php';
 
 if (!$configLoaded || !is_file($vendorAutoload) || !defined('SMTP_HOST')) {
     error_log('[shahid-book] Mail not sent: config or PHPMailer dependency missing.');
-    fail('Sorry, something went wrong on our end. Please WhatsApp us instead.', [], 500);
+    fail('Sorry, something went wrong on our end. Please email info@shahidiqbal.com instead.', [], 500);
 }
 
 require_once $vendorAutoload;
@@ -267,7 +271,7 @@ require_once $vendorAutoload;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
-function send_booking_mail(string $name, string $country, string $phone, string $date, string $time): bool
+function send_booking_mail(string $name, string $email, string $country, string $phone, string $date, string $time): bool
 {
     try {
         $mail = new PHPMailer(true);
@@ -282,15 +286,17 @@ function send_booking_mail(string $name, string $country, string $phone, string 
 
         $mail->setFrom(CONTACT_FROM_EMAIL, CONTACT_FROM_NAME);
         $mail->addAddress(CONTACT_TO_EMAIL);
+        $mail->addReplyTo($email, $name);
         $mail->Subject = "New consultation request: $date $time";
         $mail->Body = implode("\n", [
             "Name: $name",
+            "Email: $email",
             "Country: $country",
-            "Phone/WhatsApp: $phone",
+            "Phone: " . ($phone !== '' ? $phone : '-'),
             "Requested date: $date",
             "Requested time: $time PKT",
             '',
-            'No email address was collected — reply via phone/WhatsApp to confirm.',
+            'Reply to this email to confirm.',
             'This is a request, not a confirmed booking — check your own calendar before replying.',
         ]);
         $mail->send();
@@ -301,8 +307,8 @@ function send_booking_mail(string $name, string $country, string $phone, string 
     }
 }
 
-if (!send_booking_mail($name, $country, $phone, $dateRaw, $time)) {
-    fail('Sorry, something went wrong sending your request. Please WhatsApp us instead.', [], 500);
+if (!send_booking_mail($name, $email, $country, $phone, $dateRaw, $time)) {
+    fail('Sorry, something went wrong sending your request. Please email info@shahidiqbal.com instead.', [], 500);
 }
 
 // Requested times are entered in PKT (see the $time validation above) —
@@ -315,6 +321,7 @@ try {
     notify_admin_leads_intake([
         'type' => 'consultation',
         'fullName' => $name,
+        'email' => $email,
         'phone' => $phone !== '' ? $phone : null,
         'country' => $country,
         'requestedAt' => $requestedAtUtc,

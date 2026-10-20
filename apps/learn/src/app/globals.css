@@ -939,13 +939,6 @@ textarea:focus {
   box-shadow: 0 0 20px -6px var(--color-neon);
 }
 
-.social-pill[data-accent='whatsapp']:hover {
-  border-color: #25d366;
-  box-shadow: 0 0 20px -6px #25d366;
-}
-.social-pill[data-accent='whatsapp']:hover .social-icon svg {
-  color: #25d366;
-}
 .social-pill[data-accent='facebook']:hover {
   border-color: #1877f2;
   box-shadow: 0 0 20px -6px #1877f2;

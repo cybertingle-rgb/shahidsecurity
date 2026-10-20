@@ -30,6 +30,7 @@ const leadSchema = z.object({
 const consultationSchema = z.object({
   type: z.literal('consultation'),
   fullName: z.string().min(1).max(200),
+  email: z.string().email(),
   phone: z.string().max(50).optional(),
   country: z.string().max(100).optional(),
   requestedAt: z.string().datetime(),
@@ -63,13 +64,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, id });
   }
 
-  const { fullName, phone, country, requestedAt, source } = parsed.data;
+  const { fullName, email, phone, country, requestedAt, source } = parsed.data;
   const leadId = crypto.randomUUID();
-  // email is genuinely null here, not a fabricated placeholder — the
-  // booking form never collects one (see consultations' schema comment).
   await db.insert(leads).values({
     id: leadId,
     fullName,
+    email,
     phone,
     source: source ?? 'booking_form',
   });
@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
     id: consultationId,
     leadId,
     fullName,
+    email,
     phone,
     country,
     requestedAt: new Date(requestedAt),

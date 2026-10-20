@@ -55,12 +55,10 @@ Until `apps/admin` actually has a real deployed URL, leave these undefined
 { "type": "lead", "fullName": "...", "email": "...", "phone": "...", "company": "...", "message": "...", "source": "contact_form" }
 ```
 
-**From `book.php`** (after a successful send) — note there is deliberately
-no `email` field; the booking form never collects one (confirmation happens
-over phone/WhatsApp, by that form's own long-standing design):
+**From `book.php`** (after a successful send):
 
 ```json
-{ "type": "consultation", "fullName": "...", "phone": "...", "country": "...", "requestedAt": "2026-12-01T09:00:00.000Z", "source": "booking_form" }
+{ "type": "consultation", "fullName": "...", "email": "...", "phone": "...", "country": "...", "requestedAt": "2026-12-01T09:00:00.000Z", "source": "booking_form" }
 ```
 
 `country` is the free-text value the visitor typed (the form has never used
@@ -79,9 +77,8 @@ UTC.
 - Rate-limits by IP (30 requests / 15 minutes) using the same DB-backed
   limiter as login.
 - For a `lead`: inserts directly into `leads`.
-- For a `consultation`: inserts a `leads` row with `email` left `null` (not
-  a fabricated placeholder address — see that table's schema comment) and a
-  linked `consultations` row.
+- For a `consultation`: inserts a `leads` row and a linked `consultations`
+  row, both carrying the visitor's email.
 - Every insert is visible immediately in the admin dashboard's
   **Customers & Leads** section, with full status-change audit logging.
 

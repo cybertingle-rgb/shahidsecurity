@@ -14,7 +14,6 @@ export function organizationSchema() {
     image: absoluteUrl('/brand/logo-stacked-dark-bg.png'),
     description: site.description,
     email: site.email,
-    telephone: site.phone,
     address: {
       '@type': 'PostalAddress',
       addressLocality: site.registeredAddress.locality,

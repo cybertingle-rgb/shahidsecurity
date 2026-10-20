@@ -24,9 +24,6 @@ function shahid_root(): string
     return dirname(__DIR__, SITE_PARENT_DIR_LEVELS);
 }
 
-// Keep in sync with `whatsappNumber` in src/lib/site.ts.
-const WHATSAPP_NUMBER = '923116234126';
-
 /**
  * Best-effort, fire-and-forget notification to the Shahid Security
  * admin app's lead intake endpoint (apps/admin), so a real submission
@@ -279,7 +276,7 @@ $vendorAutoload = shahid_root() . '/php/vendor/autoload.php';
 
 if (!$configLoaded || !is_file($vendorAutoload) || !defined('SMTP_HOST')) {
     error_log('[shahid-contact] Mail not sent: config or PHPMailer dependency missing.');
-    fail('Sorry, something went wrong on our end. Please WhatsApp us instead.', [], 500);
+    fail('Sorry, something went wrong on our end. Please email info@shahidiqbal.com instead.', [], 500);
 }
 
 require_once $vendorAutoload;
@@ -308,7 +305,7 @@ function send_mail(string $email, string $name, string $company, string $phone, 
             "Name: $name",
             "Email: $email",
             "Company: " . ($company !== '' ? $company : '-'),
-            "Phone/WhatsApp: " . ($phone !== '' ? $phone : '-'),
+            "Phone: " . ($phone !== '' ? $phone : '-'),
             "Service: $service",
             "NDA requested: " . ($ndaRequested ? 'Yes' : 'No'),
             '',
@@ -335,7 +332,7 @@ function send_mail(string $email, string $name, string $company, string $phone, 
             "Hi $name,",
             '',
             "Thanks for reaching out to Shahid Security. We've received your message and reply within 24 hours on working days.",
-            'For urgent incidents (active hack, ransomware), WhatsApp us: https://wa.me/' . WHATSAPP_NUMBER,
+            'For urgent incidents (active hack, ransomware), reply to this email and mark it urgent — we prioritize those.',
             '',
             '— Shahid Security',
         ]);
@@ -349,7 +346,7 @@ function send_mail(string $email, string $name, string $company, string $phone, 
 }
 
 if (!send_mail($email, $name, $company, $phone, $service, $message, $ndaRequested)) {
-    fail('Sorry, something went wrong sending your message. Please WhatsApp us instead.', [], 500);
+    fail('Sorry, something went wrong sending your message. Please email info@shahidiqbal.com instead.', [], 500);
 }
 
 notify_admin_leads_intake([
