@@ -11,10 +11,9 @@ export const site = {
   url: 'https://shahidiqbal.com',
   description:
     'Independent cybersecurity consulting for businesses worldwide: penetration testing, vulnerability assessments, security audits and incident response. Book a free consultation.',
+  // All client-facing contact — bookings, consultations, incidents, the
+  // works — goes through this one address, not a phone/WhatsApp number.
   email: 'info@shahidiqbal.com',
-  phone: '1101011011101110000000111110010110001110',
-  phoneDisplay: '1101011011101110000000111110010110001110',
-  whatsappNumber: '1101011011101110000000111110010110001110',
   // Public-facing location shown on the Contact page.
   address: {
     locality: 'Islamabad',
@@ -47,16 +46,7 @@ export const site = {
   founderExperienceSince: 2020,
 } as const;
 
-export function whatsappLink(message?: string) {
-  const base = `https://wa.me/${site.whatsappNumber}`;
-  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
-}
-
 export function mailtoLink(subject?: string) {
   const base = `mailto:${site.email}`;
   return subject ? `${base}?subject=${encodeURIComponent(subject)}` : base;
-}
-
-export function telLink() {
-  return `tel:${site.phone}`;
 }

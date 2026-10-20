@@ -1,6 +1,6 @@
 ---
 import Button from './Button.astro';
-import { whatsappLink } from '@/lib/site';
+import { mailtoLink } from '@/lib/site';
 
 interface Props {
   title: string;
@@ -26,8 +26,8 @@ const {
       <Button href={primaryHref} variant="primary">
         {primaryLabel}
       </Button>
-      <Button href={whatsappLink("Hi, I'd like to talk about my security.")} variant="secondary">
-        WhatsApp us
+      <Button href={mailtoLink("I'd like to talk about my security")} variant="secondary">
+        Email us
       </Button>
     </div>
   </div>

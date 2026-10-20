@@ -5,15 +5,9 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import ContactForm from '@/components/ContactForm.astro';
 import { Icon } from 'astro-icon/components';
-import { site, mailtoLink, whatsappLink } from '@/lib/site';
+import { site, mailtoLink } from '@/lib/site';
 
 const cards = [
-  {
-    icon: 'lucide:message-circle',
-    label: 'WhatsApp / Call',
-    value: site.phoneDisplay,
-    href: whatsappLink("Hi, I'd like to talk about my security."),
-  },
   {
     icon: 'lucide:mail',
     label: 'Email',
@@ -35,7 +29,7 @@ const cards = [
 
 <BaseLayout
   title="Talk to a Security Expert"
-  description="Tell us what you're worried about. We reply within 24 hours on working days. For emergencies, WhatsApp is fastest."
+  description="Tell us what you're worried about. We reply within 24 hours on working days."
   path="/contact/"
   ogImage="/og/contact.png"
   pageType="ContactPage"
@@ -51,7 +45,7 @@ const cards = [
       as="h1"
       eyebrow="// contact"
       title="Talk to a security expert"
-      intro="Tell us what you're worried about. We reply within 24 hours on working days. For emergencies (active hack, ransomware), WhatsApp is fastest."
+      intro="Tell us what you're worried about. We reply within 24 hours on working days — for emergencies (active hack, ransomware), mark it urgent in your message."
     />
   </Section>
 
@@ -85,7 +79,7 @@ const cards = [
           class="mb-4 rounded-md border border-(--color-danger) bg-(--color-danger)/10 p-3 text-sm text-(--color-danger)"
           role="alert"
         >
-          Something went wrong sending your message. Please try again or WhatsApp us.
+          Something went wrong sending your message. Please try again or email {site.email} directly.
         </p>
         <ContactForm />
       </div>

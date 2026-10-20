@@ -16,7 +16,6 @@
 | Registered address (letterhead / bank) | Chak 105/15-L, Vanjari, Tehsil Mian Channu, District Khanewal, Punjab, Pakistan                                                                                                                                                                                                                                                        |
 | Location shown on old site             | Islamabad, Pakistan — **[FILL IN: confirm which location to show publicly; use the registered address unless there is a real Islamabad office]**                                                                                                                                                                                       |
 | Email                                  | info@shahidiqbal.com                                                                                                                                                                                                                                                                                                                   |
-| Phone / WhatsApp                       | 1101011011101110000000111110010110001110                                                                                                                                                                                                                                                                                                                        |
 | Facebook                               | facebook.com/shahidsecurityofficial                                                                                                                                                                                                                                                                                                    |
 | Instagram                              | instagram.com/shahidsecurityofficial                                                                                                                                                                                                                                                                                                   |
 | X                                      | x.com/shahidsecurity                                                                                                                                                                                                                                                                                                                   |
@@ -99,7 +98,7 @@
 
 - H2: Not sure where you stand?
 - Text: Book a free consultation. We'll tell you honestly what your biggest risk is — even if you don't hire us.
-- Buttons: Book consultation · WhatsApp us
+- Buttons: Book consultation · Email us
 
 ---
 
@@ -147,7 +146,7 @@ Merges old: Network Security, Security Configuration, Identity & Access, Data En
 
 Merges old: Incident Response Planning, Backup & Recovery.
 
-- **Emergency:** Hacked website, ransomware, compromised email → contact us on WhatsApp for fastest response.
+- **Emergency:** Hacked website, ransomware, compromised email → email us for fastest response.
 - **Included:** Containment, malware clean-up, root-cause analysis, credential resets, restore from backup, hardening to prevent recurrence.
 - **Planning (before it happens):** Incident response plan, backup strategy (3-2-1), recovery testing.
 
@@ -206,11 +205,10 @@ Because we also build websites, software and AI systems, we understand both side
 ## 5. Contact page
 
 - H1: Talk to a security expert
-- Intro: Tell us what you're worried about. We reply within 24 hours on working days. For emergencies (active hack, ransomware), WhatsApp is fastest.
+- Intro: Tell us what you're worried about. We reply within 24 hours on working days.
 
 **Contact cards**
 
-- WhatsApp / Call: 1101011011101110000000111110010110001110
 - Email: info@shahidiqbal.com
 - Location: [FILL IN: chosen public location] — serving clients remotely across Pakistan and worldwide
 - Registered office (footer / legal pages / invoices): Chak 105/15-L, Vanjari, Tehsil Mian Channu, District Khanewal, Punjab, Pakistan
@@ -218,7 +216,7 @@ Because we also build websites, software and AI systems, we understand both side
 
 **Contact form fields**
 
-- Name* · Email* · Company · Phone/WhatsApp
+- Name* · Email* · Company · Phone (optional)
 - Service interested in (select): Penetration Testing · Vulnerability Assessment · Network & Cloud Security · Compliance & Risk · Incident Response (urgent) · Monitoring & Training · Website Development · Software Development · AI Automation · Not sure
 - Message*
 - Checkbox: "I'd like an NDA before sharing details"

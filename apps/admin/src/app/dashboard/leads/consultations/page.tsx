@@ -10,6 +10,7 @@ function ConsultationRow({ consultation }: { consultation: Consultation }) {
   return (
     <tr className="border-t border-border">
       <td className="px-4 py-2">{consultation.fullName}</td>
+      <td className="px-4 py-2 text-text-muted">{consultation.email ?? '—'}</td>
       <td className="px-4 py-2 text-text-muted">{consultation.phone ?? '—'}</td>
       <td className="px-4 py-2 text-text-muted">{consultation.country ?? '—'}</td>
       <td className="px-4 py-2 text-text-muted">{consultation.requestedAt.toLocaleString()}</td>
@@ -37,16 +38,14 @@ export default async function ConsultationsPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Consultation requests</h1>
-      <p className="text-sm text-text-muted">
-        From the booking form on shahidiqbal.com, which (by design) never collects an email — confirmation happens over
-        phone/WhatsApp.
-      </p>
+      <p className="text-sm text-text-muted">From the booking form on shahidiqbal.com — confirm by email.</p>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <table className="w-full text-sm">
           <thead className="bg-surface text-left text-text-muted">
             <tr>
               <th className="px-4 py-2">Name</th>
+              <th className="px-4 py-2">Email</th>
               <th className="px-4 py-2">Phone</th>
               <th className="px-4 py-2">Country</th>
               <th className="px-4 py-2">Requested for</th>
@@ -59,7 +58,7 @@ export default async function ConsultationsPage() {
             ))}
             {consultations.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-text-muted">
+                <td colSpan={6} className="px-4 py-6 text-center text-text-muted">
                   No consultation requests yet.
                 </td>
               </tr>

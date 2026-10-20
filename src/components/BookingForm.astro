@@ -111,14 +111,29 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   </div>
 
   <div>
+    <label for="bk-email" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
+      Email *
+    </label>
+    <input
+      id="bk-email"
+      name="email"
+      type="email"
+      required
+      autocomplete="email"
+      aria-describedby="bk-email-error"
+      class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
+    />
+    <p id="bk-email-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+  </div>
+
+  <div>
     <label for="bk-phone" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-      Phone / WhatsApp *
+      Phone (optional)
     </label>
     <input
       id="bk-phone"
       name="phone"
       type="tel"
-      required
       autocomplete="tel"
       aria-describedby="bk-phone-error"
       class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
@@ -127,8 +142,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   </div>
 
   <p class="text-xs text-(--color-text-muted)">
-    This confirms a request, not a booking — we'll reply by phone/WhatsApp to confirm the exact
-    time.
+    This confirms a request, not a booking — we'll reply by email to confirm the exact time.
   </p>
 
   <!-- Honeypot -->
@@ -220,12 +234,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       }
       if (statusEl) {
         statusEl.textContent =
-          data?.message || 'Something went wrong. Please try again or WhatsApp us.';
+          data?.message || 'Something went wrong. Please try again or email info@shahidiqbal.com.';
         statusEl.className = 'mt-3 text-sm text-(--color-danger)';
       }
     } catch {
       if (statusEl) {
-        statusEl.textContent = 'Network error. Please try again or WhatsApp us.';
+        statusEl.textContent = 'Network error. Please try again or email info@shahidiqbal.com.';
         statusEl.className = 'mt-3 text-sm text-(--color-danger)';
       }
     } finally {

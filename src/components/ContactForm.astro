@@ -61,7 +61,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     </div>
     <div>
       <label for="phone" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-        Phone / WhatsApp
+        Phone (optional)
       </label>
       <input
         id="phone"
@@ -197,12 +197,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       }
       if (statusEl) {
         statusEl.textContent =
-          data?.message || 'Something went wrong. Please try again or WhatsApp us.';
+          data?.message || 'Something went wrong. Please try again or email info@shahidiqbal.com.';
         statusEl.className = 'mt-3 text-sm text-(--color-danger)';
       }
     } catch {
       if (statusEl) {
-        statusEl.textContent = 'Network error. Please try again or WhatsApp us.';
+        statusEl.textContent = 'Network error. Please try again or email info@shahidiqbal.com.';
         statusEl.className = 'mt-3 text-sm text-(--color-danger)';
       }
     } finally {

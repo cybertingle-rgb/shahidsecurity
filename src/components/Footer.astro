@@ -1,5 +1,5 @@
 ---
-import { site, mailtoLink, telLink } from '@/lib/site';
+import { site, mailtoLink } from '@/lib/site';
 
 const year = new Date().getFullYear();
 
@@ -120,11 +120,6 @@ const columns = [
           {site.tagline}
         </p>
         <p class="mt-2 text-sm text-(--color-text-muted)">
-          <a href={telLink()} class="inline-block py-1.5 hover:text-(--color-text)">
-            {site.phoneDisplay}
-          </a>
-        </p>
-        <p class="text-sm text-(--color-text-muted)">
           <a href={mailtoLink()} class="inline-block py-1.5 hover:text-(--color-text)">
             {site.email}
           </a>

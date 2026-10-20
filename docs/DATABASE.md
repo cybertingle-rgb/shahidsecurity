@@ -45,9 +45,10 @@ Checked against the real forms before building on top of them, not
 assumed:
 
 - `leads.email`, `customers.email`, `consultations.email` are nullable
-  — the booking form (`book.php`) genuinely never collects an email
-  (confirmation happens over phone/WhatsApp, by that form's own
-  long-standing design).
+  for historical rows only — the booking form (`book.php`) now requires
+  an email on every new submission (all confirmation happens by email;
+  there is no phone/WhatsApp contact channel), but older rows predate
+  that change.
 - `consultations.country` is a free-text `varchar(100)`, not an ISO
   country code — the booking form has always collected an open text
   field, not a code picker.

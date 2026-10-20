@@ -44,8 +44,8 @@ export default async function ReviewRequestsPage() {
             {settings.googleReviewUrl}
           </a>
           <p className="mt-2 text-xs text-text-muted">
-            This app doesn&apos;t send the message itself yet — copy the link above and send it to the customer directly
-            (email/WhatsApp), then record it below.
+            This app doesn&apos;t send the message itself yet — copy the link above and email it to the customer
+            directly, then record it below.
           </p>
         </div>
       )}
