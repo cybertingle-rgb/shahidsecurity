@@ -1,0 +1,85 @@
+---
+title: 'Ransomware Readiness: Backups, Recovery Testing, and Incident Response'
+description: "Most organizations are confident they could recover from ransomware quickly. 2026 survey data shows most of that confidence hasn't been tested. Here is what actual readiness requires."
+publishedAt: 2026-10-24
+tags: ['ransomware', 'backup-recovery', 'incident-response']
+author: Shahid Iqbal
+relatedService: incident-response
+relatedPosts: ['ransomware-2026-trends', 'patch-management-cisa-kev-guide', 'cyber-resilience-vs-cybersecurity']
+faqs:
+  - q: Is having backups the same as being ransomware-ready?
+    a: "No. 2026 survey data from Arcserve found that while most IT teams are confident in their ability to recover within 48 hours, fewer than half of them actually met their own recovery time and recovery point targets when tested. Having backups is necessary but not sufficient — untested backups are a hope, not a plan."
+  - q: 'What does "immutable" backup actually mean?'
+    a: "An immutable backup is one that cannot be altered, encrypted, or deleted — including by an administrator account — for a defined retention period, even if that admin account is compromised. This matters specifically because modern ransomware groups routinely target backup systems directly before encrypting production data, precisely to remove the recovery option."
+  - q: How often should we actually test recovery, not just back up?
+    a: "At minimum, test a full restoration on a regular schedule (quarterly is a reasonable starting cadence for most small and mid-size businesses) and after any significant change to your backup infrastructure or critical systems. A backup job completing successfully proves data was copied — it does not prove that data can be restored to a working state under pressure, which is the only scenario that actually matters."
+draft: false
+---
+
+Arcserve's 2026 State of Data Resilience report, based on a survey of IT professionals, found that 65.1% were confident they could recover from ransomware within 48 hours — but only 35.4% actually met their recovery point and recovery time targets when that recovery was tested. That gap between confidence and proof is the core problem with most ransomware readiness today: backups exist, but the plan to actually use them under pressure has rarely been rehearsed.
+
+## Confidence versus proof
+
+The same Arcserve survey found that 52.3% of respondents had experienced a ransomware attack, yet only 49.2% had deployed immutable backup storage — the control specifically designed to survive an attack that targets backups directly. Most striking: 64.6% had not demonstrated that their recovery posture actually works under realistic conditions. A separate 2026 State of Cyber Recovery survey found the gap even starker at the sharp end: only 14% of organizations could identify a clean recovery point within minutes of an incident, and just 8% could recover multiple terabytes of data in under an hour.
+
+None of this means these organizations lack backups. It means the backups, and the process around them, have not been tested against the specific conditions a real ransomware incident creates — time pressure, uncertainty about which backup is actually clean, and in many cases, backup infrastructure that the attacker already compromised before anyone noticed.
+
+## Recovery objectives: RTO and RPO, defined for your business
+
+Two numbers should be set before an incident, not during one:
+
+- **Recovery Time Objective (RTO)** — how long can this system realistically be down before the business impact becomes unacceptable? This varies by system: an e-commerce checkout page has a much shorter tolerable RTO than an internal reporting dashboard.
+- **Recovery Point Objective (RPO)** — how much data can you afford to lose, measured in time? An RPO of 24 hours means you've accepted that up to a day's worth of changes could be lost in a worst-case recovery.
+
+Setting these per system, not as one blanket figure for the whole business, is what lets you prioritize recovery order during an actual incident instead of guessing under pressure.
+
+## The 3-2-1-1 backup principle
+
+A long-standing backup rule, updated for the ransomware era:
+
+- **3** copies of your data, total (the original plus two backups)
+- **2** different storage media or systems, so a single failure mode doesn't take out every copy
+- **1** copy stored offsite or in a separate environment
+- **1** copy that is immutable or offline — air-gapped, or write-protected in a way that even a compromised administrator credential cannot alter or delete
+
+That last "1" is the addition that matters most against ransomware specifically. [CISA's #StopRansomware guidance](https://www.stopransomware.gov/) consistently emphasizes maintaining offline, encrypted backups precisely because modern ransomware operators routinely seek out and encrypt or delete connected backup systems as a standard part of the attack, not an afterthought — a backup that's reachable from the compromised network is a backup the attacker can also reach.
+
+## Recovery testing: what to actually verify
+
+A successful backup job proves data was copied somewhere. It does not prove any of the following, each of which only a real restoration test can confirm:
+
+- The backup is actually restorable, not silently corrupted
+- The restoration process completes within your stated RTO, not just "eventually"
+- The restored data lands in a working state — applications function, dependencies resolve, configurations are intact — not just that files exist
+- Staff know, without improvising, which backup to restore from and in what order dependent systems need to come back online
+
+Quarterly full-restoration tests are a reasonable baseline for most small and mid-size businesses, with additional testing after any significant change to backup infrastructure, critical applications, or network architecture.
+
+## Segmentation: limiting what one compromised account can reach
+
+Network segmentation doesn't prevent an initial compromise, but it limits how far ransomware can spread before containment — directly shrinking the scope (and cost) of recovery. At minimum: separate backup infrastructure from the general network with its own access controls, isolate critical systems (financial, customer data) from general user network segments, and avoid a flat network where one compromised workstation has a path to everything.
+
+## Incident response roles, decided in advance
+
+A ransomware incident is not the time to decide who's in charge of what. Before an incident, document:
+
+- Who has authority to make the call to isolate or shut down systems, and under what conditions
+- Who contacts law enforcement, legal counsel, cyber insurance, and (where required) regulators — and in what order
+- Who communicates with employees, customers, and the public, and who approves that messaging
+- Who manages technical containment and recovery, and who they report status to
+
+## Evidence preservation
+
+Before wiping or rebuilding anything, preserve what you can: affected system images or disk snapshots, relevant logs, and a timeline of what was observed and when. This matters for insurance claims, potential legal action, regulatory reporting obligations, and — if law enforcement gets involved — the actual investigation. Rebuilding a system immediately, while understandable under pressure, can destroy the evidence needed to understand how the attacker got in and whether they still have access elsewhere.
+
+## Key takeaways
+
+The gap in ransomware readiness in 2026 isn't primarily about whether organizations have backups — most do. It's that confidence in recovery (65.1%, per Arcserve) sharply outpaces demonstrated recovery (35.4% meeting targets in testing), and immutable backup adoption (49.2%) still lags behind ransomware exposure (52.3% already attacked). Real readiness means defined RTO/RPO per system, a 3-2-1-1 backup approach with a genuinely immutable or offline copy, quarterly restoration testing — not just backup-job success — and incident response roles decided before, not during, an incident.
+
+Shahid Security's [Incident Response & Recovery](/services/incident-response/) service includes backup and recovery strategy review as part of incident readiness planning, not just response after the fact.
+
+**Not sure your backups would actually hold up under a real restoration test?** [Book a free consultation](/book/) or email [info@shahidiqbal.com](mailto:info@shahidiqbal.com).
+
+---
+
+Sources: [Arcserve 2026 State of Data Resilience Report](https://www.arcserve.com/resources/2026-state-of-data-resilience-report), [2026 State of Cyber Recovery: Closing the Gaps Between Storage, Data Protection, and Cybersecurity](https://www.govinfosecurity.com/whitepapers/2026-state-cyber-recovery-closing-gaps-between-storage-data-w-16722), [CISA #StopRansomware Guide](https://www.stopransomware.gov/).

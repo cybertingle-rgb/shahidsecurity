@@ -1,0 +1,88 @@
+---
+title: 'Web Application Security Testing Checklist for 2026'
+description: 'A practical, OWASP Top 10:2025-aligned checklist for what a real web application security test should actually cover — from authentication to logging, not just a vulnerability scan.'
+publishedAt: 2026-10-24
+tags: ['web-application-security', 'penetration-testing', 'owasp']
+author: Shahid Iqbal
+relatedService: penetration-testing
+relatedPosts: ['owasp-top-10-2025-explained', 'api-security-best-practices', 'wordpress-hacked-checklist']
+faqs:
+  - q: Is testing against the OWASP Top 10 enough on its own?
+    a: 'No. OWASP itself positions the Top 10 as an awareness document, not a test plan — it names the ten most common weakness categories, not a complete list of what to check. A real test should use something like the OWASP Application Security Verification Standard (ASVS) or Web Security Testing Guide (WSTG) as the actual methodology, with the Top 10 as a lens for prioritizing what matters most.'
+  - q: Do we need source-code access for a meaningful test?
+    a: "Not necessarily. A black-box test (no source access, testing like an external attacker would) catches real, exploitable issues and is the default scope for most external engagements. A white-box or hybrid test (with source access) finds additional issues — like subtle logic flaws or insecure defaults — that are hard to spot from the outside alone. Which makes sense depends on your threat model and budget, not a fixed rule."
+  - q: How often should a web application actually be retested?
+    a: "After any significant change to authentication, access control, or how the application handles data — not just on a fixed annual calendar. A once-a-year test misses vulnerabilities introduced by a feature shipped in month three. Retesting after remediation also matters: a fix that looks correct in code can still leave the underlying issue exploitable if it wasn't verified against the original proof of concept."
+draft: false
+---
+
+Broken access control has topped OWASP's Top 10 for web application risks since the 2021 edition, and it still holds the top spot in the 2025 update — a sign that this is a persistent architectural failure, not a trend that testing tools have caught up to yet. A checklist built around what actually gets tested, not just what a scanner flags, is the difference between a report full of low-value findings and one that tells you where a real attacker would actually get in.
+
+## What the OWASP Top 10 is — and isn't
+
+The OWASP Top 10 is an awareness document ranking the most common web application weakness categories by how frequently they show up in real applications. It is not, by OWASP's own framing, a complete test plan — treating it as one means missing vulnerabilities that don't map neatly onto one of the ten named categories. For an actual testing methodology, pair it with the [OWASP Application Security Verification Standard (ASVS)](https://owasp.org/www-project-application-security-verification-standard/) or the Web Security Testing Guide, which break those categories down into specific, checkable requirements.
+
+The 2025 list keeps Broken Access Control at #1 and Authentication Failures at #7 — access control and identity remain two of the highest-value areas to test deeply, not just scan superficially.
+
+## The checklist
+
+**Authentication**
+- [ ] Password policy enforces reasonable minimum strength without encouraging predictable patterns
+- [ ] Account lockout or rate limiting on login attempts, tuned to resist brute-force without enabling denial-of-service against legitimate users
+- [ ] Multi-factor authentication available, and enforced for privileged accounts at minimum
+- [ ] Password reset flow cannot be used to enumerate valid accounts or hijack another user's account
+- [ ] Session tokens are regenerated on login and privilege change, not reused across authentication states
+
+**Authorization and access control**
+- [ ] Every privileged action re-checks authorization server-side — never trust a role or permission flag sent from the client
+- [ ] Object-level authorization tested directly: can user A access or modify user B's data by changing an ID in a request?
+- [ ] Administrative functions are unreachable to non-admin accounts, including by direct URL access
+- [ ] Horizontal and vertical privilege escalation paths tested explicitly, not assumed absent
+
+**Input validation and injection**
+- [ ] All user-supplied input validated server-side, regardless of client-side validation present
+- [ ] Parameterized queries or equivalent used everywhere user input reaches a database — not string concatenation
+- [ ] Output encoding applied contextually to prevent stored and reflected cross-site scripting
+- [ ] File upload functionality validates file type, size, and content server-side, and stores uploads outside the web root or with execution disabled
+
+**Session management**
+- [ ] Session cookies set with `HttpOnly`, `Secure`, and an appropriate `SameSite` attribute
+- [ ] Sessions expire after a reasonable idle timeout and absolute maximum duration
+- [ ] Logout actually invalidates the session server-side, not just clears a client-side cookie
+
+**API security**
+- [ ] Every API endpoint enforces the same authentication and authorization checks as its equivalent UI pathway — APIs are a common place for access control to quietly regress
+- [ ] Object-level authorization tested on API endpoints specifically, since this is where it's most frequently missed (OWASP API Security's own Top 10 ranks Broken Object Level Authorization as its #1 risk)
+- [ ] Rate limiting in place on authentication and data-intensive endpoints
+- [ ] API responses don't leak more data than the UI actually displays — a common gap when an endpoint returns a full object but the frontend only renders part of it
+
+**Configuration and infrastructure**
+- [ ] Default credentials and sample/debug accounts removed from production
+- [ ] Verbose error messages and stack traces disabled in production responses
+- [ ] Security headers in place: Content-Security-Policy, X-Content-Type-Options, Strict-Transport-Security, and an appropriate X-Frame-Options or frame-ancestors directive
+- [ ] TLS configuration uses current protocol versions and cipher suites — no legacy SSL/TLS left enabled for compatibility
+
+**Logging and monitoring**
+- [ ] Authentication failures, access control failures, and input validation failures are logged with enough context to investigate
+- [ ] Logs do not themselves contain sensitive data — passwords, tokens, full card numbers — in plaintext
+- [ ] Alerting exists for patterns suggesting active exploitation attempts, not just a passive log archive nobody reviews
+
+**Retesting**
+- [ ] Each finding retested against the original proof of concept after a fix is deployed, not just reviewed in code
+- [ ] A new test (or at minimum, a scoped retest) follows any significant change to authentication, access control, or data handling — not only an annual calendar date
+
+## Black-box, white-box, or both
+
+A black-box test — no source code, no backend access, testing exactly as an external attacker would — is the standard default scope and catches real, exploitable issues without requiring your development team to grant access to anything. A white-box or hybrid test, where the tester has source access, surfaces additional issues that are hard to find from the outside: subtle logic flaws, insecure defaults buried in configuration, or access control checks that look present but are implemented incorrectly. Neither approach is strictly superior — which one (or both) makes sense depends on your application's risk profile and what you're trying to learn from the engagement.
+
+## Key takeaways
+
+A checklist built around the real OWASP Top 10:2025 categories — led by broken access control and authentication failures — gives structure to a web application test, but the Top 10 alone isn't a complete methodology; pair it with ASVS or WSTG for actual test depth. Authorization deserves disproportionate attention: object-level and function-level access control failures are both a long-standing #1 risk on the web side and the top-ranked risk in OWASP's own API Security Top 10. And a test that's never retested against the original proof of concept, or that only runs once a year regardless of what changed in between, leaves real gaps unverified.
+
+Shahid Security's [Penetration Testing](/services/penetration-testing/) engagements are built around manual testing against this kind of checklist, not scanner output alone, with a free retest included after remediation.
+
+**Want to know whether your web application would hold up against this checklist?** [Book a free consultation](/book/) or email [info@shahidiqbal.com](mailto:info@shahidiqbal.com).
+
+---
+
+Sources: [OWASP Top 10:2025](https://owasp.org/Top10/2025/ja/), [OWASP Top 10:2025 — A Pentester's Perspective, NVISO](https://blog.nviso.eu/2026/01/09/owasp-top-10-2025-a-pentesters-perspective/), [OWASP Top 10:2025 overview, Radware](https://www.radware.com/cyberpedia/application-security/owasp-top-10/), [OWASP Application Security Verification Standard project](https://owasp.org/www-project-application-security-verification-standard/).

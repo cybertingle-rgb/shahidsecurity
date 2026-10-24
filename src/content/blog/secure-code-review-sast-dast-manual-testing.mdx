@@ -1,0 +1,80 @@
+---
+title: 'Secure Code Review in Practice: SAST, DAST, and Manual Review for Development Teams'
+description: 'An ISSTA peer-reviewed study found a single SAST tool flags vulnerable functions correctly only about half the time, with most of its warnings irrelevant. Here is what automated scanning actually catches, where manual review fills the gap, and how to build a lightweight secure-SDLC process.'
+publishedAt: 2026-10-24
+tags: ['secure-development', 'code-review', 'appsec']
+author: Shahid Iqbal
+relatedService: custom-software-development
+relatedPosts: ['software-supply-chain-security', 'api-security-best-practices', 'owasp-top-10-2025-explained']
+faqs:
+  - q: 'Should we buy a SAST or DAST tool first?'
+    a: "Most teams get more value running both than agonizing over which to start with — they catch different things. SAST analyzes source code without running it, so it catches issues early, before a build even exists, but produces more false positives. DAST tests a running application from the outside, closer to how a real attacker would probe it, but can't see code it never exercises. Many free or low-cost SAST tools exist, so starting there is often the lower-friction first step."
+  - q: 'Can automated scanning replace manual code review entirely?'
+    a: "No. Automated tools are pattern-matchers — they find known vulnerability shapes reliably, but they miss business-logic flaws, authorization bugs that look structurally correct, and anything that depends on understanding what the application is actually supposed to do. A human reviewer (or a focused manual penetration test) catches exactly the class of bug that pattern-matching tools are structurally unable to see."
+  - q: 'How do we add security review without slowing down our release cycle?'
+    a: "Run fast, automated checks (SAST, dependency scanning) on every pull request so issues surface before merge, not after deployment. Reserve manual review and DAST for higher-risk changes — authentication, payment handling, access control, anything touching sensitive data — rather than applying the same depth of review to every single change. Most of the velocity cost comes from applying maximum scrutiny indiscriminately, not from having a process at all."
+draft: false
+---
+
+An ISSTA 2024 peer-reviewed study analyzing 319 real-world vulnerabilities across 815 vulnerability-contributing commits in 92 C/C++ projects found that a single static analysis (SAST) tool correctly flagged the vulnerable function in only about half of those commits — and that the large majority of its warnings were irrelevant noise, unrelated to the actual vulnerability. Automated scanning is genuinely useful. It is also, on its own, nowhere near sufficient. The gap between what a scanner catches and what a real application needs reviewed is exactly where secure code review as a discipline lives.
+
+## What SAST actually catches — and misses
+
+Static Application Security Testing analyzes source code without executing it, looking for known-risky patterns: unsanitized input reaching a database query, hardcoded credentials, insecure cryptographic function calls, common injection shapes. Its strength is speed and coverage — it can scan an entire codebase in minutes and runs naturally inside a CI pipeline, catching issues before a single line reaches production.
+
+Its weakness is the same thing that makes it fast: it understands syntax and known patterns, not intent. A SAST tool has no concept of whether a given user is *supposed* to be able to access a given resource — it can't distinguish a correctly-implemented authorization check from a subtly broken one that looks structurally similar. The ISSTA study's finding that roughly a fifth of real vulnerability-contributing commits went entirely undetected, alongside a high rate of irrelevant warnings on the commits it did flag, reflects this limitation directly: pattern-matching catches known shapes and generates substantial noise finding them.
+
+## What DAST adds
+
+Dynamic Application Security Testing takes the opposite approach: it tests a running application from the outside, sending real requests and observing real responses, much closer to how an actual attacker would probe a live system. This catches a different category of issue — runtime configuration problems, issues that only manifest when components interact, and vulnerabilities that don't exist cleanly in any single piece of source code a SAST scan would examine.
+
+DAST's limitation mirrors SAST's strength: it can only test what it can reach and exercise. Functionality behind complex authentication flows, rarely-used code paths, or business logic the scanner doesn't know how to trigger stays invisible to it — not because the vulnerability doesn't exist, but because the tool never got there.
+
+## Where manual review and threat modeling fill the gap
+
+The category of bug that both automated approaches reliably miss is business-logic and authorization flaws — code that is syntactically unremarkable and passes every automated check, but does the wrong thing given a specific sequence of actions a real attacker would think to try. A function that correctly checks "is this user logged in" but not "is this user allowed to access *this specific* record" is a textbook example: it looks completely normal to a scanner and only reveals itself to someone asking "what happens if I change this ID in the request to someone else's?"
+
+This is also precisely the category of finding that shows up disproportionately often in real-world penetration testing and manual code review engagements — access-control bugs, insecure deserialization of data a developer assumed was trustworthy, and injection patterns subtle enough to evade simple pattern matching. Threat modeling — systematically asking "what could go wrong here, and for whom" during design, not just during a pre-release scan — catches an overlapping but distinct set of issues: the ones rooted in the system's design rather than a specific line of code.
+
+## Common high-severity findings worth specifically watching for
+
+Across both automated and manual review, a recurring set of issue categories tends to dominate real findings:
+
+- **Broken access control** — a user reaching data or functionality that should be restricted to a different user or role, often through predictable identifiers (an incrementing order ID, a guessable URL) rather than a sophisticated exploit.
+- **Injection flaws** — SQL, command, or template injection, still common despite being well-understood, usually from one overlooked input path rather than a systemic gap.
+- **Insecure deserialization** — trusting structured data (serialized objects, certain file formats) from an untrusted source without validating what it actually contains before acting on it.
+- **Authentication and session-management weaknesses** — session tokens that don't expire, password reset flows with a guessable or unthrottled verification step, and similar logic gaps around who gets to prove they're a given user.
+- **Sensitive data exposure through logs or error messages** — stack traces, internal paths, or data leaking into logs or client-facing error responses, which rarely shows up as a "vulnerability" in a scanner but routinely assists an attacker who finds it.
+
+## Building a lightweight secure-SDLC for a small dev team
+
+A full enterprise secure software development lifecycle isn't realistic or necessary for most small teams — but a few deliberate checkpoints go a long way:
+
+1. **Automated SAST and dependency scanning on every pull request.** Fast, cheap, catches known-pattern issues before merge, and doesn't require a dedicated security engineer to run.
+2. **A short, specific checklist for high-risk changes** — anything touching authentication, payment processing, access control, or file uploads gets a deliberate manual look, even a brief one, rather than passing through on automated checks alone.
+3. **Periodic DAST against a staging environment**, not just production, so runtime issues surface before customers encounter them.
+4. **A genuine manual code review or focused penetration test before major releases or significant architecture changes** — reserved for where it matters most, not applied uniformly to every small change.
+5. **A record of what each review actually covered.** When something is missed later, knowing what was and wasn't in scope for the last review tells you whether the process has a real gap or just didn't reach that specific area yet.
+
+The goal isn't maximum process — it's making sure the highest-risk changes get real scrutiny, consistently, without treating every pull request as equally dangerous.
+
+## Secure code review checklist
+
+- [ ] SAST and dependency scanning run automatically on every pull request
+- [ ] A specific, short checklist exists for changes touching auth, payments, or access control
+- [ ] DAST runs against a staging environment before major releases
+- [ ] Manual review or a focused penetration test happens before significant releases, not just at launch
+- [ ] Known high-risk categories (access control, injection, deserialization) are explicitly on reviewers' radar, not assumed to be "caught by the tools"
+- [ ] A record exists of what each review round actually covered
+
+## Key takeaways
+
+Automated scanning — SAST and DAST together — is a necessary baseline, not a complete answer. Peer-reviewed research on real-world vulnerabilities found a single static analysis tool catching only about half of actually-vulnerable functions, with most of its other warnings irrelevant noise — and automated tools structurally cannot see business-logic and authorization flaws that depend on understanding what an application is supposed to do. A lightweight process that runs fast automated checks on every change and reserves real manual scrutiny for high-risk changes catches far more than either approach alone, without requiring a large dedicated security team.
+
+Shahid Security's [Custom Software Development](/services/custom-software-development/) engagements build security review into the development process itself, including manual code review and pre-launch testing.
+
+**Building or maintaining custom software and not sure where your review process has gaps?** [Book a free consultation](/book/).
+
+---
+
+Sources: [ISSTA 2024: An Empirical Study of Static Analysis Tools for Secure Code Review](https://2024.issta.org/details/issta-2024-papers/56/An-Empirical-Study-of-Static-Analysis-Tools-for-Secure-Code-Review), Veracode GenAI Code Security Report 2025/2026 (via industry reporting).
