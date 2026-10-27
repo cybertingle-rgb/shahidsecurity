@@ -1,0 +1,85 @@
+---
+title: 'Business Continuity and Disaster Recovery Planning Beyond Ransomware'
+description: "Most recovery planning advice is written for ransomware specifically. Here's the broader discipline — business impact analysis, RTO/RPO, and a plan that covers any outage, not just an encryption event."
+publishedAt: 2026-10-27
+tags: ['business-continuity', 'disaster-recovery', 'risk-management']
+author: Shahid Iqbal
+relatedService: incident-response
+relatedPosts: ['ransomware-readiness-backup-recovery-guide', 'cyber-resilience-vs-cybersecurity']
+faqs:
+  - q: 'How is this different from ransomware recovery planning?'
+    a: "Ransomware recovery planning is scoped to one specific cause (an encryption event) and one specific fix (clean backups). Business continuity and disaster recovery planning is cause-agnostic — it covers a hardware failure, an extended cloud provider outage, a key vendor going down, a fire or flood at your office, or a ransomware event, all through the same framework: what's the impact, how fast do we need it back, and what's the plan."
+  - q: 'Is NIST SP 800-34 only for government agencies?'
+    a: "The document itself is written for US federal information systems, so it isn't a mandate for a private business. But its underlying method — business impact analysis driving recovery time and recovery point objectives, then a structured plan — is generic enough that any business can adopt the logic without adopting the compliance requirement."
+  - q: "What's the minimum viable version of this for a small business?"
+    a: "Identify your 2-3 systems that would hurt most if they went down, decide honestly how long you could survive without each one (that's your RTO) and how much data loss you could tolerate (your RPO), and make sure your actual backup and recovery capability meets those numbers. That's a usable starting business impact analysis without needing the full federal framework."
+draft: false
+---
+
+Search "disaster recovery planning" in 2026 and most of what comes back is scoped specifically to ransomware — which makes sense, given how much attention ransomware gets, but it leaves a gap. **A ransomware attack is one specific cause of business disruption. It is not the only one, and a recovery plan built only around it will have no answer for a hardware failure, an extended cloud outage, a key vendor going down, or a fire at your office.**
+
+Our own [ransomware readiness guide](/blog/ransomware-readiness-backup-recovery-guide/) covers that specific case well. This one covers the broader discipline it sits inside: business continuity and disaster recovery (BC/DR) planning, which is cause-agnostic by design.
+
+## The framework: business impact analysis first
+
+The federal government's NIST SP 800-34 Rev. 1 lays out a structured contingency-planning process, and while it's written for US federal information systems rather than as a private-business mandate, its underlying logic transfers cleanly to any size organization. The process starts with a **business impact analysis (BIA)** — and this is the step most small businesses skip entirely, jumping straight to "we need backups" without first answering the question a BIA is designed to answer: *what would actually happen, and how fast do we need each system back, if it went down right now?*
+
+A BIA, in practical terms, means going through your systems and, for each one, answering:
+
+- **What's the impact of this system being unavailable?** (Lost revenue, inability to serve customers, compliance exposure, reputational harm — be specific, not just "bad.")
+- **How long could we tolerate it being down?** This is your **Recovery Time Objective (RTO)** — the maximum acceptable outage length before the impact becomes unacceptable.
+- **How much data could we afford to lose?** This is your **Recovery Point Objective (RPO)** — if your last backup is from last night and something fails at 4pm, you've lost today's data; is that acceptable, or does it need to be closer to zero?
+
+These two numbers — RTO and RPO — are what should actually drive your backup frequency and recovery approach, not the other way around. A nightly backup gives you an RPO of up to 24 hours; if that's not acceptable for a given system, the backup strategy needs to change, not the expectation.
+
+## Why "beyond ransomware" matters
+
+A plan built narrowly around ransomware recovery tends to assume a specific shape: data is encrypted, you restore from backup, you're done. That assumption doesn't hold for other causes of disruption:
+
+- **Hardware failure** doesn't involve an attacker, but still requires knowing your RTO/RPO and having a tested path to restore service — the "how" is different (no need to verify backups are clean of malware) but the planning discipline is identical.
+- **Extended cloud or SaaS provider outages** are increasingly common as businesses depend on more third-party services; your continuity plan needs an answer for "what do we do if [critical vendor] is down for six hours" that doesn't assume the problem is on your own systems at all.
+- **Key vendor or supplier failure** — not a cyber event at all, but a business continuity problem with the same shape: what's the impact, how long can you absorb it, what's the fallback.
+- **Physical disruption** (fire, flood, extended power outage, a building becoming inaccessible) requires planning that pure data-backup thinking doesn't cover: where do people work, how do they access systems, what's genuinely essential versus nice-to-have in that scenario.
+
+A BC/DR plan built around impact and recovery objectives, rather than a specific cause, has an answer for all of these using the same structure — you're not maintaining four separate playbooks for four different disaster types.
+
+## The three-phase plan structure
+
+NIST SP 800-34's format frames recovery as three phases, which is a useful structure to borrow regardless of cause:
+
+1. **Notification and activation** — how does the organization learn a disruption has happened, and who decides the contingency plan is being activated? Vague answers here ("someone will notice") cost real time during an actual event.
+2. **Recovery** — the actual steps to restore operations to the level defined by your RTO/RPO, with specific, pre-assigned responsibility for each step rather than figuring it out in the moment.
+3. **Reconstitution** — returning to normal operations once the immediate recovery is complete, including validating that systems are fully functional and capturing what was learned for the next revision of the plan.
+
+## A practical starting BIA for a small business
+
+You don't need the full federal apparatus to get real value from this method. A usable starting point:
+
+1. **List your systems** — not exhaustively, just the ones that matter: email, your website, your core business application, your accounting/financial system, your primary cloud storage.
+2. **For each, write down the honest impact of a full-day outage.** Be specific — "we can't invoice clients" is more useful than "it would be bad."
+3. **Assign an RTO and RPO to each**, based on that impact — not based on what your current backup happens to provide, based on what the business actually needs.
+4. **Compare your current recovery capability against those numbers.** This comparison is usually where the gap shows up — most businesses discover their actual RPO (based on real backup frequency) is worse than what the business genuinely needs.
+5. **Close the gap** where it exists, prioritizing the systems with the worst impact-to-current-capability mismatch.
+6. **Test it.** A plan that's never been tested is a plan you don't actually know works — this is the same principle our ransomware readiness guide covers for backup testing specifically, and it applies here just as much.
+
+## Business continuity planning checklist
+
+- [ ] List your critical systems and the honest impact of each being unavailable for a day
+- [ ] Set an RTO and RPO for each based on business impact, not current backup capability
+- [ ] Compare current recovery capability against those targets and identify the gap
+- [ ] Document the three phases — notification/activation, recovery, reconstitution — with assigned responsibility, not vague ownership
+- [ ] Include non-cyber causes explicitly: vendor outage, physical disruption, hardware failure
+- [ ] Test the plan at least annually, more often for your highest-impact systems
+- [ ] Revisit the whole BIA after any significant change to systems, vendors, or the business itself
+
+## Key takeaways
+
+Business continuity and disaster recovery planning is the broader discipline that ransomware-specific recovery planning sits inside — cause-agnostic, built around a business impact analysis that produces concrete recovery time and recovery point objectives, then a structured three-phase plan (notification, recovery, reconstitution) to meet them. NIST SP 800-34's framework is written for federal systems, but its underlying logic — impact drives objectives, objectives drive the plan — applies to a business of any size, without needing to adopt it as a compliance mandate.
+
+Shahid Security's [Incident Response & Recovery](/services/incident-response/) service helps businesses build and test continuity plans that cover more than one cause of disruption.
+
+**Want a business impact analysis that gives you real, usable recovery objectives?** [Book a free consultation](/book/).
+
+---
+
+Sources: NIST SP 800-34 Rev. 1, "Contingency Planning Guide for Federal Information Systems" (structure and BIA/RTO/RPO methodology, referenced via secondary technical coverage of the standard).

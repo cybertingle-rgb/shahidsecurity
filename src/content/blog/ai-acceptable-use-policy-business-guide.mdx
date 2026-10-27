@@ -1,0 +1,85 @@
+---
+title: 'How to Write an AI Acceptable Use Policy for Your Business'
+description: "Most businesses have employees using AI tools with no policy governing what's safe to paste into them. Here's a practical structure for an AI acceptable use policy you can actually implement, not just a list of risks to worry about."
+publishedAt: 2026-10-27
+tags: ['ai-governance', 'policy', 'compliance']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['shadow-ai-security-risks', 'ai-security-risks-for-business', 'ai-coding-assistants-security-review-guide']
+faqs:
+  - q: 'Do we really need a written policy, or is verbal guidance enough?'
+    a: "Written, because verbal guidance doesn't scale past a handful of people and leaves no record for a new hire, an auditor, or an insurer asking what controls you have in place. It doesn't need to be long — a one-to-two-page policy that's actually read and understood beats a ten-page document nobody opens."
+  - q: 'Should we just ban AI tools to avoid the risk entirely?'
+    a: "Outright bans tend to fail in practice: employees who find AI tools genuinely useful will often use them anyway, just without telling anyone — which is a worse outcome than sanctioned, policy-governed use, since you lose all visibility into what's happening. An approved-tools-plus-rules approach gives you the productivity benefit without the blind spot."
+  - q: 'How is this different from a general IT acceptable use policy?'
+    a: "A general AUP covers device and network use broadly; it rarely addresses AI-specific questions like what data classification is safe to paste into a public AI tool, whether AI-generated code or content needs disclosure, or which tools are approved versus personal accounts. An AI-specific policy (or a dedicated section) closes that gap without rewriting your whole IT policy."
+draft: false
+---
+
+Ask most small or mid-size businesses whether they have a written policy governing how employees use AI tools, and the honest answer is usually no — even though a meaningful share of their staff are already using ChatGPT, Copilot, or similar tools for real work. **The risk isn't that employees are using AI. It's that they're using it with no rules about what's safe to share with it, and no record that anyone ever thought about the question.**
+
+This isn't another article about *why* AI tools carry risk — that ground is well covered elsewhere, including our own posts on [shadow AI](/blog/shadow-ai-security-risks/) and [general AI business risk](/blog/ai-security-risks-for-business/). This is about the document itself: what an AI acceptable use policy actually needs to contain to be useful, not just exist.
+
+## Why a policy, specifically
+
+A policy does three things a one-off conversation doesn't:
+
+- **It gives employees a clear, consistent answer** to "can I paste this into ChatGPT?" instead of leaving it to individual judgment, which varies wildly by how security-aware each person happens to be.
+- **It creates a record** — for a new hire's onboarding, for an auditor, for a cyber insurer asking what AI-governance controls you have, or simply for your own future reference when the inevitable question comes up.
+- **It gives you something to point to when something goes wrong.** If sensitive data ends up somewhere it shouldn't, "we had a policy and this violated it" is a materially different conversation than "we never addressed this."
+
+## What the policy needs to cover
+
+A usable AI acceptable use policy is short enough to actually be read. Aim for the following sections, not an exhaustive legal document:
+
+### 1. Approved tools
+
+List the AI tools your business has reviewed and approved for work use — by name, with a brief note on what they're approved for. If your team already uses an AI coding assistant, a customer-support AI tool, or a general-purpose assistant, name them explicitly rather than leaving "AI tools" undefined. Anything not on the list defaults to **not approved for business data** until reviewed.
+
+### 2. Data classification: what's safe to share
+
+This is the section that actually prevents incidents. Give employees a concrete, three-tier structure rather than an abstract principle:
+
+- **Never paste into any AI tool:** customer personal data, financial records, credentials or API keys, unreleased product/business plans, anything covered by an NDA, source code for proprietary/competitive-advantage systems (unless the tool is specifically approved and configured for that).
+- **Only with an approved, business-tier tool** (not a free personal account): internal documents, draft communications referencing real client names, general business data that isn't classified as sensitive.
+- **Generally fine:** publicly available information, genuinely anonymized/synthetic examples, general knowledge questions unrelated to company data.
+
+Giving three concrete tiers, with examples, is far more usable than a policy that just says "use good judgment" — judgment is exactly what varies between employees and what an incident later exposes as inconsistent.
+
+### 3. Account requirements
+
+Specify that AI tool use for work must go through a business/team account where one is available, not a personal free-tier account — business-tier accounts typically come with different data-retention and training-opt-out terms than free consumer accounts, which matters directly for what happens to anything pasted in.
+
+### 4. AI-generated content and code — disclosure and review
+
+State whether AI-generated code, written content, or analysis needs to be flagged as such internally, and confirm that it's still subject to the same review process as human-produced work — this connects directly to the point made in our [AI coding assistants article](/blog/ai-coding-assistants-security-review-guide/): AI output is a draft, not a finished, pre-reviewed deliverable.
+
+### 5. What to do if something goes wrong
+
+Give a plain, specific instruction: if an employee realizes they've pasted something they shouldn't have into an AI tool, who do they tell, and what happens next? A policy that only lists rules and never addresses the "I made a mistake" case trains people to stay quiet rather than report it — exactly the opposite of what you want.
+
+### 6. Review cadence
+
+Name a specific interval (quarterly or at minimum annually) to revisit the approved-tools list and the policy itself. AI tooling changes fast enough that a policy written once and never revisited will be stale within a year.
+
+## A simple adoption checklist
+
+- [ ] List every AI tool currently in use across the business (ask — don't assume you already know)
+- [ ] Decide which are approved, and whether business-tier accounts are available for each
+- [ ] Write the three-tier data classification section with concrete, relevant examples for your business
+- [ ] Add the account-requirements and disclosure sections
+- [ ] Add a plain-language "if something goes wrong" reporting path
+- [ ] Circulate the policy and get acknowledgment — a policy nobody has seen isn't a control
+- [ ] Set a calendar reminder to review it in 6-12 months
+
+## Key takeaways
+
+The gap most businesses have isn't awareness that AI tools carry data risk — it's the absence of a short, concrete, actually-read policy that tells employees what's safe to share and with which tools. A usable AI acceptable use policy needs an approved-tools list, a concrete (not abstract) data-classification structure, account requirements, a disclosure expectation for AI-generated work, and a clear path for reporting mistakes — and it needs to be revisited regularly as the tools and your usage of them change.
+
+Shahid Security's [Compliance & Risk](/services/compliance-risk-assessment/) service helps businesses turn policy gaps like this into concrete, implementable documents rather than another item on a risk register that never gets addressed.
+
+**Want help drafting an AI use policy that fits how your team actually works?** [Book a free consultation](/book/).
+
+---
+
+Sources: cross-referenced against this site's existing reporting on [shadow AI risk](/blog/shadow-ai-security-risks/) and general AI business risk for consistency; no new third-party statistics are cited in this article, as it is a practical governance/process guide rather than a vulnerability or trend report.

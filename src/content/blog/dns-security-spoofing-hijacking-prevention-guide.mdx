@@ -1,0 +1,80 @@
+---
+title: 'DNS Security in 2026: Preventing Spoofing, Cache Poisoning, and Domain Hijacking'
+description: 'DNS is the one system every other security control quietly depends on, and most businesses never look at it until something breaks. A practical guide to the DNS risks that actually matter and how to close them.'
+publishedAt: 2026-10-27
+tags: ['dns-security', 'network-security', 'domain-security']
+author: Shahid Iqbal
+relatedService: network-cloud-security
+relatedPosts: ['email-authentication-spf-dkim-dmarc-guide', 'business-email-compromise-2026']
+faqs:
+  - q: 'What is the difference between DNS spoofing and DNS hijacking?'
+    a: "DNS spoofing (also called cache poisoning) tricks a resolver into caching a forged DNS answer, so anyone using that resolver gets sent to the wrong IP address for a period of time. DNS hijacking is broader — it covers any unauthorized change to how your domain resolves, including an attacker taking over your registrar account and pointing your domain's nameservers somewhere else entirely. Spoofing attacks a resolver; hijacking attacks your actual domain configuration."
+  - q: 'Do I need DNSSEC if I already use HTTPS everywhere?'
+    a: "HTTPS and DNSSEC protect different things. HTTPS (via TLS) protects the confidentiality and integrity of traffic between a browser and the server it's already connected to. DNSSEC protects the integrity of the DNS answer itself — proving that the IP address a resolver received for your domain actually came from your nameservers and wasn't forged along the way. HTTPS doesn't stop a successful cache-poisoning attack from sending a user to an attacker's server in the first place; DNSSEC is one of the few controls that addresses that specific gap."
+  - q: 'What is the single highest-impact DNS security step for a small business?'
+    a: "Locking down your domain registrar account: enable hardware-backed MFA (not SMS) on the registrar login, and turn on a registry lock or transfer lock if your registrar offers one. Most domain hijackings start with a compromised registrar account, not a technical DNS protocol attack — and this is the step most businesses skip because it feels like an administrative task rather than a security one."
+draft: false
+---
+
+Every security control your business relies on — your website's TLS certificate, your email authentication, your VPN, your customer login page — sits downstream of one quiet assumption: that when a device asks "what's the IP address for this domain?", it gets back the real answer. **DNS has no built-in authentication, which means that assumption is exactly what attackers go after.**
+
+Most businesses never think about DNS security until something breaks — a domain gets hijacked, email starts bouncing, or customers report being sent to a fake login page. By then the damage (stolen credentials, rerouted email, reputational cleanup) is already done. This is a guide to the handful of DNS risks that actually matter for a typical business, and the concrete steps that close them.
+
+## How DNS attacks actually work
+
+DNS was designed in the 1980s for a trusted network, and it shows: a standard DNS query and response carry no cryptographic proof that the response is genuine. That gap shows up in three distinct ways businesses should understand separately, because the fix for each is different.
+
+### DNS spoofing / cache poisoning
+
+When your device needs to resolve a domain, it usually asks a recursive resolver (run by your ISP, your office network, or a public service) rather than the authoritative nameserver directly. If an attacker can get a forged answer accepted and cached by that resolver before the real answer arrives, every device using that resolver gets sent to the attacker's IP address for however long the forged record stays cached. The classic attack races a flood of forged responses against the real one, guessing the transaction ID and source port needed to make a reply look legitimate.
+
+### Domain hijacking
+
+This is simpler and, in practice, far more common: an attacker gains access to your domain registrar account — through a phished password, a weak recovery email, or a reused credential from an unrelated breach — and changes your nameservers or DNS records directly. No protocol-level trickery required. Once they control the DNS records, they control where your domain's traffic, including email, actually goes.
+
+### Stale and dangling DNS records
+
+A quieter risk: DNS records pointing at resources you no longer control. If you decommission a cloud service or subdomain but leave the CNAME record pointing at it, an attacker can sometimes claim that same resource name on the cloud provider's side and effectively take over your subdomain — a technique known as subdomain takeover. This doesn't require breaching anything of yours; it only requires you forgetting to clean up a DNS record.
+
+## What changed in 2026
+
+NIST published an updated Secure DNS Deployment Guide (SP 800-81r3) in March 2026, replacing a 2013-era version that focused almost entirely on DNSSEC. The update reflects how DNS risk has broadened: it organizes guidance around three pillars — securing DNS infrastructure itself, ensuring the integrity of DNS systems and configuration, and using protective DNS (resolvers that actively block known-malicious domains) as a control in its own right, not just an afterthought.
+
+That shift matters practically: DNSSEC alone was never going to be enough, because it only addresses the cache-poisoning category of risk, not registrar account takeover or configuration hygiene. A complete approach has to cover all three.
+
+## A practical DNS security checklist
+
+**Registrar and account security (closes domain hijacking risk):**
+
+- [ ] Enable hardware-backed MFA (a security key or authenticator app, not SMS) on your domain registrar account
+- [ ] Turn on registry lock or transfer lock if your registrar supports it, requiring extra verification before nameservers or registrant details can change
+- [ ] Use a dedicated, monitored email address for the registrar account's recovery email — not a shared inbox or one tied to the domain itself
+- [ ] Review who has access to the registrar account; remove former employees and contractors immediately
+
+**Resolver and infrastructure hardening (reduces spoofing/cache-poisoning risk):**
+
+- [ ] Use DNSSEC on your authoritative nameservers, and confirm your registrar publishes the DS record correctly — DNSSEC only works if the chain of trust from the registry down to your zone is complete
+- [ ] If you run internal resolvers, randomize source ports and transaction IDs (most modern DNS software does this by default — verify it hasn't been disabled)
+- [ ] Consider a protective DNS service for your office network, which blocks resolution of known-malicious domains before a connection is even attempted
+
+**Configuration hygiene (closes subdomain takeover risk):**
+
+- [ ] Audit your DNS zone for CNAME records pointing at services you no longer actively use
+- [ ] Remove DNS records immediately when decommissioning a cloud resource, not "eventually"
+- [ ] Keep an inventory of what every DNS record in your zone is actually for — an unexplained record is a record worth investigating
+
+## Who should prioritize this
+
+Any business managing its own domain and DNS — which is nearly every business — benefits from the registrar-hardening steps, since those require no technical DNS expertise and close the most common real-world attack path. The resolver-hardening and DNSSEC steps matter more for businesses running their own infrastructure or handling customer logins, payments, or sensitive data where a successful redirect would be especially damaging.
+
+## Key takeaways
+
+DNS security splits into three distinct risks — cache poisoning, registrar account hijacking, and stale record takeover — and most real-world incidents are the second one, not an exotic protocol attack. NIST's updated 2026 guidance (SP 800-81r3) reflects this by treating DNS security as infrastructure security, integrity, and protective DNS together, not DNSSEC alone. The single highest-leverage step for most businesses is locking down the domain registrar account with hardware-backed MFA and a registry lock — an administrative step, not a technical one, which is exactly why it gets skipped.
+
+Shahid Security's [Network & Cloud Security](/services/network-cloud-security/) service reviews DNS configuration, registrar security, and resolver hardening as part of a broader infrastructure security assessment.
+
+**Not sure whether your domain and DNS setup has gaps like these?** [Book a free consultation](/book/).
+
+---
+
+Sources: NIST SP 800-81r3, Secure DNS Deployment Guide, March 2026 (via [Infoblox: NIST DNS Security Best Practices — Top 5 Takeaways](https://www.infoblox.com/blog/company/nist-dns-security-best-practices-top-5-takeaways/) and [Red Sift: NIST's Secure DNS Deployment Guide](https://redsift.com/guides/nists-secure-deployment-guide-best-practices)), [PowerDMARC: DNS Security Best Practices](https://powerdmarc.com/dns-security-best-practices/).
