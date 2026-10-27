@@ -87,12 +87,13 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    /* Always-on idle "wink" — a quick squash near the end of each cycle
-       reads as a blink without needing separate art for an open/closed
-       eye. Paused automatically on hover, where the wiggle+wave below
-       takes over instead (a :hover rule's animation replaces the base
-       one for as long as it's active). */
-    animation: luna-idle-blink 4.5s ease-in-out infinite;
+    /* Always-on idle "wink" — a very light vertical compression near the
+       end of each slow cycle, subtle enough to read as a blink rather
+       than a visible squash/flip of the artwork. Paused automatically on
+       hover, where the wiggle+wave below takes over instead (a :hover
+       rule's animation replaces the base one for as long as it's
+       active). */
+    animation: luna-idle-blink 5s ease-in-out infinite;
   }
 
   .luna-button:hover .luna-panda-icon {
@@ -101,15 +102,12 @@
 
   @keyframes luna-idle-blink {
     0%,
-    88%,
+    93%,
     100% {
       transform: scaleY(1);
     }
-    92% {
-      transform: scaleY(0.12);
-    }
-    96% {
-      transform: scaleY(1);
+    96.5% {
+      transform: scaleY(0.9);
     }
   }
 
@@ -126,62 +124,73 @@
     }
   }
 
-  /* A little waving hand badge that only appears on hover, plus its own
-     wave motion on top of the fade-in. */
+  /* A little waving hand badge on the panda's left, only visible on
+     hover, pivoting from its wrist (bottom-center of the glyph) through
+     a natural side-to-side wave — not a spin. */
   .luna-wave {
     position: absolute;
-    top: -0.4rem;
-    right: -0.4rem;
+    top: 0.1rem;
+    left: -0.9rem;
     font-size: 1.5rem;
     line-height: 1;
     opacity: 0;
-    transform: scale(0.4) rotate(-10deg);
-    transform-origin: 70% 70%;
-    transition:
-      opacity 180ms ease,
-      transform 180ms ease;
+    transform: rotate(0deg);
+    transform-origin: bottom center;
+    transition: opacity 180ms ease;
     pointer-events: none;
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
   }
 
   .luna-button:hover .luna-wave {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
-    animation: luna-wave-hand 650ms ease-in-out 150ms 2;
+    animation: luna-wave-hand 1.1s ease-in-out 1;
   }
 
   @keyframes luna-wave-hand {
     0%,
     100% {
-      transform: scale(1) rotate(0deg);
+      transform: rotate(0deg);
     }
-    25% {
-      transform: scale(1) rotate(-18deg);
+    15% {
+      transform: rotate(-24deg);
     }
-    50% {
-      transform: scale(1) rotate(14deg);
+    35% {
+      transform: rotate(14deg);
+    }
+    55% {
+      transform: rotate(-20deg);
     }
     75% {
-      transform: scale(1) rotate(-10deg);
+      transform: rotate(10deg);
+    }
+    90% {
+      transform: rotate(-6deg);
     }
   }
 
-  /* "Meet Luna" popup, shown above the button on hover. Sits after the
-     button in markup (not visually, via position: absolute) so the plain
-     sibling combinator below can react to the button's :hover state. */
+  /* "Meet Luna" popup, shown above the button on hover — glassmorphic to
+     match the site's liquid-glass nav indicator and social-pill chrome
+     (translucent, blurred, soft inner highlight) rather than a flat
+     solid card. Sits after the button in markup (not visually, via
+     position: absolute) so the plain sibling combinator below can react
+     to the button's :hover state. */
   .luna-tooltip {
     position: absolute;
     bottom: calc(100% + 0.65rem);
     right: 0;
     white-space: nowrap;
-    padding: 0.5rem 1rem;
+    padding: 0.55rem 1.1rem;
     border-radius: 999px;
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border-strong);
+    background: color-mix(in oklab, var(--color-surface) 65%, transparent);
+    border: 1px solid color-mix(in oklab, white 16%, transparent);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
     color: var(--color-text);
     font-size: 0.85rem;
     font-weight: 600;
-    box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.65);
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in oklab, white 16%, transparent),
+      0 10px 28px -10px rgba(0, 0, 0, 0.65);
     opacity: 0;
     transform: translateY(6px);
     transition:
