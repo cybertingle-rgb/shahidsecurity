@@ -127,14 +127,32 @@ export default function LunaWidget() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Close Luna chat' : 'Chat with Luna, our AI assistant'}
-        className="luna-toggle group flex size-14 items-center justify-center overflow-hidden rounded-full border-2 border-neon bg-bg shadow-[0_0_24px_-4px_var(--color-neon)] transition-transform hover:scale-105"
+        className="luna-toggle group relative flex size-[4.5rem] items-center justify-center overflow-visible rounded-full border-2 border-neon bg-bg shadow-[0_0_28px_-4px_var(--color-neon)] transition-transform hover:scale-105"
       >
         {open ? (
           <span className="text-xl text-neon">✕</span>
         ) : (
-          <Image src="/luna-panda.png" alt="" width={56} height={56} className="luna-panda-icon h-full w-full object-cover" priority />
+          <>
+            <Image
+              src="/luna-panda.png"
+              alt=""
+              width={72}
+              height={72}
+              className="luna-panda-icon h-full w-full rounded-full object-cover"
+              priority
+            />
+            <span className="luna-wave" aria-hidden="true">
+              👋
+            </span>
+          </>
         )}
       </button>
+
+      {!open && (
+        <div className="luna-tooltip" aria-hidden="true">
+          Meet Luna
+        </div>
+      )}
     </div>
   );
 }

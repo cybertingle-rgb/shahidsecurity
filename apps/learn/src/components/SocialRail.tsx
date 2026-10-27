@@ -11,7 +11,7 @@ const X_LINK = 'https://x.com/shahidsecurity';
 export default function SocialRail() {
   return (
     <nav className="social-rail" aria-label="Social links">
-      <span className="social-ring">
+      <span className="social-ring" data-accent="facebook">
         <a href={FACEBOOK_LINK} target="_blank" rel="noopener" className="social-pill" data-accent="facebook" aria-label="Facebook">
           <span className="social-icon">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -22,7 +22,7 @@ export default function SocialRail() {
         </a>
       </span>
 
-      <span className="social-ring">
+      <span className="social-ring" data-accent="instagram">
         <a href={INSTAGRAM_LINK} target="_blank" rel="noopener" className="social-pill" data-accent="instagram" aria-label="Instagram">
           <span className="social-icon">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -33,7 +33,7 @@ export default function SocialRail() {
         </a>
       </span>
 
-      <span className="social-ring">
+      <span className="social-ring" data-accent="x">
         <a href={X_LINK} target="_blank" rel="noopener" className="social-pill" data-accent="x" aria-label="X (Twitter)">
           <span className="social-icon">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

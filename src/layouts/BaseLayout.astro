@@ -4,7 +4,6 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import Preloader from '@/components/Preloader.astro';
 import AmbientOrbs from '@/components/AmbientOrbs.astro';
-import AmbientDoodles from '@/components/AmbientDoodles.astro';
 import CursorParticles from '@/components/CursorParticles.astro';
 import LunaWidget from '@/components/LunaWidget.astro';
 import SocialRail from '@/components/SocialRail.astro';
@@ -129,14 +128,13 @@ const allJsonLd = [
   <body>
     <Preloader />
     <AmbientOrbs />
-    <AmbientDoodles />
     <CursorParticles />
     <a href="#main-content" class="skip-link">
       Skip to content
     </a>
     <Header />
     <LanguageNotice />
-    <main id="main-content" class="pt-16">
+    <main id="main-content" class="pt-20">
       <slot />
     </main>
     <Footer />

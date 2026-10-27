@@ -644,6 +644,15 @@
   animation: blink-cursor 1s step-end infinite;
 }
 
+/* Hero-only modifier — a brighter neon-green glow on top of the shared
+   blink animation, without changing the Preloader/Terminal cursors that
+   also use the base .cursor-blink class. */
+.cursor-blink-hero {
+  text-shadow:
+    0 0 8px color-mix(in oklab, var(--color-success) 85%, transparent),
+    0 0 20px color-mix(in oklab, var(--color-success) 55%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink {
     animation: none;

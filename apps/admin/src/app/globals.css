@@ -904,35 +904,93 @@ textarea:focus {
     opacity 220ms ease;
 }
 
-.social-ring::before {
+.social-ring::after {
+  filter: blur(4px);
+  opacity: 0.55;
+}
+
+.social-ring[data-accent='facebook']::before {
   background: conic-gradient(
     from var(--auth-angle),
-    var(--color-success-soft) 0deg,
-    var(--color-success-soft) 30deg,
+    #4da3ff 0deg,
+    #4da3ff 30deg,
     transparent 70deg,
     transparent 180deg,
-    var(--color-neon-soft) 210deg,
-    var(--color-neon-soft) 240deg,
+    #1877f2 210deg,
+    #1877f2 240deg,
+    transparent 280deg,
+    transparent 360deg
+  );
+}
+.social-ring[data-accent='facebook']::after {
+  background: conic-gradient(
+    from var(--auth-angle),
+    transparent 0deg,
+    rgba(24, 119, 242, 0.55) 4deg,
+    #4da3ff 30deg,
+    transparent 70deg,
+    transparent 180deg,
+    rgba(77, 163, 255, 0.55) 184deg,
+    #1877f2 240deg,
     transparent 280deg,
     transparent 360deg
   );
 }
 
-.social-ring::after {
+.social-ring[data-accent='instagram']::before {
   background: conic-gradient(
     from var(--auth-angle),
-    transparent 0deg,
-    color-mix(in oklab, var(--color-success) 55%, transparent) 4deg,
-    var(--color-success-soft) 30deg,
+    #fcaf45 0deg,
+    #fcaf45 30deg,
     transparent 70deg,
     transparent 180deg,
-    color-mix(in oklab, var(--color-neon) 55%, transparent) 184deg,
-    var(--color-neon-soft) 240deg,
+    #e4405f 210deg,
+    #e4405f 240deg,
     transparent 280deg,
     transparent 360deg
   );
-  filter: blur(4px);
-  opacity: 0.55;
+}
+.social-ring[data-accent='instagram']::after {
+  background: conic-gradient(
+    from var(--auth-angle),
+    transparent 0deg,
+    rgba(228, 64, 95, 0.55) 4deg,
+    #fcaf45 30deg,
+    transparent 70deg,
+    transparent 180deg,
+    rgba(252, 175, 69, 0.55) 184deg,
+    #e4405f 240deg,
+    transparent 280deg,
+    transparent 360deg
+  );
+}
+
+.social-ring[data-accent='x']::before {
+  background: conic-gradient(
+    from var(--auth-angle),
+    #ffffff 0deg,
+    #ffffff 30deg,
+    transparent 70deg,
+    transparent 180deg,
+    #b6d8ff 210deg,
+    #b6d8ff 240deg,
+    transparent 280deg,
+    transparent 360deg
+  );
+}
+.social-ring[data-accent='x']::after {
+  background: conic-gradient(
+    from var(--auth-angle),
+    transparent 0deg,
+    rgba(182, 216, 255, 0.55) 4deg,
+    #ffffff 30deg,
+    transparent 70deg,
+    transparent 180deg,
+    rgba(255, 255, 255, 0.55) 184deg,
+    #b6d8ff 240deg,
+    transparent 280deg,
+    transparent 360deg
+  );
 }
 
 /* Kept modest (not the huge blur this used to be) specifically so the
@@ -980,26 +1038,26 @@ textarea:focus {
   box-shadow: 0 0 20px -6px var(--color-neon);
 }
 
+.social-pill[data-accent='facebook'] .social-icon svg {
+  color: #1877f2;
+}
 .social-pill[data-accent='facebook']:hover {
   border-color: #1877f2;
   box-shadow: 0 0 20px -6px #1877f2;
 }
-.social-pill[data-accent='facebook']:hover .social-icon svg {
-  color: #1877f2;
+.social-pill[data-accent='instagram'] .social-icon svg {
+  color: #e4405f;
 }
 .social-pill[data-accent='instagram']:hover {
   border-color: #e4405f;
   box-shadow: 0 0 20px -6px #e4405f;
 }
-.social-pill[data-accent='instagram']:hover .social-icon svg {
-  color: #e4405f;
+.social-pill[data-accent='x'] .social-icon svg {
+  color: #eef0f8;
 }
 .social-pill[data-accent='x']:hover {
   border-color: #eef0f8;
   box-shadow: 0 0 20px -6px #eef0f8;
-}
-.social-pill[data-accent='x']:hover .social-icon svg {
-  color: #eef0f8;
 }
 
 .social-icon {
@@ -1014,11 +1072,6 @@ textarea:focus {
 .social-icon svg {
   width: 1.6rem;
   height: 1.6rem;
-  transition: color 220ms ease;
-}
-
-.social-pill:hover .social-icon svg {
-  color: var(--color-neon);
 }
 
 .social-label {

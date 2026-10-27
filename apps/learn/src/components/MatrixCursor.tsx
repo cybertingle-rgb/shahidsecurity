@@ -59,7 +59,7 @@ export default function MatrixCursor() {
       p.vy = Math.sin(angle) * speed - 0.3;
       p.maxLife = 40 + Math.random() * 30;
       p.life = p.maxLife;
-      p.size = 10 + Math.random() * 8;
+      p.size = 18 + Math.random() * 16;
       p.char = Math.random() < 0.5 ? '0' : '1';
       p.active = true;
     }
