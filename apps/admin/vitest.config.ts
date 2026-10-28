@@ -15,6 +15,14 @@ export default defineConfig({
     fileParallelism: false,
     env: {
       DATABASE_URL: process.env.TEST_APP_DATABASE_URL ?? 'mysql://admin_dev:admin_dev_password@127.0.0.1:3306/shahid_security_admin_test',
+      // The ported Learn admin section (src/lib/learn, src/db/learnDb.ts)
+      // reads/writes apps/learn's own database directly — tests that
+      // exercise it (e.g. course deletion safety) connect to that app's
+      // own test database, already migrated by apps/learn's test suite.
+      // Not safe to run concurrently with apps/learn's own `pnpm test`
+      // against the same database (this suite's fileParallelism: false
+      // only serializes within this app) — run them one at a time.
+      LEARN_DATABASE_URL: process.env.TEST_LEARN_DATABASE_URL ?? 'mysql://learn_app:learn_app_password@127.0.0.1:3306/learn_with_shahid_test',
       SESSION_SECRET: 'test-only-session-secret-not-for-real-use-32chars',
       TOKEN_ENCRYPTION_KEY: 'a'.repeat(64),
       NEXT_PUBLIC_APP_URL: 'http://localhost:3200',

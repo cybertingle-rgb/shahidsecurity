@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getCourse, listInstructors, listModulesWithLessons, getCourseProductAndPrice } from '@/lib/learn/courses';
-import { updateCourse, setCourseStatus, createModule, updateModule, deleteModule, createLesson, deleteLesson } from '../actions';
+import { getCourse, listInstructors, listModulesWithLessons, getCourseProductAndPrice, getCourseDeletionStatus } from '@/lib/learn/courses';
+import { updateCourse, setCourseStatus, createModule, updateModule, deleteModule, createLesson, deleteLesson, deleteCourse } from '../actions';
 import ThumbnailUrlField from '../../_components/ThumbnailUrlField';
 import ConfirmSubmitButton from '../../_components/ConfirmSubmitButton';
 
@@ -23,11 +23,12 @@ const LESSON_TYPES = ['text', 'video', 'pdf', 'image', 'code', 'quiz', 'assignme
 
 export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [course, instructors, modules, productAndPrice] = await Promise.all([
+  const [course, instructors, modules, productAndPrice, deletionStatus] = await Promise.all([
     getCourse(id),
     listInstructors(),
     listModulesWithLessons(id),
     getCourseProductAndPrice(id),
+    getCourseDeletionStatus(id),
   ]);
   if (!course) notFound();
 
@@ -279,6 +280,31 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             Add module
           </button>
         </form>
+      </div>
+
+      <div className="rounded-lg border border-danger/40 p-4">
+        <h2 className="text-sm font-semibold text-danger">Danger zone</h2>
+        {deletionStatus.canHardDelete ? (
+          <>
+            <p className="mt-1 text-sm text-text-muted">
+              This course has no enrollments or orders on record — it can be permanently deleted. This cannot be undone.
+            </p>
+            <form action={deleteCourse.bind(null, id)} className="mt-3">
+              <ConfirmSubmitButton
+                confirmMessage={`Permanently delete "${course.title}"? This cannot be undone.`}
+                className="rounded-md border border-danger px-3 py-1.5 text-sm text-danger"
+              >
+                Delete course permanently
+              </ConfirmSubmitButton>
+            </form>
+          </>
+        ) : (
+          <p className="mt-1 text-sm text-text-muted">
+            This course has {deletionStatus.enrollmentCount} enrollment(s) and {deletionStatus.orderCount} order(s) on record, so it can&apos;t be
+            permanently deleted — that history has to be preserved. Use <strong>Archive</strong> above instead to remove it from the public catalog
+            while keeping student and payment records intact.
+          </p>
+        )}
       </div>
     </div>
   );

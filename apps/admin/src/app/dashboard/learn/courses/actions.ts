@@ -4,10 +4,10 @@ import { eq, sql } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { learnDb as db, learnSchema } from '@/db/learnDb';
-const { courses, courseModules, lessons, lessonVideoSources, assignments, quizzes, quizQuestions } = learnSchema;
+const { courses, courseModules, lessons, lessonVideoSources, assignments, quizzes, quizQuestions, enrollments, products, orders } = learnSchema;
 import { requireAdminAction } from '@/lib/learn/guard';
 import { logLearnAudit } from '@/lib/learn/audit';
-import { getCourseIdForLesson, ensureDefaultInstructor, syncCourseProduct, setProductStatusForCourse } from '@/lib/learn/courses';
+import { getCourse, getCourseIdForLesson, ensureDefaultInstructor, syncCourseProduct, setProductStatusForCourse, getCourseDeletionStatus } from '@/lib/learn/courses';
 import { isSafeThumbnailUrl } from '@/lib/learn/thumbnails';
 import { saveUploadedFile, InvalidUploadError } from '@/lib/media';
 import { env } from '@/lib/env';
@@ -176,6 +176,62 @@ export async function setCourseStatus(id: string, status: CourseStatus) {
 
   await logLearnAudit({ actorUserId: null, action: `course.status_changed.${status}`, targetType: 'course', targetId: id, metadata: { adminActorEmail: admin.email } });
   revalidatePath(`/dashboard/learn/courses/${id}`);
+  revalidatePath('/dashboard/learn/courses');
+}
+
+/**
+ * Permanently deletes a course — only when genuinely safe to do so. See
+ * getCourseDeletionStatus (lib/learn/courses.ts) for the full reasoning:
+ * a course with any enrollment, or whose linked product has any order
+ * history, is refused here (archive is the correct action for those —
+ * `setCourseStatus(id, 'archived')` above) rather than silently failing
+ * at the database's own `restrict` constraint or leaving an orphaned
+ * product behind. Re-checks server-side regardless of what the UI
+ * showed — a second browser tab or a stale page could otherwise race a
+ * real enrollment into existing between page load and this submit.
+ */
+export async function deleteCourse(id: string) {
+  const admin = await requireAdminAction('courses.delete');
+
+  const course = await getCourse(id);
+  if (!course) throw new Error('Course not found.');
+
+  const status = await getCourseDeletionStatus(id);
+  if (!status.canHardDelete) {
+    throw new Error(
+      `This course has ${status.enrollmentCount} enrollment(s) and/or ${status.orderCount} order(s) on record and cannot be permanently deleted — archive it instead to remove it from the public catalog while preserving student and payment history.`,
+    );
+  }
+
+  await db.transaction(async (tx) => {
+    // Re-check inside the transaction too: closes the race window between
+    // the check above and this delete (e.g. a free-enrollment completing
+    // in the moment between them) rather than just reducing it.
+    const [raceCheckRow] = await tx.select({ count: sql<number>`count(*)` }).from(enrollments).where(eq(enrollments.courseId, id));
+    if (Number(raceCheckRow?.count ?? 0) > 0) {
+      throw new Error('A student enrolled in this course just now — refresh and archive it instead of deleting.');
+    }
+
+    const [product] = await tx.select({ id: products.id }).from(products).where(eq(products.courseId, id));
+    if (product) {
+      const [orderRaceRow] = await tx.select({ count: sql<number>`count(*)` }).from(orders).where(eq(orders.productId, product.id));
+      if (Number(orderRaceRow?.count ?? 0) > 0) {
+        throw new Error('An order was just placed for this course — refresh and archive it instead of deleting.');
+      }
+      // prices.productId cascades automatically on product delete (see
+      // db/schema/learn/commerce.ts) — deleting the product alone is
+      // enough, and this is the one path allowed to delete a course
+      // product at all, specifically because it's been confirmed above
+      // to have zero order history to lose.
+      await tx.delete(products).where(eq(products.id, product.id));
+    }
+
+    // course_modules/lessons/lesson_video_sources all cascade from this
+    // (see db/schema/learn/courses.ts) — nothing else to delete by hand.
+    await tx.delete(courses).where(eq(courses.id, id));
+  });
+
+  await logLearnAudit({ actorUserId: null, action: 'course.deleted', targetType: 'course', targetId: id, metadata: { title: course.title, adminActorEmail: admin.email } });
   revalidatePath('/dashboard/learn/courses');
 }
 

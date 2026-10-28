@@ -1,7 +1,7 @@
-import { eq, asc, desc, inArray, isNull } from 'drizzle-orm';
+import { eq, asc, desc, inArray, isNull, sql } from 'drizzle-orm';
 import { learnDb as db, learnSchema } from '@/db/learnDb';
 import { BASE_CURRENCY } from '@/lib/learn/currency';
-const { courses, instructors, courseModules, lessons, lessonVideoSources, quizzes, quizQuestions, assignments, products, prices } = learnSchema;
+const { courses, instructors, courseModules, lessons, lessonVideoSources, quizzes, quizQuestions, assignments, products, prices, enrollments, orders } = learnSchema;
 
 export class CoursePriceError extends Error {}
 
@@ -143,6 +143,49 @@ export async function ensureDefaultInstructor() {
 /** Flips a course's linked product (if one exists — free courses have none) between purchasable and not, without touching its price. Used by publish/archive/draft transitions. */
 export async function setProductStatusForCourse(courseId: string, productStatus: 'active' | 'inactive') {
   await db.update(products).set({ status: productStatus, updatedAt: new Date() }).where(eq(products.courseId, courseId));
+}
+
+export type CourseDeletionStatus =
+  | { canHardDelete: true }
+  | { canHardDelete: false; enrollmentCount: number; orderCount: number };
+
+/**
+ * Whether a course can be safely, permanently deleted — never assumed,
+ * always a real count against the actual history. This is the project's
+ * existing, deliberate retention policy made explicit (see the comment on
+ * `enrollments.courseId` in db/schema/learn/enrollment.ts: "No code path
+ * ever hard-deletes a course... this should never fire in practice — it
+ * exists as a database-level backstop"), not a new rule invented here —
+ * a course with any enrollment is restricted from deletion at the
+ * database level regardless of what this function returns; this just
+ * answers the question *before* attempting it, so the UI can explain why
+ * rather than surface a raw constraint-violation error.
+ *
+ * A course's linked product is checked too, separately from enrollments:
+ * a product can have order/payment history (e.g. a manual payment
+ * submitted and later rejected, or a completed order whose enrollment
+ * was since revoked) that doesn't necessarily leave a live enrollment
+ * row behind, and `orders.productId` is itself a database-level
+ * `restrict` — deleting a course with such a product would either fail
+ * loudly at the database layer or, if the product were left behind with
+ * its courseId merely nulled out, leave an orphaned "course" product
+ * pointing at nothing. Neither is acceptable, so both are checked.
+ */
+export async function getCourseDeletionStatus(courseId: string): Promise<CourseDeletionStatus> {
+  const [enrollmentRow] = await db.select({ count: sql<number>`count(*)` }).from(enrollments).where(eq(enrollments.courseId, courseId));
+  const enrollmentCount = Number(enrollmentRow?.count ?? 0);
+
+  const [product] = await db.select({ id: products.id }).from(products).where(eq(products.courseId, courseId));
+  let orderCount = 0;
+  if (product) {
+    const [orderRow] = await db.select({ count: sql<number>`count(*)` }).from(orders).where(eq(orders.productId, product.id));
+    orderCount = Number(orderRow?.count ?? 0);
+  }
+
+  if (enrollmentCount > 0 || orderCount > 0) {
+    return { canHardDelete: false, enrollmentCount, orderCount };
+  }
+  return { canHardDelete: true };
 }
 
 export async function listInstructors() {
