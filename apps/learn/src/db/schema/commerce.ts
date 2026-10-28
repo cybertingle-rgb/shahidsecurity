@@ -33,6 +33,14 @@ export const products = mysqlTable(
     // treats multiple NULLs as distinct, same as prices' composite index
     // above), so a course's commerce record can never be duplicated.
     courseId: fkColumn('course_id').references(() => courses.id, { onDelete: 'set null' }),
+    // A product-level thumbnail, independent of courses.thumbnailUrl —
+    // meaningful for any non-course product shown with its own image on a
+    // public page (Personal Training's 'mentoring' product, a workshop,
+    // a bundle, ...). Nullable: most product types are never shown with
+    // an image and this is never required. Same isSafeThumbnailUrl
+    // validation as course thumbnails (lib/learn/thumbnails.ts) applies
+    // on every write — see products/actions.ts.
+    thumbnailUrl: text('thumbnail_url'),
     seo: json('seo').$type<Record<string, unknown>>(),
     createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
     updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
-import { uploadCourseThumbnail } from '../courses/actions';
 
 /**
  * Two ways to set a thumbnail: paste a direct image URL, or upload a
@@ -14,8 +13,20 @@ import { uploadCourseThumbnail } from '../courses/actions';
  * <img> fetch is what actually confirms either kind of URL loads, never
  * a server-side request (see lib/thumbnails.ts's isSafeThumbnailUrl for
  * why that matters for a pasted external URL).
+ *
+ * `uploadAction` is injected rather than hardcoded so this one component
+ * serves every kind of thumbnail in the app (courses, products) without
+ * duplicating the upload-and-preview UI for each — each caller supplies
+ * its own Server Action (uploadCourseThumbnail, uploadProductThumbnail,
+ * ...), already scoped to its own permission check.
  */
-export default function ThumbnailUrlField({ defaultValue }: { defaultValue?: string }) {
+export default function ThumbnailUrlField({
+  defaultValue,
+  uploadAction,
+}: {
+  defaultValue?: string;
+  uploadAction: (formData: FormData) => Promise<{ url: string }>;
+}) {
   const [url, setUrl] = useState(defaultValue ?? '');
   const [broken, setBroken] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -31,7 +42,7 @@ export default function ThumbnailUrlField({ defaultValue }: { defaultValue?: str
       try {
         const formData = new FormData();
         formData.set('file', file);
-        const { url: uploadedUrl } = await uploadCourseThumbnail(formData);
+        const { url: uploadedUrl } = await uploadAction(formData);
         setUrl(uploadedUrl);
         setBroken(false);
       } catch (err) {

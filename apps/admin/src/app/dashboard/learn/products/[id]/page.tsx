@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getProduct, listPricesForProduct } from '@/lib/learn/products';
 import ConfirmSubmitButton from '../../_components/ConfirmSubmitButton';
-import { updateProduct, addPrice, deactivatePrice } from '../actions';
+import ThumbnailUrlField from '../../_components/ThumbnailUrlField';
+import { updateProduct, addPrice, deactivatePrice, uploadProductThumbnail } from '../actions';
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,6 +42,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
             <option value="inactive">Inactive</option>
           </select>
         </div>
+        <ThumbnailUrlField defaultValue={product.thumbnailUrl ?? ''} uploadAction={uploadProductThumbnail} />
         <button type="submit" className="rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
           Save changes
         </button>

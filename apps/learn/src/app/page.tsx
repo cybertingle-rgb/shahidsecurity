@@ -7,6 +7,7 @@ import CourseCard from '@/components/CourseCard';
 import { getSessionUser } from '@/lib/auth/session';
 import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/lib/public/courses';
 import { listPurchasableProducts } from '@/lib/checkout';
+import { ensurePersonalTrainingProduct } from '@/lib/personalTraining';
 
 export const metadata: Metadata = {
   description: 'Learn cybersecurity through structured, instructor-built courses from Shahid Security — practical exercises and expert-guided learning, with free and paid courses.',
@@ -48,7 +49,12 @@ function formatAmount(amountMinorUnits: number, currencyCode: string): string {
 export default async function HomePage() {
   const user = await getSessionUser();
 
-  const [courses, categories, membershipProducts] = await Promise.all([listCatalogCourses(), listCourseCategories(), listPurchasableProducts()]);
+  const [courses, categories, membershipProducts, personalTrainingProduct] = await Promise.all([
+    listCatalogCourses(),
+    listCourseCategories(),
+    listPurchasableProducts(),
+    ensurePersonalTrainingProduct(),
+  ]);
 
   const accessByCourseId = await getCourseAccessStates(user?.id ?? null, courses);
   const coursesWithAccess = courses.map((c) => ({ course: c, access: accessByCourseId.get(c.id)! }));
@@ -92,7 +98,12 @@ export default async function HomePage() {
               Browse Courses
             </Link>
           </div>
-          <div className="rounded-xl border border-border bg-bg-elevated/40 p-6">
+          <div className="overflow-hidden rounded-xl border border-border bg-bg-elevated/40">
+            {personalTrainingProduct.thumbnailUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- admin-entered external URL, not a static/optimizable asset
+              <img src={personalTrainingProduct.thumbnailUrl} alt="Personal Training" className="aspect-video w-full object-cover" />
+            )}
+            <div className="p-6">
             <p className="text-xs font-medium text-neon">Tailored to you</p>
             <h3 className="mt-1 text-lg font-semibold">Personal Training</h3>
             <p className="mt-2 text-sm text-text-muted">
@@ -102,6 +113,7 @@ export default async function HomePage() {
             <Link href="/personal-training" className="mt-4 inline-block rounded-md border border-neon px-4 py-2 text-sm font-medium text-neon">
               Request Personal Training
             </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCourse, listInstructors, listModulesWithLessons, getCourseProductAndPrice, getCourseDeletionStatus } from '@/lib/learn/courses';
-import { updateCourse, setCourseStatus, createModule, updateModule, deleteModule, createLesson, deleteLesson, deleteCourse } from '../actions';
+import { updateCourse, setCourseStatus, createModule, updateModule, deleteModule, createLesson, deleteLesson, deleteCourse, uploadCourseThumbnail } from '../actions';
 import ThumbnailUrlField from '../../_components/ThumbnailUrlField';
 import ConfirmSubmitButton from '../../_components/ConfirmSubmitButton';
 
@@ -92,7 +92,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
             className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2"
           />
         </div>
-        <ThumbnailUrlField defaultValue={course.thumbnailUrl ?? ''} />
+        <ThumbnailUrlField defaultValue={course.thumbnailUrl ?? ''} uploadAction={uploadCourseThumbnail} />
         <div>
           <label className="block text-sm text-text-muted" htmlFor="category">
             Category

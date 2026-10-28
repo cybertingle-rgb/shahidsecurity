@@ -7,6 +7,9 @@ import { learnDb as db, learnSchema } from '@/db/learnDb';
 const { products, prices } = learnSchema;
 import { requireAdminAction } from '@/lib/learn/guard';
 import { logLearnAudit } from '@/lib/learn/audit';
+import { isSafeThumbnailUrl } from '@/lib/learn/thumbnails';
+import { saveUploadedFile, InvalidUploadError } from '@/lib/media';
+import { env } from '@/lib/env';
 
 type ProductType = 'course' | 'membership' | 'bundle' | 'workshop' | 'bootcamp' | 'mentoring' | 'digital_product' | 'live_class';
 
@@ -38,14 +41,43 @@ export async function updateProduct(id: string, formData: FormData) {
   if (!name) throw new Error('Name is required.');
   const status = String(formData.get('status') ?? 'draft') as 'draft' | 'active' | 'inactive';
 
+  const thumbnailUrlInput = String(formData.get('thumbnailUrl') ?? '').trim();
+  if (thumbnailUrlInput && !isSafeThumbnailUrl(thumbnailUrlInput)) throw new Error('Thumbnail must be a valid https:// image URL.');
+
   await db
     .update(products)
-    .set({ name, description: String(formData.get('description') ?? '') || null, status, updatedAt: new Date() })
+    .set({ name, description: String(formData.get('description') ?? '') || null, status, thumbnailUrl: thumbnailUrlInput || null, updatedAt: new Date() })
     .where(eq(products.id, id));
 
   await logLearnAudit({ actorUserId: null, action: 'product.updated', targetType: 'product', targetId: id, metadata: { status, adminActorEmail: admin.email } });
   revalidatePath(`/dashboard/learn/products/${id}`);
   revalidatePath('/dashboard/learn/products');
+}
+
+/**
+ * Same validated storage path as uploadCourseThumbnail
+ * (courses/actions.ts) — reused here rather than duplicated, now that
+ * any product (not just courses) can carry its own thumbnail.
+ */
+export async function uploadProductThumbnail(formData: FormData): Promise<{ url: string }> {
+  const admin = await requireAdminAction('products.manage');
+
+  const file = formData.get('file');
+  if (!(file instanceof File)) throw new Error('No file provided.');
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  let created;
+  try {
+    created = await saveUploadedFile(buffer, file.name, file.type, admin.id);
+  } catch (err) {
+    if (err instanceof InvalidUploadError) throw err;
+    throw new Error('Upload failed.');
+  }
+
+  await logLearnAudit({ actorUserId: null, action: 'product.thumbnail_uploaded', targetType: 'media', targetId: created.id, metadata: { fileName: created.fileName, adminActorEmail: admin.email } });
+
+  const url = new URL(`/api/media/${created.id}`, env.NEXT_PUBLIC_APP_URL).toString();
+  return { url };
 }
 
 export async function addPrice(productId: string, formData: FormData) {

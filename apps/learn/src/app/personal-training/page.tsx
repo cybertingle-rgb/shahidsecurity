@@ -3,6 +3,7 @@ import Link from 'next/link';
 import PublicHeader from '@/components/PublicHeader';
 import SocialRail from '@/components/SocialRail';
 import { getSessionUser } from '@/lib/auth/session';
+import { ensurePersonalTrainingProduct } from '@/lib/personalTraining';
 
 export const metadata: Metadata = {
   title: 'Personal Training',
@@ -18,7 +19,7 @@ const INCLUDED_POINTS = [
 ];
 
 export default async function PersonalTrainingPage() {
-  const user = await getSessionUser();
+  const [user, product] = await Promise.all([getSessionUser(), ensurePersonalTrainingProduct()]);
   const requestHref = user ? '/dashboard/personal-training' : '/login?redirect=%2Fdashboard%2Fpersonal-training';
 
   return (
@@ -26,6 +27,10 @@ export default async function PersonalTrainingPage() {
       <PublicHeader />
       <SocialRail />
       <div className="mx-auto max-w-3xl px-6 py-12 lg:pl-28">
+        {product.thumbnailUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- admin-entered external URL, not a static/optimizable asset
+          <img src={product.thumbnailUrl} alt="Personal Training" className="mb-8 aspect-video w-full rounded-lg object-cover" />
+        )}
         <p className="text-sm font-medium text-neon">A second way to learn</p>
         <h1 className="mt-1 text-3xl font-semibold">Personal Training</h1>
         <p className="mt-4 text-text-muted">

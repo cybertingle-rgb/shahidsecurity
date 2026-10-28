@@ -43,6 +43,13 @@
       "when": 1793225365290,
       "tag": "0005_worthless_wild_child",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1793231062457,
+      "tag": "0006_silly_paper_doll",
+      "breakpoints": true
     }
   ]
 }

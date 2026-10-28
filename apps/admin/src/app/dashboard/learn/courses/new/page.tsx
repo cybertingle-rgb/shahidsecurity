@@ -1,5 +1,5 @@
 import { listInstructors } from '@/lib/learn/courses';
-import { createCourse } from '../actions';
+import { createCourse, uploadCourseThumbnail } from '../actions';
 import ThumbnailUrlField from '../../_components/ThumbnailUrlField';
 
 export default async function NewCoursePage() {
@@ -28,7 +28,7 @@ export default async function NewCoursePage() {
           </label>
           <textarea id="fullDescription" name="fullDescription" rows={4} className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2" />
         </div>
-        <ThumbnailUrlField />
+        <ThumbnailUrlField uploadAction={uploadCourseThumbnail} />
         <div>
           <label className="block text-sm text-text-muted" htmlFor="category">
             Category
