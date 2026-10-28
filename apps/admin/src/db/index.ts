@@ -7,14 +7,22 @@ import * as schema from './schema';
 // as apps/learn/src/db/index.ts (Next's standalone server is one
 // long-lived Node process here, not a serverless function per request).
 // This points at a database entirely separate from the LMS's.
-// connectionLimit kept low: this host is a memory-constrained shared
-// container (it already needed a build-time CPU-overcount workaround —
-// see next.config.mjs), and the app runs three separate mysql2 pools
-// (this one, learnDb.ts, and apps/learn's own) in the same memory budget.
-// Each pooled connection holds its own socket + read/write buffers;
-// 10 x 3 pools was reserving far more headroom than this app's actual
-// concurrency ever needs. Idle connections aren't released early either.
-const pool = mysql.createPool({ uri: env.DATABASE_URL, connectionLimit: 3, timezone: 'Z' });
+// connectionLimit balances two real, conflicting constraints on this
+// host: it's a memory-constrained shared container (see next.config.mjs's
+// CPU-overcount workaround) running three separate mysql2 pools in the
+// same memory budget, which is why this was dropped from the original 10
+// — but 3 proved too low in practice: at least 15 admin pages run 3+
+// concurrent queries via Promise.all on a single render (e.g.
+// dashboard/configurations/page.tsx), so a single page view could already
+// exhaust a 3-connection pool on its own, and mysql2's default behavior
+// when a pool is exhausted is to queue the request rather than fail it
+// immediately — which, combined with this host's own ~120-second request
+// timeout (confirmed via Hostinger support), meant a request could sit
+// queued long enough to be killed by the host as a generic failure,
+// surfacing as exactly the "page errors, reload fixes it" pattern this
+// was meant to fix. 8 keeps real headroom below the original 10 while
+// comfortably covering this app's actual real concurrent-query shape.
+const pool = mysql.createPool({ uri: env.DATABASE_URL, connectionLimit: 8, timezone: 'Z' });
 
 // mysql2 pools emit a background 'error' event for problems outside any
 // single query — a dropped idle connection, the DB server closing it, a
