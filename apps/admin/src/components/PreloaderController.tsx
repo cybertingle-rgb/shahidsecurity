@@ -31,10 +31,23 @@ export function PreloaderController() {
     }
     typeBrand();
 
+    // Only ever toggles a class — never calls preloader.remove() or any
+    // other native DOM mutation on this node. React rendered #preloader
+    // (Preloader.tsx) and keeps it mounted in its own tree for the whole
+    // session (it's not conditionally rendered), so removing it directly
+    // via the DOM API desyncs React's internal fiber tree from the real
+    // DOM without React ever knowing. The next time React reconciles
+    // anywhere near this node — reliably, the very next client-side
+    // navigation — it throws "Failed to execute 'removeChild' on 'Node':
+    // the node to be removed is not a child of this node", an uncaught
+    // error with no page-level recovery since it originates in the root
+    // layout. .is-hidden alone (opacity: 0, pointer-events: none on a
+    // position: fixed, inset: 0 element — globals.css) already makes this
+    // fully invisible and non-interactive, so there's nothing left for a
+    // DOM removal to accomplish.
     function hidePreloader() {
       if (!preloader) return;
       preloader.classList.add('is-hidden');
-      setTimeout(() => preloader.remove(), 350);
     }
 
     const minDisplay = prefersReducedMotion ? 0 : 900;
