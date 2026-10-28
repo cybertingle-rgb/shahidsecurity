@@ -47,6 +47,17 @@ const nextConfig = {
     // "OS can't spawn worker thread: Resource temporarily unavailable".
     // Capped to a small, safe worker count regardless of detected CPUs.
     cpus: 2,
+    // This app has 59 page routes. Next.js's default behavior preloads
+    // every page's JS module into memory at server start (larger baseline
+    // footprint, faster first response). On this host's limited container
+    // memory, that startup spike is the leading suspect for the repeated
+    // silent process restarts seen in production ("Ready in 0ms" looping
+    // in the deploy log with no error — the signature of a supervisor
+    // restarting an OOM-killed process, not a normal clean boot). Deferring
+    // each page's module load to its first real request trades a small
+    // amount of per-route first-load latency for a much smaller, spread-out
+    // memory footprint instead of one large spike at boot.
+    preloadEntriesOnStart: false,
   },
   async headers() {
     return [
