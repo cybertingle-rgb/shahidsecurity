@@ -30,6 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${base}/`, changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/courses`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${base}/personal-training`, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${base}/login`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${base}/register`, changeFrequency: 'yearly', priority: 0.3 },
     ...publishedCourses.map((c) => ({

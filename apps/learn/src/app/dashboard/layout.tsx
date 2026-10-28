@@ -21,6 +21,7 @@ const NAV_SECTIONS: PortalNavSection[] = [
       { href: '/dashboard', label: 'Overview', icon: 'home' },
       { href: '/courses', label: 'Browse Courses', icon: 'book-open' },
       { href: '/dashboard/courses', label: 'My Courses', icon: 'graduation-cap' },
+      { href: '/dashboard/personal-training', label: 'Personal Training', icon: 'user-plus' },
       { href: '/dashboard/membership', label: 'Membership', icon: 'credit-card' },
       { href: '/dashboard/checkout', label: 'Buy', icon: 'shopping-cart' },
       { href: '/dashboard/community', label: 'Community', icon: 'users' },

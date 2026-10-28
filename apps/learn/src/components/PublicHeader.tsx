@@ -30,6 +30,9 @@ export default async function PublicHeader() {
         <Link href="/courses" className="text-text-muted hover:text-text">
           Browse Courses
         </Link>
+        <Link href="/personal-training" className="text-text-muted hover:text-text">
+          Personal Training
+        </Link>
         <a href="https://shahidiqbal.com/learn/roadmap" className="hidden text-text-muted hover:text-text sm:inline">
           Learning Roadmap
         </a>

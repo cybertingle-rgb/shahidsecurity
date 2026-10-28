@@ -57,6 +57,14 @@ export default async function CoursesCatalogPage({ searchParams }: { searchParam
             ))}
           </div>
         )}
+
+        <div className="mt-10 rounded-xl border border-border bg-bg-elevated/40 p-6 text-center">
+          <h2 className="text-lg font-semibold">Don't see what you're after?</h2>
+          <p className="mt-1 text-sm text-text-muted">Personal Training is instructor-led and arranged around your own goals — not a fixed course.</p>
+          <Link href="/personal-training" className="mt-4 inline-block rounded-md border border-neon px-4 py-2 text-sm font-medium text-neon">
+            Request Personal Training
+          </Link>
+        </div>
       </div>
     </div>
   );

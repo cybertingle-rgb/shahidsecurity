@@ -21,6 +21,7 @@ export const LEARN_NAV: NavSection[] = [
   { href: '/dashboard/learn', label: 'Overview', icon: 'home' },
   { href: '/dashboard/learn/students', label: 'Students', icon: 'users' },
   { href: '/dashboard/learn/courses', label: 'Courses', icon: 'graduation-cap' },
+  { href: '/dashboard/learn/training-requests', label: 'Personal Training', icon: 'user-plus' },
   { href: '/dashboard/learn/products', label: 'Products', icon: 'tag' },
   { href: '/dashboard/learn/enrollments', label: 'Enrollments', icon: 'user-plus' },
   { href: '/dashboard/learn/orders', label: 'Orders', icon: 'receipt' },

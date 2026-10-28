@@ -2,6 +2,7 @@ import { boolean, datetime, int, json, mysqlEnum, mysqlTable, text, varchar } fr
 import { idColumn, fkColumn } from './columns';
 import { users } from './identity';
 import { courses, instructors } from './courses';
+import { products, orders } from './commerce';
 
 // V2 — schema exists now (Phase 2), no live-class feature ships in V1.
 export const liveClasses = mysqlTable('live_classes', {
@@ -95,4 +96,60 @@ export const supportTicketMessages = mysqlTable('support_ticket_messages', {
     .references(() => users.id, { onDelete: 'cascade' }),
   body: text('body').notNull(),
   createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+});
+
+/**
+ * A student's request to discuss Personal Training — instructor-led,
+ * arranged around their own goals/skill level, never sold at a fixed
+ * catalog price. This is deliberately NOT a purchase: submitting one
+ * never creates an order or charges anything (see lib/personalTraining.ts).
+ * `productId` always points at the one real "Personal Training" product
+ * (type: 'mentoring' — see ensurePersonalTrainingProduct) which is
+ * created with no row in `prices` at all; that absence is how an
+ * unconfigured/not-yet-announced price is represented, reusing the
+ * existing products/prices model instead of adding a nullable price
+ * column or a magic sentinel value that could be confused with a real
+ * $0 free course.
+ *
+ * `agreedPriceAmount`/`agreedCurrencyCode` only get set once Shahid and
+ * the student have actually discussed scope/availability/price — never
+ * at submission. Setting them is not itself a charge; the student still
+ * has to explicitly accept before `convertedOrderId` is ever set (see
+ * acceptTrainingRequestOffer in lib/personalTraining.ts), so no payment
+ * amount is ever created before the student has agreed to it.
+ */
+export const trainingRequests = mysqlTable('training_requests', {
+  id: idColumn(),
+  userId: fkColumn('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  productId: fkColumn('product_id')
+    .notNull()
+    .references(() => products.id, { onDelete: 'restrict' }),
+  contactName: text('contact_name').notNull(),
+  contactEmail: varchar('contact_email', { length: 255 }).notNull(),
+  areaOfInterest: text('area_of_interest').notNull(),
+  experienceLevel: mysqlEnum('experience_level', ['beginner', 'intermediate', 'advanced', 'expert']).notNull(),
+  goals: text('goals').notNull(),
+  specialRequest: text('special_request'),
+  formatPreference: mysqlEnum('format_preference', ['one_on_one', 'group', 'no_preference']).notNull().default('no_preference'),
+  preferredAvailability: text('preferred_availability'),
+  status: mysqlEnum('status', ['new', 'reviewing', 'contacted', 'approved', 'declined', 'converted']).notNull().default('new'),
+  // Admin-only — never read on any student-facing page/API. See
+  // src/lib/learn/trainingRequests.ts (apps/admin) / the student-facing
+  // read path in this app, both of which select every other column
+  // explicitly and never this one.
+  internalNotes: text('internal_notes'),
+  agreedPriceAmount: int('agreed_price_amount'),
+  agreedCurrencyCode: varchar('agreed_currency_code', { length: 3 }),
+  // Set only after the student explicitly accepts the agreed price —
+  // the one and only link from a request to real money changing hands.
+  convertedOrderId: fkColumn('converted_order_id').references(() => orders.id, { onDelete: 'set null' }),
+  // No FK, by design — mirrors payments.verifiedByUserId above: the
+  // acting admin is a row in apps/admin's own adminUsers table, a
+  // different database, not a Learn user. Their email goes into the
+  // audit log metadata (logLearnAudit) instead.
+  reviewedByUserId: fkColumn('reviewed_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+  updatedAt: datetime('updated_at').notNull().$defaultFn(() => new Date()),
 });

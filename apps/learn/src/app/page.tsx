@@ -81,6 +81,31 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Two pathways: structured courses, or instructor-led Personal Training */}
+      <section className="relative z-10 px-6 py-4">
+        <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
+          <div className="rounded-xl border border-border bg-bg-elevated/40 p-6">
+            <p className="text-xs font-medium text-neon">Structured learning</p>
+            <h3 className="mt-1 text-lg font-semibold">Explore Courses</h3>
+            <p className="mt-2 text-sm text-text-muted">Self-paced, structured cybersecurity courses — free and paid, with lessons, quizzes, and progress tracking.</p>
+            <Link href="/courses" className="mt-4 inline-block rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+              Browse Courses
+            </Link>
+          </div>
+          <div className="rounded-xl border border-border bg-bg-elevated/40 p-6">
+            <p className="text-xs font-medium text-neon">Tailored to you</p>
+            <h3 className="mt-1 text-lg font-semibold">Personal Training</h3>
+            <p className="mt-2 text-sm text-text-muted">
+              Instructor-led training arranged around your own goals and schedule — not prerecorded. Pricing and scheduling are discussed with you
+              first.
+            </p>
+            <Link href="/personal-training" className="mt-4 inline-block rounded-md border border-neon px-4 py-2 text-sm font-medium text-neon">
+              Request Personal Training
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Browse courses */}
       <section className="relative z-10 px-6 py-12">
         <h2 className="text-2xl font-semibold">Explore Our Courses</h2>
