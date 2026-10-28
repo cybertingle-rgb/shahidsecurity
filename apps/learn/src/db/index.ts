@@ -8,7 +8,12 @@ import * as schema from './schema';
 // functions), so a module-level pool is the correct pattern here, not a
 // per-request connection. timezone: 'Z' keeps every datetime read/write in
 // UTC regardless of the MySQL server's session timezone default.
-const pool = mysql.createPool({ uri: env.DATABASE_URL, connectionLimit: 10, timezone: 'Z' });
+// connectionLimit kept low: this host is a memory-constrained shared
+// container (it already needed a build-time CPU-overcount workaround —
+// see next.config.mjs). Each pooled connection holds its own socket +
+// read/write buffers; 10 was reserving far more headroom than this app's
+// actual concurrency ever needs, and idle connections aren't released early.
+const pool = mysql.createPool({ uri: env.DATABASE_URL, connectionLimit: 3, timezone: 'Z' });
 
 // mysql2 pools emit a background 'error' event for problems outside any
 // single query — a dropped idle connection, the DB server closing it, a

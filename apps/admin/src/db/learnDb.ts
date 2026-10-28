@@ -23,7 +23,9 @@ if (!connectionString) {
   throw new Error('LEARN_DATABASE_URL is required — see apps/admin/.env.example.');
 }
 
-const pool = mysql.createPool({ uri: connectionString, connectionLimit: 10, timezone: 'Z' });
+// connectionLimit kept low: see ./index.ts — this host is memory-
+// constrained and runs three separate mysql2 pools in the same budget.
+const pool = mysql.createPool({ uri: connectionString, connectionLimit: 3, timezone: 'Z' });
 
 // See ./index.ts for why this is required: an unhandled 'error' event on
 // a mysql2 pool crashes the whole Node process, not just one request.

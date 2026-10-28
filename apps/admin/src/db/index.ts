@@ -7,7 +7,14 @@ import * as schema from './schema';
 // as apps/learn/src/db/index.ts (Next's standalone server is one
 // long-lived Node process here, not a serverless function per request).
 // This points at a database entirely separate from the LMS's.
-const pool = mysql.createPool({ uri: env.DATABASE_URL, connectionLimit: 10, timezone: 'Z' });
+// connectionLimit kept low: this host is a memory-constrained shared
+// container (it already needed a build-time CPU-overcount workaround —
+// see next.config.mjs), and the app runs three separate mysql2 pools
+// (this one, learnDb.ts, and apps/learn's own) in the same memory budget.
+// Each pooled connection holds its own socket + read/write buffers;
+// 10 x 3 pools was reserving far more headroom than this app's actual
+// concurrency ever needs. Idle connections aren't released early either.
+const pool = mysql.createPool({ uri: env.DATABASE_URL, connectionLimit: 3, timezone: 'Z' });
 
 // mysql2 pools emit a background 'error' event for problems outside any
 // single query — a dropped idle connection, the DB server closing it, a
