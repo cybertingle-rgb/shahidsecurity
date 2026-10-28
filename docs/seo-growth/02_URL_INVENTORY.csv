@@ -1,0 +1,158 @@
+path,type,title,meta_description_length,indexable,has_canonical,has_faq_schema,has_jsonld
+/about/,static-page,"About Shahid Security | Shahid Security",143,yes,yes,no,yes
+/blog/agentic-ai-browser-security-risks/,blog-post,"Agentic AI Browsers: The New Prompt-Injection Attack Surface Businesses Are Ignoring | Shahid Security",194,yes,yes,yes,yes
+/blog/agentic-soc-ai-security-operations/,blog-post,"Agentic SOC: How AI Is Actually Changing Security Operations in 2026 | Shahid Security",241,yes,yes,yes,yes
+/blog/ai-acceptable-use-policy-business-guide/,blog-post,"How to Write an AI Acceptable Use Policy for Your Business | Shahid Security",232,yes,yes,yes,yes
+/blog/ai-agent-security/,blog-post,"AI Agent Security: How to Secure Autonomous AI Agents With Access to Your Systems | Shahid Security",179,yes,yes,yes,yes
+/blog/ai-application-security-checklist/,blog-post,"Cybersecurity for AI Applications: A Practical Security Checklist for Businesses | Shahid Security",198,yes,yes,yes,yes
+/blog/ai-coding-assistants-security-review-guide/,blog-post,"Securing AI Coding Assistants: Why Copilot-Generated Code Still Needs a Human Security Review | Shahid Security",228,yes,yes,yes,yes
+/blog/ai-generated-malware-threat/,blog-post,"AI-Generated Malware: How Attackers Are Using AI to Build and Scale Cyberattacks | Shahid Security",201,yes,yes,yes,yes
+/blog/ai-model-supply-chain-security/,blog-post,"AI Model Supply Chain Security: The Risk of Pulling Pretrained Models From the Internet | Shahid Security",229,yes,yes,yes,yes
+/blog/ai-red-teaming-llm-security-testing/,blog-post,"AI Red Teaming: How to Stress-Test Your AI Systems Before Attackers Do | Shahid Security",227,yes,yes,yes,yes
+/blog/ai-security-risks-for-business/,blog-post,"AI Security Risks Every Business Should Understand | Shahid Security",212,yes,yes,yes,yes
+/blog/anatomy-of-a-website-compromise-case-study/,blog-post,"Anatomy of a Website Compromise: A Step-by-Step Walkthrough (Illustrative Scenario) | Shahid Security",185,yes,yes,yes,yes
+/blog/api-security-best-practices/,blog-post,"API Security in 2026: OWASP API Top 10 and the Rise of Agentic Risk | Shahid Security",194,yes,yes,yes,yes
+/blog/attack-surface-management-guide/,blog-post,"Attack Surface Management: Knowing What&#39;s Exposed Before Attackers Do | Shahid Security",193,yes,yes,yes,yes
+/blog/business-continuity-disaster-recovery-planning-guide/,blog-post,"Business Continuity and Disaster Recovery Planning Beyond Ransomware | Shahid Security",201,yes,yes,yes,yes
+/blog/business-email-compromise-2026/,blog-post,"Business Email Compromise in 2026: How Attackers Bypass MFA | Shahid Security",192,yes,yes,yes,yes
+/blog/cloud-misconfiguration-data-breaches/,blog-post,"Why Cloud Misconfiguration Is Now the Leading Cause of Data Breaches | Shahid Security",188,yes,yes,yes,yes
+/blog/cloud-token-theft/,blog-post,"Cloud Token Theft: How Attackers Steal SaaS and Cloud Access Without Stealing Passwords | Shahid Security",226,yes,yes,yes,yes
+/blog/container-kubernetes-security-fundamentals/,blog-post,"Container and Kubernetes Security Fundamentals for Growing Teams | Shahid Security",186,yes,yes,yes,yes
+/blog/cve-2026-115560-php-session-upload-progress/,blog-post,"CVE-2026-115560 in PHP: What Website Owners Need to Know | Shahid Security",249,yes,yes,yes,yes
+/blog/cyber-insurance-requirements-2026/,blog-post,"Cyber Insurance in 2026: What Insurers Actually Require Before They Will Cover You | Shahid Security",230,yes,yes,yes,yes
+/blog/cyber-resilience-vs-cybersecurity/,blog-post,"Cyber Resilience vs Cybersecurity: Why Businesses Need to Prepare for Attacks They Cannot Prevent | Shahid Security",213,yes,yes,yes,yes
+/blog/cyber-threat-intelligence-smb-guide/,blog-post,"Cyber Threat Intelligence for SMBs: Turning Threat Feeds Into Action Without a SOC | Shahid Security",194,yes,yes,yes,yes
+/blog/deepfake-attacks-business-defense/,blog-post,"Deepfake Attacks on Businesses: How to Defend Against AI-Powered Impersonation | Shahid Security",200,yes,yes,yes,yes
+/blog/dns-security-spoofing-hijacking-prevention-guide/,blog-post,"DNS Security in 2026: Preventing Spoofing, Cache Poisoning, and Domain Hijacking | Shahid Security",210,yes,yes,yes,yes
+/blog/ecommerce-security-skimming-fraud-guide/,blog-post,"E-Commerce Security: Protecting Online Stores From Skimming, Fraud, and Data Theft | Shahid Security",220,yes,yes,yes,yes
+/blog/email-authentication-spf-dkim-dmarc-guide/,blog-post,"Email Authentication Explained: SPF, DKIM, and DMARC for Business Email Security | Shahid Security",239,yes,yes,yes,yes
+/blog/gcc-cybersecurity-compliance-sama-nesa/,blog-post,"Cybersecurity Compliance for GCC Businesses: What SAMA and NESA Actually Require | Shahid Security",186,yes,yes,yes,yes
+/blog/identity-access-management-least-privilege-guide/,blog-post,"Identity and Access Management Essentials: Least Privilege Without Slowing Your Team Down | Shahid Security",323,yes,yes,yes,yes
+/blog/,blog-post,"Blog | Shahid Security",80,yes,yes,no,yes
+/blog/insider-threat-detection-prevention-guide/,blog-post,"Insider Threats: Detecting and Preventing Risks From Within Your Organization | Shahid Security",191,yes,yes,yes,yes
+/blog/iot-security-nist-guidance-2026/,blog-post,"IoT Security in 2026: NIST&#39;s Updated Guidance for Connected Devices | Shahid Security",202,yes,yes,yes,yes
+/blog/living-off-the-cloud-attacks/,blog-post,"Living-off-the-Cloud Attacks: How Attackers Abuse Trusted Cloud Services | Shahid Security",228,yes,yes,yes,yes
+/blog/non-human-identity-security/,blog-post,"Non-Human Identity Security: Why the Machine Identities Outnumbering Your Employees Are Your Biggest Blind Spot | Shahid Security",214,yes,yes,yes,yes
+/blog/owasp-top-10-2025-explained/,blog-post,"OWASP Top 10:2025 Explained: What Changed and Why It Matters | Shahid Security",165,yes,yes,yes,yes
+/blog/passkeys-vs-passwords-2026/,blog-post,"Passkeys vs Passwords: Why 2026 Is the Year Businesses Should Actually Switch | Shahid Security",218,yes,yes,yes,yes
+/blog/patch-management-cisa-kev-guide/,blog-post,"A Business Owner&#39;s Guide to Patch Management and the CISA KEV Catalog | Shahid Security",164,yes,yes,yes,yes
+/blog/php2shell-critical-php-vulnerabilities-cve-2026-109618-109619/,blog-post,"PHP2Shell Explained: Critical PHP Remote Code Execution Flaws CVE-2026-109618 and CVE-2026-109619 | Shahid Security",243,yes,yes,yes,yes
+/blog/post-quantum-cryptography-migration-guide/,blog-post,"Post-Quantum Cryptography: A Practical Migration Guide for Businesses | Shahid Security",244,yes,yes,yes,yes
+/blog/prompt-injection-attacks-explained/,blog-post,"Prompt Injection Attacks Explained: How Attackers Manipulate AI Applications | Shahid Security",192,yes,yes,yes,yes
+/blog/ransomware-2026-trends/,blog-post,"Ransomware in 2026: Why Attacks Are Faster and Harder to Detect | Shahid Security",179,yes,yes,yes,yes
+/blog/ransomware-readiness-backup-recovery-guide/,blog-post,"Ransomware Readiness: Backups, Recovery Testing, and Incident Response | Shahid Security",183,yes,yes,yes,yes
+/blog/secrets-management-api-keys-credentials-guide/,blog-post,"Secrets Management: Keeping API Keys and Credentials Out of Your Codebase | Shahid Security",190,yes,yes,yes,yes
+/blog/secure-code-review-sast-dast-manual-testing/,blog-post,"Secure Code Review in Practice: SAST, DAST, and Manual Review for Development Teams | Shahid Security",291,yes,yes,yes,yes
+/blog/shadow-ai-security-risks/,blog-post,"Shadow AI Security: How Employees Using Unapproved AI Tools Can Expose Company Data | Shahid Security",177,yes,yes,yes,yes
+/blog/software-supply-chain-attacks-2026/,blog-post,"Software Supply Chain Attacks: Lessons from the 2026 npm Compromises | Shahid Security",224,yes,yes,yes,yes
+/blog/software-supply-chain-security/,blog-post,"Software Supply Chain Security: How Third-Party Dependencies Become Attack Paths | Shahid Security",215,yes,yes,yes,yes
+/blog/tag/access-control/,blog-tag,"&quot;access-control&quot; articles | Shahid Security",75,no,yes,no,yes
+/blog/tag/ai-agents/,blog-tag,"&quot;ai-agents&quot; articles | Shahid Security",70,no,yes,no,yes
+/blog/tag/ai-automation/,blog-tag,"&quot;ai-automation&quot; articles | Shahid Security",74,no,yes,no,yes
+/blog/tag/ai-governance/,blog-tag,"&quot;ai-governance&quot; articles | Shahid Security",74,no,yes,no,yes
+/blog/tag/ai-security/,blog-tag,"&quot;ai-security&quot; articles | Shahid Security",72,no,yes,no,yes
+/blog/tag/api-security/,blog-tag,"&quot;api-security&quot; articles | Shahid Security",73,no,yes,no,yes
+/blog/tag/application-security/,blog-tag,"&quot;application-security&quot; articles | Shahid Security",81,no,yes,no,yes
+/blog/tag/appsec/,blog-tag,"&quot;appsec&quot; articles | Shahid Security",67,no,yes,no,yes
+/blog/tag/asset-discovery/,blog-tag,"&quot;asset-discovery&quot; articles | Shahid Security",76,no,yes,no,yes
+/blog/tag/attack-surface-management/,blog-tag,"&quot;attack-surface-management&quot; articles | Shahid Security",86,no,yes,no,yes
+/blog/tag/authentication/,blog-tag,"&quot;authentication&quot; articles | Shahid Security",75,no,yes,no,yes
+/blog/tag/backup-recovery/,blog-tag,"&quot;backup-recovery&quot; articles | Shahid Security",76,no,yes,no,yes
+/blog/tag/business-continuity/,blog-tag,"&quot;business-continuity&quot; articles | Shahid Security",80,no,yes,no,yes
+/blog/tag/business-email-compromise/,blog-tag,"&quot;business-email-compromise&quot; articles | Shahid Security",86,no,yes,no,yes
+/blog/tag/case-study/,blog-tag,"&quot;case-study&quot; articles | Shahid Security",71,no,yes,no,yes
+/blog/tag/cisa/,blog-tag,"&quot;cisa&quot; articles | Shahid Security",65,no,yes,no,yes
+/blog/tag/cloud-identity/,blog-tag,"&quot;cloud-identity&quot; articles | Shahid Security",75,no,yes,no,yes
+/blog/tag/cloud-security/,blog-tag,"&quot;cloud-security&quot; articles | Shahid Security",75,no,yes,no,yes
+/blog/tag/code-review/,blog-tag,"&quot;code-review&quot; articles | Shahid Security",72,no,yes,no,yes
+/blog/tag/compliance/,blog-tag,"&quot;compliance&quot; articles | Shahid Security",71,no,yes,no,yes
+/blog/tag/container-security/,blog-tag,"&quot;container-security&quot; articles | Shahid Security",79,no,yes,no,yes
+/blog/tag/cryptography/,blog-tag,"&quot;cryptography&quot; articles | Shahid Security",73,no,yes,no,yes
+/blog/tag/cyber-resilience/,blog-tag,"&quot;cyber-resilience&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/data-breach/,blog-tag,"&quot;data-breach&quot; articles | Shahid Security",72,no,yes,no,yes
+/blog/tag/data-protection/,blog-tag,"&quot;data-protection&quot; articles | Shahid Security",76,no,yes,no,yes
+/blog/tag/deepfakes/,blog-tag,"&quot;deepfakes&quot; articles | Shahid Security",70,no,yes,no,yes
+/blog/tag/devops/,blog-tag,"&quot;devops&quot; articles | Shahid Security",67,no,yes,no,yes
+/blog/tag/devsecops/,blog-tag,"&quot;devsecops&quot; articles | Shahid Security",70,no,yes,no,yes
+/blog/tag/disaster-recovery/,blog-tag,"&quot;disaster-recovery&quot; articles | Shahid Security",78,no,yes,no,yes
+/blog/tag/dmarc/,blog-tag,"&quot;dmarc&quot; articles | Shahid Security",66,no,yes,no,yes
+/blog/tag/dns-security/,blog-tag,"&quot;dns-security&quot; articles | Shahid Security",73,no,yes,no,yes
+/blog/tag/domain-security/,blog-tag,"&quot;domain-security&quot; articles | Shahid Security",76,no,yes,no,yes
+/blog/tag/ecommerce-security/,blog-tag,"&quot;ecommerce-security&quot; articles | Shahid Security",79,no,yes,no,yes
+/blog/tag/email-security/,blog-tag,"&quot;email-security&quot; articles | Shahid Security",75,no,yes,no,yes
+/blog/tag/gcc/,blog-tag,"&quot;gcc&quot; articles | Shahid Security",64,no,yes,no,yes
+/blog/tag/identity-access-management/,blog-tag,"&quot;identity-access-management&quot; articles | Shahid Security",87,no,yes,no,yes
+/blog/tag/identity-security/,blog-tag,"&quot;identity-security&quot; articles | Shahid Security",78,no,yes,no,yes
+/blog/tag/incident-response/,blog-tag,"&quot;incident-response&quot; articles | Shahid Security",78,no,yes,no,yes
+/blog/tag/insider-threat/,blog-tag,"&quot;insider-threat&quot; articles | Shahid Security",75,no,yes,no,yes
+/blog/tag/iot-security/,blog-tag,"&quot;iot-security&quot; articles | Shahid Security",73,no,yes,no,yes
+/blog/tag/kubernetes-security/,blog-tag,"&quot;kubernetes-security&quot; articles | Shahid Security",80,no,yes,no,yes
+/blog/tag/least-privilege/,blog-tag,"&quot;least-privilege&quot; articles | Shahid Security",76,no,yes,no,yes
+/blog/tag/magecart/,blog-tag,"&quot;magecart&quot; articles | Shahid Security",69,no,yes,no,yes
+/blog/tag/malware/,blog-tag,"&quot;malware&quot; articles | Shahid Security",68,no,yes,no,yes
+/blog/tag/monitoring/,blog-tag,"&quot;monitoring&quot; articles | Shahid Security",71,no,yes,no,yes
+/blog/tag/network-security/,blog-tag,"&quot;network-security&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/nist/,blog-tag,"&quot;nist&quot; articles | Shahid Security",65,no,yes,no,yes
+/blog/tag/owasp/,blog-tag,"&quot;owasp&quot; articles | Shahid Security",66,no,yes,no,yes
+/blog/tag/patch-management/,blog-tag,"&quot;patch-management&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/payment-security/,blog-tag,"&quot;payment-security&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/penetration-testing/,blog-tag,"&quot;penetration-testing&quot; articles | Shahid Security",80,no,yes,no,yes
+/blog/tag/phishing/,blog-tag,"&quot;phishing&quot; articles | Shahid Security",69,no,yes,no,yes
+/blog/tag/php/,blog-tag,"&quot;php&quot; articles | Shahid Security",64,no,yes,no,yes
+/blog/tag/policy/,blog-tag,"&quot;policy&quot; articles | Shahid Security",67,no,yes,no,yes
+/blog/tag/post-quantum-cryptography/,blog-tag,"&quot;post-quantum-cryptography&quot; articles | Shahid Security",86,no,yes,no,yes
+/blog/tag/prompt-injection/,blog-tag,"&quot;prompt-injection&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/ransomware/,blog-tag,"&quot;ransomware&quot; articles | Shahid Security",71,no,yes,no,yes
+/blog/tag/risk-based-security/,blog-tag,"&quot;risk-based-security&quot; articles | Shahid Security",80,no,yes,no,yes
+/blog/tag/risk-management/,blog-tag,"&quot;risk-management&quot; articles | Shahid Security",76,no,yes,no,yes
+/blog/tag/secrets-management/,blog-tag,"&quot;secrets-management&quot; articles | Shahid Security",79,no,yes,no,yes
+/blog/tag/secure-development/,blog-tag,"&quot;secure-development&quot; articles | Shahid Security",79,no,yes,no,yes
+/blog/tag/shadow-ai/,blog-tag,"&quot;shadow-ai&quot; articles | Shahid Security",70,no,yes,no,yes
+/blog/tag/smb-security/,blog-tag,"&quot;smb-security&quot; articles | Shahid Security",73,no,yes,no,yes
+/blog/tag/supply-chain-security/,blog-tag,"&quot;supply-chain-security&quot; articles | Shahid Security",82,no,yes,no,yes
+/blog/tag/third-party-risk/,blog-tag,"&quot;third-party-risk&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/threat-intelligence/,blog-tag,"&quot;threat-intelligence&quot; articles | Shahid Security",80,no,yes,no,yes
+/blog/tag/vendor-risk/,blog-tag,"&quot;vendor-risk&quot; articles | Shahid Security",72,no,yes,no,yes
+/blog/tag/vulnerability-assessment/,blog-tag,"&quot;vulnerability-assessment&quot; articles | Shahid Security",85,no,yes,no,yes
+/blog/tag/vulnerability-management/,blog-tag,"&quot;vulnerability-management&quot; articles | Shahid Security",85,no,yes,no,yes
+/blog/tag/web-application-security/,blog-tag,"&quot;web-application-security&quot; articles | Shahid Security",85,no,yes,no,yes
+/blog/tag/web-security/,blog-tag,"&quot;web-security&quot; articles | Shahid Security",73,no,yes,no,yes
+/blog/tag/website-security/,blog-tag,"&quot;website-security&quot; articles | Shahid Security",77,no,yes,no,yes
+/blog/tag/zero-trust/,blog-tag,"&quot;zero-trust&quot; articles | Shahid Security",71,no,yes,no,yes
+/blog/third-party-vendor-risk-management-smb/,blog-post,"Third-Party Vendor Risk: A Practical Due-Diligence Framework for SMBs | Shahid Security",195,yes,yes,yes,yes
+/blog/vulnerability-exploitation-leading-breach-cause-2026/,blog-post,"Why Vulnerability Exploitation Is Now the #1 Breach Entry Point in 2026 | Shahid Security",196,yes,yes,yes,yes
+/blog/vulnerability-prioritization-real-world-risk/,blog-post,"Beyond CVSS: How to Prioritize Vulnerabilities by Real-World Risk | Shahid Security",174,yes,yes,yes,yes
+/blog/web-application-security-testing-checklist-2026/,blog-post,"Web Application Security Testing Checklist for 2026 | Shahid Security",181,yes,yes,yes,yes
+/blog/zero-trust-architecture-smb-guide/,blog-post,"Zero Trust Architecture: A Practical Guide for Small and Mid-Size Businesses | Shahid Security",208,yes,yes,yes,yes
+/book/,static-page,"Book a Free 30-Minute Consultation | Shahid Security",116,yes,yes,no,yes
+/book/thanks/,thank-you-noindex,"Request Sent | Shahid Security",82,no,yes,no,yes
+/case-studies/,case-study-index,"Case Studies | Shahid Security",77,yes,yes,no,yes
+/case-studies/iot-smart-campus-threat-analysis/,case-study,"Threats &amp; Attacks on an IoT-Based Smart Campus System | Shahid Security",307,yes,yes,no,yes
+/contact/,static-page,"Talk to a Security Expert | Shahid Security",76,yes,yes,no,yes
+/contact/thanks/,thank-you-noindex,"Message Sent | Shahid Security",85,no,yes,no,yes
+/,homepage,"Shahid Security — Cybersecurity Assessment, Penetration Testing &amp; Security Engineering",175,yes,yes,no,yes
+/industries/ecommerce/,industry-page,"E-Commerce Security Services — Online Store Protection | Shahid Security",161,yes,yes,yes,yes
+/industries/education/,industry-page,"Cybersecurity for Schools &amp; Educational Institutions | Shahid Security",165,yes,yes,yes,yes
+/industries/finance/,industry-page,"Cybersecurity for Financial Services &amp; Fintech | Shahid Security",173,yes,yes,yes,yes
+/industries/healthcare/,industry-page,"Cybersecurity for Healthcare Organizations | Shahid Security",174,yes,yes,yes,yes
+/industries/,industry-index,"Industries | Shahid Security",144,yes,yes,no,yes
+/industries/manufacturing/,industry-page,"Cybersecurity for Manufacturing &amp; Industrial Businesses | Shahid Security",187,yes,yes,yes,yes
+/industries/saas-technology/,industry-page,"Cybersecurity for SaaS &amp; Technology Companies | Shahid Security",179,yes,yes,yes,yes
+/industries/smes/,industry-page,"Cybersecurity for Small and Mid-Size Businesses (SMEs) | Shahid Security",169,yes,yes,yes,yes
+/learn/,learn-bridge-page,"Learn with Shahid — Cybersecurity Learning Platform | Shahid Security",171,yes,yes,yes,yes
+/learn/pricing/,learn-bridge-page,"Pricing — Learn with Shahid | Shahid Security",52,yes,yes,no,yes
+/learn/roadmap/,learn-bridge-page,"Cybersecurity Roadmap — Learn with Shahid | Shahid Security",128,yes,yes,no,yes
+/privacy/,legal,"Privacy Policy | Shahid Security",86,yes,yes,no,yes
+/responsible-disclosure/,legal,"Responsible Disclosure | Shahid Security",72,yes,yes,no,yes
+/services/ai-automation/,service-page,"AI Automation | Shahid Security",142,yes,yes,yes,yes
+/services/compliance-risk-assessment/,service-page,"Compliance &amp; Risk Assessment | Shahid Security",115,yes,yes,yes,yes
+/services/custom-software-development/,service-page,"Custom Software Development | Shahid Security",131,yes,yes,yes,yes
+/services/cyber-threat-intelligence/,service-page,"Cyber Threat Intelligence | Shahid Security",136,yes,yes,yes,yes
+/services/incident-response/,service-page,"Incident Response &amp; Recovery | Shahid Security",141,yes,yes,yes,yes
+/services/,service-index,"Cybersecurity Services | Shahid Security",126,yes,yes,no,yes
+/services/monitoring-training/,service-page,"Security Monitoring &amp; Training | Shahid Security",123,yes,yes,yes,yes
+/services/network-cloud-security/,service-page,"Network &amp; Cloud Security | Shahid Security",148,yes,yes,yes,yes
+/services/penetration-testing/,service-page,"Penetration Testing | Shahid Security",148,yes,yes,yes,yes
+/services/secure-website-development/,service-page,"Secure Website Development | Shahid Security",140,yes,yes,yes,yes
+/services/vulnerability-assessment/,service-page,"Vulnerability Assessment &amp; Security Audit | Shahid Security",156,yes,yes,yes,yes
+/terms/,legal,"Terms of Service | Shahid Security",49,yes,yes,no,yes

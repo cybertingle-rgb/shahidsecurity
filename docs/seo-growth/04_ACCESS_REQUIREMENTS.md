@@ -1,0 +1,23 @@
+# Access Requirements
+
+**Date:** 2026-10-28. This is the precise, secure access checklist the master brief asked for. Nothing below asks you to paste a password or API secret into a report or into chat — each item names the supported authorization method.
+
+## Why this exists
+
+This session has no live network access to `shahidiqbal.com` or its subdomains (outbound connections are blocked at the sandbox's own proxy policy level — confirmed, not a site problem), and no existing Search Console, GA4, or Bing Webmaster Tools connector is configured. Phase 1 and Phase 2 of this project were completed using the local production build (`dist/`) and public web research (`WebSearch`) only, with every such limitation disclosed inline in the relevant report rather than hidden.
+
+## What's blocked without each one
+
+| # | Access needed | Why it matters | How to grant it safely | What becomes possible once granted |
+|---|---|---|---|---|
+| A1 | **Google Search Console** property access (shahidiqbal.com) | The single most important missing data source — real impressions, clicks, CTR, average position, by query/page/country/device, and actual indexing status | Add the Claude/Anthropic connector for Search Console if offered in your Claude settings, **or** add a session-specific Google account as a user on the GSC property (Settings → Users and permissions → Add user) and tell me which account, **or** export the data yourself (Performance → Export) and share the file | Phase 1.3's real baseline, Phase 2's impression/CTR-based keyword prioritization, Phase 6's measurement dashboard |
+| A2 | **Google Analytics 4** property access | Conversion data (consultation bookings, contact form submissions) by landing page and source | Same pattern as A1 — connector, added user, or exported report | Phase 3.7 conversion-path analysis with real numbers instead of "define what to measure" |
+| A3 | **Bing Webmaster Tools** (if configured) | Secondary but genuine search-visibility data source, sometimes catches indexing issues Google doesn't surface as clearly | Add as a user, or confirm it isn't set up yet (also useful to know) | Cross-check Phase 1.3 findings |
+| A4 | **Live network access to shahidiqbal.com** for this or a future session | Would let a live crawl directly verify what this report inferred from the local build, confirm the 23 `.htaccess` redirects still work, and run `scripts/verify-redirects.mjs` for real | Either run `node scripts/verify-redirects.mjs https://shahidiqbal.com` yourself and share the output, or grant network access in a session configuration that allows it | Closes `03_TECHNICAL_ISSUES.csv` rows T02 and T03 |
+| A5 | **Any paid keyword-research tool** you already hold a license for (Ahrefs, Semrush, Google Keyword Planner via a Google Ads account, etc.) | Every "Unknown" search-volume/difficulty/CPC cell in `05_GCC_KEYWORD_RESEARCH.csv` stays Unknown without this — this project deliberately never invents those numbers | Share exported CSVs for the relevant queries, or tell me which tool so I can advise on what to pull | Fills in real volume/difficulty data instead of directional, evidence-based prioritization alone |
+| A6 | **A native or fluent Arabic SEO/content reviewer** | None of the Arabic query phrasing or any future Arabic content in this project has been reviewed by a fluent speaker — the brief explicitly requires this before publishing Arabic copy | Your own judgment, or a trusted contact/freelancer you choose | Required before any Arabic page ships, not before research continues |
+| A7 | **Confirmation of what Shahid Security can honestly claim** for managed/SOC-style services | The research surfaced several Saudi/Qatar competitors offering 24/7 managed SOC at telecom-backed scale (Sirar by stc, SecurityHQ+Kalaam). Before any content targets "SOC consulting" or "managed security services" queries, I need your explicit confirmation of what's actually deliverable (scheduled monitoring? on-call incident response? no managed SOC at all?) so nothing overstates capability | A one-line answer from you, no external access needed | Determines whether that keyword cluster is targeted at all in Phase 3 |
+
+## What did NOT block this phase
+
+Repository access, local build/validation tooling, and public web research (`WebSearch`) were all available and used fully — Phase 1 (technical audit) and Phase 2 (keyword/competitor research) are both genuinely complete within those constraints, not stalled pending the items above. A1–A3 sharpen Phase 2's prioritization and unlock Phase 6; they don't block the roadmap in Phase 3 from being written using the evidence already gathered.
