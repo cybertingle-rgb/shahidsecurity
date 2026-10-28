@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import yaml from 'js-yaml';
+// js-yaml 5.x dropped the CommonJS-style default export in favor of named
+// exports only — same fix as src/lib/publish/renderBlogPost.ts.
+import * as yaml from 'js-yaml';
 import { renderBlogPostMdx, InvalidBlogPostError, type BlogPostForRender } from '@/lib/publish/renderBlogPost';
 
 function basePost(overrides: Partial<BlogPostForRender> = {}): BlogPostForRender {

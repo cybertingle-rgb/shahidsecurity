@@ -1,15 +1,33 @@
 import Link from 'next/link';
-import { getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
+import { getConnectionForScope, getValidAccessToken, recordSuccessfulSync, classifyGoogleApiError } from '@/lib/google/connections';
 import { listAccessibleSites, querySearchAnalytics, getSearchConsoleSelection, type SearchConsoleSite } from '@/lib/google/searchConsole';
 import { findSeoOpportunities, pathFromFullUrl } from '@/lib/google/seoOpportunities';
-import { selectSearchConsoleSite } from './actions';
+import { selectSearchConsoleSite, verifySearchConsoleConnection } from './actions';
 
 function dateNDaysAgo(n: number): string {
   return new Date(Date.now() - n * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-export default async function SearchConsolePage({ searchParams }: { searchParams: Promise<{ change?: string; error?: string }> }) {
-  const { change, error } = await searchParams;
+/** A domain property's siteUrl comes back from the API as "sc-domain:example.com" — never a real URL. See https://developers.google.com/webmaster-tools/v1/sites. */
+function isDomainProperty(siteUrl: string): boolean {
+  return siteUrl.startsWith('sc-domain:');
+}
+
+const ALLOWED_DAY_RANGES = [7, 28, 90] as const;
+type DayRange = (typeof ALLOWED_DAY_RANGES)[number];
+
+function parseDayRange(value: string | undefined): DayRange {
+  const n = Number(value);
+  return (ALLOWED_DAY_RANGES as readonly number[]).includes(n) ? (n as DayRange) : 28;
+}
+
+export default async function SearchConsolePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ change?: string; error?: string; days?: string }>;
+}) {
+  const { change, error, days } = await searchParams;
+  const dayRange = parseDayRange(days);
   const connection = await getConnectionForScope('search_console');
 
   if (!connection || connection.status !== 'connected') {
@@ -42,7 +60,7 @@ export default async function SearchConsolePage({ searchParams }: { searchParams
     try {
       sites = await listAccessibleSites(accessToken);
     } catch (err) {
-      listError = err instanceof Error ? err.message : 'Failed to list accessible sites.';
+      listError = classifyGoogleApiError(err).message;
     }
   }
 
@@ -55,7 +73,15 @@ export default async function SearchConsolePage({ searchParams }: { searchParams
         <div className="space-y-3 rounded-lg border border-border bg-bg-elevated/60 p-4">
           <p className="text-sm text-text-muted">
             Select which property this Google account can access. Nothing is saved until the selection is tested
-            against a real Search Analytics query.
+            against a real Search Analytics query. Changing this never happens automatically — your current
+            selection (if any) stays active until you explicitly save a new one here.
+          </p>
+          <p className="text-xs text-text-muted">
+            <strong className="text-text">Domain property</strong> (shown as <code>sc-domain:…</code>) covers every
+            protocol, subdomain and path verified for that domain in one property. <strong className="text-text">URL-prefix
+            property</strong> (shown as a full <code>https://…</code> URL) covers only that exact prefix. If both are
+            listed below, they may report different totals for the same site — pick the one Google Search Console
+            itself treats as authoritative for your reporting.
           </p>
           {listError && <p className="text-sm text-danger">{listError}</p>}
           {!listError && sites.length === 0 && (
@@ -68,6 +94,9 @@ export default async function SearchConsolePage({ searchParams }: { searchParams
                   <label key={site.siteUrl} className="flex items-center gap-2 text-sm">
                     <input type="radio" name="siteUrl" value={site.siteUrl} required defaultChecked={site.siteUrl === selection?.siteUrl} />
                     <span>{site.siteUrl}</span>
+                    <span className="rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-text-muted">
+                      {isDomainProperty(site.siteUrl) ? 'Domain property' : 'URL-prefix property'}
+                    </span>
                     <span className="text-xs text-text-muted">({site.permissionLevel})</span>
                   </label>
                 ))}
@@ -83,49 +112,103 @@ export default async function SearchConsolePage({ searchParams }: { searchParams
           <div className="flex items-center justify-between">
             <p className="text-sm">
               Selected property: <span className="font-medium">{selection.siteUrl}</span>{' '}
+              {selection.siteUrl && (
+                <span className="rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-text-muted">
+                  {isDomainProperty(selection.siteUrl) ? 'Domain property' : 'URL-prefix property'}
+                </span>
+              )}{' '}
               <span className="text-xs text-text-muted">({selection.permissionLevel})</span>
             </p>
-            <Link href="/dashboard/google/search-console?change=1" className="rounded-md border border-border px-3 py-1.5 text-xs text-text-muted">
-              Change property
-            </Link>
+            <div className="flex gap-2">
+              <form action={verifySearchConsoleConnection}>
+                <button type="submit" className="rounded-md border border-border px-3 py-1.5 text-xs text-text-muted">
+                  Test connection
+                </button>
+              </form>
+              <Link href="/dashboard/google/search-console?change=1" className="rounded-md border border-border px-3 py-1.5 text-xs text-text-muted">
+                Change property
+              </Link>
+            </div>
           </div>
+          <p className="mt-2 text-xs text-text-muted">
+            Last synced: {connection.lastSyncedAt ? connection.lastSyncedAt.toLocaleString() : 'never — no successful data read yet'}.
+          </p>
         </div>
       )}
 
-      {selection?.siteUrl && !showPicker && <PerformancePanel accessToken={accessToken} siteUrl={selection.siteUrl} />}
+      {selection?.siteUrl && !showPicker && (
+        <>
+          <div className="flex gap-2 text-xs">
+            {ALLOWED_DAY_RANGES.map((d) => (
+              <Link
+                key={d}
+                href={`/dashboard/google/search-console?days=${d}`}
+                className={`rounded-md border px-2.5 py-1 ${d === dayRange ? 'border-neon text-neon' : 'border-border text-text-muted'}`}
+              >
+                Last {d} days
+              </Link>
+            ))}
+          </div>
+          <PerformancePanel accessToken={accessToken} siteUrl={selection.siteUrl} connectionId={connection.id} days={dayRange} />
+        </>
+      )}
     </div>
   );
 }
 
-async function PerformancePanel({ accessToken, siteUrl }: { accessToken: string; siteUrl: string }) {
+async function PerformancePanel({
+  accessToken,
+  siteUrl,
+  connectionId,
+  days,
+}: {
+  accessToken: string;
+  siteUrl: string;
+  connectionId: string;
+  days: DayRange;
+}) {
   let topQueries: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
   let topPages: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
+  let topCountries: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
+  let topDevices: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
   let opportunityRows: Awaited<ReturnType<typeof querySearchAnalytics>> = [];
-  let fetchError: string | null = null;
+  let fetchError: ReturnType<typeof classifyGoogleApiError> | null = null;
 
   try {
-    const startDate = dateNDaysAgo(28);
+    const startDate = dateNDaysAgo(days);
     const endDate = dateNDaysAgo(0);
-    [topQueries, topPages, opportunityRows] = await Promise.all([
+    [topQueries, topPages, topCountries, topDevices, opportunityRows] = await Promise.all([
       querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['query'], rowLimit: 10 }),
       querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['page'], rowLimit: 10 }),
+      querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['country'], rowLimit: 10 }),
+      querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['device'], rowLimit: 10 }),
       querySearchAnalytics(accessToken, siteUrl, { startDate, endDate, dimensions: ['page'], rowLimit: 50 }),
     ]);
+    // Only a genuinely successful read advances "last synced" — a
+    // failure below leaves whatever the last real success was untouched.
+    await recordSuccessfulSync(connectionId, 'search_console_report');
   } catch (err) {
-    fetchError = err instanceof Error ? err.message : 'Failed to load Search Console performance data.';
+    fetchError = classifyGoogleApiError(err);
   }
 
   if (fetchError) {
-    return <p className="text-sm text-danger">{fetchError}</p>;
+    return (
+      <div className="rounded-lg border border-danger/40 bg-danger/5 p-4">
+        <p className="text-sm text-danger">{fetchError.message}</p>
+        {fetchError.kind === 'unknown' && <p className="mt-1 text-xs text-text-muted">Raw error, for diagnosis: {fetchError.message}</p>}
+      </div>
+    );
   }
 
   const opportunities = findSeoOpportunities(opportunityRows);
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-text-muted">Last 28 days — Source: Google Search Console API</p>
+      <p className="text-xs text-text-muted">Last {days} days — Source: Google Search Console API</p>
       <PerformanceTable title="Top queries" rows={topQueries} />
       <PerformanceTable title="Top pages" rows={topPages} />
+      <PerformanceTable title="Top countries" rows={topCountries} />
+      <PerformanceTable title="Top devices" rows={topDevices} />
 
       <div className="rounded-lg border border-border bg-bg-elevated/60 p-4">
         <h2 className="mb-1 font-medium">SEO opportunities</h2>

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
-import { getConnectionForScope, getValidAccessToken, logSyncError } from '@/lib/google/connections';
+import { getConnectionForScope, getValidAccessToken, logSyncError, classifyGoogleApiError } from '@/lib/google/connections';
 import { listLocationsForAccount, testBusinessProfileAccess, saveBusinessProfileSelection } from '@/lib/google/businessProfile';
 
 /**
@@ -42,8 +42,11 @@ export async function selectBusinessLocation(formData: FormData) {
       metadata: { scope: 'business_profile', accountId, locationId: match.locationId },
     });
   } catch (err) {
+    // The full diagnostic message is preserved verbatim for the audit
+    // trail (getLatestError) — only what's re-thrown to the admin UI is
+    // simplified into an actionable category.
     await logSyncError(connection.id, 'business_profile_selection', err instanceof Error ? err.message : 'Unknown error.');
-    throw err;
+    throw new Error(classifyGoogleApiError(err).message);
   }
 
   revalidatePath('/dashboard/google/business-profile');

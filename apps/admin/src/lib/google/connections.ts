@@ -112,6 +112,64 @@ export async function logSyncError(connectionId: string, syncType: string, error
   await db.insert(googleSyncLogs).values({ id: crypto.randomUUID(), connectionId, syncType, status: 'error', errorMessage });
 }
 
+/**
+ * Records a *successful* live read against a Google API — not just a
+ * selection save. `google_connections.lastSyncedAt` was previously only
+ * ever updated by the Business Profile "Sync now" button; Analytics and
+ * Search Console had no equivalent, so their "last synced" state was
+ * indistinguishable from "never connected" even when the dashboard was
+ * actively rendering real data every page load. Call this once a report
+ * panel's live query actually succeeds. Deliberately does nothing on
+ * failure — a failed request must never advance or fabricate a sync
+ * timestamp (see getLatestError/logSyncError for the failure side).
+ */
+export async function recordSuccessfulSync(connectionId: string, syncType: string): Promise<void> {
+  await db.update(googleConnections).set({ lastSyncedAt: new Date() }).where(eq(googleConnections.id, connectionId));
+  await db.insert(googleSyncLogs).values({ id: crypto.randomUUID(), connectionId, syncType, status: 'success' });
+}
+
+export type GoogleApiErrorKind = 'expired_token' | 'permission_denied' | 'quota_exceeded' | 'not_found' | 'unknown';
+
+export type ClassifiedGoogleApiError = {
+  kind: GoogleApiErrorKind;
+  /** A short, admin-facing explanation — never the raw Google error body (which can be verbose/technical and is already preserved in full via logSyncError for audit purposes). */
+  message: string;
+};
+
+/**
+ * Every `lib/google/*.ts` function in this codebase throws a plain Error
+ * whose message embeds the real HTTP status Google returned (e.g.
+ * "Failed to list Google Business accounts: 401 {...}" — see
+ * businessProfile.ts/analytics.ts/searchConsole.ts). Pages were
+ * rendering that raw string directly, which works but gives an admin no
+ * way to tell "your login expired, reconnect" (401) apart from "this
+ * Google account genuinely isn't allowed to see this property" (403)
+ * apart from "Google is rate-limiting us, try again shortly" (429) —
+ * three very different required actions collapsed into one undifferentiated
+ * error string. This never re-derives information Google didn't already
+ * send; it only classifies the status code already embedded in the
+ * thrown message into an actionable category.
+ */
+export function classifyGoogleApiError(err: unknown): ClassifiedGoogleApiError {
+  const raw = err instanceof Error ? err.message : String(err);
+  const statusMatch = raw.match(/\b(\d{3})\b/);
+  const status = statusMatch ? Number(statusMatch[1]) : null;
+
+  if (status === 401) {
+    return { kind: 'expired_token', message: 'Authorization has expired or was revoked. Reconnect this integration from the Google integrations page.' };
+  }
+  if (status === 403) {
+    return { kind: 'permission_denied', message: 'The connected Google account does not have permission to access this property/account. Confirm access in Google, or connect a different Google account.' };
+  }
+  if (status === 429) {
+    return { kind: 'quota_exceeded', message: 'Google API quota was exceeded for this request. This is usually temporary — try again in a few minutes.' };
+  }
+  if (status === 404) {
+    return { kind: 'not_found', message: 'The selected property/account/location could not be found. It may have been removed or renamed in Google — reselect it.' };
+  }
+  return { kind: 'unknown', message: raw };
+}
+
 /** The most recent error logged for this connection, across every sync/selection type — shown in the Connections Center as "Last error". */
 export async function getLatestError(connectionId: string): Promise<{ syncType: string; errorMessage: string | null; createdAt: Date } | null> {
   const rows = await db
