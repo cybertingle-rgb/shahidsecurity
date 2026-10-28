@@ -1,0 +1,13 @@
+cluster,existing_url,proposed_url,action,priority,linking_notes
+"Saudi Arabia (national + Riyadh/Jeddah/Dammam)",None,/locations/saudi-arabia/,Create new page,P1,"Links to /services/penetration-testing/ and /services/vulnerability-assessment/; linked from homepage and relevant service pages"
+"UAE (national + Abu Dhabi priority/Dubai sections)",None,/locations/uae/,Create new page,P1,"Links to /services/penetration-testing/ and /services/vulnerability-assessment/; linked from homepage and relevant service pages"
+"Qatar (national)",None,/locations/qatar/,Create new page,P1,"Links to /services/penetration-testing/; linked from homepage"
+"Oman / Bahrain / Kuwait",None,"/locations/gcc/ (combined) or deferred",Pending further research,P3,"Do not create until Oman research gap is closed"
+"Penetration testing (all GCC)",/services/penetration-testing/,/services/penetration-testing/ (improved),Improve existing page with verified regulatory section,P1,"Cross-links to all 3 new location pages"
+"Vulnerability/web-app security",/services/vulnerability-assessment/,/services/vulnerability-assessment/ (improved),Improve existing page,P1,"Cross-links to location pages"
+"Cloud security",/services/network-cloud-security/,/services/network-cloud-security/ (improved),Improve existing page,P2,"Cross-link to /blog/container-kubernetes-security-fundamentals/ and /blog/attack-surface-management-guide/"
+"Compliance/regulatory (GCC)",/services/compliance-risk-assessment/,/services/compliance-risk-assessment/ (improved),Improve existing page,P2,"Cross-link to /blog/gcc-cybersecurity-compliance-sama-nesa/"
+"AI security (GCC)","/blog/ai-coding-assistants-security-review-guide/, /blog/ai-acceptable-use-policy-business-guide/",None,No new page — monitor only,P3,"Existing blog coverage sufficient for current evidenced demand"
+"Managed SOC / SIEM / 24-7 monitoring",None,None,Do not target,—,"Blocked on Access Requirements A7 (owner capability confirmation); scale mismatch evidenced across every GCC market researched"
+"UK / US / Canada / Australia (general)",None,None,Deprioritized,—,"Revisit only after GCC traction is evidenced; Canada is the one soft signal worth a future look"
+"Arabic-language pages (Qatar, Dubai signal)",None,"Future /ar/ pages (not yet scoped)",Deferred pending A6 + better locale tooling,P3,"Real but unconfirmed gap — do not publish Arabic copy without native review"
