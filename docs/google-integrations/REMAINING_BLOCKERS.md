@@ -1,0 +1,37 @@
+# Remaining Blockers
+
+Everything below is something this audit could not resolve from inside a sandboxed environment with no real Google credentials and no production access — not something left undone by oversight. Grouped by what kind of access or decision would unblock each one.
+
+## 1. Requires manual Google account authorization
+
+- **Confirm GA4 property `542032135` is genuinely accessible to the connected Google account.** The new "Test connection" button on `/dashboard/google/analytics` answers this the moment someone with real access to that account clicks it in production. Until then, this remains unverified in both directions — not assumed correct, not assumed broken. See `GA4_VERIFICATION.md` §3.
+- **Confirm which Search Console property (`https://shahidiqbal.com/` or `sc-domain:shahidiqbal.com`) should actually be selected going forward.** The picker now explains the distinction (domain properties aggregate every protocol/subdomain/path; URL-prefix properties cover only the exact prefix). This is a business decision for the site owner, not something this audit decided — the existing selection was left untouched.
+- **Confirm the real production `google_connections.googleAccountEmail` for the Business Profile scope.** The brief describes this as showing "unknown" in production — this audit added the field to the Business Profile page's own display (previously only shown on the overview page), but cannot populate or correct a production database row from here. If it's genuinely null in production, reconnecting the integration (which re-fetches and stores the email at OAuth-callback time) is the fix, not a code change.
+
+## 2. Requires Google Cloud / API approval
+
+- **Google Business Profile API project access.** This is the central, real blocker for that integration — see `BUSINESS_PROFILE_VERIFICATION.md` §3 for the full explanation. Google requires a manually-reviewed, per-project API access request for the Business Profile Account Management and Business Information APIs, separate from and in addition to normal OAuth consent. Until that's granted (or confirmed already granted) for the real production Google Cloud project, account/location listing will keep failing regardless of how correct the OAuth connection and code are. This audit cannot request or check that approval from here — only Google Cloud Console, by someone with access to the real project, can.
+
+## 3. Requires production verification
+
+- **Whether the "connected" status shown for all three integrations in production reflects a connection that actually still works**, versus a stale/expired/revoked one the dashboard hasn't yet surfaced as broken. This is precisely the brief's own stated concern ("never claim an integration is working merely because its database record says connected"). The new "Test connection" actions (Search Console, GA4) and the existing "Sync now" (Business Profile) are the mechanism to answer this for real — they need to actually be clicked against production by someone with access.
+- **The real Hostinger/production environment variables** — `TOKEN_ENCRYPTION_KEY`, `GOOGLE_CLIENT_ID`/`SECRET`/`REDIRECT_URI`, `LEADS_INTAKE_SECRET`, etc. — were never seen by this session. All local verification in `TEST_RESULTS.md` used freshly-generated, clearly-fake values. If any production environment variable is itself misconfigured, nothing in this audit could have caught that from here.
+- **Role/permission enforcement specifically for these Google Server Actions, exercised end-to-end rather than by code reading.** Flagged in `TEST_RESULTS.md` §8 — the underlying RBAC functions are covered by the existing `tests/rbac.test.ts` suite, and every Google Server Action was confirmed by direct reading to call `requireAdminAction('google.manage')` as its first line, but a dedicated test that seeds a real non-admin session and confirms these specific actions reject it was not added in this pass.
+
+## 4. Section 6 (SEO dashboard integration) — explicitly not built, per the brief's own instruction
+
+The brief's own text says: *"Do not build the full dashboard if the underlying connection is not verified. First make the integration reliable and document any remaining blockers."* Given everything in §1–3 above — the Search Console property choice itself is an open business decision, and this environment cannot verify any of the three integrations against real Google API access — building the full SEO performance dashboard now would mean building a user-facing feature on top of a connection this audit cannot certify actually works. That's the opposite of what the brief asked for.
+
+**What would unblock it:** real confirmation (via the new "Test connection" actions, clicked in production) that the Search Console connection is live and returning real data, plus the site owner's decision on which property is authoritative. Once both are true, the data layer this phase already built — `querySearchAnalytics` with query/page/country/device dimensions, a working date-range control, and the existing `findSeoOpportunities` helper already used for the "SEO opportunities" panel — is already most of what section 6 asks for (clicks/impressions over time, CTR/position, top queries, top pages, country-level performance). What's specifically still missing for section 6 even once verified: a dedicated country filter highlighting Saudi Arabia/Qatar/UAE specifically (currently the new Top Countries table shows whatever countries actually have traffic, unfiltered — correct behavior for now, since filtering to three specific countries before confirming the connection returns real data at all would risk presenting an empty or misleading view), and true date-range *comparison* (currently each range is shown independently, not diffed against a prior period of the same length).
+
+## 5. A pre-existing documentation gap, noted but not created by this audit
+
+Several files across this codebase reference documentation that was never actually written — `docs/GOOGLE_INTEGRATION_SETUP.md`, `docs/GOOGLE_BUSINESS_PROFILE.md`, `docs/ADMIN_AUTH.md`, `docs/ADMIN_ARCHITECTURE.md`, and others, cited in code comments across `src/lib/google/*.ts`, `src/db/schema/google.ts`, and the Business Profile page's own new text this audit added (`see docs/GOOGLE_BUSINESS_PROFILE.md`). This audit did not create any of them — doing so was out of this phase's explicit scope (three specific integrations' audit/repair, not a general documentation pass), but it's worth the owner knowing these citations currently point nowhere. The six documents this audit *did* create (`docs/google-integrations/*.md`) cover the equivalent ground for these three integrations specifically.
+
+## 6. Explicit confirmation of what this audit did NOT do, per the brief's final restrictions
+
+- Nothing was pushed, merged, deployed, or published.
+- No Google account was disconnected; no credential, refresh token, or stored configuration was revoked, deleted, or overwritten.
+- No production settings were changed; no destructive migration was run (no migration was run against anything but a local, session-only test/dev database).
+- No new analytics tracking was enabled; no tracking script was added; no consent behavior was changed.
+- Nothing was committed. All changes exist only in this session's local working tree on `claude/google-integrations-audit-repair`, awaiting explicit review and authorization.

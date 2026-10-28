@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
+import { getConnectionForScope, getValidAccessToken, classifyGoogleApiError } from '@/lib/google/connections';
 import {
   listAccounts,
   listLocationsForAccount,
@@ -52,6 +52,10 @@ export default async function BusinessProfilePage({
           <div className="flex items-center justify-between">
             <p className="text-sm">
               Selected location: <span className="font-medium">{selection.locationName ?? selection.googleLocationId}</span>
+              <br />
+              <span className="text-xs text-text-muted">
+                Google account: {connection.googleAccountEmail ?? 'unknown — this connection was made before email capture, or the email lookup failed at connect time; reconnect to populate it'}
+              </span>
             </p>
             <div className="flex gap-2">
               <form action={syncGoogleBusinessProfile}>
@@ -91,12 +95,19 @@ async function AccountPicker({ accessToken }: { accessToken: string }) {
   try {
     accounts = await listAccounts(accessToken);
   } catch (err) {
-    listError = err instanceof Error ? err.message : 'Failed to list accessible accounts.';
+    listError = classifyGoogleApiError(err).message;
   }
 
   return (
     <div className="space-y-3 rounded-lg border border-border bg-bg-elevated/60 p-4">
       <p className="text-sm text-text-muted">Select which Google Business account to read from.</p>
+      <p className="text-xs text-text-muted">
+        Google Business Profile's management APIs (used here) require Google to separately approve API access for
+        this project beyond normal OAuth consent — this is a manual review process Google runs per-project, not
+        something this app or the connected Google account controls. If the list below is empty or every request
+        fails with a permission error even though the right Google account is connected, that approval is the most
+        likely cause, not a bug here — see docs/GOOGLE_BUSINESS_PROFILE.md.
+      </p>
       {listError && <p className="text-sm text-danger">{listError}</p>}
       {!listError && accounts.length === 0 && <p className="text-sm text-warn">No accessible Business accounts found for this Google account.</p>}
       <ul className="space-y-2">
@@ -121,7 +132,7 @@ async function LocationPicker({ accessToken, accountId }: { accessToken: string;
   try {
     locations = await listLocationsForAccount(accessToken, accountId);
   } catch (err) {
-    listError = err instanceof Error ? err.message : 'Failed to list locations for this account.';
+    listError = classifyGoogleApiError(err).message;
   }
 
   return (

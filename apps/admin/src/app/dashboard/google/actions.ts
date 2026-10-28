@@ -1,12 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { db } from '@/db';
-import { googleConnections } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 import { requireAdminAction } from '@/lib/guard';
 import { logAudit } from '@/lib/audit';
-import { disconnectScope, getConnectionForScope, getValidAccessToken } from '@/lib/google/connections';
+import { disconnectScope, getConnectionForScope, getValidAccessToken, logSyncError, recordSuccessfulSync, classifyGoogleApiError } from '@/lib/google/connections';
 import { isGoogleScopeName } from '@/lib/google/oauth';
 import { syncBusinessProfile } from '@/lib/google/businessProfile';
 
@@ -29,11 +26,13 @@ export async function syncGoogleBusinessProfile() {
 
   try {
     await syncBusinessProfile(connection, accessToken);
-    await db.update(googleConnections).set({ lastSyncedAt: new Date() }).where(eq(googleConnections.id, connection.id));
+    await recordSuccessfulSync(connection.id, 'business_profile_sync');
     await logAudit({ actorUserId: admin.id, action: 'google_connection.synced.business_profile', targetType: 'google_connection', targetId: connection.id });
   } catch (err) {
-    await logAudit({ actorUserId: admin.id, action: 'google_connection.sync_failed.business_profile', targetType: 'google_connection', targetId: connection.id, metadata: { error: err instanceof Error ? err.message : 'unknown' } });
-    throw err;
+    const rawMessage = err instanceof Error ? err.message : 'unknown';
+    await logSyncError(connection.id, 'business_profile_sync', rawMessage);
+    await logAudit({ actorUserId: admin.id, action: 'google_connection.sync_failed.business_profile', targetType: 'google_connection', targetId: connection.id, metadata: { error: rawMessage } });
+    throw new Error(classifyGoogleApiError(err).message);
   }
 
   revalidatePath('/dashboard/google');
