@@ -58,6 +58,22 @@ const nextConfig = {
     // amount of per-route first-load latency for a much smaller, spread-out
     // memory footprint instead of one large spike at boot.
     preloadEntriesOnStart: false,
+    // Both uploadCourseThumbnail (courses/actions.ts) and uploadMedia
+    // (dashboard/media/actions.ts) send the raw file straight through a
+    // Server Action as FormData — Next's own default cap on a Server
+    // Action's request body is 1MB, independent of and far below the
+    // 10MB limit this app's own code actually enforces
+    // (MAX_FILE_SIZE_BYTES, src/lib/media.ts) and advertises in both
+    // upload UIs ("up to 10MB"). Any real photo (routinely 2-8MB) blew
+    // past Next's 1MB ceiling before saveUploadedFile ever ran, which
+    // surfaced client-side as an opaque, minified React error instead of
+    // the app's own clear "File exceeds the 10MB limit" message —
+    // confirmed directly from production's own server log: "Error: Body
+    // exceeded 1 MB limit." Raised to just above the app's real limit so
+    // a legitimate close-to-10MB upload isn't rejected by multipart
+    // framing overhead alone; the app's own 10MB check is still what
+    // actually enforces the real limit either way.
+    serverActions: { bodySizeLimit: '11mb' },
   },
   async headers() {
     return [
