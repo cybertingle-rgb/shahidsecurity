@@ -1,4 +1,6 @@
-import yaml from 'js-yaml';
+// js-yaml 5.x dropped the CommonJS-style default export in favor of named
+// exports only (confirmed: `dump` is a named export, no `default`).
+import * as yaml from 'js-yaml';
 import { assertSafeMarkdown, assertSafePlainText } from './sanitize';
 
 /**
