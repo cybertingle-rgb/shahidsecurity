@@ -25,5 +25,13 @@ if (!connectionString) {
 
 const pool = mysql.createPool({ uri: connectionString, connectionLimit: 10, timezone: 'Z' });
 
+// See ./index.ts for why this is required: an unhandled 'error' event on
+// a mysql2 pool crashes the whole Node process, not just one request.
+// `.pool` is the underlying callback-style pool — see ./index.ts for why
+// the listener has to go there, not on the promise wrapper directly.
+pool.pool.on('error', (err) => {
+  console.error('[learnDb] MySQL pool error (recovered, not crashing):', err);
+});
+
 export const learnDb = drizzle(pool, { schema: learnSchema, mode: 'default' });
 export { learnSchema };
