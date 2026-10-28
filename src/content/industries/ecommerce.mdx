@@ -1,0 +1,35 @@
+---
+title: 'E-Commerce'
+icon: lucide:shopping-cart
+order: 2
+tagline: 'Payment data, checkout integrity, and plugin/CMS vulnerabilities that turn a storefront into an easy target — especially during seasonal traffic spikes.'
+riskAreas:
+  - title: 'Card-skimming (Magecart-style) attacks'
+    detail: 'Attackers inject hidden scripts into checkout pages that quietly copy card details as customers type them — sometimes hiding the legitimate payment form entirely and showing a fake one instead. These attacks can run undetected for weeks because the storefront looks and functions normally.'
+  - title: 'PCI DSS scope creep'
+    detail: 'Any system that touches, stores, or even just "sees" cardholder data falls inside PCI DSS scope — plugins, logging tools, and third-party analytics scripts can unintentionally widen that scope without anyone realizing it.'
+  - title: 'Outdated plugins and themes'
+    detail: 'Most e-commerce platforms (WooCommerce, Shopify apps, Magento extensions) run on a plugin ecosystem — one outdated, vulnerable plugin is still the most common way an online store gets compromised.'
+  - title: 'Bot-driven fraud and credential stuffing'
+    detail: 'Automated bots test stolen credential lists against login and checkout forms at scale, and the same traffic spikes that drive real sales (seasonal sales, promotions) also mask this kind of abuse.'
+complianceContext:
+  - 'PCI DSS applies to any business that stores, processes, or transmits cardholder data — the specific compliance level depends on transaction volume, but the core security requirements apply from the first transaction.'
+  - 'Using a hosted payment processor (Stripe, PayPal-style checkout) significantly reduces your own PCI scope compared to handling card data directly — a scoping conversation worth having early.'
+  - 'Consumer data-protection laws relevant to your customers'' location (GDPR-style regimes, or local equivalents) apply to the customer data your store collects, separate from payment-specific PCI requirements.'
+relevantServices:
+  - penetration-testing
+  - network-cloud-security
+  - secure-website-development
+  - monitoring-training
+faqs:
+  - q: 'How would we even know if our store had a skimmer installed?'
+    a: 'Often you wouldn''t, until a customer reports fraudulent charges or a payment processor flags unusual chargeback patterns — which is exactly why integrity monitoring on checkout-page code is worth having rather than relying on noticing something looks wrong.'
+  - q: 'We use Shopify/a hosted platform — are we still at risk?'
+    a: 'Hosted platforms reduce (not eliminate) risk — third-party apps installed into your store, custom theme code, and admin account security are all still your responsibility and still common entry points.'
+  - q: 'Do you handle PCI DSS compliance directly?'
+    a: 'We help with the technical security work PCI DSS requires and can point you toward the right compliance level and documentation path — formal PCI validation for higher transaction volumes typically requires a Qualified Security Assessor, which is a separate, specific credential we''ll tell you honestly if you need.'
+seoTitle: 'E-Commerce Security Services — Online Store Protection'
+seoDescription: 'Protect your online store from card skimming, bot fraud and plugin vulnerabilities — penetration testing and security hardening scoped to e-commerce and PCI DSS.'
+---
+
+Online stores carry a risk profile generic website security advice doesn't fully address: payment data in flight, a plugin ecosystem that's constantly updating, and attackers who specifically target checkout pages because that's where the money is.

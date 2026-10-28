@@ -1,0 +1,157 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import Prose from '@/components/Prose.astro';
+import { Icon } from 'astro-icon/components';
+import { getCollection, render } from 'astro:content';
+import { webPageSchema, faqSchema } from '@/lib/schema';
+
+export async function getStaticPaths() {
+  const industries = await getCollection('industries');
+  return industries.map((industry) => ({
+    params: { slug: industry.id },
+    props: { industry },
+  }));
+}
+
+const { industry } = Astro.props;
+const { Content } = await render(industry);
+const path = `/industries/${industry.id}/`;
+
+const services = await getCollection('services');
+const relevantServices = industry.data.relevantServices
+  .map((slug) => services.find((s) => s.id === slug))
+  .filter((s): s is NonNullable<typeof s> => Boolean(s));
+
+const relatedArticles = (await getCollection('blog', ({ data }) => !data.draft)).filter(
+  (post) => post.data.relatedService && industry.data.relevantServices.includes(post.data.relatedService),
+);
+
+const jsonLd: object[] = [
+  webPageSchema({ name: industry.data.seoTitle, description: industry.data.seoDescription, path }),
+];
+const faq = faqSchema(industry.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title={industry.data.seoTitle}
+  description={industry.data.seoDescription}
+  path={path}
+  jsonLd={jsonLd}
+  ogImage={`/og/industry-${industry.id}.png`}
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Industries', path: '/industries/' },
+        { name: industry.data.title, path },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="// industries"
+      title={`Cybersecurity for ${industry.data.title}`}
+      intro={industry.data.tagline}
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-12 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <Prose>
+          <Content />
+        </Prose>
+
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">What's at risk</h2>
+        <div class="mt-4 space-y-4">
+          {industry.data.riskAreas.map((risk) => (
+            <div class="flex items-start gap-3">
+              <Icon
+                name="lucide:alert-triangle"
+                class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)"
+                aria-hidden="true"
+              />
+              <div>
+                <p class="text-sm font-semibold text-(--color-text)">{risk.title}</p>
+                <p class="mt-1 text-sm leading-relaxed text-(--color-text-muted)">{risk.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">
+          Compliance and regulatory context
+        </h2>
+        <p class="mt-2 text-sm text-(--color-text-muted)">
+          We don't claim certifications we don't hold — this is the landscape we help you work within, not a promise
+          of automatic compliance.
+        </p>
+        <ul class="mt-4 space-y-2">
+          {industry.data.complianceContext.map((item) => (
+            <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+              <Icon
+                name="lucide:scale"
+                class="mt-0.5 size-4 flex-shrink-0 text-(--color-text-muted)"
+                aria-hidden="true"
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        {industry.data.faqs.length > 0 && (
+          <>
+            <h2 class="mt-10 font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={industry.data.faqs} />
+            </div>
+          </>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Relevant services</h2>
+        <ul class="mt-4 space-y-3">
+          {relevantServices.map((s) => (
+            <li>
+              <a
+                href={`/services/${s.id}/`}
+                class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"
+              >
+                {s.data.title}
+                <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  {relatedArticles.length > 0 && (
+    <Section>
+      <SectionHeading eyebrow="// FROM THE BLOG" title="Further reading" />
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {relatedArticles.slice(0, 3).map((post) => (
+          <a href={`/blog/${post.id}/`} class="glass-card corner-brackets block p-6">
+            <h3 class="font-display text-base font-semibold text-(--color-text)">{post.data.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-(--color-text-muted)">{post.data.description}</p>
+          </a>
+        ))}
+      </div>
+    </Section>
+  )}
+
+  <Section>
+    <CTABand
+      title={`Ready to talk through your ${industry.data.title.toLowerCase()} risk?`}
+      text="Book a free consultation. No obligation, no pressure."
+    />
+  </Section>
+</BaseLayout>

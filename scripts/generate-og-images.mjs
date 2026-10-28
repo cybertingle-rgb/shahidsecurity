@@ -107,6 +107,14 @@ async function main() {
     pages.push({ slug: `blog-${file.replace('.mdx', '')}`, title: data.title });
   }
 
+  const industriesDir = path.join(root, 'src/content/industries');
+  for (const file of readdirSync(industriesDir)) {
+    if (!file.endsWith('.mdx')) continue;
+    const raw = readFileSync(path.join(industriesDir, file), 'utf8');
+    const { data } = matter(raw);
+    pages.push({ slug: `industry-${file.replace('.mdx', '')}`, title: `Cybersecurity for ${data.title}` });
+  }
+
   const caseStudiesDir = path.join(root, 'src/content/caseStudies');
   for (const file of readdirSync(caseStudiesDir)) {
     if (!file.endsWith('.mdx')) continue;

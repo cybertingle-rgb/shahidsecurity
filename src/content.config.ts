@@ -33,6 +33,34 @@ const services = defineCollection({
   }),
 });
 
+const industries = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/industries' }),
+  schema: z.object({
+    title: z.string(),
+    icon: z.string(),
+    order: z.number(),
+    tagline: z.string(),
+    riskAreas: z.array(
+      z.object({
+        title: z.string(),
+        detail: z.string(),
+      }),
+    ),
+    complianceContext: z.array(z.string()),
+    relevantServices: z.array(z.string()),
+    faqs: z
+      .array(
+        z.object({
+          q: z.string(),
+          a: z.string(),
+        }),
+      )
+      .default([]),
+    seoTitle: z.string(),
+    seoDescription: z.string(),
+  }),
+});
+
 const caseStudies = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/caseStudies' }),
   schema: z.object({
@@ -91,4 +119,4 @@ const legal = defineCollection({
   }),
 });
 
-export const collections = { services, caseStudies, blog, legal };
+export const collections = { services, industries, caseStudies, blog, legal };

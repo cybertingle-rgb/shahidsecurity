@@ -1,0 +1,35 @@
+---
+title: 'SaaS & Technology'
+icon: lucide:cloud
+order: 1
+tagline: 'Customer data at scale, multi-tenant isolation risk, and enterprise buyers who now expect a security answer before they sign — not after.'
+riskAreas:
+  - title: 'Multi-tenant isolation'
+    detail: 'A single flaw in how tenants are separated — in the database, the API layer, or object storage — can expose one customer''s data to another. This class of bug is specific to SaaS architecture and rarely shows up in a generic security scan.'
+  - title: 'API and account-takeover risk'
+    detail: 'Most SaaS products are API-first, which means the API itself is the real attack surface — broken object-level authorization, leaked tokens, and weak session handling are the common entry points, not the login page.'
+  - title: 'Vendor security questionnaires'
+    detail: 'Enterprise buyers increasingly send a security questionnaire (or ask for SOC 2/ISO 27001 evidence) before signing — and an unprepared "we haven''t thought about that" answer can stall or kill a deal regardless of how good the product is.'
+  - title: 'Secrets and credential sprawl'
+    detail: 'API keys, database credentials, and third-party integration tokens multiply fast in a growing codebase, and a single one hardcoded or leaked in a public repo is a common, entirely preventable breach path.'
+complianceContext:
+  - 'SOC 2 Type II and ISO/IEC 27001 are the two frameworks enterprise buyers ask for most often — we help with the technical gap analysis and remediation, not the audit itself (that requires an accredited external auditor).'
+  - 'GDPR and similar regional data-protection laws apply if you handle EU (or other regulated-region) customer data, regardless of where your company is based.'
+  - 'We state plainly what we do and don''t do here: we are not a certifying body, and we will never claim to get you "SOC 2 certified" ourselves — we do the technical work a certification audit actually checks.'
+relevantServices:
+  - penetration-testing
+  - vulnerability-assessment
+  - compliance-risk-assessment
+  - custom-software-development
+faqs:
+  - q: 'We''re pre-revenue and bootstrapped — is this relevant yet?'
+    a: 'The highest-leverage issues (multi-tenant isolation, API authorization, secrets management) are far cheaper to fix before you have a large customer base and a complex codebase than after. A scoped vulnerability assessment is a reasonable first step even at an early stage, well before a full penetration test is the right spend.'
+  - q: 'Can you help us answer a customer''s security questionnaire?'
+    a: 'Yes — we can review your actual security posture against what a typical questionnaire or SOC 2 readiness assessment asks for, and tell you honestly where the real gaps are versus where you can answer confidently today.'
+  - q: 'Do you test multi-tenant isolation specifically?'
+    a: 'Yes — this is one of the first things we check in a SaaS-focused penetration test: whether one tenant''s access can be manipulated to reach another tenant''s data, not just generic OWASP Top 10 coverage.'
+seoTitle: 'Cybersecurity for SaaS & Technology Companies'
+seoDescription: 'Penetration testing, vulnerability assessment and compliance readiness scoped to SaaS-specific risk — multi-tenant isolation, API security, and enterprise security questionnaires.'
+---
+
+Software-as-a-service businesses carry a specific kind of risk that generic "website security" advice doesn't cover: the product itself is the attack surface, every customer's data sits in the same systems as every other customer's, and a growing enterprise pipeline increasingly depends on being able to answer hard security questions credibly.

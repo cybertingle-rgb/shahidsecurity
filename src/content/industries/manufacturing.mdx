@@ -1,0 +1,34 @@
+---
+title: 'Manufacturing'
+icon: lucide:factory
+order: 6
+tagline: 'OT/ICS systems converging with IT networks, legacy industrial equipment never designed to be internet-facing, and ransomware that can halt a production line outright.'
+riskAreas:
+  - title: 'IT/OT convergence'
+    detail: 'Operational technology (industrial control systems, SCADA, PLCs) is increasingly connected to the corporate IT network for monitoring and efficiency — a connection that also means an IT-side compromise can now reach systems that physically control production.'
+  - title: 'Legacy industrial equipment'
+    detail: 'Industrial control systems are often decades old, run unsupported software, and can''t simply be patched or rebooted on demand — security here has to work around constraints that don''t exist in a typical office IT environment.'
+  - title: 'Production-halting ransomware'
+    detail: 'Ransomware against manufacturers increasingly targets the systems that directly control production, not just office IT, because the cost of halted output puts direct pressure to pay quickly.'
+  - title: 'Supply chain and vendor access'
+    detail: 'Equipment vendors, maintenance contractors, and supply-chain software integrations often have remote access into operational systems — each one a path in if that vendor or integration is compromised.'
+complianceContext:
+  - 'IEC 62443 is the primary international standard for industrial automation and control system security — we assess technical controls against its relevant parts rather than claiming formal certification, which (like ISO 27001) requires an accredited external audit.'
+  - 'NIST Cybersecurity Framework provides a useful risk-management structure for manufacturers without a dedicated OT security program already in place.'
+  - 'Sector- and region-specific critical-infrastructure regulation may apply depending on what you manufacture and where — we''ll tell you plainly if that''s outside what we can assess.'
+relevantServices:
+  - network-cloud-security
+  - vulnerability-assessment
+  - incident-response
+faqs:
+  - q: 'Can you test our ICS/SCADA systems directly, the way you''d test a website?'
+    a: 'OT testing requires a different, far more conservative methodology than IT penetration testing — industrial equipment can fail in physically dangerous or production-halting ways if tested the way web applications are. We assess OT/IT network segmentation and exposure first, and scope any direct OT testing with significant additional care and client sign-off.'
+  - q: 'What''s the realistic first step if we''ve never had a security review?'
+    a: 'Mapping what''s actually connected between IT and OT networks — most manufacturers are surprised by how many undocumented connections exist once this is actually mapped, and that map is the foundation for every decision after it.'
+  - q: 'How is incident response different for a production environment?'
+    a: 'Containment decisions have to account for production safety and continuity, not just data — isolating a compromised system on a production line carries different stakes than isolating an office workstation, and that changes the response sequencing.'
+seoTitle: 'Cybersecurity for Manufacturing & Industrial Businesses'
+seoDescription: 'Network security, vulnerability assessment and incident response scoped to manufacturing and OT/ICS risk — IT/OT convergence, legacy industrial systems, and production-halting ransomware.'
+---
+
+Manufacturing carries a security risk most office-based businesses don't: the systems at stake don't just hold data, they physically control production, and a growing number of them are now connected to the same network as everything else.
