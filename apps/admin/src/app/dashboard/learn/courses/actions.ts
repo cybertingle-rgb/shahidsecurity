@@ -9,6 +9,8 @@ import { requireAdminAction } from '@/lib/learn/guard';
 import { logLearnAudit } from '@/lib/learn/audit';
 import { getCourseIdForLesson, ensureDefaultInstructor, syncCourseProduct, setProductStatusForCourse } from '@/lib/learn/courses';
 import { isSafeThumbnailUrl } from '@/lib/learn/thumbnails';
+import { saveUploadedFile, InvalidUploadError } from '@/lib/media';
+import { env } from '@/lib/env';
 
 /** Splits a newline-separated textarea into a clean string array, dropping blank lines — the storage shape for learningOutcomes/requirements. */
 function parseListField(raw: FormDataEntryValue | null): string[] {
@@ -28,6 +30,45 @@ function slugify(title: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+}
+
+/**
+ * Uploads an image file for use as a course thumbnail, reusing the same
+ * validated storage path as the general media library (src/lib/media.ts)
+ * — same 10MB limit, same image-type allowlist, same anti-path-traversal
+ * stored filename. Returns the resulting URL as plain data (not a form
+ * action/redirect): the client-side ThumbnailUrlField calls this
+ * directly, then fills the existing thumbnailUrl field with the result —
+ * so the rest of the create/update flow (isSafeThumbnailUrl validation,
+ * storage, display) is exactly the same code path an admin-pasted
+ * external URL already goes through, no special-casing needed.
+ */
+export async function uploadCourseThumbnail(formData: FormData): Promise<{ url: string }> {
+  const admin = await requireAdminAction('courses.update');
+
+  const file = formData.get('file');
+  if (!(file instanceof File)) throw new Error('No file provided.');
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  let created;
+  try {
+    created = await saveUploadedFile(buffer, file.name, file.type, admin.id);
+  } catch (err) {
+    if (err instanceof InvalidUploadError) throw err;
+    throw new Error('Upload failed.');
+  }
+
+  await logLearnAudit({ actorUserId: null, action: 'course.thumbnail_uploaded', targetType: 'media', targetId: created.id, metadata: { fileName: created.fileName, adminActorEmail: admin.email } });
+
+  // Absolute URL, same host convention as every other admin-facing link
+  // in this app (see src/lib/env.ts) — isSafeThumbnailUrl requires an
+  // absolute https:// URL, and a relative /api/media/... path would fail
+  // that check even though it's actually safe (self-generated, not
+  // admin-entered). Building the real absolute URL here means it goes
+  // through the exact same validation as any other thumbnail URL, with
+  // no carve-out required.
+  const url = new URL(`/api/media/${created.id}`, env.NEXT_PUBLIC_APP_URL).toString();
+  return { url };
 }
 
 export async function createCourse(formData: FormData) {
