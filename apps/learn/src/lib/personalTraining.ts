@@ -29,15 +29,31 @@ export async function ensurePersonalTrainingProduct() {
   const [existing] = await db.select().from(products).where(and(eq(products.type, 'mentoring'), eq(products.name, PERSONAL_TRAINING_PRODUCT_NAME)));
   if (existing) return existing;
 
+  // The check above and this insert aren't transactional, and there's no
+  // unique constraint on (type, name) to let the DB itself reject a
+  // concurrent duplicate (only products_course_id_idx on courseId
+  // exists) — so two requests racing on a cold DB (e.g. the homepage
+  // render and Next's automatic prefetch of the /personal-training link
+  // it renders, both firing on the very first visit) could both pass
+  // `if (existing) return existing` and both try to insert. Re-checking
+  // for an existing row before giving up turns that into "the loser
+  // harmlessly throws away its own insert", not a visible crash or a
+  // duplicate product silently left behind.
   const id = crypto.randomUUID();
-  await db.insert(products).values({
-    id,
-    type: 'mentoring',
-    name: PERSONAL_TRAINING_PRODUCT_NAME,
-    description: 'Instructor-led training arranged around your own goals, skill level, and schedule — not a prerecorded course. Pricing and scheduling are discussed and agreed with you before anything is booked.',
-    status: 'active',
-    courseId: null,
-  });
+  try {
+    await db.insert(products).values({
+      id,
+      type: 'mentoring',
+      name: PERSONAL_TRAINING_PRODUCT_NAME,
+      description: 'Instructor-led training arranged around your own goals, skill level, and schedule — not a prerecorded course. Pricing and scheduling are discussed and agreed with you before anything is booked.',
+      status: 'active',
+      courseId: null,
+    });
+  } catch (err) {
+    const [raceWinner] = await db.select().from(products).where(and(eq(products.type, 'mentoring'), eq(products.name, PERSONAL_TRAINING_PRODUCT_NAME)));
+    if (raceWinner) return raceWinner;
+    throw err;
+  }
   const [created] = await db.select().from(products).where(eq(products.id, id));
   if (!created) throw new Error('Failed to create the Personal Training product.');
   return created;

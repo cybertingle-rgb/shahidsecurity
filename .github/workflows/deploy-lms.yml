@@ -42,6 +42,35 @@ jobs:
     #                        secret never reaches the deployed process on
     #                        its own.
     steps:
+      - name: Wait for this commit's build to actually be live
+        # Confirmed on a real deploy (commit 995a028, run 40789899956):
+        # this job's first migrate request can return 200 "Migrations
+        # complete" in under a second — the signature of hitting the OLD
+        # server, before Hostinger's own async build/swap for this exact
+        # push has finished, not the new one. Against the old server, the
+        # new commit's migration file doesn't exist on disk yet, so
+        # "success" was a silent no-op: the DB never got the new column
+        # that commit's new code then queried unconditionally, and that
+        # page crashed in production with no further retry (the migrate
+        # step itself had already "succeeded"). scripts/write-build-info.mjs
+        # now stamps public/build-info.json with the exact git SHA being
+        # built, on every build, so this step can poll for that SHA
+        # actually being served before migrate is ever called — a
+        # deterministic wait instead of a hope that the first request
+        # happens to land after the swap.
+        run: |
+          echo "Waiting for ${{ secrets.LMS_APP_URL }}/build-info.json to report sha=${{ github.sha }} ..."
+          for i in $(seq 1 60); do
+            live_sha=$(curl --silent --show-error --max-time 10 "${{ secrets.LMS_APP_URL }}/build-info.json" | sed -n 's/.*"sha":"\([^"]*\)".*/\1/p')
+            if [ "$live_sha" = "${{ github.sha }}" ]; then
+              echo "Live build matches this commit (sha=$live_sha) after $i attempt(s)."
+              exit 0
+            fi
+            echo "Attempt $i/60: live sha is '$live_sha', not yet ${{ github.sha }} — waiting 10s."
+            sleep 10
+          done
+          echo "Gave up waiting after 10 minutes — live build never matched this commit. Proceeding with migrate anyway (same behavior as before this check existed), but this needs a look." >&2
+
       - name: Run database migrations
         # The retry window (up to ~10 minutes) is deliberately generous:
         # this job fires on the same push that triggers Hostinger's native

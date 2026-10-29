@@ -63,6 +63,28 @@ jobs:
     #                          apps/admin/.env.example) goes in that same
     #                          panel, not here.
     steps:
+      - name: Wait for this commit's build to actually be live
+        # Same race, same fix as deploy-lms.yml's identical step — see
+        # its comment for the confirmed real-deploy evidence
+        # (commit 995a028, run 40789899956) that motivated this.
+        # scripts/write-build-info.mjs stamps public/build-info.json
+        # with the exact git SHA being built, on every build, so this
+        # step can poll for that SHA actually being served before
+        # migrate is ever called, instead of hoping the first request
+        # happens to land after Hostinger's async build/swap finishes.
+        run: |
+          echo "Waiting for ${{ secrets.ADMIN_APP_URL }}/build-info.json to report sha=${{ github.sha }} ..."
+          for i in $(seq 1 60); do
+            live_sha=$(curl --silent --show-error --max-time 10 "${{ secrets.ADMIN_APP_URL }}/build-info.json" | sed -n 's/.*"sha":"\([^"]*\)".*/\1/p')
+            if [ "$live_sha" = "${{ github.sha }}" ]; then
+              echo "Live build matches this commit (sha=$live_sha) after $i attempt(s)."
+              exit 0
+            fi
+            echo "Attempt $i/60: live sha is '$live_sha', not yet ${{ github.sha }} — waiting 10s."
+            sleep 10
+          done
+          echo "Gave up waiting after 10 minutes — live build never matched this commit. Proceeding with migrate anyway (same behavior as before this check existed), but this needs a look." >&2
+
       - name: Run database migrations
         # The retry window (up to ~10 minutes) is deliberately generous:
         # this job fires on the same push that triggers Hostinger's native
