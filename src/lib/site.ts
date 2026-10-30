@@ -10,7 +10,7 @@ export const site = {
   domain: 'shahidiqbal.com',
   url: 'https://shahidiqbal.com',
   description:
-    'Independent cybersecurity consulting for businesses worldwide: penetration testing, vulnerability assessments, security audits and incident response. Book a free consultation.',
+    'Independent cybersecurity consulting for businesses worldwide: penetration testing, vulnerability assessments, security audits and incident response. Book a consultation.',
   // All client-facing contact — bookings, consultations, incidents, the
   // works — goes through this one address, not a phone/WhatsApp number.
   email: 'info@shahidiqbal.com',

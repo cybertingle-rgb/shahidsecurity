@@ -86,7 +86,8 @@ async function main() {
     { slug: 'industries', title: 'Security scoped to your industry' },
     { slug: 'about', title: 'About Shahid Security' },
     { slug: 'contact', title: 'Talk to a security expert' },
-    { slug: 'book', title: 'Book a free 30-minute consultation' },
+    { slug: 'book', title: 'Book a consultation' },
+    { slug: 'pricing', title: 'Cybersecurity support plans & pricing' },
     { slug: 'blog', title: 'Notes on staying secure' },
     { slug: 'case-studies', title: 'Real work, real results' },
   ];

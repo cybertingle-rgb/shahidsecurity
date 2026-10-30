@@ -25,9 +25,15 @@ export const leads = mysqlTable('leads', {
 });
 
 /**
- * Booking requests from the Astro site's native booking system
- * (public/api/book.php), mirrored here for admin visibility/workflow —
- * same cross-boundary reasoning as `leads` above.
+ * Booking requests — originally just the Astro site's free 30-minute
+ * booking system (public/api/book.php), mirrored here for admin
+ * visibility/workflow (same cross-boundary reasoning as `leads` above).
+ * Now also the record for the owner's PAID consultation model (see
+ * docs/PRICING.md): the columns below `notes` are nullable because the
+ * legacy book.php path still only ever sends the original fields — a
+ * row from that path simply has every paid-consultation field left
+ * null, never a fabricated 0/"free" value standing in for "paid but
+ * unknown".
  */
 export const consultations = mysqlTable('consultations', {
   id: idColumn(),
@@ -36,12 +42,53 @@ export const consultations = mysqlTable('consultations', {
   email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   // Free text, not an ISO code — book.php collects "Please enter your
-  // country" as an open text field, not a country-code picker.
+  // country" as an open text field, not a country-code picker; the new
+  // paid-consultation form does too (for the same reason: a visitor
+  // typing their own country is simpler and more reliable than a long
+  // <select>, and detectedCountryCode below already carries the
+  // IP/locale-derived ISO code for anything that needs one).
   country: varchar('country', { length: 100 }),
   requestedAt: datetime('requested_at').notNull(),
   status: mysqlEnum('status', ['requested', 'confirmed', 'completed', 'cancelled', 'no_show']).notNull().default('requested'),
   notes: text('notes'),
   createdAt: datetime('created_at').notNull().$defaultFn(() => new Date()),
+
+  // --- Paid-consultation fields (docs/PRICING.md §8) — all nullable ---
+  companyName: text('company_name'),
+  industry: text('industry'),
+  website: text('website'),
+  companySize: mysqlEnum('company_size', ['startup', 'small', 'medium', 'large', 'enterprise']),
+  numberOfEmployees: varchar('number_of_employees', { length: 50 }),
+  securityConcern: text('security_concern'),
+  preferredPackageSlug: varchar('preferred_package_slug', { length: 100 }),
+  timezone: varchar('timezone', { length: 100 }),
+  additionalInformation: text('additional_information'),
+
+  // Pricing/currency snapshot at the moment the visitor booked — never
+  // recomputed later, so a change to consultation_settings.fee_usd or
+  // fx_rates never silently rewrites what a past visitor actually saw
+  // and agreed to pay (docs/PRICING.md §9's "do not silently change the
+  // currency at checkout" requirement, applied to the record, not just
+  // the UI).
+  feeUsd: decimal('fee_usd', { precision: 10, scale: 2 }),
+  displayedCurrency: varchar('displayed_currency', { length: 3 }),
+  displayedAmount: decimal('displayed_amount', { precision: 12, scale: 2 }),
+  fxRateTimestamp: datetime('fx_rate_timestamp'),
+  // How displayedCurrency was arrived at — 'ip' | 'locale' | 'manual' |
+  // 'fallback_usd' — see src/lib/pricing/currency.ts. Never geolocation
+  // more precise than country-level (the brief explicitly rules out
+  // requesting GPS location).
+  countryDetectionSource: varchar('country_detection_source', { length: 20 }),
+
+  // The actual USD charge always authoritatively lives on the linked
+  // invoice/payment rows (apps/admin already has both — see crm.ts
+  // above), never duplicated or re-derived here; these are just the
+  // links. paymentStatus mirrors payments.status at booking time for
+  // fast list-page rendering without a join — always re-read the real
+  // payment row before treating a consultation as actually paid.
+  invoiceId: fkColumn('invoice_id'),
+  paymentId: fkColumn('payment_id'),
+  paymentStatus: mysqlEnum('payment_status', ['pending', 'pending_verification', 'succeeded', 'failed', 'refunded']),
 });
 
 export const customers = mysqlTable('customers', {

@@ -5,3 +5,4 @@ export * from './crm';
 export * from './google';
 export * from './seo';
 export * from './publishing';
+export * from './pricing';

@@ -8,6 +8,7 @@ export const BUSINESS_NAV: NavSection[] = [
   { href: '/dashboard/content', label: 'Content', icon: 'file-text' },
   { href: '/dashboard/seo', label: 'SEO', icon: 'search' },
   { href: '/dashboard/leads', label: 'Customers & Leads', icon: 'user-plus' },
+  { href: '/dashboard/pricing', label: 'Pricing', icon: 'tag' },
   { href: '/dashboard/payments', label: 'Payments', icon: 'wallet' },
   { href: '/dashboard/testimonials', label: 'Reviews', icon: 'star' },
   { href: '/dashboard/google', label: 'Google', icon: 'trending-up' },

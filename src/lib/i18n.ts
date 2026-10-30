@@ -38,6 +38,7 @@ export const localeMeta: Record<Locale, { label: string; flag: string; dir: 'ltr
 };
 
 export const KEYS = [
+  'nav.pricing',
   'nav.services',
   'nav.industries',
   'nav.caseStudies',
@@ -80,6 +81,7 @@ type Key = (typeof KEYS)[number];
 
 const raw: Record<Locale, Record<Key, string>> = {
   en: {
+    'nav.pricing': 'Pricing',
     'nav.services': 'Services',
     'nav.industries': 'Industries',
     'nav.caseStudies': 'Case Studies',
@@ -118,6 +120,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Dismiss',
   },
   ar: {
+    'nav.pricing': 'الأسعار',
     'nav.services': 'الخدمات',
     'nav.industries': 'الصناعات',
     'nav.caseStudies': 'دراسات الحالة',
@@ -156,6 +159,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'إغلاق',
   },
   ur: {
+    'nav.pricing': 'قیمتیں',
     'nav.services': 'خدمات',
     'nav.industries': 'صنعتیں',
     'nav.caseStudies': 'کیس اسٹڈیز',
@@ -194,6 +198,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'بند کریں',
   },
   hi: {
+    'nav.pricing': 'मूल्य निर्धारण',
     'nav.services': 'सेवाएं',
     'nav.industries': 'उद्योग',
     'nav.caseStudies': 'केस स्टडीज़',
@@ -232,6 +237,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'बंद करें',
   },
   zh: {
+    'nav.pricing': '定价',
     'nav.services': '服务',
     'nav.industries': '行业',
     'nav.caseStudies': '案例研究',
@@ -270,6 +276,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': '关闭',
   },
   es: {
+    'nav.pricing': 'Precios',
     'nav.services': 'Servicios',
     'nav.industries': 'Industrias',
     'nav.caseStudies': 'Casos de Estudio',
@@ -309,6 +316,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Cerrar',
   },
   fr: {
+    'nav.pricing': 'Tarifs',
     'nav.services': 'Services',
     'nav.industries': 'Secteurs',
     'nav.caseStudies': 'Études de Cas',
@@ -348,6 +356,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Fermer',
   },
   de: {
+    'nav.pricing': 'Preise',
     'nav.services': 'Leistungen',
     'nav.industries': 'Branchen',
     'nav.caseStudies': 'Fallstudien',
@@ -386,6 +395,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Schließen',
   },
   pt: {
+    'nav.pricing': 'Preços',
     'nav.services': 'Serviços',
     'nav.industries': 'Indústrias',
     'nav.caseStudies': 'Estudos de Caso',
@@ -425,6 +435,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Dispensar',
   },
   ru: {
+    'nav.pricing': 'Цены',
     'nav.services': 'Услуги',
     'nav.industries': 'Отрасли',
     'nav.caseStudies': 'Кейсы',
@@ -464,6 +475,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Закрыть',
   },
   tr: {
+    'nav.pricing': 'Fiyatlandırma',
     'nav.services': 'Hizmetler',
     'nav.industries': 'Sektörler',
     'nav.caseStudies': 'Vaka Çalışmaları',
@@ -502,6 +514,7 @@ const raw: Record<Locale, Record<Key, string>> = {
     'notice.dismiss': 'Kapat',
   },
   id: {
+    'nav.pricing': 'Harga',
     'nav.services': 'Layanan',
     'nav.industries': 'Industri',
     'nav.caseStudies': 'Studi Kasus',

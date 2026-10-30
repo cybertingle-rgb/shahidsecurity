@@ -13,6 +13,7 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:apply-grants": "tsx src/db/apply-grants.ts",
     "db:seed-super-admin": "tsx src/db/seed-super-admin.ts",
+    "db:seed-pricing": "tsx src/db/seed-pricing-data.ts",
     "test": "vitest run"
   },
   "dependencies": {

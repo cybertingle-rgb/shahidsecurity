@@ -20,7 +20,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   administrator: [
     'business.manage', 'services.manage', 'blog.manage', 'seo.manage', 'leads.manage',
     'payments.manage', 'testimonials.manage', 'media.manage', 'ai.manage', 'google.manage',
-    'content.publish', 'seo.publish', 'deployment.rollback',
+    'content.publish', 'seo.publish', 'deployment.rollback', 'pricing.manage',
     // Prefixed with learn. — a distinct namespace from this app's own
     // keys above (e.g. payments.manage already means something else
     // here: this app's own invoices, not Learn's checkout/orders).
@@ -31,7 +31,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   ],
   editor: ['blog.manage', 'services.manage', 'media.manage'],
   seo_manager: ['seo.manage', 'blog.manage'],
-  finance: ['payments.manage', 'leads.view'],
+  finance: ['payments.manage', 'leads.view', 'pricing.manage'],
   support: ['leads.manage', 'testimonials.manage'],
 };
 

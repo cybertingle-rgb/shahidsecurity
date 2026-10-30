@@ -1,182 +1,140 @@
 ---
-import { site } from '@/lib/site';
+// Submits straight to admin.shahidiqbal.com's own API (apps/admin — the
+// one real backend in this project with a database, payments/invoices,
+// and the consultation fee setting) rather than the legacy
+// public/api/book.php mail script: this form collects and charges a
+// real, admin-configurable fee, which book.php has no way to record.
+// Same cross-origin pattern as LunaWidget.astro's fetch to
+// learn.shahidiqbal.com — a public, CORS-enabled endpoint, no cookies
+// involved.
+const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
 
-function generateSlots(open: string, close: string, stepMinutes: number, durationMinutes: number) {
-  const [openH, openM] = open.split(':').map(Number);
-  const [closeH, closeM] = close.split(':').map(Number);
-  const openTotal = openH * 60 + openM;
-  const closeTotal = closeH * 60 + closeM;
-  const slots: string[] = [];
-  for (let t = openTotal; t + durationMinutes <= closeTotal; t += stepMinutes) {
-    const h = Math.floor(t / 60)
-      .toString()
-      .padStart(2, '0');
-    const m = (t % 60).toString().padStart(2, '0');
-    slots.push(`${h}:${m}`);
-  }
-  return slots;
-}
-
-const slots = generateSlots(site.hours.open, site.hours.close, 30, 30);
-const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+const COMPANY_SIZES = [
+  { value: '', label: 'Select one' },
+  { value: 'startup', label: 'Startup / Micro Business' },
+  { value: 'small', label: 'Small Business' },
+  { value: 'medium', label: 'Mid-Sized Business' },
+  { value: 'large', label: 'Large Business' },
+  { value: 'enterprise', label: 'Enterprise' },
+];
 ---
 
-<form id="booking-form" action="/api/book.php" method="POST" novalidate class="space-y-5">
-  <div class="grid gap-5 sm:grid-cols-2">
-    <div>
-      <label for="bk-date" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-        Preferred date *
-      </label>
-      <input
-        id="bk-date"
-        name="date"
-        type="date"
-        required
-        aria-describedby="bk-date-error"
-        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
-      />
-      <p
-        id="bk-date-error"
-        class="mt-1 text-xs text-(--color-danger) empty:hidden"
-        role="alert"
-      ></p>
+<div class="space-y-6">
+  <div class="rounded-lg border border-(--color-border-strong) bg-(--color-surface) p-4 text-sm" data-fee-box>
+    <p class="text-(--color-text-muted)">
+      Consultation fee: <span class="font-mono text-(--color-text)" data-fee-amount>loading…</span>
+    </p>
+    <p class="mt-1 text-xs text-(--color-text-muted)" data-fee-note>
+      Shown in your local currency as an estimate — the actual charge is in USD. No payment is taken by submitting this form; we'll follow up by
+      email with payment instructions to confirm your slot.
+    </p>
+    <p class="mt-1 hidden text-xs text-(--color-text-muted)" data-refund-policy></p>
+  </div>
+
+  <form id="booking-form" novalidate class="space-y-5">
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="bk-date" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Preferred date *</label>
+        <input id="bk-date" name="date" type="date" required class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+        <p id="bk-date-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+      </div>
+      <div>
+        <label for="bk-time" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Preferred time *</label>
+        <input id="bk-time" name="time" type="time" required class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+        <p id="bk-time-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+      </div>
     </div>
+
     <div>
-      <label for="bk-time" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-        Preferred time (PKT) *
-      </label>
-      <select
-        id="bk-time"
-        name="time"
-        required
-        aria-describedby="bk-time-error"
-        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
-      >
-        <option value="" selected disabled>
-          Select a time
-        </option>
-        {slots.map((s) => (
-          <option value={s}>{s}</option>
-        ))}
-      </select>
-      <p
-        id="bk-time-error"
-        class="mt-1 text-xs text-(--color-danger) empty:hidden"
-        role="alert"
-      ></p>
+      <label for="bk-timezone" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Your timezone *</label>
+      <input id="bk-timezone" name="timezone" type="text" required placeholder="e.g. Asia/Dubai, America/New_York" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
     </div>
-  </div>
 
-  <p class="text-xs text-(--color-text-muted)">{site.hours.display} — Sundays closed.</p>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="bk-name" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Full name *</label>
+        <input id="bk-name" name="fullName" type="text" required autocomplete="name" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+        <p id="bk-fullName-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+      </div>
+      <div>
+        <label for="bk-email" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Business email *</label>
+        <input id="bk-email" name="email" type="email" required autocomplete="email" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+        <p id="bk-email-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+      </div>
+    </div>
 
-  <div class="grid gap-5 sm:grid-cols-2">
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="bk-company" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Company name</label>
+        <input id="bk-company" name="companyName" type="text" autocomplete="organization" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+      </div>
+      <div>
+        <label for="bk-country" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Country *</label>
+        <input id="bk-country" name="country" type="text" required autocomplete="country-name" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+        <p id="bk-country-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
+      </div>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="bk-industry" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Industry</label>
+        <input id="bk-industry" name="industry" type="text" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+      </div>
+      <div>
+        <label for="bk-website" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Website / domain</label>
+        <input id="bk-website" name="website" type="text" placeholder="example.com" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+      </div>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <label for="bk-company-size" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Company size</label>
+        <select id="bk-company-size" name="companySize" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none">
+          {COMPANY_SIZES.map((s) => <option value={s.value}>{s.label}</option>)}
+        </select>
+      </div>
+      <div>
+        <label for="bk-employees" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Number of employees</label>
+        <input id="bk-employees" name="numberOfEmployees" type="text" placeholder="e.g. 10-50" class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none" />
+      </div>
+    </div>
+
     <div>
-      <label for="bk-name" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-        Name *
-      </label>
-      <input
-        id="bk-name"
-        name="name"
-        type="text"
-        required
-        autocomplete="name"
-        aria-describedby="bk-name-error"
-        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
-      />
-      <p
-        id="bk-name-error"
-        class="mt-1 text-xs text-(--color-danger) empty:hidden"
-        role="alert"
-      ></p>
+      <label for="bk-concern" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">What's your main security concern?</label>
+      <textarea id="bk-concern" name="securityConcern" rows={3} class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"></textarea>
     </div>
+
     <div>
-      <label for="bk-country" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-        Country *
-      </label>
-      <input
-        id="bk-country"
-        name="country"
-        type="text"
-        required
-        autocomplete="country-name"
-        aria-describedby="bk-country-error"
-        class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
-      />
-      <p
-        id="bk-country-error"
-        class="mt-1 text-xs text-(--color-danger) empty:hidden"
-        role="alert"
-      ></p>
+      <label for="bk-additional" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">Anything else we should know?</label>
+      <textarea id="bk-additional" name="additionalInformation" rows={2} class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"></textarea>
     </div>
-  </div>
 
-  <div>
-    <label for="bk-email" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-      Email *
-    </label>
-    <input
-      id="bk-email"
-      name="email"
-      type="email"
-      required
-      autocomplete="email"
-      aria-describedby="bk-email-error"
-      class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
-    />
-    <p id="bk-email-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
-  </div>
+    <!-- Honeypot -->
+    <div class="absolute -left-[9999px] top-auto" aria-hidden="true">
+      <label for="bk-website-hp">Leave this field empty</label>
+      <input id="bk-website-hp" name="website_hp" type="text" tabindex="-1" autocomplete="off" />
+    </div>
 
-  <div>
-    <label for="bk-phone" class="mb-1.5 block font-mono text-xs text-(--color-text-muted)">
-      Phone (optional)
-    </label>
-    <input
-      id="bk-phone"
-      name="phone"
-      type="tel"
-      autocomplete="tel"
-      aria-describedby="bk-phone-error"
-      class="w-full rounded-md border border-(--color-border-strong) bg-(--color-surface) px-3 py-2.5 text-(--color-text) focus:border-(--color-neon) focus:outline-none"
-    />
-    <p id="bk-phone-error" class="mt-1 text-xs text-(--color-danger) empty:hidden" role="alert"></p>
-  </div>
+    <div>
+      <button type="submit" id="booking-submit" class="btn btn-primary w-full sm:w-auto">Request this time</button>
+      <p id="booking-status" class="mt-3 text-sm" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+</div>
 
-  <p class="text-xs text-(--color-text-muted)">
-    This confirms a request, not a booking — we'll reply by email to confirm the exact time.
-  </p>
-
-  <!-- Honeypot -->
-  <div class="absolute -left-[9999px] top-auto" aria-hidden="true">
-    <label for="bk-website">Leave this field empty</label>
-    <input id="bk-website" name="website" type="text" tabindex="-1" autocomplete="off" />
-  </div>
-  <input type="hidden" name="ts" id="bk-ts" value="" />
-
-  {turnstileSiteKey && (
-    <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark" />
-  )}
-
-  <div>
-    <button type="submit" id="booking-submit" class="btn btn-primary w-full sm:w-auto">
-      Request this time
-    </button>
-    <p id="booking-status" class="mt-3 text-sm" role="status" aria-live="polite"></p>
-  </div>
-</form>
-
-<script>
-  const form = document.getElementById('booking-form') as HTMLFormElement | null;
-  const tsField = document.getElementById('bk-ts') as HTMLInputElement | null;
-  const dateField = document.getElementById('bk-date') as HTMLInputElement | null;
+<script define:vars={{ ADMIN_API_BASE }}>
+  const form = document.getElementById('booking-form');
+  const dateField = document.getElementById('bk-date');
+  const timezoneField = document.getElementById('bk-timezone');
   const statusEl = document.getElementById('booking-status');
-  const submitBtn = document.getElementById('booking-submit') as HTMLButtonElement | null;
+  const submitBtn = document.getElementById('booking-submit');
+  const feeAmountEl = document.querySelector('[data-fee-amount]');
+  const refundPolicyEl = document.querySelector('[data-refund-policy]');
 
-  if (tsField) tsField.value = String(Date.now());
-
-  // Bound the date picker to "today" through +60 days, computed client-side
-  // so it's always accurate regardless of when the static page was built.
+  // Bound the date picker to "today" through +60 days, computed
+  // client-side so it's always accurate regardless of build time.
   if (dateField) {
-    const toISO = (d: Date) => d.toISOString().slice(0, 10);
+    const toISO = (d) => d.toISOString().slice(0, 10);
     const today = new Date();
     const max = new Date();
     max.setDate(max.getDate() + 60);
@@ -184,18 +142,64 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     dateField.max = toISO(max);
   }
 
-  let turnstileLoaded = false;
-  function loadTurnstile() {
-    if (turnstileLoaded || !document.querySelector('.cf-turnstile')) return;
-    turnstileLoaded = true;
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
+  // Best-effort default — the visitor can overwrite it, this just saves
+  // most people a lookup.
+  try {
+    if (timezoneField) timezoneField.value = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+  } catch {
+    /* Intl not available — leave blank, it's a text field either way. */
   }
-  form?.addEventListener('focusin', loadTurnstile, { once: true });
-  form?.addEventListener('pointerdown', loadTurnstile, { once: true });
+
+  const CURRENCY_STORAGE_KEY = 'shahid-security-currency';
+
+  function getStoredCurrency() {
+    try {
+      return localStorage.getItem(CURRENCY_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  async function detectCurrency() {
+    const stored = getStoredCurrency();
+    if (stored) return stored;
+    try {
+      const localeRegion = (Intl.NumberFormat().resolvedOptions().locale || '').split('-')[1] || '';
+      const res = await fetch(`${ADMIN_API_BASE}/api/public/geo-currency${localeRegion ? `?localeRegion=${encodeURIComponent(localeRegion)}` : ''}`);
+      const data = await res.json();
+      return data.currencyCode || 'USD';
+    } catch {
+      return 'USD';
+    }
+  }
+
+  async function loadFee() {
+    const currency = await detectCurrency();
+    try {
+      const res = await fetch(`${ADMIN_API_BASE}/api/public/pricing-plans?currency=${encodeURIComponent(currency)}`);
+      const data = await res.json();
+      const c = data.consultation;
+      if (!c) throw new Error('no consultation data');
+      window.__consultationCurrency = c.converted?.currencyCode || 'USD';
+      if (feeAmountEl) {
+        if (c.converted && c.converted.currencyCode !== 'USD' && !c.converted.usedFallback) {
+          feeAmountEl.textContent = `$${c.feeUsd.toFixed(2)} USD (≈ ${c.converted.currencyCode} ${c.converted.amount.toFixed(2)})`;
+        } else {
+          feeAmountEl.textContent = `$${c.feeUsd.toFixed(2)} USD`;
+        }
+      }
+      if (c.isRefundable && c.refundPolicyText && refundPolicyEl) {
+        refundPolicyEl.textContent = c.refundPolicyText;
+        refundPolicyEl.classList.remove('hidden');
+      } else if (refundPolicyEl) {
+        refundPolicyEl.textContent = 'This fee is non-refundable.';
+        refundPolicyEl.classList.remove('hidden');
+      }
+    } catch {
+      if (feeAmountEl) feeAmountEl.textContent = 'unavailable right now — you can still submit this form';
+    }
+  }
+  loadFee();
 
   function clearErrors() {
     form?.querySelectorAll('[role="alert"]').forEach((el) => (el.textContent = ''));
@@ -211,30 +215,65 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     }
     if (statusEl) statusEl.textContent = '';
 
+    const formData = new FormData(form);
+    const date = formData.get('date');
+    const time = formData.get('time');
+    let preferredDateTime = null;
+    if (date && time) {
+      const local = new Date(`${date}T${time}:00`);
+      if (!Number.isNaN(local.getTime())) preferredDateTime = local.toISOString();
+    }
+
+    const payload = {
+      fullName: formData.get('fullName') || '',
+      email: formData.get('email') || '',
+      companyName: formData.get('companyName') || undefined,
+      country: formData.get('country') || undefined,
+      countryDetectionSource: 'manual',
+      industry: formData.get('industry') || undefined,
+      website: formData.get('website') || undefined,
+      companySize: formData.get('companySize') || undefined,
+      numberOfEmployees: formData.get('numberOfEmployees') || undefined,
+      securityConcern: formData.get('securityConcern') || undefined,
+      timezone: formData.get('timezone') || undefined,
+      additionalInformation: formData.get('additionalInformation') || undefined,
+      preferredDateTime,
+      displayedCurrency: window.__consultationCurrency || 'USD',
+      website_hp: formData.get('website_hp') || '',
+    };
+
+    if (!preferredDateTime) {
+      const el = document.getElementById('bk-date-error');
+      if (el) el.textContent = 'Enter a valid date and time.';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request this time';
+      }
+      return;
+    }
+
     try {
-      const formData = new FormData(form);
-      const res = await fetch('/api/book.php', {
+      const res = await fetch(`${ADMIN_API_BASE}/api/public/consultation-booking`, {
         method: 'POST',
-        body: formData,
-        headers: { Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
+      if (res.ok && data.success) {
         form.reset();
         window.location.href = '/book/thanks/';
         return;
       }
 
-      if (data?.fieldErrors) {
-        for (const [field, message] of Object.entries(data.fieldErrors)) {
+      if (data?.details) {
+        for (const [field, messages] of Object.entries(data.details)) {
           const el = document.getElementById(`bk-${field}-error`);
-          if (el) el.textContent = message as string;
+          if (el) el.textContent = Array.isArray(messages) ? messages[0] : String(messages);
         }
       }
       if (statusEl) {
-        statusEl.textContent =
-          data?.message || 'Something went wrong. Please try again or email info@shahidiqbal.com.';
+        statusEl.textContent = data?.error || 'Something went wrong. Please try again or email info@shahidiqbal.com.';
         statusEl.className = 'mt-3 text-sm text-(--color-danger)';
       }
     } catch {
