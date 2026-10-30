@@ -1,6 +1,7 @@
 import { listMedia } from '@/lib/media';
 import { uploadMedia, deleteMedia } from './actions';
-import type { Media } from '@/db/schema';
+
+type MediaListItem = Awaited<ReturnType<typeof listMedia>>[number];
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -8,7 +9,7 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function MediaCard({ item }: { item: Media }) {
+function MediaCard({ item }: { item: MediaListItem }) {
   const remove = deleteMedia.bind(null, item.id);
   const isImage = item.mimeType.startsWith('image/');
 

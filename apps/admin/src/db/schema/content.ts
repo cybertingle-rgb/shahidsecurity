@@ -1,5 +1,5 @@
 import { datetime, int, json, mysqlEnum, mysqlTable, primaryKey, text, uniqueIndex, varchar } from 'drizzle-orm/mysql-core';
-import { idColumn, fkColumn } from './columns';
+import { idColumn, fkColumn, longblob } from './columns';
 
 export const blogAuthors = mysqlTable('blog_authors', {
   id: idColumn(),
@@ -103,6 +103,12 @@ export const media = mysqlTable('media', {
   id: idColumn(),
   fileName: text('file_name').notNull(),
   storagePath: text('storage_path').notNull(),
+  // The actual file bytes — see columns.ts's longblob comment for why
+  // this exists instead of (or alongside) storagePath. Nullable: rows
+  // created before this column existed only ever had a disk path, which
+  // is presumed gone after any deploy since; there's nothing to
+  // backfill it from.
+  data: longblob('data'),
   mimeType: varchar('mime_type', { length: 100 }).notNull(),
   sizeBytes: int('size_bytes').notNull(),
   width: int('width'),

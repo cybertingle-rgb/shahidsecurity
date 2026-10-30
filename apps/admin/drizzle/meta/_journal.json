@@ -57,6 +57,13 @@
       "when": 1791379066081,
       "tag": "0007_young_captain_britain",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1793350673141,
+      "tag": "0008_sudden_galactus",
+      "breakpoints": true
     }
   ]
 }

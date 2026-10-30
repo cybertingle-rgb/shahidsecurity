@@ -1,17 +1,24 @@
-import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { media, type Media } from '@/db/schema';
 
 /**
- * Stored on local disk under a directory outside .next and outside any
- * path Next.js's standalone output traces/bundles — the standalone build
- * only copies files it can see imported at build time (see
- * next.config.mjs's outputFileTracingIncludes comment for the same
- * reasoning applied to the drizzle folder), so runtime uploads need a
- * path the build never touches. `data/media-uploads` resolved from the
- * process's actual cwd at runtime, not from this module's location.
+ * storagePath is now a display-only label (see the `data` column on
+ * the media table, src/db/schema/content.ts) — never actually read
+ * from or written to disk. It used to be: local disk under
+ * `data/media-uploads`, chosen specifically to sit outside .next and
+ * outside anything Next's standalone build traces/bundles. That
+ * protected it from the BUILD process, but not from this host's actual
+ * DEPLOY mechanism — confirmed directly (Hostinger's Git pipeline
+ * swaps in a brand-new versioned directory, `hbuilds/versions/<uuid>`,
+ * on every deploy) that the entire app directory, not just `.next`, is
+ * replaced wholesale. A file written here during one deployment is
+ * simply gone — not deleted, just never present — in the next one,
+ * which is exactly what made a course thumbnail vanish after a routine
+ * redeploy. The database is the one thing on this host both apps write
+ * to that the deploy pipeline never touches, so file bytes now live
+ * there (longblob column) instead.
  */
 const UPLOAD_DIR = path.join(process.cwd(), 'data', 'media-uploads');
 
@@ -34,12 +41,12 @@ function sanitizeFileNameForDisplay(name: string): string {
 }
 
 /**
- * Validates and saves an uploaded file to disk, then records it in
- * `media`. Never trusts the browser-supplied filename for the actual
- * stored path (that's always `<uuid><allowlisted-extension>`) or the
- * browser-supplied MIME type's extension — only this module's own
- * allowlist decides the extension, closing the classic "upload
- * shell.php.jpg" style bypass.
+ * Validates an uploaded file and records it — bytes and all — in
+ * `media`. Never trusts the browser-supplied filename for the stored
+ * identity (that's always `<uuid><allowlisted-extension>`, used only
+ * as a cosmetic label) or the browser-supplied MIME type's extension —
+ * only this module's own allowlist decides the extension, closing the
+ * classic "upload shell.php.jpg" style bypass.
  */
 export async function saveUploadedFile(
   buffer: Buffer,
@@ -53,17 +60,15 @@ export async function saveUploadedFile(
   const extension = ALLOWED_MIME_TYPES[mimeType];
   if (!extension) throw new InvalidUploadError(`File type "${mimeType}" is not allowed.`);
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
-
   const id = crypto.randomUUID();
   const storedFileName = `${id}${extension}`;
   const storagePath = path.join(UPLOAD_DIR, storedFileName);
-  await writeFile(storagePath, buffer);
 
   await db.insert(media).values({
     id,
     fileName: sanitizeFileNameForDisplay(originalFileName),
     storagePath,
+    data: buffer,
     mimeType,
     sizeBytes: buffer.length,
     uploadedByUserId,
@@ -74,8 +79,28 @@ export async function saveUploadedFile(
   return created;
 }
 
-export async function listMedia(): Promise<Media[]> {
-  return db.select().from(media).orderBy(desc(media.createdAt));
+// Deliberately excludes `data` (the file's bytes, potentially up to
+// 10MB each) — the media library page lists every row and only ever
+// needs metadata, pointing each image at /api/media/[id] rather than
+// embedding its bytes, so pulling `data` here would mean loading the
+// entire library's worth of file content into memory on every page
+// view for no reason.
+export async function listMedia() {
+  return db
+    .select({
+      id: media.id,
+      fileName: media.fileName,
+      storagePath: media.storagePath,
+      mimeType: media.mimeType,
+      sizeBytes: media.sizeBytes,
+      width: media.width,
+      height: media.height,
+      altText: media.altText,
+      uploadedByUserId: media.uploadedByUserId,
+      createdAt: media.createdAt,
+    })
+    .from(media)
+    .orderBy(desc(media.createdAt));
 }
 
 export async function getMediaById(id: string): Promise<Media | null> {
@@ -85,8 +110,4 @@ export async function getMediaById(id: string): Promise<Media | null> {
 
 export async function deleteMediaFile(mediaRow: Media): Promise<void> {
   await db.delete(media).where(eq(media.id, mediaRow.id));
-  await unlink(mediaRow.storagePath).catch(() => {
-    // Already gone, or never written — deleting the database row is
-    // still correct either way.
-  });
 }
