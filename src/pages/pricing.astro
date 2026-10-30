@@ -177,6 +177,12 @@ if (faq) jsonLd.push(faq);
     <div class="mt-6 grid gap-5 lg:grid-cols-4 [perspective:1600px]">
       {assurancePlans.map((plan) => (
         <div class:list={['pricing-card corner-brackets', plan.isRecommended && 'pricing-card--recommended']} data-plan-slug={plan.slug}>
+          <div class="pricing-card__bar" aria-hidden="true">
+            <span class="pricing-card__dot"></span>
+            <span class="pricing-card__dot"></span>
+            <span class="pricing-card__dot"></span>
+            <span class="pricing-card__bar-label">// {plan.slug.toUpperCase().replace(/-/g, '_')}</span>
+          </div>
           {plan.isRecommended && <p class="pricing-card__badge">Recommended</p>}
           <h3 class="font-display text-lg font-semibold text-(--color-text)">{plan.name}</h3>
           {plan.targetAudience && <p class="mt-1 text-xs text-(--color-text-muted)">{plan.targetAudience}</p>}
@@ -277,6 +283,12 @@ if (faq) jsonLd.push(faq);
     <div class="mt-6 grid gap-5 lg:grid-cols-3">
       {managedPlans.map((plan) => (
         <div class="pricing-card corner-brackets" data-plan-slug={plan.slug}>
+          <div class="pricing-card__bar" aria-hidden="true">
+            <span class="pricing-card__dot"></span>
+            <span class="pricing-card__dot"></span>
+            <span class="pricing-card__dot"></span>
+            <span class="pricing-card__bar-label">// {plan.slug.toUpperCase().replace(/-/g, '_')}</span>
+          </div>
           <h3 class="font-display text-lg font-semibold text-(--color-text)">{plan.name}</h3>
           <p class="mt-4 flex items-baseline gap-1">
             {plan.isStartingAtPrice && <span class="text-xs text-(--color-text-muted)">From</span>}
@@ -417,6 +429,22 @@ if (faq) jsonLd.push(faq);
 </BaseLayout>
 
 <style>
+  /* Extra side breathing room on wide viewports — .container-page's
+     site-wide 1.5rem side padding (global.css) reads as edge-to-edge
+     once the container hits its own 1440px max-width, which is exactly
+     this page's content width on a standard desktop screen. Scoped to
+     this page's own sections only (Astro scopes <style> by default),
+     not a sitewide .container-page change. */
+  section.container-page {
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    section.container-page {
+      padding-inline: 3rem;
+    }
+  }
+
   /* 3D glassmorphism pricing cards — builds on the site's existing
      .glass-card material (backdrop blur, frosted surface, inset
      highlight) rather than inventing a new one, with the extra depth/
@@ -434,7 +462,17 @@ if (faq) jsonLd.push(faq);
        the same accent every other bracketed panel on the site already
        uses, rather than a one-off new treatment just for this page. */
     position: relative;
+    overflow: hidden;
     background:
+      /* Faint CRT/terminal scanline texture — the "data readout" feel
+         from the reference mockup, kept subtle enough not to compete
+         with the actual price/feature text sitting on top of it. */
+      repeating-linear-gradient(
+        0deg,
+        color-mix(in oklab, var(--color-neon) 5%, transparent) 0px,
+        transparent 1px,
+        transparent 3px
+      ),
       linear-gradient(165deg, color-mix(in oklab, white 6%, transparent), transparent 40%),
       color-mix(in oklab, var(--color-surface) 60%, transparent);
     border: 1px solid color-mix(in oklab, var(--color-neon-soft) 16%, var(--color-border-strong));
@@ -452,6 +490,41 @@ if (faq) jsonLd.push(faq);
       box-shadow 220ms ease;
   }
 
+  /* Terminal/HUD title bar — status dots + a mono "device id" label,
+     reusing the site's existing terminal motif (shahid@security:~$,
+     // eyebrows) rather than inventing a new visual language. */
+  .pricing-card__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: -0.25rem -0.25rem 1rem -0.25rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.6rem;
+    background: color-mix(in oklab, black 22%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-neon-soft) 14%, transparent);
+  }
+
+  .pricing-card__dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-neon) 55%, transparent);
+    box-shadow: 0 0 6px 0 color-mix(in oklab, var(--color-neon) 70%, transparent);
+  }
+
+  .pricing-card__dot:last-of-type {
+    background: var(--color-success, var(--color-neon));
+    box-shadow: 0 0 6px 0 color-mix(in oklab, var(--color-success, var(--color-neon)) 70%, transparent);
+  }
+
+  .pricing-card__bar-label {
+    margin-left: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
+  }
+
   .pricing-card:hover {
     transform: translateY(-6px) rotateX(2deg);
     border-color: color-mix(in oklab, var(--color-neon-soft) 45%, var(--color-border-strong));
@@ -465,15 +538,33 @@ if (faq) jsonLd.push(faq);
   .pricing-card--recommended {
     border-color: color-mix(in oklab, var(--color-neon) 55%, var(--color-border-strong));
     transform: translateY(-4px);
-    box-shadow:
-      0 24px 52px -18px rgba(0, 0, 0, 0.7),
-      inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent),
-      0 0 0 1px color-mix(in oklab, var(--color-neon) 35%, transparent),
-      0 0 32px -6px color-mix(in oklab, var(--color-neon-soft) 35%, transparent);
+    animation: pricing-card-glow 3.2s ease-in-out infinite;
   }
 
   .pricing-card--recommended:hover {
     transform: translateY(-9px) rotateX(2deg);
+    animation-play-state: paused;
+  }
+
+  /* Slow glow breathing on the recommended card only — the "this one's
+     live" HUD touch from the reference mockup, pausing on hover so it
+     doesn't fight the lift/border-brighten transition above. */
+  @keyframes pricing-card-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 24px 52px -18px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent),
+        0 0 0 1px color-mix(in oklab, var(--color-neon) 35%, transparent),
+        0 0 32px -6px color-mix(in oklab, var(--color-neon-soft) 35%, transparent);
+    }
+    50% {
+      box-shadow:
+        0 24px 52px -18px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent),
+        0 0 0 1px color-mix(in oklab, var(--color-neon) 55%, transparent),
+        0 0 44px -4px color-mix(in oklab, var(--color-neon-soft) 55%, transparent);
+    }
   }
 
   .pricing-card__badge {
@@ -507,9 +598,11 @@ if (faq) jsonLd.push(faq);
   @media (prefers-reduced-motion: reduce) {
     .pricing-card,
     .pricing-card:hover,
+    .pricing-card--recommended,
     .pricing-card--recommended:hover,
     .addon-card:hover {
       transform: none;
+      animation: none;
     }
   }
 </style>
