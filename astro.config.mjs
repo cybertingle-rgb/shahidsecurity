@@ -62,7 +62,15 @@ export default defineConfig({
         // target — this static site has no backend of its own, so Luna's
         // widget calls the one real server in the project directly from
         // the visitor's browser (src/components/LunaWidget.astro).
-        "connect-src 'self' https://challenges.cloudflare.com https://learn.shahidiqbal.com",
+        // https://admin.shahidiqbal.com: the pricing page's currency
+        // detection/conversion (geo-currency, pricing-plans) and the
+        // consultation booking form (consultation-booking) all fetch()
+        // this directly from the browser too (src/pages/pricing.astro,
+        // src/components/BookingForm.astro) — confirmed missing here by
+        // a real headless-browser test (every one of those requests was
+        // silently blocked by this exact directive, not a cosmetic bug
+        // in the currency dropdown's display logic as first suspected).
+        "connect-src 'self' https://challenges.cloudflare.com https://learn.shahidiqbal.com https://admin.shahidiqbal.com",
         'frame-src https://challenges.cloudflare.com',
         "base-uri 'self'",
         "form-action 'self'",

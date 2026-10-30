@@ -176,7 +176,7 @@ if (faq) jsonLd.push(faq);
     <h2 class="font-display text-xl font-semibold text-(--color-text) sm:text-2xl">Monthly Security Assurance Plans</h2>
     <div class="mt-6 grid gap-5 lg:grid-cols-4 [perspective:1600px]">
       {assurancePlans.map((plan) => (
-        <div class:list={['pricing-card', plan.isRecommended && 'pricing-card--recommended']} data-plan-slug={plan.slug}>
+        <div class:list={['pricing-card corner-brackets', plan.isRecommended && 'pricing-card--recommended']} data-plan-slug={plan.slug}>
           {plan.isRecommended && <p class="pricing-card__badge">Recommended</p>}
           <h3 class="font-display text-lg font-semibold text-(--color-text)">{plan.name}</h3>
           {plan.targetAudience && <p class="mt-1 text-xs text-(--color-text-muted)">{plan.targetAudience}</p>}
@@ -276,7 +276,7 @@ if (faq) jsonLd.push(faq);
     </p>
     <div class="mt-6 grid gap-5 lg:grid-cols-3">
       {managedPlans.map((plan) => (
-        <div class="pricing-card" data-plan-slug={plan.slug}>
+        <div class="pricing-card corner-brackets" data-plan-slug={plan.slug}>
           <h3 class="font-display text-lg font-semibold text-(--color-text)">{plan.name}</h3>
           <p class="mt-4 flex items-baseline gap-1">
             {plan.isStartingAtPrice && <span class="text-xs text-(--color-text-muted)">From</span>}
@@ -428,6 +428,12 @@ if (faq) jsonLd.push(faq);
     flex-direction: column;
     padding: 1.5rem;
     border-radius: 1.25rem;
+    /* .corner-brackets (global.css) positions its ⌜⌟ pseudo-elements
+       absolutely within the nearest positioned ancestor — this is it.
+       The HUD/terminal-frame touch from the reference design, reusing
+       the same accent every other bracketed panel on the site already
+       uses, rather than a one-off new treatment just for this page. */
+    position: relative;
     background:
       linear-gradient(165deg, color-mix(in oklab, white 6%, transparent), transparent 40%),
       color-mix(in oklab, var(--color-surface) 60%, transparent);
@@ -508,19 +514,31 @@ if (faq) jsonLd.push(faq);
   }
 </style>
 
-<script define:vars={{ ADMIN_API_BASE }}>
+<script>
+  // Not using define:vars here — confirmed by a real headless-browser
+  // test (not assumed) that Astro's CSP feature (astro.config.mjs ->
+  // security.csp) hashes a define:vars script's pre-substitution
+  // template, not the actual post-substitution content the browser
+  // receives, so the computed hash never matches and the whole script
+  // gets silently blocked ("Executing inline script violates... CSP").
+  // Confirmed the identical failure on the already-deployed /book/
+  // page's BookingForm.astro, which uses the same pattern — fixed
+  // there too. ADMIN_API_BASE is a build-time constant anyway, so it
+  // doesn't need injecting as a variable; a literal avoids the bug
+  // entirely rather than working around Astro's CSP internals.
+  const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
   const CURRENCY_STORAGE_KEY = 'shahid-security-currency';
-  const select = document.getElementById('currency-select');
+  const select = document.getElementById('currency-select') as HTMLSelectElement | null;
   const note = document.getElementById('currency-note');
 
-  function getStoredCurrency() {
+  function getStoredCurrency(): string | null {
     try {
       return localStorage.getItem(CURRENCY_STORAGE_KEY);
     } catch {
       return null;
     }
   }
-  function storeCurrency(code) {
+  function storeCurrency(code: string): void {
     try {
       localStorage.setItem(CURRENCY_STORAGE_KEY, code);
     } catch {
@@ -528,7 +546,7 @@ if (faq) jsonLd.push(faq);
     }
   }
 
-  async function detectCurrency() {
+  async function detectCurrency(): Promise<string> {
     try {
       const localeRegion = (Intl.NumberFormat().resolvedOptions().locale || '').split('-')[1] || '';
       const res = await fetch(`${ADMIN_API_BASE}/api/public/geo-currency${localeRegion ? `?localeRegion=${encodeURIComponent(localeRegion)}` : ''}`);
@@ -539,7 +557,7 @@ if (faq) jsonLd.push(faq);
     }
   }
 
-  async function applyCurrency(currency) {
+  async function applyCurrency(currency: string): Promise<void> {
     if (currency === 'USD') {
       document.querySelectorAll('[data-price-converted]').forEach((el) => (el.textContent = ''));
       if (note) note.textContent = '';
@@ -550,11 +568,11 @@ if (faq) jsonLd.push(faq);
       const d = await res.json();
       if (d.requestedCurrency !== currency) return; // server fell back (e.g. no cached rate) — leave USD-only display
 
-      const byPlan = Object.fromEntries((d.plans || []).map((p) => [p.slug, p]));
-      const byAddOn = Object.fromEntries((d.addOns || []).map((a) => [a.slug, a]));
+      const byPlan: Record<string, any> = Object.fromEntries((d.plans || []).map((p: any) => [p.slug, p]));
+      const byAddOn: Record<string, any> = Object.fromEntries((d.addOns || []).map((a: any) => [a.slug, a]));
 
       document.querySelectorAll('[data-plan-slug]').forEach((card) => {
-        const slug = card.getAttribute('data-plan-slug');
+        const slug = card.getAttribute('data-plan-slug') ?? '';
         const plan = byPlan[slug];
         const convertedEl = card.querySelector('[data-price-converted]');
         if (plan && plan.converted && !plan.converted.usedFallback && convertedEl) {
@@ -562,7 +580,7 @@ if (faq) jsonLd.push(faq);
         }
       });
       document.querySelectorAll('[data-addon-slug]').forEach((row) => {
-        const slug = row.getAttribute('data-addon-slug');
+        const slug = row.getAttribute('data-addon-slug') ?? '';
         const addOn = byAddOn[slug];
         const convertedEl = row.querySelector('[data-price-converted]');
         if (addOn && addOn.converted && !addOn.converted.usedFallback && convertedEl) {
@@ -584,12 +602,22 @@ if (faq) jsonLd.push(faq);
   (async () => {
     const stored = getStoredCurrency();
     const initial = stored || (await detectCurrency());
-    if (select) select.value = stored ? initial : 'auto';
+    // Reflect the resolved currency in the dropdown itself — leaving it
+    // stuck on the literal "Auto-detect" label after detection already
+    // ran was confusing (reported directly: a GB visitor expects to see
+    // "GBP" selected, not "Auto-detect" with no visible indication
+    // anything happened). Only fall back to the "Auto-detect" option if
+    // the resolved currency genuinely isn't one of the dropdown's
+    // choices (unsupported currency, or detection itself failed).
+    if (select) {
+      const hasOption = Boolean(initial) && [...select.options].some((o) => o.value === initial);
+      select.value = hasOption ? initial : 'auto';
+    }
     if (initial !== 'USD') await applyCurrency(initial);
   })();
 
   select?.addEventListener('change', async (e) => {
-    const value = e.target.value;
+    const value = (e.target as HTMLSelectElement).value;
     if (value === 'auto') {
       try {
         localStorage.removeItem(CURRENCY_STORAGE_KEY);
