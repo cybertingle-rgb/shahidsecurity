@@ -108,7 +108,11 @@ const currentPath = Astro.url.pathname;
     background: transparent;
   }
   #site-header[data-scrolled='true'] {
-    background: color-mix(in oklab, var(--color-bg) 55%, transparent);
+    /* 55% previously let high-contrast page content (e.g. card prices)
+       scrolled directly behind the header visibly bleed through the
+       blur as readable ghost text — confirmed via screenshot on the
+       pricing page. Raised so the header reliably reads as solid. */
+    background: color-mix(in oklab, var(--color-bg) 97%, transparent);
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
     border-bottom: 1px solid color-mix(in oklab, white 8%, var(--color-border));
