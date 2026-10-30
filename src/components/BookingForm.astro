@@ -6,8 +6,9 @@
 // real, admin-configurable fee, which book.php has no way to record.
 // Same cross-origin pattern as LunaWidget.astro's fetch to
 // learn.shahidiqbal.com — a public, CORS-enabled endpoint, no cookies
-// involved.
-const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
+// involved. (The client script below hardcodes this same URL as a
+// literal rather than receiving it via define:vars — see the comment
+// on that <script> tag.)
 
 const COMPANY_SIZES = [
   { value: '', label: 'Select one' },
@@ -122,19 +123,29 @@ const COMPANY_SIZES = [
   </form>
 </div>
 
-<script define:vars={{ ADMIN_API_BASE }}>
-  const form = document.getElementById('booking-form');
-  const dateField = document.getElementById('bk-date');
-  const timezoneField = document.getElementById('bk-timezone');
+<script>
+  // Astro's CSP hashing (astro.config.mjs's security.csp) hashes this
+  // script's pre-substitution template, not what define:vars actually
+  // renders — so a define:vars block here produces a permanent
+  // script-src hash mismatch and gets silently blocked by the browser
+  // (confirmed via headless-browser testing: the whole form, including
+  // this submit handler, never ran in production). ADMIN_API_BASE is a
+  // fixed build-time constant, so it doesn't need variable injection —
+  // hardcoding it as a literal avoids the bug entirely.
+  const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
+
+  const form = document.getElementById('booking-form') as HTMLFormElement | null;
+  const dateField = document.getElementById('bk-date') as HTMLInputElement | null;
+  const timezoneField = document.getElementById('bk-timezone') as HTMLInputElement | null;
   const statusEl = document.getElementById('booking-status');
-  const submitBtn = document.getElementById('booking-submit');
+  const submitBtn = document.getElementById('booking-submit') as HTMLButtonElement | null;
   const feeAmountEl = document.querySelector('[data-fee-amount]');
   const refundPolicyEl = document.querySelector('[data-refund-policy]');
 
   // Bound the date picker to "today" through +60 days, computed
   // client-side so it's always accurate regardless of build time.
   if (dateField) {
-    const toISO = (d) => d.toISOString().slice(0, 10);
+    const toISO = (d: Date) => d.toISOString().slice(0, 10);
     const today = new Date();
     const max = new Date();
     max.setDate(max.getDate() + 60);
@@ -152,7 +163,7 @@ const COMPANY_SIZES = [
 
   const CURRENCY_STORAGE_KEY = 'shahid-security-currency';
 
-  function getStoredCurrency() {
+  function getStoredCurrency(): string | null {
     try {
       return localStorage.getItem(CURRENCY_STORAGE_KEY);
     } catch {
@@ -160,7 +171,7 @@ const COMPANY_SIZES = [
     }
   }
 
-  async function detectCurrency() {
+  async function detectCurrency(): Promise<string> {
     const stored = getStoredCurrency();
     if (stored) return stored;
     try {
@@ -173,14 +184,14 @@ const COMPANY_SIZES = [
     }
   }
 
-  async function loadFee() {
+  async function loadFee(): Promise<void> {
     const currency = await detectCurrency();
     try {
       const res = await fetch(`${ADMIN_API_BASE}/api/public/pricing-plans?currency=${encodeURIComponent(currency)}`);
       const data = await res.json();
       const c = data.consultation;
       if (!c) throw new Error('no consultation data');
-      window.__consultationCurrency = c.converted?.currencyCode || 'USD';
+      (window as any).__consultationCurrency = c.converted?.currencyCode || 'USD';
       if (feeAmountEl) {
         if (c.converted && c.converted.currencyCode !== 'USD' && !c.converted.usedFallback) {
           feeAmountEl.textContent = `$${c.feeUsd.toFixed(2)} USD (≈ ${c.converted.currencyCode} ${c.converted.amount.toFixed(2)})`;
@@ -201,7 +212,7 @@ const COMPANY_SIZES = [
   }
   loadFee();
 
-  function clearErrors() {
+  function clearErrors(): void {
     form?.querySelectorAll('[role="alert"]').forEach((el) => (el.textContent = ''));
   }
 
@@ -238,7 +249,7 @@ const COMPANY_SIZES = [
       timezone: formData.get('timezone') || undefined,
       additionalInformation: formData.get('additionalInformation') || undefined,
       preferredDateTime,
-      displayedCurrency: window.__consultationCurrency || 'USD',
+      displayedCurrency: (window as any).__consultationCurrency || 'USD',
       website_hp: formData.get('website_hp') || '',
     };
 

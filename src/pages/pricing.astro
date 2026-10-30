@@ -394,19 +394,28 @@ if (faq) jsonLd.push(faq);
   </Section>
 </BaseLayout>
 
-<script define:vars={{ ADMIN_API_BASE }}>
+<script>
+  // Astro's CSP hashing (astro.config.mjs's security.csp) hashes this
+  // script's pre-substitution template, not what define:vars actually
+  // renders — so a define:vars block here produces a permanent
+  // script-src hash mismatch and gets silently blocked by the browser
+  // (confirmed via headless-browser testing). ADMIN_API_BASE is a
+  // fixed build-time constant, so it doesn't need variable injection —
+  // hardcoding it as a literal avoids the bug entirely.
+  const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
+
   const CURRENCY_STORAGE_KEY = 'shahid-security-currency';
-  const select = document.getElementById('currency-select');
+  const select = document.getElementById('currency-select') as HTMLSelectElement | null;
   const note = document.getElementById('currency-note');
 
-  function getStoredCurrency() {
+  function getStoredCurrency(): string | null {
     try {
       return localStorage.getItem(CURRENCY_STORAGE_KEY);
     } catch {
       return null;
     }
   }
-  function storeCurrency(code) {
+  function storeCurrency(code: string): void {
     try {
       localStorage.setItem(CURRENCY_STORAGE_KEY, code);
     } catch {
@@ -414,7 +423,7 @@ if (faq) jsonLd.push(faq);
     }
   }
 
-  async function detectCurrency() {
+  async function detectCurrency(): Promise<string> {
     try {
       const localeRegion = (Intl.NumberFormat().resolvedOptions().locale || '').split('-')[1] || '';
       const res = await fetch(`${ADMIN_API_BASE}/api/public/geo-currency${localeRegion ? `?localeRegion=${encodeURIComponent(localeRegion)}` : ''}`);
@@ -425,7 +434,7 @@ if (faq) jsonLd.push(faq);
     }
   }
 
-  async function applyCurrency(currency) {
+  async function applyCurrency(currency: string): Promise<void> {
     if (currency === 'USD') {
       document.querySelectorAll('[data-price-converted]').forEach((el) => (el.textContent = ''));
       if (note) note.textContent = '';
@@ -436,11 +445,11 @@ if (faq) jsonLd.push(faq);
       const data = await res.json();
       if (data.requestedCurrency !== currency) return; // server fell back (e.g. no cached rate) — leave USD-only display
 
-      const byPlan = Object.fromEntries((data.plans || []).map((p) => [p.slug, p]));
-      const byAddOn = Object.fromEntries((data.addOns || []).map((a) => [a.slug, a]));
+      const byPlan: Record<string, any> = Object.fromEntries((data.plans || []).map((p: any) => [p.slug, p]));
+      const byAddOn: Record<string, any> = Object.fromEntries((data.addOns || []).map((a: any) => [a.slug, a]));
 
       document.querySelectorAll('[data-plan-slug]').forEach((card) => {
-        const slug = card.getAttribute('data-plan-slug');
+        const slug = card.getAttribute('data-plan-slug') ?? '';
         const plan = byPlan[slug];
         const convertedEl = card.querySelector('[data-price-converted]');
         if (plan && plan.converted && !plan.converted.usedFallback && convertedEl) {
@@ -448,7 +457,7 @@ if (faq) jsonLd.push(faq);
         }
       });
       document.querySelectorAll('[data-addon-slug]').forEach((row) => {
-        const slug = row.getAttribute('data-addon-slug');
+        const slug = row.getAttribute('data-addon-slug') ?? '';
         const addOn = byAddOn[slug];
         const convertedEl = row.querySelector('[data-price-converted]');
         if (addOn && addOn.converted && !addOn.converted.usedFallback && convertedEl) {
@@ -470,12 +479,15 @@ if (faq) jsonLd.push(faq);
   (async () => {
     const stored = getStoredCurrency();
     const initial = stored || (await detectCurrency());
-    if (select) select.value = stored ? initial : 'auto';
+    if (select) {
+      const hasOption = Boolean(initial) && [...select.options].some((o) => o.value === initial);
+      select.value = hasOption ? initial : 'auto';
+    }
     if (initial !== 'USD') await applyCurrency(initial);
   })();
 
   select?.addEventListener('change', async (e) => {
-    const value = e.target.value;
+    const value = (e.target as HTMLSelectElement).value;
     if (value === 'auto') {
       try {
         localStorage.removeItem(CURRENCY_STORAGE_KEY);
