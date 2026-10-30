@@ -4,9 +4,21 @@ import Section from '@/components/Section.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import CTABand from '@/components/CTABand.astro';
+import CaseStudyCard from '@/components/CaseStudyCard.astro';
 import { Icon } from 'astro-icon/components';
+import { getCollection } from 'astro:content';
 import { site } from '@/lib/site';
 import { personSchema } from '@/lib/schema';
+
+// Case Studies no longer has its own top-level nav link (per feedback
+// on the live site) — its content lives here instead, still served
+// from the same src/content/caseStudies collection and still linking
+// out to the existing /case-studies/[slug] detail pages, which stay
+// live and indexable even though nothing in the main nav points at
+// the /case-studies/ index anymore.
+const caseStudies = (await getCollection('caseStudies', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
 
 const expertiseAreas = [
   'Cybersecurity Analyst',
@@ -222,6 +234,23 @@ const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
       ))}
     </div>
   </Section>
+
+  {caseStudies.length > 0 && (
+    <Section>
+      <SectionHeading eyebrow="// case studies" title="Real work, real results" intro="Real, anonymised work: the challenge, what we did, and the measurable result." />
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {caseStudies.map((cs) => (
+          <CaseStudyCard
+            title={cs.data.title}
+            client={cs.data.client}
+            industry={cs.data.industry}
+            services={cs.data.services}
+            href={`/case-studies/${cs.id}/`}
+          />
+        ))}
+      </div>
+    </Section>
+  )}
 
   <Section>
     <CTABand title="Want to work with us?" text="Book a consultation and let's talk through your setup." />
