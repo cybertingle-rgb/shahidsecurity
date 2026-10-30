@@ -1,10 +1,12 @@
 ---
-// A minimal floating social rail for the left edge. Each link sits as a
-// small circle at rest and slides open on hover to reveal its label — the
-// same "comes out" reveal pattern on every item, not a different
-// animation per icon. Icons are plain inline SVGs (official brand glyphs)
-// rather than a new icon-package dependency. No phone/WhatsApp entry here
-// deliberately — all contact is email-only (info@shahidiqbal.com).
+// A compact floating social row that sits immediately beside Luna's
+// button (bottom-right), not the old left-edge vertical rail — small
+// fixed-size circles with a tooltip label on hover (same pattern as
+// Luna's own "Meet Luna" popup) rather than the pill that used to
+// expand sideways to reveal its label. Icons are plain inline SVGs
+// (official brand glyphs) rather than a new icon-package dependency.
+// No phone/WhatsApp entry here deliberately — all contact is
+// email-only (info@shahidiqbal.com).
 import { site } from '@/lib/site';
 ---
 
@@ -18,7 +20,7 @@ import { site } from '@/lib/site';
           ></path>
         </svg>
       </span>
-      <span class="social-label">Facebook</span>
+      <span class="social-tooltip">Facebook</span>
     </a>
   </span>
 
@@ -31,7 +33,7 @@ import { site } from '@/lib/site';
           ></path>
         </svg>
       </span>
-      <span class="social-label">Instagram</span>
+      <span class="social-tooltip">Instagram</span>
     </a>
   </span>
 
@@ -44,21 +46,27 @@ import { site } from '@/lib/site';
           ></path>
         </svg>
       </span>
-      <span class="social-label">X</span>
+      <span class="social-tooltip">X</span>
     </a>
   </span>
 </nav>
 
 <style>
+  /* Sits immediately left of Luna's 4.5rem button (fixed bottom: 1.5rem;
+     right: 1.5rem — see LunaWidget.astro), vertically centered against
+     it: bottom offset = Luna's 1.5rem + half the size difference between
+     Luna's button and these smaller icons. Positioned with `right` only
+     (no `left`) so the row hugs its own content width and grows
+     leftward from that anchor as icons are added/removed. */
   .social-rail {
     position: fixed;
-    left: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
+    right: calc(1.5rem + 4.5rem + 0.6rem);
+    bottom: calc(1.5rem + (4.5rem - 2.25rem) / 2);
     z-index: 40;
     display: flex;
-    flex-direction: column;
-    gap: 1.6rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   /* A registered custom property lets the browser animate the conic
@@ -87,9 +95,9 @@ import { site } from '@/lib/site';
   .social-ring::after {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -3px;
     border-radius: inherit;
-    padding: 2.5px;
+    padding: 2px;
     -webkit-mask:
       linear-gradient(#000 0 0) content-box,
       linear-gradient(#000 0 0);
@@ -206,43 +214,49 @@ import { site } from '@/lib/site';
   /* "Expand through the border" on hover — the ring sits further out and
      grows thicker/brighter instead of just sitting still. Kept modest
      (not the huge blur this used to be) specifically so the hovered
-     icon's glow doesn't visually bleed into its neighbors a mere 1.6rem
-     away and make the whole rail look lit up at once. */
+     icon's glow doesn't visually bleed into its neighbors a mere 0.5rem
+     away and make the whole row look lit up at once. */
   .social-ring:hover::before {
-    inset: -5px;
-    padding: 3px;
+    inset: -4px;
+    padding: 2.5px;
   }
 
   .social-ring:hover::after {
-    inset: -6px;
-    padding: 3.5px;
-    filter: blur(6px);
+    inset: -5px;
+    padding: 3px;
+    filter: blur(5px);
     opacity: 1;
   }
 
+  /* A small, fixed-size circle — no more hover-expanding pill. At this
+     size, beside Luna's own button, a widening pill would either get
+     clipped by the viewport edge or shove Luna sideways; a tooltip
+     above the icon (same pattern as Luna's own "Meet Luna" popup)
+     reveals the label instead without changing layout on hover. */
   .social-pill {
+    position: relative;
     display: flex;
     align-items: center;
-    height: 3.5rem;
-    width: 3.5rem;
-    overflow: hidden;
+    justify-content: center;
+    height: 2.25rem;
+    width: 2.25rem;
     border-radius: 999px;
     border: 1px solid var(--color-border-strong);
-    background: color-mix(in oklab, var(--color-surface) 85%, transparent);
+    background: color-mix(in oklab, var(--color-bg) 80%, transparent);
     backdrop-filter: blur(6px);
     color: var(--color-text-muted);
     transition:
-      width 220ms ease,
       border-color 220ms ease,
       color 220ms ease,
-      box-shadow 220ms ease;
+      box-shadow 220ms ease,
+      transform 220ms ease;
   }
 
   .social-pill:hover {
-    width: 11.5rem;
     border-color: var(--color-neon);
     color: var(--color-text);
-    box-shadow: 0 0 20px -6px var(--color-neon);
+    box-shadow: 0 0 16px -6px var(--color-neon);
+    transform: translateY(-2px);
   }
 
   /* Per-platform brand colors — the icon glyph itself now always shows
@@ -278,67 +292,75 @@ import { site } from '@/lib/site';
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .social-icon svg {
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 1.05rem;
+    height: 1.05rem;
   }
 
-  .social-label {
+  /* Label pops up above the icon on hover — same glassmorphic pattern as
+     Luna's own "Meet Luna" tooltip — instead of the pill widening. */
+  .social-tooltip {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translate(-50%, 6px);
     white-space: nowrap;
-    font-size: 0.95rem;
-    font-weight: 500;
-    padding-right: 1.1rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-surface) 65%, transparent);
+    border: 1px solid color-mix(in oklab, white 16%, transparent);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    color: var(--color-text);
+    font-size: 0.7rem;
+    font-weight: 600;
     opacity: 0;
-    transition: opacity 180ms ease 60ms;
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+    pointer-events: none;
   }
 
-  .social-pill:hover .social-label {
+  .social-pill:hover .social-tooltip,
+  .social-pill:focus-visible .social-tooltip {
     opacity: 1;
+    transform: translate(-50%, 0);
   }
 
-  @media (max-width: 900px) {
-    /* At phone width there's no empty side gutter to fill and no hover to
-       reveal labels on, so the rail moves to a compact horizontal row
-       pinned above the safe area at bottom-left — clear of Luna's
-       bottom-right button — with smaller, always-tappable icons instead
-       of the hover-expanding pills. */
+  @media (max-width: 640px) {
+    /* A horizontal row to Luna's left reaches into page content at phone
+       widths (confirmed — it sat on top of in-flow buttons/text near
+       the bottom of several pages). Stack the icons above Luna instead:
+       same horizontal footprint as Luna's button alone, using vertical
+       space instead of eating further into the page horizontally. */
     .social-rail {
-      left: 0.75rem;
-      top: auto;
-      bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-      transform: none;
-      flex-direction: row;
-      gap: 0.5rem;
+      right: 1.5rem;
+      bottom: calc(1.5rem + 4.5rem + 0.6rem);
+      flex-direction: column;
+      gap: 0.4rem;
     }
 
-    .social-pill,
-    .social-pill:hover {
-      width: 3.25rem;
-      height: 3.25rem;
-      /* These sit permanently over page content on mobile (no hover to
-         rely on), unlike the desktop rail which floats over empty
-         gutter — more opaque so underlying text doesn't bleed through
-         the glass. */
-      background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+    .social-tooltip {
+      bottom: auto;
+      left: auto;
+      right: calc(100% + 0.5rem);
+      top: 50%;
+      transform: translate(6px, -50%);
     }
 
-    .social-icon {
-      width: 3.25rem;
-      height: 3.25rem;
-    }
-
-    .social-label {
-      display: none;
+    .social-pill:hover .social-tooltip,
+    .social-pill:focus-visible .social-tooltip {
+      transform: translate(0, -50%);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .social-pill,
-    .social-label {
+    .social-tooltip {
       transition: none;
     }
 
