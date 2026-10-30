@@ -215,16 +215,16 @@ const PLANS: Array<typeof pricingPlans.$inferInsert> = [
 ];
 
 const ADD_ONS: Array<typeof addOnServices.$inferInsert> = [
-  { id: crypto.randomUUID(), slug: 'website-security-assessment', name: 'Website Security Assessment', startingPriceUsd: '750.00', status: 'active', sortOrder: 0 },
-  { id: crypto.randomUUID(), slug: 'web-app-penetration-test', name: 'Web Application Penetration Test', startingPriceUsd: '2000.00', status: 'active', sortOrder: 1 },
-  { id: crypto.randomUUID(), slug: 'network-vulnerability-assessment', name: 'Network Vulnerability Assessment', startingPriceUsd: '1000.00', status: 'active', sortOrder: 2 },
-  { id: crypto.randomUUID(), slug: 'external-attack-surface-assessment', name: 'External Attack-Surface Assessment', startingPriceUsd: '750.00', status: 'active', sortOrder: 3 },
-  { id: crypto.randomUUID(), slug: 'cloud-security-assessment', name: 'Cloud Security Assessment', startingPriceUsd: '1500.00', status: 'active', sortOrder: 4 },
-  { id: crypto.randomUUID(), slug: 'security-awareness-session', name: 'Security Awareness Session', startingPriceUsd: '500.00', status: 'active', sortOrder: 5 },
-  { id: crypto.randomUUID(), slug: 'incident-response-engagement', name: 'Incident Response Engagement', startingPriceUsd: '2000.00', status: 'active', sortOrder: 6 },
-  { id: crypto.randomUUID(), slug: 'iot-security-assessment', name: 'IoT Security Assessment', startingPriceUsd: null, status: 'active', sortOrder: 7 },
-  { id: crypto.randomUUID(), slug: 'iso27001-readiness-gap-assessment', name: 'ISO 27001 Readiness / Gap Assessment', startingPriceUsd: null, status: 'active', sortOrder: 8 },
-  { id: crypto.randomUUID(), slug: 'digital-forensics', name: 'Digital Forensics', startingPriceUsd: null, status: 'active', sortOrder: 9 },
+  { id: crypto.randomUUID(), slug: 'website-security-assessment', name: 'Website Security Assessment', description: 'A focused review of a single website — configuration, exposed surface, and common weaknesses.', startingPriceUsd: '750.00', status: 'active', sortOrder: 0 },
+  { id: crypto.randomUUID(), slug: 'web-app-penetration-test', name: 'Web Application Penetration Test', description: 'Manual, authorized testing of a web application against the OWASP Top 10 and business-logic flaws.', startingPriceUsd: '2000.00', status: 'active', sortOrder: 1 },
+  { id: crypto.randomUUID(), slug: 'network-vulnerability-assessment', name: 'Network Vulnerability Assessment', description: 'Scans and manual review of agreed network infrastructure for known vulnerabilities and misconfigurations.', startingPriceUsd: '1000.00', status: 'active', sortOrder: 2 },
+  { id: crypto.randomUUID(), slug: 'external-attack-surface-assessment', name: 'External Attack-Surface Assessment', description: 'Maps what is publicly reachable and exposed on the internet for your organization today.', startingPriceUsd: '750.00', status: 'active', sortOrder: 3 },
+  { id: crypto.randomUUID(), slug: 'cloud-security-assessment', name: 'Cloud Security Assessment', description: 'Reviews cloud account configuration, identity and access, and workload exposure against common misconfigurations.', startingPriceUsd: '1500.00', status: 'active', sortOrder: 4 },
+  { id: crypto.randomUUID(), slug: 'security-awareness-session', name: 'Security Awareness Session', description: 'A practical training session for your team on recognizing and avoiding common attack techniques.', startingPriceUsd: '500.00', status: 'active', sortOrder: 5 },
+  { id: crypto.randomUUID(), slug: 'incident-response-engagement', name: 'Incident Response Engagement', description: 'Hands-on help containing, investigating, and recovering from an active security incident.', startingPriceUsd: '2000.00', status: 'active', sortOrder: 6 },
+  { id: crypto.randomUUID(), slug: 'iot-security-assessment', name: 'IoT Security Assessment', description: 'Security review of connected/IoT devices and the infrastructure they depend on — scoped per engagement.', startingPriceUsd: null, status: 'active', sortOrder: 7 },
+  { id: crypto.randomUUID(), slug: 'iso27001-readiness-gap-assessment', name: 'ISO 27001 Readiness / Gap Assessment', description: 'Assesses how close your current controls are to ISO/IEC 27001 and what remains before certification.', startingPriceUsd: null, status: 'active', sortOrder: 8 },
+  { id: crypto.randomUUID(), slug: 'digital-forensics', name: 'Digital Forensics', description: 'Evidence-preserving investigation after a security incident — scoped per engagement.', startingPriceUsd: null, status: 'active', sortOrder: 9 },
 ];
 
 export async function seedPricingData(): Promise<{ plansCreated: string[]; addOnsCreated: string[] }> {

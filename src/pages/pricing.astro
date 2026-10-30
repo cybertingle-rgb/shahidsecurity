@@ -1,11 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Section from '@/components/Section.astro';
-import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import Button from '@/components/Button.astro';
 import FAQ from '@/components/FAQ.astro';
 import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
 import { faqSchema } from '@/lib/schema';
 
 // Build-time fetch, same pattern as src/pages/learn/pricing.astro's
@@ -27,6 +26,8 @@ type ApiPlan = {
   isStartingAtPrice: boolean;
   minContractMonths: number;
   includedFeatures: string[];
+  includedAssetLimit: number | null;
+  includedAnalystHoursPerMonth: number | null;
   isRecommended: boolean;
   ctaLabel: string | null;
   requiresEnterpriseContact: boolean;
@@ -62,17 +63,27 @@ const assurancePlans = data.plans.filter((p) => p.category === 'assurance');
 const managedPlans = data.plans.filter((p) => p.category === 'managed_security');
 
 function formatUsd(amount: number | null): string {
-  if (amount === null) return 'Custom Quote';
+  if (amount === null) return 'Custom';
   return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
-const BUSINESS_SIZES = [
-  { label: 'Startup / Micro Business', desc: 'A handful of people, a handful of systems.' },
-  { label: 'Small Business', desc: 'Growing team, growing attack surface.' },
-  { label: 'Mid-Sized Business', desc: 'Multiple systems, more to protect.' },
-  { label: 'Large Business', desc: 'Complex infrastructure, higher stakes.' },
-  { label: 'Enterprise', desc: 'Regulated, multi-location, board-level reporting.' },
-];
+// Compact feature list per card (progressive disclosure into the
+// comparison table below, rather than hiding price/CTA behind an
+// accordion — the brief explicitly rules out hiding those).
+const CARD_FEATURE_LIMIT = 6;
+
+// Qualitative comparison fields the catalogue publishes per plan that
+// aren't discrete admin-editable DB columns (unlike price, asset
+// limit, analyst hours, contract term, which come live from the API
+// above) — matches docs/*.pdf's own "Plan comparison" table content.
+const PLAN_COMPARISON_META: Record<string, { vulnerabilityReview: string; webAppReview: string; logReview: string; reporting: string }> = {
+  'security-essential': { vulnerabilityReview: 'Monthly', webAppReview: 'Limited', logReview: 'Not standard', reporting: 'Summary' },
+  'security-professional': { vulnerabilityReview: 'Biweekly', webAppReview: 'Monthly, limited scope', logReview: 'Up to 3 sources', reporting: 'Monthly' },
+  'security-advanced': { vulnerabilityReview: 'Weekly', webAppReview: 'By agreed scope', logReview: 'Agreed SIEM sources', reporting: 'Executive' },
+  'enterprise-security-partnership': { vulnerabilityReview: 'Custom', webAppReview: 'Custom', logReview: 'Custom', reporting: 'Board-level options' },
+};
+
+const BUSINESS_SIZES = ['Startup / Micro', 'Small Business', 'Mid-Sized', 'Large Business', 'Enterprise'];
 
 const SLA_ROWS = [
   { priority: 'P1 — Critical', essential: '1 business day', professional: '4 business hours', advanced: '2 hours' },
@@ -81,46 +92,26 @@ const SLA_ROWS = [
   { priority: 'P4 — Low', essential: '5 business days', professional: '3 business days', advanced: '2 business days' },
 ];
 
-const WHATS_INCLUDED = [
-  'Onboarding',
-  'Asset inventory',
-  'Agreed assessments',
-  'Monthly security reports',
-  'Risk tracking',
-  'Remediation recommendations',
-  'Client communication',
-  'Improvement roadmap',
-  'Periodic review',
-];
-
-const HOW_IT_WORKS = [
-  'Paid discovery consultation',
-  'Initial assessment',
-  'Contract and scope approval',
-  'Onboarding',
-  'Monthly security operations',
-  'Reporting',
-  'Quarterly business review',
-];
+const HOW_IT_WORKS = ['Paid consultation', 'Scope & contract', 'Onboarding', 'Monthly delivery'];
 
 const FAQ_ITEMS = [
   { q: 'What is monthly cybersecurity support?', a: 'A recurring engagement — vulnerability reviews, assessments, reporting, and advisory — rather than a one-off project, so your security posture is monitored and improved continuously, not checked once and forgotten.' },
   { q: 'Which businesses can subscribe?', a: 'Startups through enterprises, across industries. Every plan lists its target audience and included scope above — company size alone never determines price; your actual infrastructure, risk, and coverage needs do.' },
   { q: 'Do you serve international clients?', a: 'Yes — Shahid Security works with clients across the UAE, Saudi Arabia, Qatar, Oman, the UK, the US, Canada, Australia, Europe, and other markets, remotely.' },
-  { q: 'Is penetration testing included?', a: 'Not in the monthly support plans — a full penetration test is a separately scoped add-on (see Specialist Add-On Services above) unless it is explicitly included in your signed Statement of Work.' },
-  { q: 'Do you offer 24/7 monitoring?', a: data.socAvailability === 'active' ? 'Yes — Managed Detection and Response is available with internal 24/7 coverage.' : '24/7 managed monitoring is subject to operational availability and enterprise assessment — see the Managed Security Operations section above. Contact our team to discuss your requirements.' },
-  { q: 'How is the price calculated?', a: "Plan prices reflect the typical scope described for each tier. Your actual price depends on your real infrastructure, risk profile, asset count, and coverage requirements — which is why every plan's final scope and price is confirmed before you sign anything." },
-  { q: 'What happens when additional work is needed?', a: 'Work beyond your plan\'s included hours or scope is billed separately and always requires your written approval first — nothing extra is ever charged without your agreement.' },
+  { q: 'Is penetration testing included?', a: 'Not in the monthly support plans — a full penetration test is a separately scoped add-on (see Specialist Services above) unless it is explicitly included in your signed Statement of Work.' },
+  { q: 'Do you offer 24/7 monitoring?', a: data.socAvailability === 'active' ? 'Yes — Managed Detection and Response is available with internal 24/7 coverage.' : '24/7 managed monitoring is subject to operational availability and enterprise assessment — see Managed Security Operations above. Contact our team to discuss your requirements.' },
+  { q: 'How is the price calculated?', a: "Plan prices reflect the typical scope described for each tier. Your actual price depends on your real infrastructure, risk profile, asset count, and coverage requirements — confirmed before you sign anything." },
+  { q: 'What happens when additional work is needed?', a: 'Work beyond your plan\'s included hours or scope is billed separately and always requires your written approval first.' },
   { q: 'Can I upgrade or downgrade?', a: "Yes — talk to your account contact. Changes are confirmed in writing and may affect your contract's price review timing." },
-  { q: 'Do you provide incident response?', a: 'Yes — incident response planning and advisory is included from Security Advanced upward, and a standalone Incident Response Engagement is available as an add-on for an active incident.' },
+  { q: 'Do you provide incident response?', a: 'Yes — incident response planning and advisory is included from Security Advanced upward, and a standalone Incident Response Engagement is available for an active incident.' },
   { q: 'How does onboarding work?', a: 'After your consultation and signed Statement of Work, onboarding covers asset inventory, scope confirmation, and setting up the agreed reporting cadence before monthly operations begin.' },
-  { q: 'Do you sign confidentiality agreements?', a: 'Yes — confidentiality is part of the Master Services Agreement every client signs, and a separate NDA is standard practice before any deeper technical discussion.' },
-  { q: 'What happens when the contract ends?', a: 'Standard plans renew or end per the cancellation and notice terms in your contract — see Contract Structure above. Nothing renews or cancels silently.' },
-  { q: 'Can enterprise services be customized?', a: 'Yes — the Enterprise Security Partnership and Enterprise MDR tiers are built around a customized Statement of Work for your specific environment, not a fixed package.' },
-  { q: 'Which currencies can visitors see?', a: 'Prices are shown as an approximate estimate in your local currency (detected automatically, or chosen manually with the currency selector above) alongside the authoritative USD figure.' },
+  { q: 'Do you sign confidentiality agreements?', a: 'Yes — confidentiality is part of the Master Services Agreement every client signs, and a separate NDA is standard practice before deeper technical discussion.' },
+  { q: 'What happens when the contract ends?', a: 'Standard plans renew or end per the cancellation and notice terms in your contract — nothing renews or cancels silently.' },
+  { q: 'Can enterprise services be customized?', a: 'Yes — Enterprise Security Partnership is built around a customized Statement of Work for your specific environment, not a fixed package.' },
+  { q: 'Which currencies can visitors see?', a: 'Prices are shown as an approximate estimate in your local currency (detected automatically, or chosen manually) alongside the authoritative USD figure.' },
   { q: 'Is the consultation paid?', a: `Yes — the initial consultation has a fixed fee (shown at booking, currently $${data.consultation.feeUsd.toFixed(2)} USD). There is no free consultation.` },
-  { q: 'What is the minimum contract period?', a: 'Three months for all standard monthly plans, billed monthly in advance. Enterprise-tier contracts are normally 12 months, with exceptions only when approved by an authorized admin.' },
-  { q: "Does local currency display mean I can pay in that currency?", a: 'No — the local-currency figure is an estimate only. The authoritative invoice and actual charge are confirmed in USD (or another currency we explicitly agree to invoice in) before anything is charged.' },
+  { q: 'What is the minimum contract period?', a: 'Three months for all standard monthly plans, billed monthly in advance. Enterprise-tier contracts are normally 12 months, with exceptions only when approved.' },
+  { q: 'Does local currency display mean I can pay in that currency?', a: 'No — the local-currency figure is an estimate only. The authoritative invoice and charge are confirmed in USD before anything is charged.' },
 ];
 
 const jsonLd = [];
@@ -136,19 +127,23 @@ if (faq) jsonLd.push(faq);
   jsonLd={jsonLd}
   pageType="CollectionPage"
 >
-  <Section class="pt-12 pb-8">
+  <!-- Hero — compact, everything essential visible without scrolling -->
+  <section class="container-page pt-8 pb-6 sm:pt-10">
     <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Pricing', path: '/pricing/' }]} />
-    <SectionHeading
-      as="h1"
-      eyebrow="// pricing"
-      title="Cybersecurity Protection That Grows With Your Business"
-      intro="Flexible monthly cybersecurity support for startups, growing businesses and enterprises. Get expert security guidance, vulnerability management, ongoing assessments and managed security services."
-    />
-    <div class="mt-8 flex flex-wrap items-center gap-4">
+    <div class="max-w-2xl">
+      <p class="eyebrow">// cybersecurity services & plans</p>
+      <h1 class="mt-3 font-display text-3xl font-semibold text-(--color-text) sm:text-4xl">
+        Cybersecurity Protection That Scales With Your Business
+      </h1>
+      <p class="mt-3 text-(--color-text-muted)">
+        Scalable monthly cybersecurity support for startups, growing businesses and enterprises — remote-first, across international markets.
+      </p>
+    </div>
+    <div class="mt-5 flex flex-wrap items-center gap-3">
       <Button href="/book/" variant="primary">Book a Paid Consultation</Button>
-      <Button href="#plans" variant="secondary">Compare Security Plans</Button>
-      <label class="ml-auto flex items-center gap-2 font-mono text-xs text-(--color-text-muted)">
-        Currency
+      <Button href="#plans" variant="secondary">Explore Pricing</Button>
+      <div class="ml-auto flex items-center gap-2 font-mono text-xs text-(--color-text-muted)">
+        <span class="hidden sm:inline">Currency</span>
         <select id="currency-select" class="rounded-md border border-(--color-border-strong) bg-(--color-surface) px-2 py-1.5 text-(--color-text)">
           <option value="auto">Auto-detect</option>
           <option value="USD">USD</option>
@@ -162,237 +157,356 @@ if (faq) jsonLd.push(faq);
           <option value="CAD">CAD</option>
           <option value="AUD">AUD</option>
         </select>
-      </label>
+      </div>
     </div>
-    <p id="currency-note" class="mt-2 font-mono text-xs text-(--color-text-muted)"></p>
-  </Section>
+    <p id="currency-note" class="mt-1.5 font-mono text-[0.7rem] text-(--color-text-muted)"></p>
 
-  <Section class="pt-0 pb-8" bordered>
-    <h2 class="font-display text-xl font-semibold text-(--color-text)">Every business is different</h2>
-    <p class="mt-2 max-w-2xl text-sm text-(--color-text-muted)">
-      Company size is a starting point, not the answer — your infrastructure, risk, assets, cloud environments, users, endpoints, log volume and
-      coverage requirements all shape the right plan and the final price.
-    </p>
-    <div class="mt-6 grid gap-4 sm:grid-cols-5">
-      {BUSINESS_SIZES.map((b) => (
-        <div class="rounded-lg border border-(--color-border) bg-(--color-surface) p-4">
-          <p class="font-mono text-xs text-(--color-neon)">{b.label}</p>
-          <p class="mt-2 text-xs text-(--color-text-muted)">{b.desc}</p>
-        </div>
+    <!-- Business-size strip — a starting point, not the price determinant -->
+    <div class="mt-5 flex flex-wrap items-center gap-2 border-t border-(--color-border) pt-4">
+      <span class="font-mono text-[0.7rem] text-(--color-text-muted)">Built for:</span>
+      {BUSINESS_SIZES.map((label) => (
+        <span class="rounded-full border border-(--color-border-strong) px-3 py-1 text-xs text-(--color-text-muted)">{label}</span>
       ))}
+      <span class="font-mono text-[0.7rem] text-(--color-text-muted)">— infrastructure, risk and coverage shape the actual plan, not headcount alone.</span>
     </div>
-  </Section>
+  </section>
 
-  <Section id="plans" class="pt-0">
-    <SectionHeading as="h2" eyebrow="// security assurance" title="Monthly Security Assurance Plans" intro="Vulnerability management, assessments, and ongoing advisory — priced in USD, billed monthly." />
-    <div class="mt-8 grid gap-6 lg:grid-cols-4">
+  <!-- Main pricing packages -->
+  <section id="plans" class="container-page py-8">
+    <h2 class="font-display text-xl font-semibold text-(--color-text) sm:text-2xl">Monthly Security Assurance Plans</h2>
+    <div class="mt-6 grid gap-5 lg:grid-cols-4 [perspective:1600px]">
       {assurancePlans.map((plan) => (
-        <div class:list={['glass-card corner-brackets flex flex-col p-6', plan.isRecommended && 'ring-2 ring-(--color-neon)']} data-plan-slug={plan.slug}>
-          {plan.isRecommended && <p class="mb-2 font-mono text-xs text-(--color-neon)">★ Recommended</p>}
+        <div class:list={['pricing-card', plan.isRecommended && 'pricing-card--recommended']} data-plan-slug={plan.slug}>
+          {plan.isRecommended && <p class="pricing-card__badge">Recommended</p>}
           <h3 class="font-display text-lg font-semibold text-(--color-text)">{plan.name}</h3>
           {plan.targetAudience && <p class="mt-1 text-xs text-(--color-text-muted)">{plan.targetAudience}</p>}
-          <p class="mt-4">
-            <span class="font-display text-2xl font-semibold text-(--color-text)" data-price-usd={plan.monthlyPriceUsd ?? ''}>
-              {plan.isStartingAtPrice && 'From '}{formatUsd(plan.monthlyPriceUsd)}
+
+          <p class="mt-4 flex items-baseline gap-1">
+            {plan.isStartingAtPrice && <span class="text-xs text-(--color-text-muted)">From</span>}
+            <span class="font-display text-[1.75rem] font-semibold leading-none text-(--color-text)" data-price-usd={plan.monthlyPriceUsd ?? ''}>
+              {formatUsd(plan.monthlyPriceUsd)}
             </span>
-            {plan.monthlyPriceUsd !== null && <span class="text-sm text-(--color-text-muted)">/month</span>}
+            {plan.monthlyPriceUsd !== null && <span class="text-sm text-(--color-text-muted)">/mo</span>}
           </p>
-          <p class="mt-0.5 font-mono text-xs text-(--color-text-muted)" data-price-converted></p>
-          <p class="mt-3 text-xs text-(--color-text-muted)">Minimum {plan.minContractMonths}-month contract</p>
-          <ul class="mt-4 flex-1 space-y-2 text-sm text-(--color-text-muted)">
-            {plan.includedFeatures.map((f) => <li class="flex gap-2"><span class="text-(--color-neon)">•</span>{f}</li>)}
+          <p class="mt-0.5 min-h-[1em] font-mono text-xs text-(--color-text-muted)" data-price-converted></p>
+          <p class="mt-2 text-xs text-(--color-text-muted)">Min. {plan.minContractMonths}-month contract</p>
+
+          <ul class="mt-4 flex-1 space-y-1.5 text-sm text-(--color-text-muted)">
+            {plan.includedFeatures.slice(0, CARD_FEATURE_LIMIT).map((f) => (
+              <li class="flex items-start gap-2">
+                <Icon name="lucide:check" class="mt-0.5 size-3.5 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+                <span>{f}</span>
+              </li>
+            ))}
           </ul>
-          <Button href={plan.requiresEnterpriseContact ? '/contact/' : '/book/'} variant={plan.isRecommended ? 'primary' : 'secondary'} class="mt-6">
+          {plan.includedFeatures.length > CARD_FEATURE_LIMIT && (
+            <a href="#comparison" class="mt-2 inline-block font-mono text-xs text-(--color-neon-soft) hover:underline">
+              +{plan.includedFeatures.length - CARD_FEATURE_LIMIT} more — full comparison ↓
+            </a>
+          )}
+
+          <Button href={plan.requiresEnterpriseContact ? '/contact/' : '/book/'} variant={plan.isRecommended ? 'primary' : 'secondary'} class="mt-5 w-full">
             {plan.ctaLabel || 'Get Started'}
           </Button>
         </div>
       ))}
       {assurancePlans.length === 0 && <p class="text-sm text-(--color-text-muted)">Plans are temporarily unavailable — please check back shortly or contact us directly.</p>}
     </div>
-  </Section>
+  </section>
 
-  <Section bordered>
-    <SectionHeading
-      as="h2"
-      eyebrow="// managed security operations"
-      title="Managed Security Operations"
-      intro="Ongoing monitoring and detection — distinct from the assurance plans above, and priced separately."
-    />
-    <div class="mt-8 grid gap-6 lg:grid-cols-3">
+  <!-- Pricing comparison -->
+  {assurancePlans.length > 0 && (
+    <section id="comparison" class="container-page py-8 border-t border-(--color-border)">
+      <h2 class="font-display text-xl font-semibold text-(--color-text)">Plan Comparison</h2>
+      <div class="mt-5 overflow-x-auto rounded-xl border border-(--color-border)">
+        <table class="w-full min-w-[640px] text-sm">
+          <thead class="bg-(--color-surface) text-left text-(--color-text-muted)">
+            <tr>
+              <th class="px-4 py-2.5 font-medium">Feature</th>
+              {assurancePlans.map((p) => <th class="px-4 py-2.5 font-medium text-(--color-text)">{p.name.replace('Security ', '')}</th>)}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-(--color-border)">
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Base price</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{p.isStartingAtPrice && 'From '}{formatUsd(p.monthlyPriceUsd)}/mo</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Asset allowance</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{p.includedAssetLimit ? `Up to ${p.includedAssetLimit}` : 'Custom'}</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Vulnerability review</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{PLAN_COMPARISON_META[p.slug]?.vulnerabilityReview ?? '—'}</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Web application review</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{PLAN_COMPARISON_META[p.slug]?.webAppReview ?? '—'}</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Log / SIEM review</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{PLAN_COMPARISON_META[p.slug]?.logReview ?? '—'}</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Analyst hours / month</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{p.includedAnalystHoursPerMonth ? `Up to ${p.includedAnalystHoursPerMonth}` : 'SOW allocation'}</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Reporting</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{PLAN_COMPARISON_META[p.slug]?.reporting ?? '—'}</td>)}
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">Contract term</td>
+              {assurancePlans.map((p) => <td class="px-4 py-2.5 text-(--color-text)">{p.minContractMonths} months{p.minContractMonths >= 12 ? ' (normally)' : ''}</td>)}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 max-w-2xl text-xs text-(--color-text-muted)">
+        Final pricing reflects your actual infrastructure, risk, and coverage needs, confirmed before anything is signed — not employee count alone.
+      </p>
+    </section>
+  )}
+
+  <!-- Managed security operations -->
+  <section class="container-page py-8 border-t border-(--color-border)">
+    <h2 class="font-display text-xl font-semibold text-(--color-text)">Managed Security Operations</h2>
+    <p class="mt-1.5 max-w-2xl text-sm text-(--color-text-muted)">
+      Ongoing monitoring and detection — separate from the assurance plans above. Telemetry sources, coverage hours, and escalation procedures are agreed in the contract.
+    </p>
+    <div class="mt-6 grid gap-5 lg:grid-cols-3">
       {managedPlans.map((plan) => (
-        <div class="glass-card corner-brackets flex flex-col p-6" data-plan-slug={plan.slug}>
+        <div class="pricing-card" data-plan-slug={plan.slug}>
           <h3 class="font-display text-lg font-semibold text-(--color-text)">{plan.name}</h3>
-          <p class="mt-4">
-            <span class="font-display text-2xl font-semibold text-(--color-text)" data-price-usd={plan.monthlyPriceUsd ?? ''}>
-              {plan.isStartingAtPrice && 'From '}{formatUsd(plan.monthlyPriceUsd)}
+          <p class="mt-4 flex items-baseline gap-1">
+            {plan.isStartingAtPrice && <span class="text-xs text-(--color-text-muted)">From</span>}
+            <span class="font-display text-[1.75rem] font-semibold leading-none text-(--color-text)" data-price-usd={plan.monthlyPriceUsd ?? ''}>
+              {formatUsd(plan.monthlyPriceUsd)}
             </span>
-            {plan.monthlyPriceUsd !== null && <span class="text-sm text-(--color-text-muted)">/month</span>}
+            {plan.monthlyPriceUsd !== null && <span class="text-sm text-(--color-text-muted)">/mo</span>}
           </p>
-          <p class="mt-0.5 font-mono text-xs text-(--color-text-muted)" data-price-converted></p>
-          <ul class="mt-4 flex-1 space-y-2 text-sm text-(--color-text-muted)">
-            {plan.includedFeatures.map((f) => <li class="flex gap-2"><span class="text-(--color-neon)">•</span>{f}</li>)}
+          <p class="mt-0.5 min-h-[1em] font-mono text-xs text-(--color-text-muted)" data-price-converted></p>
+          <ul class="mt-4 flex-1 space-y-1.5 text-sm text-(--color-text-muted)">
+            {plan.includedFeatures.slice(0, CARD_FEATURE_LIMIT).map((f) => (
+              <li class="flex items-start gap-2">
+                <Icon name="lucide:check" class="mt-0.5 size-3.5 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+                <span>{f}</span>
+              </li>
+            ))}
           </ul>
           {plan.requires24x7Readiness && !plan.purchasable ? (
-            <p class="mt-6 rounded-md border border-(--color-border-strong) bg-(--color-bg) p-3 text-xs text-(--color-text-muted)">
-              24/7 managed monitoring is subject to operational availability and enterprise assessment. Contact our team to discuss your
-              requirements.
+            <p class="mt-5 rounded-md border border-(--color-border-strong) bg-(--color-bg) p-3 text-xs text-(--color-text-muted)">
+              Subject to operational availability and enterprise assessment. Contact our team to discuss your requirements.
             </p>
           ) : (
-            <Button href="/contact/" variant="secondary" class="mt-6">{plan.ctaLabel || 'Request a Proposal'}</Button>
+            <Button href="/contact/" variant="secondary" class="mt-5 w-full">{plan.ctaLabel || 'Request a Proposal'}</Button>
           )}
         </div>
       ))}
     </div>
-    <p class="mt-6 max-w-2xl text-xs text-(--color-text-muted)">
-      Automated alert generation is never described as 24/7 human security operations here — Managed Detection and Response means real analyst
-      coverage, only once that coverage genuinely exists.
+    <p class="mt-4 max-w-2xl text-xs text-(--color-text-muted)">
+      Automated alert generation is never described as 24/7 human security operations here, and no plan guarantees detection or prevention of every attack — Managed Detection and Response means real analyst coverage, only once that coverage genuinely exists and is contractually agreed.
     </p>
-  </Section>
+  </section>
 
-  <Section bordered>
-    <SectionHeading as="h2" eyebrow="// add-ons" title="Specialist Add-On Services" intro="One-off engagements, scoped and priced individually. Final prices depend on scope and complexity." />
-    <div class="mt-8 overflow-hidden rounded-lg border border-(--color-border)">
-      <table class="w-full text-sm">
-        <thead class="bg-(--color-surface) text-left text-(--color-text-muted)">
-          <tr><th class="px-4 py-3">Service</th><th class="px-4 py-3">Starting price</th></tr>
-        </thead>
-        <tbody>
-          {data.addOns.map((a) => (
-            <tr class="border-t border-(--color-border)" data-addon-slug={a.slug}>
-              <td class="px-4 py-3 text-(--color-text)">{a.name}</td>
-              <td class="px-4 py-3">
-                <span data-price-usd={a.startingPriceUsd ?? ''}>{formatUsd(a.startingPriceUsd)}</span>
-                <span class="ml-1 font-mono text-xs text-(--color-text-muted)" data-price-converted></span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  <!-- Specialist services -->
+  <section class="container-page py-8 border-t border-(--color-border)">
+    <h2 class="font-display text-xl font-semibold text-(--color-text)">Specialist Cybersecurity Services</h2>
+    <p class="mt-1.5 max-w-2xl text-sm text-(--color-text-muted)">
+      One-off, separately scoped engagements — not automatically included in monthly plans unless stated in a signed scope.
+    </p>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {data.addOns.map((a) => (
+        <div class="addon-card" data-addon-slug={a.slug}>
+          <h3 class="font-display text-sm font-semibold text-(--color-text)">{a.name}</h3>
+          {a.description && <p class="mt-1.5 text-xs leading-relaxed text-(--color-text-muted)">{a.description}</p>}
+          <div class="mt-3 flex items-center justify-between gap-2">
+            <p class="font-mono text-sm text-(--color-text)">
+              <span data-price-usd={a.startingPriceUsd ?? ''}>{a.startingPriceUsd !== null ? `From ${formatUsd(a.startingPriceUsd)}` : 'Custom Quote'}</span>
+              <span class="ml-1 text-xs text-(--color-text-muted)" data-price-converted></span>
+            </p>
+            <a href="/contact/" class="font-mono text-xs text-(--color-neon-soft) hover:underline">Enquire →</a>
+          </div>
+        </div>
+      ))}
     </div>
     <p class="mt-4 text-xs text-(--color-text-muted)">
-      Full penetration testing, major remediation, forensics and emergency incident response are separately scoped unless specifically included in
-      a signed Statement of Work.
+      Full penetration testing, major remediation, forensics and emergency incident response are separately scoped unless specifically included in a signed Statement of Work.
     </p>
-  </Section>
+  </section>
 
-  <Section bordered>
-    <SectionHeading as="h2" eyebrow="// consultation" title="Book a Cybersecurity Consultation" intro="Discuss your business's security requirements with Shahid Security. Choose a suitable appointment and tell us about your infrastructure and security concerns." />
-    <div class="mt-6 glass-card corner-brackets max-w-xl p-6">
-      <p class="text-sm text-(--color-text-muted)">
-        Consultation fee: <span class="font-mono text-(--color-text)">${data.consultation.feeUsd.toFixed(2)} USD</span>
-        <span class="font-mono text-(--color-text-muted)" data-price-converted data-price-usd={data.consultation.feeUsd}></span>
-        &nbsp;·&nbsp; {data.consultation.durationMinutes} minutes
-      </p>
-      <p class="mt-2 text-xs text-(--color-text-muted)">
-        {data.consultation.isRefundable && data.consultation.refundPolicyText ? data.consultation.refundPolicyText : 'This fee is non-refundable.'}
-      </p>
-      <Button href="/book/" variant="primary" class="mt-4">Book a Paid Consultation</Button>
-    </div>
-  </Section>
-
-  <Section bordered>
-    <SectionHeading as="h2" eyebrow="// support" title="SLA & Support Framework" intro="Initial acknowledgement targets — not guaranteed resolution or containment times." />
-    <div class="mt-8 overflow-x-auto rounded-lg border border-(--color-border)">
-      <table class="w-full min-w-[480px] text-sm">
-        <thead class="bg-(--color-surface) text-left text-(--color-text-muted)">
-          <tr><th class="px-4 py-3">Priority</th><th class="px-4 py-3">Essential</th><th class="px-4 py-3">Professional</th><th class="px-4 py-3">Advanced</th></tr>
-        </thead>
-        <tbody>
-          {SLA_ROWS.map((r) => (
-            <tr class="border-t border-(--color-border)">
-              <td class="px-4 py-3 text-(--color-text)">{r.priority}</td>
-              <td class="px-4 py-3 text-(--color-text-muted)">{r.essential}</td>
-              <td class="px-4 py-3 text-(--color-text-muted)">{r.professional}</td>
-              <td class="px-4 py-3 text-(--color-text-muted)">{r.advanced}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <ul class="mt-4 space-y-1 text-xs text-(--color-text-muted)">
-      <li><strong class="text-(--color-text)">P1 Critical:</strong> suspected active compromise or critical incident.</li>
-      <li><strong class="text-(--color-text)">P2 High:</strong> serious security exposure or high-impact vulnerability.</li>
-      <li><strong class="text-(--color-text)">P3 Medium:</strong> medium-risk issue.</li>
-      <li><strong class="text-(--color-text)">P4 Low:</strong> general request or advice.</li>
-    </ul>
-    <p class="mt-3 text-xs text-(--color-text-muted)">
-      A separate 24/7 SLA, with its own staffed coverage and escalation targets, only applies once Managed Detection and Response is active — see
-      Managed Security Operations above. 24/7 response is never implied for customers on a business-hours plan.
-    </p>
-  </Section>
-
-  <Section bordered>
-    <div class="grid gap-10 lg:grid-cols-2">
-      <div>
-        <h2 class="font-display text-xl font-semibold text-(--color-text)">What's included</h2>
-        <ul class="mt-4 space-y-2 text-sm text-(--color-text-muted)">
-          {WHATS_INCLUDED.map((i) => <li class="flex gap-2"><span class="text-(--color-neon)">•</span>{i}</li>)}
-        </ul>
+  <!-- Consultation & contract -->
+  <section class="container-page py-8 border-t border-(--color-border)">
+    <div class="grid gap-6 lg:grid-cols-5">
+      <div class="pricing-card lg:col-span-2">
+        <h2 class="font-display text-lg font-semibold text-(--color-text)">Book a Paid Consultation</h2>
+        <p class="mt-2 text-sm text-(--color-text-muted)">Discuss your infrastructure and security concerns — we'll recommend the right package.</p>
+        <p class="mt-4 text-sm text-(--color-text-muted)">
+          Fee: <span class="font-mono text-(--color-text)">${data.consultation.feeUsd.toFixed(2)} USD</span>
+          <span class="font-mono text-(--color-text-muted)" data-price-converted data-price-usd={data.consultation.feeUsd}></span>
+          &nbsp;·&nbsp;{data.consultation.durationMinutes} min
+        </p>
+        <p class="mt-1.5 text-xs text-(--color-text-muted)">
+          {data.consultation.isRefundable && data.consultation.refundPolicyText ? data.consultation.refundPolicyText : 'This fee is non-refundable.'}
+        </p>
+        <Button href="/book/" variant="primary" class="mt-4 w-full">Book Your Paid Consultation</Button>
       </div>
-      <div>
-        <h2 class="font-display text-xl font-semibold text-(--color-text)">How it works</h2>
-        <ol class="mt-4 space-y-2 text-sm text-(--color-text-muted)">
-          {HOW_IT_WORKS.map((step, i) => <li class="flex gap-2"><span class="font-mono text-(--color-neon)">{i + 1}.</span>{step}</li>)}
+
+      <div class="lg:col-span-3">
+        <h2 class="font-display text-lg font-semibold text-(--color-text)">Contract & Commercial Terms</h2>
+        <ul class="mt-3 grid gap-x-6 gap-y-1.5 text-sm text-(--color-text-muted) sm:grid-cols-2">
+          <li class="flex gap-2"><span class="text-(--color-neon)">•</span>3-month minimum initial term for standard plans</li>
+          <li class="flex gap-2"><span class="text-(--color-neon)">•</span>Monthly billing, in advance</li>
+          <li class="flex gap-2"><span class="text-(--color-neon)">•</span>Enterprise terms normally 12 months</li>
+          <li class="flex gap-2"><span class="text-(--color-neon)">•</span>Onboarding fee may apply (complexity-based)</li>
+          <li class="flex gap-2"><span class="text-(--color-neon)">•</span>Out-of-scope work requires written approval</li>
+          <li class="flex gap-2"><span class="text-(--color-neon)">•</span>Taxes and applicable fees are additional</li>
+          <li class="flex gap-2 sm:col-span-2"><span class="text-(--color-neon)">•</span>Governed by a signed MSA, SOW, and SLA — reviewed by qualified legal counsel for your jurisdiction</li>
+        </ul>
+
+        <h3 class="mt-5 font-mono text-xs text-(--color-text-muted)">How it works</h3>
+        <ol class="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-(--color-text-muted)">
+          {HOW_IT_WORKS.map((step, i) => <li class="flex items-center gap-1.5"><span class="font-mono text-(--color-neon)">{i + 1}.</span>{step}</li>)}
         </ol>
       </div>
     </div>
-  </Section>
+  </section>
 
-  <Section bordered>
-    <SectionHeading as="h2" eyebrow="// methodology" title="How pricing is determined" intro="Plan prices reflect the typical scope described for each tier — your final price is confirmed against your actual environment." />
-    <p class="mt-6 max-w-3xl text-sm text-(--color-text-muted)">
-      Scope and price depend on: number of employees, number of endpoints, number of websites and applications, public-facing assets, cloud
-      infrastructure, office locations, network complexity, log volume, required monitoring hours, compliance obligations, incident response
-      requirements, and any specialist skills the engagement needs.
-    </p>
-  </Section>
-
-  <Section bordered>
-    <SectionHeading as="h2" eyebrow="// contracts" title="Contract Structure" intro="Every engagement is backed by a clear written agreement — reviewed by qualified legal counsel for the relevant jurisdiction, never a verbal understanding." />
-    <div class="mt-8 grid gap-6 sm:grid-cols-2">
-      <div class="rounded-lg border border-(--color-border) p-5">
-        <h3 class="font-mono text-xs text-(--color-neon)">Master Services Agreement (MSA)</h3>
-        <p class="mt-2 text-sm text-(--color-text-muted)">Legal identities, confidentiality, payment terms, data protection, liability, IP, termination, and dispute resolution.</p>
-      </div>
-      <div class="rounded-lg border border-(--color-border) p-5">
-        <h3 class="font-mono text-xs text-(--color-neon)">Statement of Work (SOW)</h3>
-        <p class="mt-2 text-sm text-(--color-text-muted)">Exact assets, package and add-ons, included hours, deliverables, exclusions, client responsibilities, authorized testing scope, and start date.</p>
-      </div>
-      <div class="rounded-lg border border-(--color-border) p-5">
-        <h3 class="font-mono text-xs text-(--color-neon)">Service Level Agreement (SLA)</h3>
-        <p class="mt-2 text-sm text-(--color-text-muted)">Support hours, timezone, severity definitions, acknowledgement targets, escalation, planned maintenance, and third-party dependencies.</p>
-      </div>
-      <div class="rounded-lg border border-(--color-border) p-5">
-        <h3 class="font-mono text-xs text-(--color-neon)">Security Testing Authorization</h3>
-        <p class="mt-2 text-sm text-(--color-text-muted)">Written authorization, in-scope and out-of-scope assets, approved methods, testing windows, an emergency stop contact, and data handling.</p>
-      </div>
+  <!-- SLA -->
+  <section class="container-page py-8 border-t border-(--color-border)">
+    <h2 class="font-display text-xl font-semibold text-(--color-text)">SLA & Support</h2>
+    <p class="mt-1.5 text-sm text-(--color-text-muted)">Initial acknowledgement targets — not guaranteed resolution or containment times.</p>
+    <div class="mt-5 overflow-x-auto rounded-xl border border-(--color-border)">
+      <table class="w-full min-w-[480px] text-sm">
+        <thead class="bg-(--color-surface) text-left text-(--color-text-muted)">
+          <tr><th class="px-4 py-2.5 font-medium">Priority</th><th class="px-4 py-2.5 font-medium">Essential</th><th class="px-4 py-2.5 font-medium">Professional</th><th class="px-4 py-2.5 font-medium">Advanced</th></tr>
+        </thead>
+        <tbody class="divide-y divide-(--color-border)">
+          {SLA_ROWS.map((r) => (
+            <tr>
+              <td class="px-4 py-2.5 text-(--color-text)">{r.priority}</td>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">{r.essential}</td>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">{r.professional}</td>
+              <td class="px-4 py-2.5 text-(--color-text-muted)">{r.advanced}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-    <h3 class="mt-8 font-mono text-xs text-(--color-neon)">Commercial policy</h3>
-    <ul class="mt-3 space-y-1.5 text-sm text-(--color-text-muted)">
-      <li>Three-month minimum initial term for standard monthly plans; monthly payment in advance.</li>
-      <li>Enterprise-tier contracts are normally 12 months, with exceptions only when approved by an authorized admin.</li>
-      <li>An onboarding fee (configurable, typically 50–100% of the first monthly fee) and an annual prepayment discount (up to 10%, if approved) may apply.</li>
-      <li>Additional hours beyond your plan's included allocation are billed separately; out-of-scope work always requires written approval first.</li>
-      <li>Cancellation, renewal, and price-review terms are set out in your contract.</li>
-    </ul>
-  </Section>
+    <p class="mt-3 text-xs text-(--color-text-muted)">
+      A separate 24/7 SLA only applies once Managed Detection and Response is active. 24/7 response is never implied for customers on a business-hours plan.
+    </p>
+  </section>
 
-  <Section bordered>
+  <!-- FAQ -->
+  <section class="container-page py-8 border-t border-(--color-border)">
     <h2 class="font-display text-xl font-semibold text-(--color-text)">Frequently Asked Questions</h2>
-    <div class="mt-6 max-w-3xl">
+    <div class="mt-4 max-w-3xl">
       <FAQ items={FAQ_ITEMS.map((f) => ({ q: f.q, a: f.a }))} />
     </div>
-  </Section>
+  </section>
 
-  <Section>
+  <section class="container-page pb-16 pt-4">
     <CTABand
       title="Let's Build a Stronger Security Posture for Your Business."
       text="Book a paid consultation, request an enterprise proposal, or just get in touch — we'll tell you honestly where you stand."
       primaryLabel="Book a Paid Consultation"
       primaryHref="/book/"
     />
-  </Section>
+  </section>
 </BaseLayout>
+
+<style>
+  /* 3D glassmorphism pricing cards — builds on the site's existing
+     .glass-card material (backdrop blur, frosted surface, inset
+     highlight) rather than inventing a new one, with the extra depth/
+     lift/recommended treatment this page specifically asked for.
+     Scoped to this page only — the shared .glass-card class and every
+     other page using it is untouched. */
+  .pricing-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(165deg, color-mix(in oklab, white 6%, transparent), transparent 40%),
+      color-mix(in oklab, var(--color-surface) 60%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-neon-soft) 16%, var(--color-border-strong));
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow:
+      0 20px 44px -20px rgba(0, 0, 0, 0.65),
+      inset 0 1px 0 0 color-mix(in oklab, white 10%, transparent),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+    transform: translateZ(0) rotateX(0deg);
+    transform-style: preserve-3d;
+    transition:
+      transform 220ms ease,
+      border-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-6px) rotateX(2deg);
+    border-color: color-mix(in oklab, var(--color-neon-soft) 45%, var(--color-border-strong));
+    box-shadow:
+      0 28px 56px -20px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.3),
+      0 0 36px -8px color-mix(in oklab, var(--color-neon-soft) 40%, transparent);
+  }
+
+  .pricing-card--recommended {
+    border-color: color-mix(in oklab, var(--color-neon) 55%, var(--color-border-strong));
+    transform: translateY(-4px);
+    box-shadow:
+      0 24px 52px -18px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 0 color-mix(in oklab, white 14%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--color-neon) 35%, transparent),
+      0 0 32px -6px color-mix(in oklab, var(--color-neon-soft) 35%, transparent);
+  }
+
+  .pricing-card--recommended:hover {
+    transform: translateY(-9px) rotateX(2deg);
+  }
+
+  .pricing-card__badge {
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-bg);
+    background: linear-gradient(135deg, var(--color-neon-soft), var(--color-neon));
+  }
+
+  .addon-card {
+    border-radius: 1rem;
+    padding: 1.1rem;
+    background: color-mix(in oklab, var(--color-surface) 50%, transparent);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    transition: border-color 180ms ease, transform 180ms ease;
+  }
+
+  .addon-card:hover {
+    border-color: color-mix(in oklab, var(--color-neon-soft) 40%, var(--color-border-strong));
+    transform: translateY(-2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pricing-card,
+    .pricing-card:hover,
+    .pricing-card--recommended:hover,
+    .addon-card:hover {
+      transform: none;
+    }
+  }
+</style>
 
 <script define:vars={{ ADMIN_API_BASE }}>
   const CURRENCY_STORAGE_KEY = 'shahid-security-currency';
@@ -418,8 +532,8 @@ if (faq) jsonLd.push(faq);
     try {
       const localeRegion = (Intl.NumberFormat().resolvedOptions().locale || '').split('-')[1] || '';
       const res = await fetch(`${ADMIN_API_BASE}/api/public/geo-currency${localeRegion ? `?localeRegion=${encodeURIComponent(localeRegion)}` : ''}`);
-      const data = await res.json();
-      return data.currencyCode || 'USD';
+      const d = await res.json();
+      return d.currencyCode || 'USD';
     } catch {
       return 'USD';
     }
@@ -433,18 +547,18 @@ if (faq) jsonLd.push(faq);
     }
     try {
       const res = await fetch(`${ADMIN_API_BASE}/api/public/pricing-plans?currency=${encodeURIComponent(currency)}`);
-      const data = await res.json();
-      if (data.requestedCurrency !== currency) return; // server fell back (e.g. no cached rate) — leave USD-only display
+      const d = await res.json();
+      if (d.requestedCurrency !== currency) return; // server fell back (e.g. no cached rate) — leave USD-only display
 
-      const byPlan = Object.fromEntries((data.plans || []).map((p) => [p.slug, p]));
-      const byAddOn = Object.fromEntries((data.addOns || []).map((a) => [a.slug, a]));
+      const byPlan = Object.fromEntries((d.plans || []).map((p) => [p.slug, p]));
+      const byAddOn = Object.fromEntries((d.addOns || []).map((a) => [a.slug, a]));
 
       document.querySelectorAll('[data-plan-slug]').forEach((card) => {
         const slug = card.getAttribute('data-plan-slug');
         const plan = byPlan[slug];
         const convertedEl = card.querySelector('[data-price-converted]');
         if (plan && plan.converted && !plan.converted.usedFallback && convertedEl) {
-          convertedEl.textContent = `≈ ${plan.converted.currencyCode} ${plan.converted.amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}${plan.monthlyPriceUsd !== null ? '/month' : ''} (estimate)`;
+          convertedEl.textContent = `≈ ${plan.converted.currencyCode} ${plan.converted.amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}${plan.monthlyPriceUsd !== null ? '/mo' : ''}`;
         }
       });
       document.querySelectorAll('[data-addon-slug]').forEach((row) => {
@@ -456,9 +570,9 @@ if (faq) jsonLd.push(faq);
         }
       });
       // Consultation fee block isn't inside a [data-plan-slug] card — update it directly.
-      const consultEl = document.querySelector('.glass-card [data-price-converted][data-price-usd]');
-      if (consultEl && data.consultation?.converted && !data.consultation.converted.usedFallback) {
-        consultEl.textContent = ` (≈ ${data.consultation.converted.currencyCode} ${data.consultation.converted.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })})`;
+      const consultEl = document.querySelector('.pricing-card [data-price-converted][data-price-usd]');
+      if (consultEl && d.consultation?.converted && !d.consultation.converted.usedFallback) {
+        consultEl.textContent = ` (≈ ${d.consultation.converted.currencyCode} ${d.consultation.converted.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })})`;
       }
 
       if (note) note.textContent = 'Local-currency figures are estimates. The authoritative price and actual charge are always in USD.';
