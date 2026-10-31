@@ -49,15 +49,45 @@ let data: ApiResponse = {
   consultation: { feeUsd: 0, durationMinutes: 45, isRefundable: false, refundPolicyText: null, converted: null },
   socAvailability: 'disabled',
 };
-try {
-  const res = await fetch(`${ADMIN_API_BASE}/api/public/pricing-plans`);
-  if (res.ok) data = await res.json();
-} catch {
-  // Build-time fetch failed (admin app unreachable at build time) —
-  // the page still renders with empty plan lists rather than failing
-  // the whole site build; the client-side currency script below has
-  // the same graceful-degradation behavior at runtime.
+
+// A single best-effort attempt here was confirmed (by repeated live
+// deploys that silently rebuilt with empty plans despite the database
+// having data) to be too fragile for a build that runs once on a
+// GitHub Actions runner and then gets served statically until the
+// next push — any one transient hiccup (slow cold start on the admin
+// app's side, a dropped connection, DNS taking a moment) permanently
+// bakes "Plans are temporarily unavailable" into the deployed HTML
+// until something else happens to trigger another rebuild. Retrying
+// a few times with backoff, each attempt capped so a hung connection
+// can't stall the build indefinitely, makes one bad request recoverable
+// instead of fatal.
+async function fetchPricingPlans(): Promise<ApiResponse | null> {
+  const attempts = 4;
+  const timeoutMs = 10_000;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`${ADMIN_API_BASE}/api/public/pricing-plans`, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (res.ok) return await res.json();
+      console.error(`[pricing.astro] build-time fetch attempt ${attempt}/${attempts} got HTTP ${res.status}`);
+    } catch (err) {
+      clearTimeout(timeout);
+      console.error(`[pricing.astro] build-time fetch attempt ${attempt}/${attempts} failed:`, err instanceof Error ? err.message : err);
+    }
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+    }
+  }
+  return null;
 }
+
+const fetched = await fetchPricingPlans();
+if (fetched) data = fetched;
+// If every attempt failed, the page still renders with empty plan lists
+// rather than failing the whole site build; the client-side currency
+// script below has the same graceful-degradation behavior at runtime.
 
 const assurancePlans = data.plans.filter((p) => p.category === 'assurance');
 const managedPlans = data.plans.filter((p) => p.category === 'managed_security');

@@ -13,16 +13,37 @@ type PublicPrice = { name: string; description: string | null; type: string; amo
 // — the price shown here always comes from the same server-side
 // resolvePrice() checkout itself uses, never a hardcoded number
 // (docs/LMS_DECISIONS.md #8: "the PKR 800 price is never hardcoded in code").
-let products: PublicPrice[] = [];
-try {
-  const res = await fetch(`${LEARN_API_BASE}/api/public/pricing`);
-  if (res.ok) {
-    const data = await res.json();
-    products = data.products ?? [];
+//
+// Retries with backoff: a single attempt here was confirmed (on
+// src/pages/pricing.astro's identical pattern — see its comment) to be
+// fragile enough that one transient build-time hiccup permanently bakes
+// an empty-pricing page into the static site until the next push.
+async function fetchLearnPricing(): Promise<PublicPrice[] | null> {
+  const attempts = 4;
+  const timeoutMs = 10_000;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`${LEARN_API_BASE}/api/public/pricing`, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (res.ok) {
+        const data = await res.json();
+        return data.products ?? [];
+      }
+      console.error(`[learn/pricing.astro] build-time fetch attempt ${attempt}/${attempts} got HTTP ${res.status}`);
+    } catch (err) {
+      clearTimeout(timeout);
+      console.error(`[learn/pricing.astro] build-time fetch attempt ${attempt}/${attempts} failed:`, err instanceof Error ? err.message : err);
+    }
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+    }
   }
-} catch {
-  products = [];
+  return null;
 }
+
+const products: PublicPrice[] = (await fetchLearnPricing()) ?? [];
 
 function formatAmount(amountMinorUnits: number, currencyCode: string): string {
   return `${currencyCode} ${(amountMinorUnits / 100).toLocaleString()}`;

@@ -22,16 +22,37 @@ type RoadmapStage = {
 // Falls back to an empty list (rendered as an honest "not published yet"
 // state below) rather than failing the whole site build if the LMS app
 // is temporarily unreachable at build time.
-let stages: RoadmapStage[] = [];
-try {
-  const res = await fetch(`${LEARN_API_BASE}/api/public/roadmap`);
-  if (res.ok) {
-    const data = await res.json();
-    stages = data.stages ?? [];
+//
+// Retries with backoff: a single attempt here was confirmed (on
+// src/pages/pricing.astro's identical pattern — see its comment) to be
+// fragile enough that one transient build-time hiccup permanently bakes
+// an empty page into the static site until the next push.
+async function fetchRoadmap(): Promise<RoadmapStage[] | null> {
+  const attempts = 4;
+  const timeoutMs = 10_000;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`${LEARN_API_BASE}/api/public/roadmap`, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (res.ok) {
+        const data = await res.json();
+        return data.stages ?? [];
+      }
+      console.error(`[learn/roadmap.astro] build-time fetch attempt ${attempt}/${attempts} got HTTP ${res.status}`);
+    } catch (err) {
+      clearTimeout(timeout);
+      console.error(`[learn/roadmap.astro] build-time fetch attempt ${attempt}/${attempts} failed:`, err instanceof Error ? err.message : err);
+    }
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+    }
   }
-} catch {
-  stages = [];
+  return null;
 }
+
+const stages: RoadmapStage[] = (await fetchRoadmap()) ?? [];
 ---
 
 <BaseLayout
