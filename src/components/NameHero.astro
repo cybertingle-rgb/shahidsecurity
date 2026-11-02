@@ -1,70 +1,54 @@
 ---
-// Signature name hero: a huge display of "Shahid Iqbal" with the
-// founder photo overlaid in front of the lettering on larger screens
-// (stacked, non-overlapping on mobile so the name stays legible).
-// Reveals via the site-wide data-reveal system (CinematicMotion.astro) —
-// no bespoke animation code needed here.
+// Signature name hero: a huge display of "Shahid Iqbal" beside the
+// founder's full, uncropped photo on the right (stacked below the name
+// on mobile). Reveals via the site-wide data-reveal system
+// (CinematicMotion.astro) — no bespoke animation code needed here.
 ---
 
 <section class="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
   <div class="container-page">
     <div
-      class="relative flex flex-col items-center text-center lg:items-start lg:text-left"
+      class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
       data-reveal
     >
-      <p class="eyebrow">// Hello, I'm</p>
-
-      <div class="name-hero-stack relative mt-4 w-full lg:mt-6">
-        <h1 class="name-hero-heading font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text)">
+      <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
+        <p class="eyebrow">// Hello, I'm</p>
+        <h1 class="name-hero-heading mt-4 font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text) lg:mt-6">
           <span class="block">Shahid</span>
           <span class="block text-(--color-neon-soft)">Iqbal</span>
         </h1>
-
-        <div class="name-hero-photo-wrap relative z-10 mx-auto mt-8 lg:absolute lg:inset-y-0 lg:left-[26%] lg:mx-0 lg:mt-0">
-          <img
-            src="/brand/founder-photo.webp"
-            alt="Shahid Iqbal, founder of Shahid Security"
-            width="480"
-            height="598"
-            class="name-hero-photo"
-          />
-        </div>
+        <p class="relative z-10 mt-8 max-w-xl text-lg leading-relaxed text-(--color-text-muted) lg:mt-6">
+          Founder of Shahid Security — cybersecurity consultant and ethical hacker, trusted to find
+          the gaps before attackers do.
+        </p>
       </div>
 
-      <p class="relative z-10 mt-8 max-w-xl text-lg leading-relaxed text-(--color-text-muted) lg:mt-6">
-        Founder of Shahid Security — cybersecurity consultant and ethical hacker, trusted to find
-        the gaps before attackers do.
-      </p>
+      <div class="name-hero-photo-wrap mx-auto lg:mx-0 lg:ml-auto">
+        <img
+          src="/brand/founder-photo.webp"
+          alt="Shahid Iqbal, founder of Shahid Security"
+          width="480"
+          height="598"
+          class="name-hero-photo"
+        />
+      </div>
     </div>
   </div>
 </section>
 
 <style>
   .name-hero-heading {
-    font-size: clamp(3.5rem, 13vw, 11rem);
+    font-size: clamp(3.25rem, 11vw, 9rem);
   }
 
   .name-hero-photo-wrap {
-    width: clamp(220px, 55vw, 320px);
-  }
-
-  @media (min-width: 1024px) {
-    .name-hero-photo-wrap {
-      width: clamp(320px, 26vw, 440px);
-    }
+    width: clamp(240px, 70vw, 420px);
   }
 
   .name-hero-photo {
+    display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 480 / 598;
-    object-fit: cover;
-    /* Soft vignette cutout — fades the photo's busy real-world
-       background into the page background so it reads as a floating
-       portrait "in front of" the lettering rather than a hard rectangle.
-       Explicit (sub-100%) ellipse radii so the fade is clearly visible
-       within the frame, not just at its exact corners. */
-    -webkit-mask-image: radial-gradient(ellipse 46% 56% at 50% 32%, black 0%, black 42%, transparent 92%);
-    mask-image: radial-gradient(ellipse 46% 56% at 50% 32%, black 0%, black 42%, transparent 92%);
+    filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.45));
   }
 </style>
