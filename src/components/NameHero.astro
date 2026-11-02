@@ -1,29 +1,39 @@
 ---
 // Signature name hero: a huge display of "Shahid Iqbal" beside the
 // founder's full, uncropped photo on the right (stacked below the name
-// on mobile). Reveals via the site-wide data-reveal system
-// (CinematicMotion.astro) — no bespoke animation code needed here.
+// on mobile). Unlike the rest of the site (which reveals on scroll via
+// the generic data-reveal system in CinematicMotion.astro), this hero
+// plays a one-time cinematic load-in sequence — eyebrow, then the name
+// letter by letter, then the photo, then the subtitle — timed to start
+// as the preloader fades out. That sequence is driven from
+// CinematicMotion.astro via the data-hero-* attributes below, not
+// data-reveal (which is scroll-triggered and would be redundant for
+// content that's already on screen at load).
 ---
 
 <section class="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
   <div class="container-page">
-    <div
-      class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
-      data-reveal
-    >
+    <div class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
       <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
-        <p class="eyebrow">// Hello, I'm</p>
-        <h1 class="name-hero-heading mt-4 font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text) lg:mt-6">
-          <span class="block">Shahid</span>
-          <span class="block text-(--color-neon-soft)">Iqbal</span>
+        <p class="eyebrow" data-hero-eyebrow>// Hello, I'm</p>
+        <h1
+          class="name-hero-heading mt-4 font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text) lg:mt-6"
+          data-hero-name
+          aria-label="Shahid Iqbal"
+        >
+          <span class="block" aria-hidden="true">Shahid</span>
+          <span class="block text-(--color-neon-soft)" aria-hidden="true">Iqbal</span>
         </h1>
-        <p class="relative z-10 mt-8 max-w-xl text-lg leading-relaxed text-(--color-text-muted) lg:mt-6">
+        <p
+          class="relative z-10 mt-8 max-w-xl text-lg leading-relaxed text-(--color-text-muted) lg:mt-6"
+          data-hero-sub
+        >
           Founder of Shahid Security — cybersecurity consultant and ethical hacker, trusted to find
           the gaps before attackers do.
         </p>
       </div>
 
-      <div class="name-hero-photo-wrap mx-auto lg:mx-0 lg:ml-auto">
+      <div class="name-hero-photo-wrap mx-auto lg:mx-0 lg:ml-auto" data-hero-photo>
         <img
           src="/brand/founder-photo.webp"
           alt="Shahid Iqbal, founder of Shahid Security"
