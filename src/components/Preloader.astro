@@ -146,8 +146,8 @@ const RAIN = RAIN_POSITIONS.map((pos, i) => ({
     white-space: nowrap;
     width: 0;
     font-size: clamp(0.6rem, 1.35vw, 0.85rem);
-    color: #4dd4ff;
-    text-shadow: 0 0 8px rgba(77, 212, 255, 0.75);
+    color: var(--color-neon-soft);
+    text-shadow: 0 0 8px color-mix(in oklab, var(--color-neon-soft) 75%, transparent);
     animation: preloader-rain-type var(--dur) linear var(--delay) infinite;
   }
 

@@ -93,9 +93,9 @@ const trustItems = [
   <Section class="relative overflow-hidden pt-20 sm:pt-28">
     <HeroBackdrop />
     <div class="relative grid gap-12 lg:grid-cols-2 lg:items-center">
-      <div>
+      <div data-reveal>
         <p class="eyebrow">Shahid Security</p>
-        <h1 class="mt-4 text-4xl font-semibold leading-tight text-(--color-text) sm:text-5xl">
+        <h1 class="mt-4 text-5xl font-semibold leading-[1.02] tracking-tight text-(--color-text) sm:text-6xl lg:text-7xl">
           Cybersecurity Assessment, Penetration Testing & Security Engineering
           <span class="cursor-blink cursor-blink-hero text-(--color-success)">█</span>
         </h1>
@@ -171,7 +171,7 @@ const trustItems = [
       eyebrow="// 01 THE PROBLEM"
       title="Most breaches start with something nobody knew was there."
     />
-    <div class="mt-10 grid gap-6 sm:grid-cols-3">
+    <div class="mt-10 grid gap-6 sm:grid-cols-3" data-reveal>
       <div class="glass-card corner-brackets p-6">
         <h3 class="font-display text-lg font-semibold text-(--color-text)">
           You don't know what's exposed.
@@ -208,7 +208,7 @@ const trustItems = [
       title="Cybersecurity services"
       intro="Penetration testing, audits, monitoring and response — the core of what we do."
     />
-    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal>
       {homeServiceCards.map((s) => (
         <ServiceCard
           title={s.title}
@@ -258,7 +258,7 @@ const trustItems = [
 
   <Section>
     <SectionHeading eyebrow="// 03 WHY WORK WITH US" title="Why work with us" />
-    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
       {values.map((v) => (
         <div class="glass-card p-6">
           <h3 class="font-display text-base font-semibold text-(--color-text)">{v.title}</h3>

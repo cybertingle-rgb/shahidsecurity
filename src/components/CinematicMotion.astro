@@ -1,0 +1,68 @@
+---
+// Site-wide motion layer: Lenis smooth scroll + GSAP ScrollTrigger,
+// driving a generic [data-reveal] scroll-reveal system. Any element
+// marked data-reveal (SectionHeading.astro's wrapper, and anywhere else
+// this attribute is added) animates in once when it enters the
+// viewport — no per-section JS needed elsewhere. An element already in
+// the viewport at load (the hero's heading) reveals immediately rather
+// than waiting for a scroll, since ScrollTrigger evaluates each
+// trigger's position as soon as it's created. Entirely inert (content
+// shown at full opacity, no Lenis) when prefers-reduced-motion is set.
+// Rendered once from BaseLayout; GSAP/Lenis ship as normal bundled npm
+// imports (not a CDN <script>), so the existing strict CSP
+// (script-src 'self') needs no changes to allow this.
+---
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import Lenis from 'lenis';
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (!prefersReducedMotion) {
+    const lenis = new Lenis({
+      duration: 1.1,
+      smoothWheel: true,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  // Scroll-reveal: fade + rise, staggered across an element's direct
+  // children when it has them (a heading + intro paragraph reveal as
+  // two beats, not one block) — otherwise the element itself.
+  const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+  revealEls.forEach((el) => {
+    const targets = el.children.length > 0 ? Array.from(el.children) : [el];
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    gsap.set(targets, { opacity: 0, y: 28 });
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(targets, {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          stagger: 0.12,
+        });
+      },
+    });
+  });
+</script>
