@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import NameHero from '@/components/NameHero.astro';
 import Section from '@/components/Section.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Button from '@/components/Button.astro';
@@ -90,7 +91,11 @@ const trustItems = [
   isHome
   ogImage="/og/home.png"
 >
-  <Section class="relative overflow-hidden pt-20 sm:pt-28">
+  <NameHero />
+
+  <ScanDivider />
+
+  <Section class="relative overflow-hidden">
     <HeroBackdrop />
     <div class="relative grid gap-12 lg:grid-cols-2 lg:items-center">
       <div data-reveal>
