@@ -1,0 +1,73 @@
+---
+title: 'DORA Compliance: What Software Vendors Serving EU Financial Clients Need to Know in 2026'
+description: 'DORA now requires EU financial firms to manage ICT third-party risk formally, and that obligation flows straight down to their software vendors and developers. Heres what it actually asks for.'
+publishedAt: 2026-11-04
+tags: ['compliance', 'dora', 'third-party-risk']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['third-party-vendor-risk-management-smb', 'gcc-cybersecurity-compliance-sama-nesa']
+faqs:
+  - q: 'We are a small software vendor, not a bank — does DORA actually apply to us?'
+    a: "DORA directly regulates EU financial entities (banks, insurers, investment firms, and others), not your business by name. But if you provide ICT services — software development, hosting, a SaaS platform, managed IT support — to any EU financial entity, that entity's own DORA obligations require it to manage you as part of its ICT third-party risk, including contractual terms, audit rights, and incident reporting flow-down. In practice, this means your financial-sector client will likely come to you with new, more specific contractual and reporting requirements than they asked for before, even though DORA does not name you directly."
+  - q: 'What is a Critical ICT Third-Party Provider (CTPP), and are we at risk of becoming one?'
+    a: "A CTPP is a third-party ICT provider formally designated by EU regulators as critical to the financial system — the first 19 were named in late 2025, and they are large, systemically significant providers (think major cloud and core infrastructure platforms), not typical SME vendors. Most software exporters and development shops have no realistic path to CTPP designation. The relevant risk for a smaller vendor is not direct regulatory designation — it is being treated as a higher-scrutiny supplier inside a financial client's own internal risk program."
+  - q: 'What is the single most useful thing we can do before a financial-sector client asks about DORA?'
+    a: "Be able to answer, clearly and specifically, how you would detect and report a security incident affecting their data or systems, and how fast. DORA's incident classification and reporting timelines are consistently flagged as one of the areas where third-party providers struggle most in practice, and being able to answer that question concretely — rather than with a generic security statement — is a real differentiator in a financial-sector procurement conversation."
+draft: false
+---
+
+If your business builds software, provides hosting, or runs managed IT services for any client in the EU financial sector — a bank, an insurer, a fintech, an investment platform — a regulation that does not name your company directly is already shaping what that client expects from you. The **Digital Operational Resilience Act (DORA)** has been in force since January 2025, and through 2026 its enforcement has matured into something with real teeth: formal ICT third-party risk requirements that flow straight down from the regulated financial entity to every vendor it relies on, including yours.
+
+## What DORA actually is
+
+DORA is an EU regulation requiring financial entities to build genuine operational resilience against ICT disruption and cyber incidents — not just a security policy on paper, but demonstrable capability to prevent, respond to, and recover from technology failures and attacks. It covers five core pillars: ICT risk management, incident reporting, resilience testing, third-party risk management, and information sharing. For a company that sells into or supports the EU financial sector, the pillar that matters most directly is the third one.
+
+## Why this reaches your business even though DORA does not name you
+
+DORA's **Article 29** requires regulated financial entities to formally identify and manage concentration risk and third-party ICT risk across their vendor relationships — which means your financial-sector client now has a regulatory obligation to:
+
+- Maintain a detailed **register of information** covering every ICT third party it uses, what each one does, and what it can access.
+- Build specific **contractual terms** into vendor agreements covering security requirements, audit rights, exit strategies, and incident notification obligations.
+- Assess and manage **concentration risk** — over-reliance on a single vendor or small group of vendors for a critical function.
+- Flow down **incident reporting expectations**, so that if something happens on your side that affects their systems or data, they can meet their own tight regulatory reporting deadlines.
+
+None of this makes your company directly regulated. All of it means your financial-sector client's procurement, security, and legal teams are now required to ask you for things they may not have asked for before — security questionnaires with more specific, DORA-aligned language, contract addenda covering audit rights and incident notification timelines, and evidence of your own resilience practices, not just a general security assurance.
+
+This is the same underlying dynamic covered in our broader guide to [third-party vendor risk management](/blog/third-party-vendor-risk-management-smb/) — DORA is simply a formalized, legally mandated version of that discipline, specific to the EU financial sector, with real regulatory consequences behind it for the financial entity if the due diligence is not done properly.
+
+## Where regulators are actually finding problems
+
+Reporting on DORA supervision through 2026 points consistently to a few specific weak spots, which are useful signals for what a financial-sector client is likely to scrutinize in a vendor relationship:
+
+- **The register of information** — financial entities are struggling to keep an accurate, complete record of every ICT third party and what each one can access, which means a vendor that can clearly and quickly describe its own access scope is solving a real pain point for its client.
+- **Incident classification and reporting timelines** — DORA's incident reporting deadlines are tight, and a third-party provider that cannot promptly and clearly report a relevant incident creates direct regulatory exposure for its client.
+- **Concentration risk** — regulators are specifically pushing financial entities to understand and reduce over-reliance on a small number of critical providers, which can quietly disadvantage a vendor that has become a single point of failure for a client without either side formally recognizing it.
+
+## What a software vendor or development shop should actually do
+
+- **Expect more specific vendor questionnaires and contract language** from EU financial-sector clients, and prepare clear, specific answers rather than generic security marketing language.
+- **Be able to describe exactly what data and systems you can access**, in plain terms — this directly supports your client's own register-of-information obligation and makes you an easier vendor to work with, not a harder one.
+- **Have a real incident detection and notification process**, with a realistic, specific answer to "how fast would you tell us, and with what detail, if something happened on your side."
+- **Understand your own sub-processors and dependencies** — if your service relies on a cloud provider, another SaaS tool, or a subcontractor, your financial-sector client's concentration-risk obligation extends to understanding that chain too, and you should be able to describe it.
+- **Treat this as a differentiator, not just a compliance cost** — a vendor that can answer DORA-aligned questions clearly and quickly stands out in EU financial-sector procurement, particularly for software exporters competing for this kind of client relationship.
+
+## DORA readiness checklist for vendors
+
+- [ ] Document exactly what data, systems, and access your service involves for any EU financial-sector client
+- [ ] Build or review a concrete incident detection and client-notification process, with realistic timelines
+- [ ] Identify and be ready to describe your own sub-processors and critical dependencies
+- [ ] Review existing financial-sector client contracts for DORA-aligned clauses you may already be subject to
+- [ ] Prepare standard, specific answers to common DORA-driven vendor due-diligence questions
+- [ ] Track whether any client relationship is approaching a level of reliance that could register as concentration risk on their side
+
+## Key takeaways
+
+DORA does not regulate your software business directly — but if any client in your pipeline is an EU financial entity, DORA's third-party risk requirements are already shaping what that client's security, legal, and procurement teams expect from you, often without using the word "DORA" explicitly. For software exporters and development shops working with EU financial-sector clients, treating this proactively — clear access documentation, a real incident notification process, visibility into your own dependencies — is both a compliance safeguard and a genuine competitive advantage in that specific market.
+
+Shahid Security's [Compliance & Risk Assessment](/services/compliance-risk-assessment/) service helps vendors prepare for DORA-driven due diligence from EU financial-sector clients, including the documentation and incident-response readiness it actually requires.
+
+**Working with or pursuing clients in the EU financial sector?** [Book a free consultation](/book/).
+
+---
+
+Sources: [Mitratech: What Is DORA? What Financial Institutions Need to Know in 2026](https://mitratech.com/en-gb/blog/what-is-dora/), [SureCloud: DORA Enforcement 2026 — Financial Entities](https://www.surecloud.com/blog-hub/dora-enforcement-2026-financial-entities), [Kiteworks: Why DORA Changes Everything for EU Financial Institutions in 2026](https://www.kiteworks.com/regulatory-compliance/dora-operational-resilience-financial-sector/).

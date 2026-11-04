@@ -1,0 +1,66 @@
+---
+title: 'Help Desk Vishing: How Scattered Spider-Style Attackers Talk Their Way Past MFA'
+description: 'The cybercrime network behind some of 2026s biggest breaches gets in with a phone call to IT support, not malware. Heres how help desk vishing works and how to make your reset process resistant to it.'
+publishedAt: 2026-11-04
+tags: ['social-engineering', 'identity-access-management', 'incident-response']
+author: Shahid Iqbal
+relatedService: incident-response
+relatedPosts: ['identity-access-management-least-privilege-guide', 'business-email-compromise-2026']
+faqs:
+  - q: 'Is this the same thing as a BEC attack?'
+    a: "Related, but the entry point is different. A classic business email compromise attack typically starts by compromising or spoofing an email account to manipulate a transaction — covered in detail in our article on business email compromise and MFA bypass. Help desk vishing targets the identity and access management process directly: the attacker's goal is a legitimate credential reset or MFA re-enrollment, obtained by convincing a help desk employee they are talking to a real, locked-out employee, by phone."
+  - q: 'How can a phone call bypass MFA if the attacker does not have the second factor?'
+    a: "It does not bypass MFA technically — it gets a human to reset or re-enroll it. If the help desk can reset a password and re-register a new MFA device for someone who calls in claiming to be locked out, the attacker does not need to break MFA at all; they get the help desk to issue them a fresh one, as that \"locked-out\" employee. The technical control is sound; the process around who is allowed to request a reset, and how that request is verified, is the actual weak point."
+  - q: 'We are a small business without a dedicated help desk — are we exposed to this?'
+    a: "Yes, in a different form. Whoever handles IT support requests in a small business — often a single IT person, an MSP, or even a manager with admin access — is the equivalent target. The same principle applies regardless of size: anyone with the authority to reset a credential or re-enroll MFA needs a verification process that does not rely solely on the caller sounding convincing or knowing a few personal details that are often public or easily guessed."
+draft: false
+---
+
+Some of 2026's most damaging breaches did not start with malware, a phishing email, or an exploited vulnerability. They started with a phone call to an IT help desk, from someone who sounded exactly like a locked-out employee in a hurry. The loose, highly active cybercrime network researchers track under names like **Scattered Spider**, **ShinyHunters**, and the combined alias **Scattered LAPSUS$ Hunters** has built a consistent, repeatable playbook around exactly this technique — and it has worked against some of the largest, best-defended organizations in the world.
+
+## How help desk vishing actually works
+
+The attack targets the weakest link in most identity programs: the human process behind "I'm locked out, can you help me."
+
+1. **Reconnaissance.** Attackers use publicly available information — LinkedIn profiles, org charts, press releases — to identify specific employees, especially in IT support, help desk, and identity management roles, and build a convincing profile of a real employee to impersonate.
+2. **The call.** A caller, often well-rehearsed and sometimes recruited and paid specifically for this role, phones the help desk claiming to be that employee, locked out of their account and needing a password reset or MFA re-enrollment, often with urgency ("I'm about to join a client call") to discourage careful verification.
+3. **The ask.** The specific request is almost always the same: reset the password, and register a new MFA device or method — effectively asking the help desk to hand a fresh credential to whoever is on the phone.
+4. **The pivot.** Once inside, attackers move quickly to identity infrastructure (Microsoft Entra ID and similar platforms have been specifically targeted) to escalate privileges, locate sensitive data, and in many documented cases proceed directly to data theft and extortion, rather than ransomware deployment.
+
+One widely reported case attributed to this network involved a major telecommunications provider confirming tens of millions of stolen customer records, traced back to a single vished help desk reset that compromised one employee's account. Reporting in early 2026 also described the group offering direct financial incentives — reportedly several hundred dollars per successful call — specifically to recruit skilled vishing callers, treating social engineering as a paid, specialized role rather than an improvised side activity.
+
+## Why this works against well-defended organizations
+
+This is not a technique that succeeds because a company has weak technology. It succeeds because strong technical controls — MFA, conditional access, zero trust architecture — all have a human-operated exception process behind them for the legitimate case of someone actually being locked out, and that exception process is usually the least-tested part of the entire identity program. Our guide to [least-privilege identity and access management](/blog/identity-access-management-least-privilege-guide/) covers the design principles that should govern day-to-day access; help desk vishing specifically targets the recovery and reset path that sits outside those day-to-day rules.
+
+Help desk staff are also under real, structural pressure that works in the attacker's favor: they are measured on resolving tickets quickly and are trained to be helpful, not suspicious, by default — exactly the instinct a confident, urgent-sounding caller is designed to exploit.
+
+## What actually makes a reset process resistant to this
+
+- **Separate "I know who you are" from "I'm granting you access."** A caller sounding convincing, or knowing an employee ID or manager's name, should never be sufficient on its own — all of that information is frequently public or easy to guess.
+- **Require a verification step that cannot be satisfied over a single phone call** — a callback to a pre-registered number, verification through an already-enrolled device or app, or a supervised video check for high-privilege accounts.
+- **Treat MFA re-enrollment as a more sensitive action than a password reset**, not an equivalent one — re-enrolling MFA is effectively handing out a brand-new credential, and a mismatched or newly registered device should trigger extra scrutiny or a cooling-off period before high-risk actions are allowed.
+- **Apply extra scrutiny to high-privilege and IT-staff accounts specifically** — these are the accounts attackers are explicitly trying to reach, since compromising someone with elevated access is the fastest path to broader compromise.
+- **Train help desk staff on this specific scenario**, including realistic examples of the urgency and confidence tactics used, rather than generic "be careful" guidance.
+- **Monitor for the pattern after the fact** — a password reset or MFA re-enrollment followed quickly by unusual sign-in locations, privilege escalation attempts, or access to identity administration tools is a detectable sequence, even if the initial call could not be stopped.
+
+## Help desk vishing resistance checklist
+
+- [ ] Document a formal identity-verification procedure for password resets and MFA re-enrollment that does not rely on caller-provided information alone
+- [ ] Require callback verification or an already-enrolled device/app for any MFA re-enrollment request
+- [ ] Apply additional verification steps for high-privilege and IT-admin account resets specifically
+- [ ] Train help desk and IT support staff on this specific social engineering pattern, not generic phishing awareness
+- [ ] Set up monitoring for unusual activity immediately following a credential reset or MFA re-enrollment
+- [ ] Review and limit who in the organization has the authority to reset MFA without secondary approval
+
+## Key takeaways
+
+Help desk vishing is not a sophisticated technical exploit — it is a well-rehearsed, increasingly well-funded social engineering attack against the human exception process behind otherwise strong identity controls, and the network running it has been directly tied to some of 2026's largest breaches. The fix is not more technology layered on top of MFA; it is treating the reset and re-enrollment process itself as a security control that deserves the same scrutiny as the login flow it ultimately overrides.
+
+Shahid Security's [Incident Response](/services/incident-response/) service includes reviewing and hardening identity recovery processes specifically against this kind of social engineering, before an attacker finds the gap first.
+
+**Not sure your help desk process could withstand a convincing phone call?** [Book a free consultation](/book/).
+
+---
+
+Sources: [The Hacker News: SLH Offers $500–$1,000 Per Call to Recruit Vishing Callers](https://thehackernews.com/2026/02/slh-offers-5001000-per-call-to-recruit.html), [Resecurity: Trinity of Chaos — The LAPSUS$, ShinyHunters, and Scattered Spider Alliance](https://www.resecurity.com/blog/article/trinity-of-chaos-the-lapsus-shinyhunters-and-scattered-spider-alliance-embarks-on-global-cybercrime-spree), [ITPro: Scattered Spider Evolved Massively in 2025 — What to Expect in 2026](https://www.itpro.com/security/cyber-attacks/scattered-spider-evolved-massively-heres-what-to-expect).

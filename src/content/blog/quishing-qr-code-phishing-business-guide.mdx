@@ -1,0 +1,67 @@
+---
+title: 'Quishing: Why QR Code Phishing Is Slipping Past Your Email Security in 2026'
+description: 'QR code phishing emails surged through early 2026, specifically because they dodge the email security tools businesses already rely on. Heres why quishing works and how to actually defend against it.'
+publishedAt: 2026-11-04
+tags: ['phishing', 'email-security', 'mobile-security']
+author: Shahid Iqbal
+relatedService: monitoring-training
+relatedPosts: ['email-authentication-spf-dkim-dmarc-guide', 'business-email-compromise-2026']
+faqs:
+  - q: 'Why would a QR code in an email bypass our spam filter when a normal phishing link would not?'
+    a: "Most email security tools are built to scan and reason about text and URLs sitting directly in an email's content — link reputation checks, keyword analysis, sender authentication. A QR code is an image. The malicious URL is encoded inside the image's pattern, not present as readable text in the email body, so a filter has to specifically decode the image to find anything to check at all. Many filters tuned primarily for text and link analysis simply were not built to do that by default, which is exactly why attackers shifted toward this method."
+  - q: 'Does this mean SPF, DKIM, and DMARC are not useful against this?'
+    a: "They are still useful, but they address a different part of the problem — they verify the email actually came from who it claims to, which our email authentication guide covers in depth. Quishing can arrive from an authenticated-looking source and still succeed, because the attack is not about spoofing the sender; it is about getting a human to scan an image with their phone and complete a login flow on a small screen, outside whatever protection exists on their work computer."
+  - q: 'Why does scanning a QR code on a phone make this worse?'
+    a: "The whole point of the technique is moving the victim off the device and the browser where your organization's security controls actually live. A work laptop might have URL filtering, browser isolation, or a security extension installed; a personal phone's camera app and browser usually do not. Scanning the code also often skips the step of actually seeing the full destination URL before arriving at the page, compared to hovering over a link on a desktop, removing one of the few visual cues people are trained to check."
+draft: false
+---
+
+Email security has spent years getting good at catching malicious links and malicious attachments. QR code phishing — now widely called **quishing** — succeeds specifically because it is neither of those things from a filter's point of view, and reporting through early 2026 shows it exploiting exactly that gap at real scale.
+
+## The scale of the shift
+
+Industry threat intelligence tracked a sharp rise in QR-based phishing email volume through the first quarter of 2026, with reported growth well over 100% quarter over quarter and tens of millions of QR-laden phishing emails identified in a single month by March. That is not a niche technique anymore — it has become a mainstream delivery method specifically because it reliably gets past defenses tuned for text-based threats.
+
+What makes the trend worth a business's specific attention, rather than filing it under general phishing awareness, is who it targets disproportionately: industry data has repeatedly found executives and senior staff encountering and falling for quishing attempts at dramatically higher rates than general employees — the opposite of what most security awareness programs assume about who the highest-risk target is.
+
+## Why QR codes specifically beat email security tooling
+
+- **The malicious URL is encoded as an image, not readable text.** Most email security scanning is built around analyzing link text, sender reputation, and content — a QR code requires specifically decoding an image before there is even a URL to check, and plenty of filtering tools were not built to do that step by default.
+- **It moves the attack off the protected device.** A QR code has to be scanned with a phone camera, which routes the victim to their mobile browser — typically outside the corporate device's URL filtering, browser isolation, or security extensions entirely, even if those protections are properly configured on the work laptop.
+- **It skips the "hover to check the link" instinct.** One of the most commonly taught phishing defenses — look at the actual destination before clicking — has no real equivalent on a phone scanning a QR code, since the destination is often only shown briefly, or not at all, before the browser opens.
+- **It blends into legitimate business use.** QR codes are now genuinely common in legitimate business communication (restaurant menus, conference check-ins, payment prompts, MFA app pairing), so recipients have been conditioned to scan first and think second — the opposite of the suspicion a text link now reliably triggers.
+
+## What a typical quishing attack looks like
+
+The lure usually impersonates something that plausibly requires a quick scan: a "failed delivery, scan to reschedule" notice, a fake multi-factor authentication re-registration prompt, a "document requires verification" message supposedly from internal IT, or — specifically in a business email compromise context — a message impersonating an executive or finance contact with a QR code positioned as the "secure way" to review an urgent document. The destination is a credential-harvesting page, styled to match a real login screen (Microsoft 365 and Google Workspace logins are the most commonly impersonated), counting on the smaller, less carefully inspected phone screen to make the fake page harder to spot.
+
+This overlaps meaningfully with the MFA-bypass patterns covered in our article on [business email compromise in 2026](/blog/business-email-compromise-2026/) — a quishing-harvested credential often feeds directly into the same kind of account takeover that article describes, just with a different initial delivery mechanism designed specifically to dodge email security tooling.
+
+## How to actually defend against it
+
+- **Deploy email security tooling that specifically decodes and analyzes embedded QR codes**, not just link and attachment scanning — this is now a distinct capability to check for when evaluating or configuring your email security stack, not an assumed feature.
+- **Train staff on the specific pattern**, not generic phishing awareness: unexpected QR codes in email, especially ones tied to login, payment, or "urgent verification," deserve the same suspicion as an unexpected link.
+- **Encourage checking the destination before proceeding** — most phone camera apps and QR scanners will preview the URL before opening it; make "read the preview URL first" a trained habit, not an assumption.
+- **Extend security controls to mobile where realistic** — mobile device management, a managed browser, or at minimum a reputable mobile security app meaningfully closes the gap QR phishing is designed to exploit.
+- **Keep email authentication fundamentals in place** — SPF, DKIM, and DMARC, covered in our [email authentication guide](/blog/email-authentication-spf-dkim-dmarc-guide/), remain necessary even though quishing targets a different weakness; a layered defense needs both.
+
+## Quishing defense checklist
+
+- [ ] Confirm your email security tool actually decodes and scans embedded QR codes, not just text links
+- [ ] Add QR-code-specific examples to phishing awareness training, including the "verify your login" and "MFA re-registration" lure types
+- [ ] Extend URL filtering or a managed browser to company-connected mobile devices where feasible
+- [ ] Reinforce the habit of checking a QR code's preview URL before opening it
+- [ ] Pay particular attention to executive and finance-team training, given the disproportionate targeting of senior staff
+- [ ] Confirm SPF, DKIM, and DMARC are still properly configured as a baseline layer
+
+## Key takeaways
+
+Quishing did not succeed by being a more clever phishing lure — it succeeded by routing around the specific assumptions most email security tooling and user training were built on: that the threat lives in readable text and happens on the device your controls actually cover. Reporting through 2026 shows it growing fast and disproportionately hitting senior staff, which makes it a genuine business risk rather than a passing curiosity. Closing the gap means extending both your tooling and your training to specifically cover the QR code as its own delivery mechanism, not assuming existing phishing defenses already do.
+
+Shahid Security's [Security Monitoring & Awareness Training](/services/monitoring-training/) service includes phishing simulations covering current delivery techniques like quishing, not just the email-link scenarios most off-the-shelf training still defaults to.
+
+**Want to know if your team would catch a QR-code phishing attempt?** [Book a free consultation](/book/).
+
+---
+
+Sources: [National Law Review: Quishing Surges 146% in Q1 2026](https://natlawreview.com/press-releases/quishing-surges-146-q1-2026-attackers-hide-behind-code), [Keepnet: QR Code Phishing Trends — In-Depth Analysis of Rising Quishing Statistics](https://keepnetlabs.com/blog/qr-code-phishing-trends-in-depth-analysis-of-rising-quishing-statistics), [QR Code Tiger: Alarming QR Code Phishing Statistics You Must Know in 2026](https://www.qrcode-tiger.com/qr-code-phishing-statistics).
