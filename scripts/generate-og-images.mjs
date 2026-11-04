@@ -85,6 +85,7 @@ async function main() {
     { slug: 'services', title: 'Cybersecurity services' },
     { slug: 'industries', title: 'Security scoped to your industry' },
     { slug: 'about', title: 'About Shahid Security' },
+    { slug: 'company-profile', title: 'Shahid Security — Company Profile' },
     { slug: 'contact', title: 'Talk to a security expert' },
     { slug: 'book', title: 'Book a consultation' },
     { slug: 'pricing', title: 'Cybersecurity support plans & pricing' },

@@ -1,0 +1,249 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import CTABand from '@/components/CTABand.astro';
+import { getCollection } from 'astro:content';
+import { site } from '@/lib/site';
+import { breadcrumbSchema } from '@/lib/schema';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const securityServices = services.filter((s) => s.data.group === 'security');
+const buildServices = services.filter((s) => s.data.group === 'build');
+const industries = (await getCollection('industries')).sort((a, b) => a.data.order - b.data.order);
+
+const path = '/company-profile/';
+const yearFounded = site.founderExperienceSince + 3; // 2023 — see timeline on /about/
+
+const infobox: { label: string; value: string }[] = [
+  { label: 'Type', value: 'Sole proprietorship' },
+  { label: 'Industry', value: 'Cybersecurity consulting; secure software development' },
+  { label: 'Founded', value: `${yearFounded}, Islamabad, Pakistan` },
+  { label: 'Founder', value: site.founder },
+  { label: 'Headquarters', value: site.registeredAddress.full },
+  {
+    label: 'Area served',
+    value: 'Worldwide (remote-delivered); dedicated regulatory practice for Saudi Arabia, UAE and the wider GCC',
+  },
+  { label: 'Services', value: 'Penetration testing, vulnerability assessment, compliance, incident response, secure software development, AI automation' },
+  { label: 'Website', value: site.domain },
+
+  { label: 'Slogan', value: site.tagline },
+];
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Company Profile', path },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Shahid Security — Company Profile"
+  description="A full company profile of Shahid Security: history, services, methodology, markets served and leadership — the cybersecurity consulting and secure-development practice founded by Muhammad Shahid Iqbal."
+  path={path}
+  jsonLd={jsonLd}
+  ogImage="/og/company-profile.png"
+>
+  <Section class="pt-12">
+    <Breadcrumbs
+      items={[
+        { name: 'Home', path: '/' },
+        { name: 'Company Profile', path },
+      ]}
+    />
+    <SectionHeading
+      as="h1"
+      eyebrow="// company profile"
+      title="Shahid Security"
+      intro="An independent cybersecurity consulting and secure-development practice, founded in Pakistan and operating for clients worldwide."
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-[1fr_320px]">
+      <div class="prose-content max-w-none space-y-5 text-(--color-text-muted) leading-relaxed">
+        <p>
+          <strong class="text-(--color-text)">Shahid Security</strong> is an independent cybersecurity
+          consulting practice, registered as a sole proprietorship of Muhammad Shahid Iqbal and
+          headquartered in {site.registeredAddress.full}. The business provides offensive and
+          defensive security services — penetration testing, vulnerability assessment, network and
+          cloud security, regulatory compliance, and incident response — to businesses internationally,
+          delivered remotely, alongside a secondary practice building and securing websites, custom
+          software and AI-driven automation for clients who want security designed in from the start
+          rather than retrofitted afterward.
+        </p>
+        <p>
+          The practice's core positioning is that security and software delivery should not be
+          separate disciplines handled by separate, uncoordinated vendors: the same team that tests
+          systems for weaknesses also builds systems, giving its security advice a practical,
+          implementation-aware character rather than a purely theoretical one. Its stated brand
+          tagline, "{site.tagline}," reflects this three-part scope — security assessment and
+          hardening, secure software and infrastructure delivery, and ongoing support as a client's
+          systems and regulatory obligations grow.
+        </p>
+        <p>
+          Since {yearFounded}, the practice has built out a dedicated compliance capability for
+          businesses operating under Gulf regulatory frameworks — including Saudi Arabia's National
+          Cybersecurity Authority Essential Cybersecurity Controls (NCA ECC), the Saudi Central
+          Bank's Cybersecurity Framework (SAMA CSF), and the UAE's NESA-derived requirements —
+          alongside its existing international compliance work covering ISO/IEC 27001, GDPR and
+          PCI-DSS.
+        </p>
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit overflow-hidden">
+        <div class="border-b border-(--color-border) bg-(--color-bg-elevated) px-5 py-3">
+          <p class="font-display text-sm font-semibold text-(--color-text)">Shahid Security</p>
+        </div>
+        <table class="w-full text-sm">
+          <tbody>
+            {infobox.map((row, i) => (
+              <tr class={i % 2 === 0 ? 'bg-(--color-bg-elevated)/40' : ''}>
+                <th scope="row" class="w-[38%] px-4 py-2.5 text-left align-top font-medium text-(--color-text-muted)">
+                  {row.label}
+                </th>
+                <td class="px-4 py-2.5 align-top text-(--color-text)">{row.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 01 history" title="History" />
+    <div class="mt-8 max-w-3xl space-y-4 text-(--color-text-muted) leading-relaxed">
+      <p>
+        Muhammad Shahid Iqbal studied Computer Science, with a final-year project examining attack
+        scenarios against an IoT-based smart-campus system. From {site.founderExperienceSince}, he
+        worked as a cybersecurity analyst and later a SOC analyst for Pakistani employers — running
+        vulnerability assessments, operating a honeytrap to capture and study an intruder active on
+        a client network, monitoring security events through SIEM tooling, and leading incident
+        response engagements. Shahid Security was founded in {yearFounded} as an independent practice
+        built on that operational experience, initially serving Pakistani software exporters and SMEs
+        before expanding its client base internationally and, more recently, building out dedicated
+        expertise in Gulf regional compliance frameworks alongside its core penetration-testing and
+        assessment work.
+      </p>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 02 services" title="Services" />
+    <div class="mt-8 grid gap-10 lg:grid-cols-2">
+      <div>
+        <h3 class="font-display text-base font-semibold text-(--color-text)">Security</h3>
+        <ul class="mt-4 space-y-2">
+          {securityServices.map((s) => (
+            <li class="text-sm text-(--color-text-muted)">
+              <a href={`/services/${s.id}/`} class="text-(--color-text) hover:text-(--color-neon-soft)">
+                {s.data.title}
+              </a>
+              {' — '}{s.data.shortDescription}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-display text-base font-semibold text-(--color-text)">Build</h3>
+        <ul class="mt-4 space-y-2">
+          {buildServices.map((s) => (
+            <li class="text-sm text-(--color-text-muted)">
+              <a href={`/services/${s.id}/`} class="text-(--color-text) hover:text-(--color-neon-soft)">
+                {s.data.title}
+              </a>
+              {' — '}{s.data.shortDescription}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 03 methodology" title="Engagement methodology" />
+    <div class="mt-8 max-w-3xl space-y-4 text-(--color-text-muted) leading-relaxed">
+      <p>
+        Shahid Security follows a fixed engagement sequence regardless of service line: a free,
+        unscoped consultation to understand the client's setup and concerns; a fixed-scope, fixed-price
+        proposal with an NDA signed before any system access is granted; authorised testing or
+        development work carried out strictly within the boundaries agreed in advance; and a
+        plain-language report or deliverable, with a free re-test offered after remediation for
+        security engagements. No testing of any system takes place without the system owner's
+        explicit written authorisation — a standing policy stated across the practice's service pages
+        and publicly documented disclosure process.
+      </p>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 04 markets served" title="Markets and industries served" />
+    <div class="mt-8 max-w-3xl space-y-4 text-(--color-text-muted) leading-relaxed">
+      <p>
+        The practice serves clients internationally on a remote-delivery basis, with named industry
+        focus areas including {industries.map((i) => i.data.title).join(', ')}. Alongside its original
+        Pakistani client base, Shahid Security has built a specific compliance practice for Gulf
+        Cooperation Council markets — Saudi Arabia, the United Arab Emirates, Qatar, Kuwait, Bahrain
+        and Oman — centred on the region's distinct regulatory frameworks rather than treating Gulf
+        compliance as a generic international-standards exercise. See the practice's
+        {' '}<a href="/blog/nca-ecc-compliance-saudi-arabia-guide/" class="text-(--color-text) hover:text-(--color-neon-soft)">guide to Saudi Arabia's NCA ECC controls</a>{' '}
+        and {' '}<a href="/blog/gcc-cybersecurity-compliance-sama-nesa/" class="text-(--color-text) hover:text-(--color-neon-soft)">guide to SAMA and NESA compliance</a>{' '}
+        for the published detail behind this specialisation.
+      </p>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 05 leadership" title="Leadership" />
+    <div class="mt-8 max-w-3xl space-y-4 text-(--color-text-muted) leading-relaxed">
+      <p>
+        <a href="/about/" class="text-(--color-text) hover:text-(--color-neon-soft)">Muhammad Shahid Iqbal</a>{' '}
+        is the founder and principal consultant of Shahid Security, and the sole proprietor under
+        Pakistani business registration. He holds a BS in Computer Science from Qarshi University,
+        Lahore, and has completed training covering CompTIA Network+ and Security+ fundamentals,
+        Certified Ethical Hacker (CEH) methodology, and CISSP domains. Prior to founding Shahid
+        Security he worked as a Cyber Security Analyst at IMS Lubricants ({site.founderExperienceSince}–2021)
+        and a SOC Analyst at Ravi Cables Pakistan (2021–2023).
+      </p>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 06 brand and legal" title="Brand and legal structure" />
+    <div class="mt-8 max-w-3xl space-y-4 text-(--color-text-muted) leading-relaxed">
+      <p>
+        Shahid Security operates as <strong class="text-(--color-text)">{site.legalEntity}</strong>, a
+        Pakistani sole proprietorship. The business's primary brand mark is a green circuit-pattern
+        shield, paired with the tagline "{site.tagline}" and the secondary line "{site.taglineSecondary}."
+        The practice does not represent itself as holding independent third-party certifications,
+        industry awards or press recognition beyond what is explicitly stated on this site, and this
+        page makes no claim of notability or independent coverage — it is a factual company profile
+        published by the business itself, not a Wikipedia article or an independently-sourced
+        encyclopedia entry.
+      </p>
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading eyebrow="// 07 see also" title="See also" />
+    <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+      <li><a href="/about/" class="text-(--color-text) hover:text-(--color-neon-soft)">About — founder biography</a></li>
+      <li><a href="/services/" class="text-(--color-text) hover:text-(--color-neon-soft)">Full services list</a></li>
+      <li><a href="/industries/" class="text-(--color-text) hover:text-(--color-neon-soft)">Industries served</a></li>
+      <li><a href="/case-studies/" class="text-(--color-text) hover:text-(--color-neon-soft)">Case studies</a></li>
+      <li><a href="/blog/" class="text-(--color-text) hover:text-(--color-neon-soft)">Blog</a></li>
+      <li><a href="/contact/" class="text-(--color-text) hover:text-(--color-neon-soft)">Contact</a></li>
+    </ul>
+  </Section>
+
+  <Section>
+    <CTABand
+      title="Want to work with us?"
+      text="Book a free consultation and let's talk through your setup."
+    />
+  </Section>
+</BaseLayout>
