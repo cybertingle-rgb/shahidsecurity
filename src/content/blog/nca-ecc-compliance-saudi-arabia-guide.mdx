@@ -1,0 +1,60 @@
+---
+title: 'NCA ECC Compliance in Saudi Arabia: What ECC-2:2024 and the New Private-Sector Controls Actually Require'
+description: "Saudi Arabia's National Cybersecurity Authority has widened who needs to comply with its Essential Cybersecurity Controls. Here's what ECC-2:2024 and the new NCNICC-1:2025 private-sector controls actually ask for, and how to find out if your business is in scope."
+publishedAt: 2026-11-05
+tags: ['compliance', 'nca-ecc', 'saudi-arabia', 'gcc']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['gcc-cybersecurity-compliance-sama-nesa', 'zero-trust-architecture-smb-guide', 'identity-access-management-least-privilege-guide']
+faqs:
+  - q: 'Is NCA ECC the same thing as the SAMA Cybersecurity Framework?'
+    a: "No, and conflating them is a common mistake. The NCA's Essential Cybersecurity Controls are a national baseline issued by Saudi Arabia's National Cybersecurity Authority, originally scoped to government entities and critical national infrastructure. SAMA's Cybersecurity Framework is a separate, sector-specific framework issued by the Saudi Central Bank for banks, insurers and SAMA-licensed fintechs. A regulated financial institution can be in scope for both at once, administered by two different authorities — see our guide to GCC compliance frameworks for how SAMA (and the UAE's NESA) compare."
+  - q: 'How do we actually find out if NCNICC-1:2025 applies to our business?'
+    a: "There's no simple public self-test, and the binding status of some obligations is still described inconsistently even in professional commentary — which is exactly why a short scoping conversation, rather than assuming either way, is the sensible first step. The practical factors that matter are your sector, whether you hold or process data the NCA would consider sensitive, your size tier, and whether you're a vendor or partner to an organisation that is itself in scope."
+  - q: 'We already have ISO 27001 — doesn''t that cover this?'
+    a: "It covers a meaningful amount of the same ground — risk management, access control, asset management and incident response all overlap — but ISO 27001 certification doesn't automatically satisfy ECC or NCNICC control-for-control, because the NCA's controls include Saudi-specific governance, staffing and reporting requirements that a generic ISO audit doesn't check. Treat ISO 27001 as a strong head start on the gap analysis, not a substitute for one."
+draft: false
+---
+
+If your business operates in Saudi Arabia and you've never formally checked whether the National Cybersecurity Authority's (NCA) control frameworks apply to you, 2026 is a reasonable time to actually check — not because of alarmist messaging, but because the NCA has spent the past two years deliberately widening who falls in scope, most recently with a control set aimed squarely at private-sector companies that were never previously touched by Saudi cybersecurity regulation.
+
+## What the Essential Cybersecurity Controls (ECC) actually are
+
+The ECC is the NCA's core national baseline, most recently revised as **ECC-2:2024**. It's organised into four main domains:
+
+- **Cybersecurity Governance** — strategy, risk management, policy ownership, roles and responsibilities, and training/awareness
+- **Cybersecurity Defence** — the largest domain by control count, covering the technical controls most people picture when they hear "cybersecurity": asset management, identity and access management, cryptography, network security, vulnerability management and more
+- **Cybersecurity Resilience** — business continuity and disaster recovery specifically framed around cybersecurity events, not just general operational risk
+- **Third-Party & Cloud Computing Cybersecurity** — security requirements that follow your data and systems into vendor and cloud-provider relationships, rather than stopping at your own network perimeter
+
+Each domain breaks down into subdomains and then individual controls — roughly a hundred main controls in total across the revision, though exact published counts vary slightly between commentary sources, which is itself a sign this is a detailed, specific framework rather than a loose set of principles. Notably, **industrial control systems (ICS/OT) content that was part of the original ECC-1:2018 has since moved into a separate NCA framework (OTCC)** — if your business runs ICS/OT environments, that's a second, related framework to check, not something ECC-2 covers on its own anymore.
+
+ECC's original scope was government entities, their affiliated bodies, and private organisations that own, operate or host critical national infrastructure (CNI) — think utilities, telecoms infrastructure, and similarly systemically important operators. If that's clearly not your business, the ECC itself was historically easy to rule out. That's the part that's changed.
+
+## The new private-sector controls: NCNICC-1:2025
+
+In December 2025, the NCA adopted the **National Cybersecurity Controls for Non-Critical Information Assets (NCNICC-1:2025)** — a control set specifically aimed at private-sector entities that sit *outside* the traditional CNI/government scope that ECC was built for. Structurally, it's organised around three main components (one centred on cybersecurity governance, one on cybersecurity defence, and a third covering additional operational requirements), broken down into roughly twenty subcomponents and around sixty-five main controls, with obligations tiered by organisation size.
+
+Two things are worth being precise about, because overstating either one does businesses a disservice:
+
+1. **Scope is tiered and not universal.** NCNICC-1:2025 doesn't mean every private company in Saudi Arabia is now formally regulated by the NCA overnight. It means the *population* of private businesses that need to actively check their status has grown substantially, and "we're not critical infrastructure so this doesn't apply to us" is no longer a safe assumption on its own.
+2. **No public transition deadline has been announced** as of this writing, and public commentary isn't fully consistent on exactly how binding every obligation is for every tier. The sensible posture — the one we'd actually recommend to a client — is to treat this as "a new minimum baseline the NCA expects private companies to move toward," find out honestly where you stand, and close the obvious gaps, rather than either panicking or waiting for an enforcement date that hasn't been published.
+
+If your business handles data the NCA would reasonably consider sensitive, operates in a sector adjacent to critical infrastructure, or is a vendor/partner to an organisation that's clearly in scope, that's a strong signal to get a proper scoping conversation rather than guess.
+
+## Other NCA frameworks worth knowing about
+
+Depending on what your business actually does, two other NCA control sets are worth a mention rather than a deep dive here:
+
+- **Cloud Cybersecurity Controls (CCC)** — for cloud service providers and, in parts, their tenants operating in the Kingdom
+- **Data Cybersecurity Controls (DCC)** — focused specifically on data classification and protection requirements
+
+A business can realistically be in scope for more than one of these alongside ECC/NCNICC depending on its sector and how it operates — which is exactly why a generic checklist tends to do more harm than good, and a proper scoping conversation against your actual business is worth the 30 minutes.
+
+## Where to start
+
+The honest first step isn't a full gap analysis — it's working out which of these frameworks, if any, actually apply to your specific business, sector and size before spending budget against the wrong baseline. That's the starting point of our [NCA ECC and SAMA compliance consulting](/services/compliance-risk-assessment/), and it costs nothing to find out where you stand.
+
+If your business also operates across the wider Gulf, our [guide to SAMA and NESA compliance](/blog/gcc-cybersecurity-compliance-sama-nesa/) covers how Saudi Arabia's financial-sector framework and the UAE's critical-infrastructure regulation compare — useful if you're scoping compliance across more than one GCC market at once.
+
+Sources: [Al Tamimi & Co. — Raising the Baseline: What the NCA's New Non-CNI Controls Mean for Private-Sector Entities](https://www.tamimi.com/law-update/the-technology-issue-2026/articles/raising-the-baseline-what-the-ncas-new-non-cni-cybersecurity-controls-mean-for-private-sector-entities-in-saudi-arabia/), [CMS Law — Kingdom of Saudi Arabia Issues New Cybersecurity Controls for the Private Sector](https://cms.law/en/are/legal-updates/kingdom-of-saudi-arabia-issues-new-cybersecurity-controls-for-the-private-sector), [Baker McKenzie — Saudi Arabia: Cybersecurity Controls for Private Entities](https://www.bakermckenzie.com/en/insight/publications/2026/07/saudi-arabia-cybersecurity-controls-for-private-entities).

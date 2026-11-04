@@ -39,7 +39,12 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
   };
 }
 
-export function serviceSchema(opts: { name: string; description: string; path: string }) {
+export function serviceSchema(opts: {
+  name: string;
+  description: string;
+  path: string;
+  areaServed?: string[];
+}) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -48,7 +53,10 @@ export function serviceSchema(opts: { name: string; description: string; path: s
     description: opts.description,
     url: absoluteUrl(opts.path),
     provider: { '@id': `${site.url}/#organization` },
-    areaServed: 'Worldwide',
+    areaServed:
+      opts.areaServed && opts.areaServed.length > 0
+        ? ['Worldwide', ...opts.areaServed]
+        : 'Worldwide',
   };
 }
 

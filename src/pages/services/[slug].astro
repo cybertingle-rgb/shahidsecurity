@@ -38,7 +38,12 @@ const authorizationSafety =
     : 'Every engagement starts with a signed NDA before we get access to your systems or data. We follow secure coding and data-handling practices throughout, and any security testing of what we build — code review, pre-launch penetration testing — is scoped and agreed with you in advance.';
 
 const jsonLd: object[] = [
-  serviceSchema({ name: service.data.title, description: service.data.shortDescription, path }),
+  serviceSchema({
+    name: service.data.title,
+    description: service.data.shortDescription,
+    path,
+    areaServed: service.data.areaServed,
+  }),
 ];
 const faq = faqSchema(service.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
 if (faq) jsonLd.push(faq);

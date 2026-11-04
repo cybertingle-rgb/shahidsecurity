@@ -30,6 +30,8 @@ const services = defineCollection({
     ),
     seoTitle: z.string(),
     seoDescription: z.string(),
+    /** Extra Service-schema areaServed entries beyond 'Worldwide' (e.g. specific countries this service has dedicated regional framework expertise for). */
+    areaServed: z.array(z.string()).default([]),
   }),
 });
 
