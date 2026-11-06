@@ -1,30 +1,55 @@
 ---
 // Signature name hero: a huge display of "Shahid Iqbal" beside the
-// founder's full, uncropped photo on the right (stacked below the name
-// on mobile). Unlike the rest of the site (which reveals on scroll via
-// the generic data-reveal system in CinematicMotion.astro), this hero
-// plays a one-time cinematic load-in sequence — eyebrow, then the name
-// letter by letter, then the photo, then the subtitle — timed to start
-// as the preloader fades out. That sequence is driven from
-// CinematicMotion.astro via the data-hero-* attributes below, not
-// data-reveal (which is scroll-triggered and would be redundant for
-// content that's already on screen at load).
+// founder's full, uncropped photo. On mobile the photo is a small
+// thumbnail at the top, right of the logo/eyebrow — ahead of the name
+// rather than a large block stacked below it; on desktop it's the
+// large image in its own column on the right. Both are the same image
+// (same URL, so the second request is served from cache, not refetched)
+// so there's no real double-load cost from rendering both in the DOM
+// and toggling which is visible per breakpoint. Unlike the rest of the
+// site (which reveals on scroll via the generic data-reveal system in
+// CinematicMotion.astro), this hero plays a one-time cinematic load-in
+// sequence — logo, eyebrow, the name letter by letter, the photo, then
+// the subtitle — timed to start as the preloader fades out. That
+// sequence is driven from CinematicMotion.astro via the data-hero-*
+// attributes below (data-hero-photo appears on both photo wraps, and
+// CinematicMotion animates every matching element), not data-reveal
+// (which is scroll-triggered and would be redundant for content that's
+// already on screen at load).
 ---
 
 <section class="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
   <div class="container-page">
     <div class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
       <div class="flex flex-col items-start text-left">
-        <img
-          src="/brand/shield-icon.svg"
-          alt=""
-          width="56"
-          height="56"
-          class="name-hero-logo"
-          data-hero-logo
-          loading="eager"
-        />
-        <p class="eyebrow mt-5" data-hero-eyebrow>// Hello, I'm</p>
+        <div class="flex w-full items-start justify-between gap-4">
+          <div class="flex flex-col items-start">
+            <img
+              src="/brand/shield-icon.svg"
+              alt=""
+              width="56"
+              height="56"
+              class="name-hero-logo"
+              data-hero-logo
+              loading="eager"
+            />
+            <p class="eyebrow mt-5" data-hero-eyebrow>// Hello, I'm</p>
+          </div>
+
+          <div class="name-hero-photo-wrap-sm shrink-0 lg:hidden" data-hero-photo>
+            <img
+              src="/brand/founder-photo.webp"
+              alt="Shahid Iqbal, founder of Shahid Security"
+              width="480"
+              height="598"
+              class="name-hero-photo"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+        </div>
+
         <h1
           class="name-hero-heading mt-4 font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text) lg:mt-6"
           data-hero-name
@@ -42,7 +67,7 @@
         </p>
       </div>
 
-      <div class="name-hero-photo-wrap lg:ml-auto" data-hero-photo>
+      <div class="name-hero-photo-wrap hidden lg:block lg:ml-auto" data-hero-photo>
         <img
           src="/brand/founder-photo.webp"
           alt="Shahid Iqbal, founder of Shahid Security"
@@ -66,6 +91,10 @@
 
   .name-hero-heading {
     font-size: clamp(3.25rem, 11vw, 9rem);
+  }
+
+  .name-hero-photo-wrap-sm {
+    width: clamp(84px, 24vw, 128px);
   }
 
   .name-hero-photo-wrap {

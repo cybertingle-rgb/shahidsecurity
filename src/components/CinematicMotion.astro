@@ -71,9 +71,9 @@
     const logo = document.querySelector<HTMLElement>('[data-hero-logo]');
     const eyebrow = document.querySelector<HTMLElement>('[data-hero-eyebrow]');
     const nameEl = document.querySelector<HTMLElement>('[data-hero-name]');
-    const photo = document.querySelector<HTMLElement>('[data-hero-photo]');
+    const photo = document.querySelectorAll<HTMLElement>('[data-hero-photo]');
     const sub = document.querySelector<HTMLElement>('[data-hero-sub]');
-    if (!logo || !eyebrow || !nameEl || !photo || !sub) return;
+    if (!logo || !eyebrow || !nameEl || photo.length === 0 || !sub) return;
 
     gsap
       .timeline({ defaults: { ease: 'power3.out' } })
@@ -101,10 +101,10 @@
     const logo = document.querySelector<HTMLElement>('[data-hero-logo]');
     const eyebrow = document.querySelector<HTMLElement>('[data-hero-eyebrow]');
     const nameEl = document.querySelector<HTMLElement>('[data-hero-name]');
-    const photo = document.querySelector<HTMLElement>('[data-hero-photo]');
+    const photo = document.querySelectorAll<HTMLElement>('[data-hero-photo]');
     const sub = document.querySelector<HTMLElement>('[data-hero-sub]');
 
-    if (logo && eyebrow && nameEl && photo && sub) {
+    if (logo && eyebrow && nameEl && photo.length > 0 && sub) {
       const split = new SplitText(nameEl, { type: 'chars' });
       heroNameChars = split.chars;
 
