@@ -8,7 +8,6 @@ import ServiceCard from '@/components/ServiceCard.astro';
 import ProcessSteps from '@/components/ProcessSteps.astro';
 import CTABand from '@/components/CTABand.astro';
 import TrustBar from '@/components/TrustBar.astro';
-import HeroBackdrop from '@/components/HeroBackdrop.astro';
 import TerminalWindow from '@/components/TerminalWindow.astro';
 import ScanDivider from '@/components/ScanDivider.astro';
 import Testimonials from '@/components/Testimonials.astro';
@@ -96,9 +95,8 @@ const trustItems = [
   <ScanDivider />
 
   <Section class="relative overflow-hidden">
-    <HeroBackdrop />
     <div class="relative grid gap-12 lg:grid-cols-2 lg:items-center">
-      <div data-reveal>
+      <div>
         <p class="eyebrow">Shahid Security</p>
         <h1 class="mt-4 text-5xl font-semibold leading-[1.02] tracking-tight text-(--color-text) sm:text-6xl lg:text-7xl">
           Cybersecurity Assessment, Penetration Testing & Security Engineering
@@ -176,7 +174,7 @@ const trustItems = [
       eyebrow="// 01 THE PROBLEM"
       title="Most breaches start with something nobody knew was there."
     />
-    <div class="mt-10 grid gap-6 sm:grid-cols-3" data-reveal>
+    <div class="mt-10 grid gap-6 sm:grid-cols-3">
       <div class="glass-card corner-brackets p-6">
         <h3 class="font-display text-lg font-semibold text-(--color-text)">
           You don't know what's exposed.
@@ -213,7 +211,7 @@ const trustItems = [
       title="Cybersecurity services"
       intro="Penetration testing, audits, monitoring and response — the core of what we do."
     />
-    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {homeServiceCards.map((s) => (
         <ServiceCard
           title={s.title}
@@ -263,7 +261,7 @@ const trustItems = [
 
   <Section>
     <SectionHeading eyebrow="// 03 WHY WORK WITH US" title="Why work with us" />
-    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {values.map((v) => (
         <div class="glass-card p-6">
           <h3 class="font-display text-base font-semibold text-(--color-text)">{v.title}</h3>

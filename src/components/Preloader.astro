@@ -364,10 +364,6 @@ const RAIN = RAIN_POSITIONS.map((pos, i) => ({
   function hidePreloader() {
     if (!preloader) return;
     preloader.classList.add('is-hidden');
-    // Fired as the fade-out starts (not after it finishes) so the hero's
-    // own load-in animation begins while the preloader is still
-    // dissolving, rather than leaving a dead gap between the two.
-    window.dispatchEvent(new CustomEvent('preloader:done'));
     setTimeout(() => preloader.remove(), 350);
   }
 

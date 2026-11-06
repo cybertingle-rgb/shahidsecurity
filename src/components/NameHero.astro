@@ -6,16 +6,8 @@
 // large image in its own column on the right. Both are the same image
 // (same URL, so the second request is served from cache, not refetched)
 // so there's no real double-load cost from rendering both in the DOM
-// and toggling which is visible per breakpoint. Unlike the rest of the
-// site (which reveals on scroll via the generic data-reveal system in
-// CinematicMotion.astro), this hero plays a one-time cinematic load-in
-// sequence — logo, eyebrow, the name letter by letter, the photo, then
-// the subtitle — timed to start as the preloader fades out. That
-// sequence is driven from CinematicMotion.astro via the data-hero-*
-// attributes below (data-hero-photo appears on both photo wraps, and
-// CinematicMotion animates every matching element), not data-reveal
-// (which is scroll-triggered and would be redundant for content that's
-// already on screen at load).
+// and toggling which is visible per breakpoint. No load-in animation —
+// renders at full opacity immediately, same as the rest of the site.
 ---
 
 <section class="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
@@ -30,13 +22,12 @@
               width="56"
               height="56"
               class="name-hero-logo"
-              data-hero-logo
               loading="eager"
             />
-            <p class="eyebrow mt-5" data-hero-eyebrow>// Hello, I'm</p>
+            <p class="eyebrow mt-5">// Hello, I'm</p>
           </div>
 
-          <div class="name-hero-photo-wrap-sm shrink-0 lg:hidden" data-hero-photo>
+          <div class="name-hero-photo-wrap-sm shrink-0 lg:hidden">
             <img
               src="/brand/founder-photo.webp"
               alt="Shahid Iqbal, founder of Shahid Security"
@@ -52,22 +43,18 @@
 
         <h1
           class="name-hero-heading mt-4 font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text) lg:mt-6"
-          data-hero-name
           aria-label="Shahid Iqbal"
         >
           <span class="block" aria-hidden="true">Shahid</span>
           <span class="block text-(--color-neon-soft)" aria-hidden="true">Iqbal</span>
         </h1>
-        <p
-          class="relative z-10 mt-8 max-w-xl text-lg leading-relaxed text-(--color-text-muted) lg:mt-6"
-          data-hero-sub
-        >
+        <p class="relative z-10 mt-8 max-w-xl text-lg leading-relaxed text-(--color-text-muted) lg:mt-6">
           Founder of Shahid Security — cybersecurity consultant and ethical hacker, trusted to find
           the gaps before attackers do.
         </p>
       </div>
 
-      <div class="name-hero-photo-wrap hidden lg:block lg:ml-auto" data-hero-photo>
+      <div class="name-hero-photo-wrap hidden lg:block lg:ml-auto">
         <img
           src="/brand/founder-photo.webp"
           alt="Shahid Iqbal, founder of Shahid Security"

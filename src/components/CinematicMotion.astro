@@ -1,42 +1,18 @@
 ---
-// Site-wide motion layer: Lenis smooth scroll + GSAP ScrollTrigger +
-// SplitText, driving two things:
-//
-// 1. The hero's one-time load-in sequence (data-hero-* attributes in
-//    NameHero.astro): the logo mark fades in, then the eyebrow, then
-//    the name writes itself on letter by letter, then the photo pops
-//    in, then the subtitle rises — timed to start as Preloader.astro's
-//    `preloader:done` event fires (i.e. as the preloader itself starts
-//    dissolving). A 3s safety-net timeout force-shows the hero at full
-//    opacity regardless, in case that event never fires (a slow/quirky
-//    in-app browser, a JS error elsewhere) — the hero must never be
-//    left sitting invisible.
-// 2. The generic [data-reveal] scroll-reveal system used everywhere
-//    else on the page. A heading inside a data-reveal element is split
-//    word by word and "drawn" in (clip-path wipe + fade + rise,
-//    staggered per word); any other direct child gets the same wipe
-//    treatment as a single block. Each child's beat starts 0.12s after
-//    the previous one, same cadence as before. Fires once, the first
-//    time the element's trigger is scrolled into view (or immediately,
-//    for anything already in view at load, since ScrollTrigger
-//    evaluates each trigger's position as soon as it's created).
-//
-// Entirely inert (content shown at full opacity, no Lenis, no
-// SplitText) when prefers-reduced-motion is set. Rendered once from
-// BaseLayout; GSAP/Lenis ship as normal bundled npm imports (not a CDN
-// <script>), so the existing strict CSP (script-src 'self') needs no
-// changes to allow this.
+// Smooth-scroll only. This previously also drove a GSAP + ScrollTrigger +
+// SplitText reveal system (a hero letter-by-letter write-in, and a
+// sitewide scroll-triggered "draw in" effect on every heading/card) —
+// removed entirely: that bundle alone was ~52KB gzipped (by far the
+// largest single script on the site) and did synchronous DOM-splitting
+// work (SplitText) on every heading on every page load, which made the
+// site feel slow rather than fast. Lenis alone is ~7KB gzipped and does
+// one thing: smooth scrolling.
 ---
 
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { SplitText } from 'gsap/SplitText';
   import Lenis from 'lenis';
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  gsap.registerPlugin(ScrollTrigger, SplitText);
 
   if (!prefersReducedMotion) {
     const lenis = new Lenis({
@@ -44,125 +20,10 @@
       smoothWheel: true,
     });
 
-    lenis.on('scroll', ScrollTrigger.update);
-
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
-  }
-
-  // A left-to-right "wipe" alongside the usual fade + rise — reads as
-  // the element being drawn into existence rather than just appearing.
-  // The -20% bottom inset keeps descenders/shadows from clipping while
-  // the element is still rising into place.
-  const HIDDEN_CLIP = 'inset(0% 100% -20% 0%)';
-  const SHOWN_CLIP = 'inset(0% 0% -20% 0%)';
-
-  // --- 1. Hero load-in -------------------------------------------------
-
-  let heroNameChars: Element[] = [];
-  let heroIntroPlayed = false;
-
-  function playHeroIntro() {
-    if (prefersReducedMotion || heroIntroPlayed) return;
-    heroIntroPlayed = true;
-
-    const logo = document.querySelector<HTMLElement>('[data-hero-logo]');
-    const eyebrow = document.querySelector<HTMLElement>('[data-hero-eyebrow]');
-    const nameEl = document.querySelector<HTMLElement>('[data-hero-name]');
-    const photo = document.querySelectorAll<HTMLElement>('[data-hero-photo]');
-    const sub = document.querySelector<HTMLElement>('[data-hero-sub]');
-    if (!logo || !eyebrow || !nameEl || photo.length === 0 || !sub) return;
-
-    gsap
-      .timeline({ defaults: { ease: 'power3.out' } })
-      .to(logo, { opacity: 1, y: 0, duration: 0.35 })
-      .to(eyebrow, { opacity: 1, y: 0, duration: 0.35 }, '-=0.15')
-      .to(heroNameChars, { opacity: 1, y: 0, duration: 0.45, stagger: 0.025 }, '-=0.1')
-      .to(photo, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.6)' }, '-=0.35')
-      .to(sub, { opacity: 1, y: 0, duration: 0.4 }, '-=0.25');
-  }
-
-  // Forces the hero visible no matter what — a stalled preloader:done
-  // event (a slow or quirky in-app browser, a JS error elsewhere on the
-  // page) must never leave the hero sitting invisible indefinitely. Mirrors
-  // Preloader.astro's own "never block forever" safety net.
-  function showHeroImmediately() {
-    if (prefersReducedMotion || heroIntroPlayed) return;
-    heroIntroPlayed = true;
-    const targets = document.querySelectorAll<HTMLElement>(
-      '[data-hero-logo], [data-hero-eyebrow], [data-hero-photo], [data-hero-sub]',
-    );
-    gsap.set([...Array.from(targets), ...heroNameChars], { opacity: 1, y: 0, scale: 1 });
-  }
-
-  if (!prefersReducedMotion) {
-    const logo = document.querySelector<HTMLElement>('[data-hero-logo]');
-    const eyebrow = document.querySelector<HTMLElement>('[data-hero-eyebrow]');
-    const nameEl = document.querySelector<HTMLElement>('[data-hero-name]');
-    const photo = document.querySelectorAll<HTMLElement>('[data-hero-photo]');
-    const sub = document.querySelector<HTMLElement>('[data-hero-sub]');
-
-    if (logo && eyebrow && nameEl && photo.length > 0 && sub) {
-      const split = new SplitText(nameEl, { type: 'chars' });
-      heroNameChars = split.chars;
-
-      gsap.set(logo, { opacity: 0, y: 12 });
-      gsap.set(eyebrow, { opacity: 0, y: 16 });
-      gsap.set(heroNameChars, { opacity: 0, y: 36 });
-      gsap.set(photo, { opacity: 0, scale: 0.86 });
-      gsap.set(sub, { opacity: 0, y: 20 });
-
-      const preloader = document.getElementById('preloader');
-      if (!preloader || preloader.classList.contains('is-hidden')) {
-        // The preloader already finished (or was never rendered) by the
-        // time this script ran — don't wait for an event that already fired.
-        playHeroIntro();
-      } else {
-        window.addEventListener('preloader:done', playHeroIntro, { once: true });
-      }
-
-      setTimeout(showHeroImmediately, 3000);
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
     }
+    requestAnimationFrame(raf);
   }
-
-  // --- 2. Sitewide scroll-reveal ("draw in" on scroll) ------------------
-
-  const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
-
-  revealEls.forEach((el) => {
-    if (prefersReducedMotion) return;
-
-    const children = el.children.length > 0 ? Array.from(el.children) : [el];
-    const tl = gsap.timeline({ paused: true });
-
-    children.forEach((child, i) => {
-      const isHeading = /^H[1-6]$/.test(child.tagName);
-
-      if (isHeading) {
-        const split = new SplitText(child as HTMLElement, { type: 'words' });
-        gsap.set(split.words, { opacity: 0, y: 24, clipPath: HIDDEN_CLIP });
-        tl.to(
-          split.words,
-          { opacity: 1, y: 0, clipPath: SHOWN_CLIP, duration: 0.8, ease: 'power3.out', stagger: 0.05 },
-          i * 0.12,
-        );
-      } else {
-        gsap.set(child, { opacity: 0, y: 28, clipPath: HIDDEN_CLIP });
-        tl.to(
-          child,
-          { opacity: 1, y: 0, clipPath: SHOWN_CLIP, duration: 0.9, ease: 'power3.out' },
-          i * 0.12,
-        );
-      }
-    });
-
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => tl.play(),
-    });
-  });
 </script>
