@@ -14,8 +14,17 @@
 <section class="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
   <div class="container-page">
     <div class="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-      <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
-        <p class="eyebrow" data-hero-eyebrow>// Hello, I'm</p>
+      <div class="flex flex-col items-start text-left">
+        <img
+          src="/brand/shield-icon.svg"
+          alt=""
+          width="56"
+          height="56"
+          class="name-hero-logo"
+          data-hero-logo
+          loading="eager"
+        />
+        <p class="eyebrow mt-5" data-hero-eyebrow>// Hello, I'm</p>
         <h1
           class="name-hero-heading mt-4 font-display font-bold uppercase leading-[0.82] tracking-tight text-(--color-text) lg:mt-6"
           data-hero-name
@@ -33,13 +42,16 @@
         </p>
       </div>
 
-      <div class="name-hero-photo-wrap mx-auto lg:mx-0 lg:ml-auto" data-hero-photo>
+      <div class="name-hero-photo-wrap lg:ml-auto" data-hero-photo>
         <img
           src="/brand/founder-photo.webp"
           alt="Shahid Iqbal, founder of Shahid Security"
           width="480"
           height="598"
           class="name-hero-photo"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
         />
       </div>
     </div>
@@ -47,6 +59,11 @@
 </section>
 
 <style>
+  .name-hero-logo {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
   .name-hero-heading {
     font-size: clamp(3.25rem, 11vw, 9rem);
   }
@@ -59,6 +76,7 @@
     display: block;
     width: 100%;
     height: auto;
+    border-radius: 1.25rem;
     filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.45));
   }
 </style>
