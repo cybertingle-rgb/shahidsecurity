@@ -16,20 +16,20 @@
    on 50+ files here, so this component layer applies to them for free,
    no per-page markup changes needed. */
 @theme {
-  --color-bg: #05060d;
-  --color-bg-elevated: #0c0e18;
-  --color-surface: #12141f;
-  --color-border: #1c2032;
-  --color-border-strong: #343a5c;
-  --color-text: #eef0f8;
-  --color-text-muted: #9aa0ba;
-  --color-neon: #0ea5ff;
-  --color-neon-soft: #4dd4ff;
-  --color-neon-dim: rgba(14, 165, 255, 0.14);
-  --color-orb-purple: #8b2fe0;
-  --color-orb-blue: #2f6bff;
-  --color-success: #00bf63;
-  --color-success-soft: #2fe08a;
+  --color-bg: #1a1a1f;
+  --color-bg-elevated: #211f2d;
+  --color-surface: #252236;
+  --color-border: #332f4a;
+  --color-border-strong: #4a4470;
+  --color-text: #f0d9b5;
+  --color-text-muted: #b3a68e;
+  --color-neon: #6a5acd;
+  --color-neon-soft: #a678b9;
+  --color-neon-dim: rgba(106, 90, 205, 0.16);
+  --color-orb-purple: #6a5acd;
+  --color-orb-blue: #a678b9;
+  --color-success: #f4a62a;
+  --color-success-soft: #ffc966;
   --color-danger: #ff3b5c;
   --color-warn: #ffb020;
 
@@ -41,7 +41,7 @@
 body {
   background:
     radial-gradient(ellipse 1200px 700px at 15% -10%, color-mix(in oklab, var(--color-neon) 7%, transparent), transparent 55%),
-    radial-gradient(ellipse 1000px 800px at 100% 100%, color-mix(in oklab, #3b9bff 6%, transparent), transparent 55%),
+    radial-gradient(ellipse 1000px 800px at 100% 100%, color-mix(in oklab, #a678b9 6%, transparent), transparent 55%),
     var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
@@ -589,8 +589,8 @@ textarea:focus {
   white-space: nowrap;
   width: 0;
   font-size: clamp(0.6rem, 1.35vw, 0.85rem);
-  color: #4dd4ff;
-  text-shadow: 0 0 8px rgba(77, 212, 255, 0.75);
+  color: var(--color-neon-soft);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--color-neon-soft) 75%, transparent);
   animation: preloader-rain-type var(--dur) linear var(--delay) infinite;
 }
 
