@@ -48,6 +48,7 @@ const RAIN = RAIN_POSITIONS.map((pos, i) => ({
   chars: RAIN_COMMANDS[i % RAIN_COMMANDS.length].length,
   variant: i % 2 === 0 ? 'a' : 'b',
 }));
+
 ---
 
 <div id="preloader" role="presentation" aria-hidden="true">
@@ -56,7 +57,6 @@ const RAIN = RAIN_POSITIONS.map((pos, i) => ({
       <div
         class={`preloader-rain-cmd preloader-rain-cmd-${item.variant}`}
         data-i={i}
-        style={`left:${item.left}%; --dur:${item.dur}s; --delay:${item.delay}s; --chars:${item.chars}ch;`}
       >
         <span class="preloader-rain-cmd-text font-mono">{item.text}</span>
       </div>
@@ -108,16 +108,22 @@ const RAIN = RAIN_POSITIONS.map((pos, i) => ({
     pointer-events: none;
   }
 
-  /* Each column is one falling command. `left` (set inline per item in
-     the markup, along with --dur/--delay/--chars) is the column's left
-     edge — unlike the old icon rain this isn't centered/transformed,
-     since text reading left-to-right as it "types" looks right growing
-     from a fixed left edge, not from the middle. Two fall variants
-     (a/b, picked per item in the markup) give the field slight drift
-     variety without the per-icon rotation that read oddly on text.
-     Full-width coverage — the shield staying visually in front of
-     anything passing behind it is handled by .preloader-shield-backdrop
-     below, not by keeping rain out of that area. */
+  /* Each column is one falling command. `left`/--dur/--delay/--chars are
+     set per item below via [data-i="N"] rules (one per RAIN_POSITIONS
+     entry, generated from that same array so the two can't drift out of
+     sync) rather than a `style="..."` attribute on each element — the
+     site's CSP style-src-attr directive (astro.config.mjs, no
+     'unsafe-inline' there) blocks inline style ATTRIBUTES outright, even
+     static ones, while a `<style>` TAG like this one is hashed and
+     allowed automatically. `left` positions the column — unlike the old
+     icon rain this isn't centered/transformed, since text reading
+     left-to-right as it "types" looks right growing from a fixed left
+     edge, not from the middle. Two fall variants (a/b, picked per item in
+     the markup) give the field slight drift variety without the per-icon
+     rotation that read oddly on text. Full-width coverage — the shield
+     staying visually in front of anything passing behind it is handled by
+     .preloader-shield-backdrop below, not by keeping rain out of that
+     area. */
   .preloader-rain-cmd {
     position: absolute;
     top: -8%;
@@ -135,6 +141,38 @@ const RAIN = RAIN_POSITIONS.map((pos, i) => ({
   .preloader-rain-cmd-b {
     animation-name: preloader-rain-fall-b;
   }
+
+  /* Generated from RAIN_POSITIONS/RAIN_COMMANDS above — keep in sync by
+     hand if those ever change (there's no build step wiring the two
+     together, by design: see the comment on .preloader-rain-cmd). */
+  .preloader-rain-cmd[data-i="0"]{left:2.4%;--dur:5.39s;--delay:-5.13s;--chars:6ch;}
+  .preloader-rain-cmd[data-i="1"]{left:9.1%;--dur:3.52s;--delay:-1.51s;--chars:3ch;}
+  .preloader-rain-cmd[data-i="2"]{left:16.4%;--dur:4.86s;--delay:-1.44s;--chars:6ch;}
+  .preloader-rain-cmd[data-i="3"]{left:23.5%;--dur:5.93s;--delay:-3.73s;--chars:11ch;}
+  .preloader-rain-cmd[data-i="4"]{left:30.9%;--dur:3.51s;--delay:-5.25s;--chars:13ch;}
+  .preloader-rain-cmd[data-i="5"]{left:38%;--dur:5.89s;--delay:-4.52s;--chars:19ch;}
+  .preloader-rain-cmd[data-i="6"]{left:44.9%;--dur:3.9s;--delay:-5.13s;--chars:11ch;}
+  .preloader-rain-cmd[data-i="7"]{left:51.7%;--dur:4.97s;--delay:-2.69s;--chars:15ch;}
+  .preloader-rain-cmd[data-i="8"]{left:58.4%;--dur:4.1s;--delay:-0.88s;--chars:13ch;}
+  .preloader-rain-cmd[data-i="9"]{left:64%;--dur:6.45s;--delay:-4.21s;--chars:14ch;}
+  .preloader-rain-cmd[data-i="10"]{left:70.4%;--dur:3.47s;--delay:-4.13s;--chars:17ch;}
+  .preloader-rain-cmd[data-i="11"]{left:77.3%;--dur:3.71s;--delay:-3.23s;--chars:23ch;}
+  .preloader-rain-cmd[data-i="12"]{left:84.3%;--dur:5.12s;--delay:-2.5s;--chars:19ch;}
+  .preloader-rain-cmd[data-i="13"]{left:3.1%;--dur:3.82s;--delay:-1.57s;--chars:5ch;}
+  .preloader-rain-cmd[data-i="14"]{left:11.4%;--dur:3.26s;--delay:-3.98s;--chars:8ch;}
+  .preloader-rain-cmd[data-i="15"]{left:18.4%;--dur:5.52s;--delay:-5.61s;--chars:24ch;}
+  .preloader-rain-cmd[data-i="16"]{left:25.3%;--dur:5.82s;--delay:-5.06s;--chars:24ch;}
+  .preloader-rain-cmd[data-i="17"]{left:33.9%;--dur:4.45s;--delay:-5.24s;--chars:17ch;}
+  .preloader-rain-cmd[data-i="18"]{left:40.6%;--dur:3.71s;--delay:-5.15s;--chars:24ch;}
+  .preloader-rain-cmd[data-i="19"]{left:47.5%;--dur:3.48s;--delay:-5.83s;--chars:12ch;}
+  .preloader-rain-cmd[data-i="20"]{left:54.4%;--dur:3.74s;--delay:-3.78s;--chars:28ch;}
+  .preloader-rain-cmd[data-i="21"]{left:61.1%;--dur:4.26s;--delay:-4.42s;--chars:17ch;}
+  .preloader-rain-cmd[data-i="22"]{left:68.1%;--dur:3.58s;--delay:-4.17s;--chars:21ch;}
+  .preloader-rain-cmd[data-i="23"]{left:74.2%;--dur:3.24s;--delay:-3.93s;--chars:14ch;}
+  .preloader-rain-cmd[data-i="24"]{left:81.6%;--dur:3.14s;--delay:-2.75s;--chars:27ch;}
+  .preloader-rain-cmd[data-i="25"]{left:88.3%;--dur:3.01s;--delay:-5.99s;--chars:30ch;}
+  .preloader-rain-cmd[data-i="26"]{left:5.6%;--dur:3.94s;--delay:-3.66s;--chars:34ch;}
+  .preloader-rain-cmd[data-i="27"]{left:94.9%;--dur:4.28s;--delay:-5.04s;--chars:32ch;}
 
   /* The command text itself: starts at zero width with hidden overflow,
      then animates open to its full character width (--chars, set inline

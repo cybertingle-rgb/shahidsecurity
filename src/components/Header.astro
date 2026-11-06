@@ -140,10 +140,11 @@ const currentPath = Astro.url.pathname;
       inset 0 1px 0 0 color-mix(in oklab, white 16%, transparent),
       0 2px 10px -4px rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transition:
-      transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
-      width 480ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 200ms ease-out;
+    /* Width/transform are driven by the Web Animations API (below), not a
+       CSS transition — the CSP here has no 'unsafe-inline' for style-src-attr,
+       and animate() operates outside the inline `style` attribute entirely,
+       unlike setting el.style.width/transform directly (which CSP blocks). */
+    transition: opacity 200ms ease-out;
     pointer-events: none;
     will-change: transform, width;
   }
@@ -155,6 +156,12 @@ const currentPath = Astro.url.pathname;
     .nav-indicator {
       transition: opacity 150ms ease-out;
     }
+  }
+
+  /* Mobile menu's body-scroll lock — toggled via classList (below), never
+     inline style, for the same CSP reason as the indicator above. */
+  :global(body.nav-scroll-locked) {
+    overflow: hidden;
   }
 </style>
 
@@ -181,7 +188,7 @@ const currentPath = Astro.url.pathname;
     lastFocused = document.activeElement as HTMLElement;
     focusables = Array.from(menu.querySelectorAll<HTMLElement>('a, button'));
     focusables[0]?.focus();
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('nav-scroll-locked');
   }
 
   function closeMenu() {
@@ -189,7 +196,7 @@ const currentPath = Astro.url.pathname;
     menu.classList.add('hidden');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open menu');
-    document.body.style.overflow = '';
+    document.body.classList.remove('nav-scroll-locked');
     lastFocused?.focus();
   }
 
@@ -230,6 +237,15 @@ const currentPath = Astro.url.pathname;
   if (navEl && indicator) {
     const links = Array.from(navEl.querySelectorAll<HTMLAnchorElement>('[data-nav-link]'));
     const activeLink = links.find((a) => a.getAttribute('aria-current') === 'page') ?? null;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Positioned via the Web Animations API, not el.style.width/transform —
+    // animate() doesn't touch the inline `style` attribute, so it isn't
+    // subject to the style-src-attr CSP directive (which has no
+    // 'unsafe-inline' here) the way a direct style assignment would be.
+    let currentAnim: Animation | null = null;
+    let lastWidth = 0;
+    let lastX = 0;
 
     function moveIndicatorTo(el: HTMLElement | null) {
       if (!el || !indicator || !navEl) {
@@ -238,8 +254,23 @@ const currentPath = Astro.url.pathname;
       }
       const navRect = navEl.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
-      indicator.style.width = `${elRect.width}px`;
-      indicator.style.transform = `translateX(${elRect.left - navRect.left}px)`;
+      const targetWidth = elRect.width;
+      const targetX = elRect.left - navRect.left;
+
+      currentAnim?.cancel();
+      currentAnim = indicator.animate(
+        [
+          { width: `${lastWidth}px`, transform: `translateX(${lastX}px)` },
+          { width: `${targetWidth}px`, transform: `translateX(${targetX}px)` },
+        ],
+        {
+          duration: reduceMotion ? 0 : 480,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          fill: 'forwards',
+        },
+      );
+      lastWidth = targetWidth;
+      lastX = targetX;
       indicator.classList.add('is-ready');
     }
 
