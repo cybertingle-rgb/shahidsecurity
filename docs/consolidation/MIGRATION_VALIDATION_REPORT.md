@@ -117,6 +117,28 @@ branch: "claude/wizardly-keller-yg0bj7"}`, `appType: "astro"`,
 what was live before, built from the production branch's own latest
 commit.
 
+## 1.3 Root cause of /admin and /learn not working, found and fixed
+
+You checked `shahidiqbal.com` directly: `/` worked, `/admin` and `/learn`
+did not. Root cause, confirmed via `hosting_get-deployment` before
+touching anything: `admin.shahidiqbal.com` and `learn.shahidiqbal.com`
+were still running their old deploys from `claude/wizardly-keller-yg0bj7`
+(commit `b749770`) — the `basePath` change (§1 of this project, Phase 1)
+was only ever pushed to `claude/platform-consolidation-audit` and had
+never actually been deployed to either real app. The gateway was
+correctly forwarding `shahidiqbal.com/admin/dashboard` to
+`admin.shahidiqbal.com/admin/dashboard`, but that app's real routes were
+still at the old `/dashboard` (no prefix) — nothing was listening at the
+path the gateway was sending traffic to.
+
+Fixed by redeploying both `admin.shahidiqbal.com` and
+`learn.shahidiqbal.com` from `claude/platform-consolidation-audit`
+instead, same build settings each was already using otherwise. Both
+completed successfully: admin in 53.6s, learn in slightly longer (npm's
+own install retry dance, unrelated — same thing its last few deploys have
+also done). Both now have `basePath` live. Needs the same kind of
+real-world check as §1.2 — asking you to look again.
+
 ## 2. What this report cannot yet claim
 
 - **The staging deployment's actual response from the real
