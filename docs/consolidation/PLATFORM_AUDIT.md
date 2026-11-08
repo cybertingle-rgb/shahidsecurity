@@ -358,38 +358,66 @@ subdomains actually nested under the apex domain), serving `/admin/*` and
   routing-layer question entirely and is the most conventional long-term
   shape for "one platform."
 
-This audit does not recommend one of these yet — 9A's viability is a
-concrete, checkable fact (not yet checked), and it changes the entire shape
-of the migration plan. Resolving it is the first concrete action item
-handed back to you in the accompanying proposal summary.
+**Resolved 2026-11-08: 9A is ruled out (§10.1).** The recommended path is
+9B — a thin Next.js "gateway" application deployed to the apex domain's
+existing Node.js hosting slot (replacing today's static rsync of the Astro
+`dist/` there), using Next.js's own Multi-Zones pattern: `next.config`
+`rewrites()` sends `/admin/:path*` and `/learn/:path*` to the real, still
+fully independent `admin.shahidiqbal.com` and `learn.shahidiqbal.com`
+backends over plain outbound HTTPS, while the gateway serves the Astro
+site's static build output directly for everything else. This needs no
+change to Hostinger's own routing, no change to `apps/admin` or
+`apps/learn`'s code, databases, or deploy pipelines, and is fully
+reversible (point the apex domain's deploy back at the plain static rsync
+to undo it). Full detail in `UNIFIED_ARCHITECTURE.md`.
 
 ---
 
-## 10. Open questions / blockers for your decision
+## 10. Open questions — resolved and outstanding
 
-1. **Hosting path-routing capability (§6, §9A)** — can this Hostinger
-   account/plan actually serve two different Node.js apps (or a Node app +
-   static files) under one domain by path? This gates the entire
-   architecture choice.
-2. **Is any online payment gateway actually wired anywhere** for LMS
-   checkout (`orders`/`payments.method = 'online'`), or is `manual`
-   (bank/crypto/mobile-wallet with admin verification) the only live path
-   today? Not resolved in this pass.
-3. **Which LMS admin UI is canonical** (§8) — `apps/learn`'s own
-   `/admin/*`, or `apps/admin`'s `/dashboard/learn/*`? This is your call,
-   not a technical one — both are real and working.
-4. **Brand palette** — this project's brief describes "dark navy, electric
+1. **Hosting path-routing capability (§6, §9A) — RESOLVED, 2026-11-08.**
+   Checked directly against the Hostinger API surface (not just the panel
+   lead in a stale doc): there is no operation anywhere in this account's
+   available API for binding a second application to a *path* on an
+   existing domain, and no reverse-proxy/rewrite-rule capability at all.
+   `hosting_websites_add-domain` only ever creates a `parked` alias domain
+   or a `subdomain` — both get their own, separate document root; neither
+   is a path on an existing vhost. `hosting_websites_list` confirms all
+   three current sites are independent addon vhosts
+   (`parent_domain: null` on all three), each bound to exactly one
+   `root_directory`. Hostinger's Node.js hosting model here is **one
+   Node.js process per document root, per domain/subdomain** — there is no
+   hosting-level mechanism to route `/admin` and `/learn` as paths to
+   separate backend processes. **9A is not available on this account.**
+   This is decisive: see §9 (updated) and `UNIFIED_ARCHITECTURE.md` for
+   the resulting recommendation.
+2. **Path-based URLs under the apex domain — confirmed as the target** (your
+   answer): `/admin` and `/learn` as real paths on `shahidiqbal.com`, not
+   subdomains, is what this project is building toward. Combined with
+   finding 1, this means the apex domain's one Node.js hosting slot must
+   itself be the thing that resolves `/admin/*` and `/learn/*` —
+   necessarily an application-level solution (9B or 9C), never a
+   Hostinger-level one.
+3. **Canonical LMS admin UI — decided** (your answer): `apps/admin`'s
+   `/dashboard/learn/*` becomes the single LMS-management surface.
+   `apps/learn`'s own `/admin/*` route group gets its unique features
+   (roadmap, exchange-rates, communities, payment-methods UI) ported over
+   where apps/admin doesn't already have them, then is retired. Sequenced
+   as its own phase, independent of the URL-consolidation work, so each is
+   separately reversible.
+4. **Is any online payment gateway actually wired anywhere** for LMS
+   checkout, or is `manual` (bank/crypto/mobile-wallet with admin
+   verification) the only live path today? Still open — not resolved in
+   this pass, does not block the architecture decision.
+5. **Brand palette** — this project's brief describes "dark navy, electric
    blue accents" as the design direction. The live site (and both apps,
    after the 2026-11-06 sync) actually use an indigo-violet (`#6a5acd`) /
    amber (`#f4a62a`) / cream (`#f0d9b5`) palette on near-black
    (`#1a1a1f`) — "electric blue" was an intermediate scheme from before the
-   current redesign and is no longer live anywhere. Flagging this now so
-   the unified design system (brief §8) is built against the actual
-   current palette, not a description that predates it.
-5. **Is `docs/DEPLOYMENT.md`'s "path, not subdomain, per Shahid's explicit
-   preference" note (§6) still your preference**, now that the subdomain
-   is actually live and working? If yes, that's an argument for 9A/9C over
-   keeping subdomains at all, even as an interim step.
+   current redesign and is no longer live anywhere. Flagging this so the
+   unified design system is built against the actual current palette.
+   Proceeding on the assumption the current live palette is correct unless
+   you say otherwise.
 
 ---
 
