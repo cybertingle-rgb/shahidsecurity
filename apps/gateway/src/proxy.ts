@@ -35,6 +35,13 @@ function matchesPrefix(pathname: string, prefixes: string[]): boolean {
 export default function proxy(request: NextRequest): NextResponse | undefined {
   const { pathname } = request.nextUrl;
 
+  // TEMPORARY diagnostic logging (docs/consolidation/MIGRATION_VALIDATION_REPORT.md
+  // §1.5) — confirming whether a reported-hung request reaches the gateway
+  // at all before being forwarded. Remove once root-caused.
+  if (pathname.startsWith('/admin/api/') || pathname.startsWith('/learn/api/')) {
+    console.log(`[gateway-proxy] ${request.method} ${pathname}`);
+  }
+
   if (matchesPrefix(pathname, BLOCKED_PREFIXES)) {
     return new NextResponse('Not found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
