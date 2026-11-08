@@ -1,0 +1,66 @@
+name: Deploy Gateway (shahidiqbal.com)
+
+# apps/gateway (docs/consolidation/UNIFIED_ARCHITECTURE.md) is deployed by
+# Hostinger's own native Git-connected build pipeline, same pattern as
+# apps/admin and apps/learn (deploy-admin.yml, deploy-lms.yml) — see
+# docs/consolidation/DEPLOYMENT_GUIDE.md for the exact hPanel build-command
+# configuration this app needs (it must also build the Astro site at the
+# repo root first; a plain `pnpm build` scoped to this app's own directory
+# is not enough).
+#
+# This workflow has no migrate step (the gateway has no database) — its
+# job is to wait for the new commit to actually be live, then smoke-test
+# the three things that matter: the Astro site, /admin, and /learn all
+# still respond.
+#
+# INERT BY DESIGN, for now: `workflow_dispatch` only, no `push` trigger.
+# This project's Strict Development Rules (docs/consolidation/
+# PLATFORM_AUDIT.md's originating brief) prohibit deploying to production
+# or wiring this into automatic deploys without explicit authorization.
+# Per docs/consolidation/DEPLOYMENT_GUIDE.md §4 step 4, adding a `push`
+# trigger scoped to the production branch is the actual cutover step —
+# done deliberately, once authorized, not bundled into this file's
+# creation.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-gateway
+  cancel-in-progress: false
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    # Required secrets (none of these exist yet — same honestly-documented
+    # starting state docs/DEPLOYMENT.md recorded for deploy-admin.yml):
+    #   GATEWAY_APP_URL — https://shahidiqbal.com once the gateway is
+    #                     live there (or a staging domain's URL while
+    #                     testing — see DEPLOYMENT_GUIDE.md §4).
+    steps:
+      - name: Wait for this commit's build to actually be live
+        # Same race, same fix as deploy-admin.yml/deploy-lms.yml's
+        # identical step — see deploy-admin.yml's comment for the
+        # confirmed real-deploy evidence that motivated this pattern.
+        run: |
+          echo "Waiting for ${{ secrets.GATEWAY_APP_URL }}/build-info.json to report sha=${{ github.sha }} ..."
+          for i in $(seq 1 60); do
+            live_sha=$(curl --silent --show-error --max-time 10 "${{ secrets.GATEWAY_APP_URL }}/build-info.json" | sed -n 's/.*"sha":"\([^"]*\)".*/\1/p')
+            if [ "$live_sha" = "${{ github.sha }}" ]; then
+              echo "Live build matches this commit (sha=$live_sha) after $i attempt(s)."
+              exit 0
+            fi
+            echo "Attempt $i/60: live sha is '$live_sha', not yet ${{ github.sha }} — waiting 10s."
+            sleep 10
+          done
+          echo "Gave up waiting after 10 minutes — live build never matched this commit. Smoke-testing anyway." >&2
+
+      - name: Smoke test — Astro site, /admin, /learn all respond
+        run: |
+          set -e
+          echo "GET / ..."
+          curl --fail-with-body --show-error --silent --max-time 15 "${{ secrets.GATEWAY_APP_URL }}/" -o /dev/null
+          echo "GET /admin ..."
+          curl --fail-with-body --show-error --silent --max-time 15 "${{ secrets.GATEWAY_APP_URL }}/admin" -o /dev/null
+          echo "GET /learn ..."
+          curl --fail-with-body --show-error --silent --max-time 15 "${{ secrets.GATEWAY_APP_URL }}/learn" -o /dev/null
+          echo "All three responded without a server error."
