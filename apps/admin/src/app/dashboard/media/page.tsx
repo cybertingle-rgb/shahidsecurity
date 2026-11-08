@@ -1,5 +1,6 @@
 import { listMedia } from '@/lib/media';
 import { uploadMedia, deleteMedia } from './actions';
+import { BASE_PATH } from '@/lib/basePath';
 
 type MediaListItem = Awaited<ReturnType<typeof listMedia>>[number];
 
@@ -16,7 +17,7 @@ function MediaCard({ item }: { item: MediaListItem }) {
   return (
     <div className="space-y-2 rounded-lg border border-border bg-bg-elevated/60 p-3">
       {isImage ? (
-        <img src={`/api/media/${item.id}`} alt={item.altText ?? item.fileName} className="h-32 w-full rounded object-cover" />
+        <img src={`${BASE_PATH}/api/media/${item.id}`} alt={item.altText ?? item.fileName} className="h-32 w-full rounded object-cover" />
       ) : (
         <div className="flex h-32 w-full items-center justify-center rounded bg-bg text-xs text-text-muted">{item.mimeType}</div>
       )}
@@ -25,7 +26,7 @@ function MediaCard({ item }: { item: MediaListItem }) {
       </p>
       <p className="text-xs text-text-muted">{formatSize(item.sizeBytes)}</p>
       <div className="flex items-center justify-between">
-        <a href={`/api/media/${item.id}`} target="_blank" rel="noreferrer" className="text-xs text-neon">
+        <a href={`${BASE_PATH}/api/media/${item.id}`} target="_blank" rel="noreferrer" className="text-xs text-neon">
           open
         </a>
         <form action={remove}>

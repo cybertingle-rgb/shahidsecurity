@@ -8,6 +8,7 @@ import RainField from '@/components/RainField';
 import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
 import GoogleButton, { googleOAuthErrorMessage } from '@/components/GoogleButton';
+import { BASE_PATH } from '@/lib/basePath';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
@@ -25,7 +26,7 @@ function RegisterForm() {
     setMessage(null);
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${BASE_PATH}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, email, password }),

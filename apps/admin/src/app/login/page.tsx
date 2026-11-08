@@ -7,6 +7,7 @@ import Link from 'next/link';
 import RainField from '@/components/RainField';
 import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
+import { BASE_PATH } from '@/lib/basePath';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${BASE_PATH}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

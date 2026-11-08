@@ -1,3 +1,5 @@
+import { BASE_PATH } from '@/lib/basePath';
+
 const ERROR_MESSAGES: Record<string, string> = {
   google_not_configured: 'Google sign-in is not set up yet.',
   google_denied: 'Google sign-in was cancelled.',
@@ -21,7 +23,7 @@ export function googleOAuthErrorMessage(code: string | null): string | null {
 export default function GoogleButton() {
   return (
     <a
-      href="/api/auth/google"
+      href={`${BASE_PATH}/api/auth/google`}
       className="flex w-full items-center justify-center gap-2 rounded-md border border-border-strong bg-bg-elevated/60 px-4 py-2 font-medium text-text backdrop-blur-sm transition hover:border-neon"
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">

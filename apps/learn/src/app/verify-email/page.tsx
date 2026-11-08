@@ -6,6 +6,7 @@ import Link from 'next/link';
 import RainField from '@/components/RainField';
 import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
+import { BASE_PATH } from '@/lib/basePath';
 
 type Status = 'verifying' | 'success' | 'error';
 
@@ -22,7 +23,7 @@ function VerifyEmailInner() {
       return;
     }
 
-    fetch('/api/auth/verify-email', {
+    fetch(`${BASE_PATH}/api/auth/verify-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),

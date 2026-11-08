@@ -5,6 +5,7 @@ import Link from 'next/link';
 import RainField from '@/components/RainField';
 import SocialRail from '@/components/SocialRail';
 import AuthCard from '@/components/AuthCard';
+import { BASE_PATH } from '@/lib/basePath';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/request-password-reset', {
+      const res = await fetch(`${BASE_PATH}/api/auth/request-password-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
