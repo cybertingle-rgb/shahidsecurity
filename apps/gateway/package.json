@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/copy-astro-dist.mjs && next dev -p 3100",
-    "build": "node scripts/write-build-info.mjs && node scripts/copy-astro-dist.mjs && next build && node scripts/flatten-standalone.mjs",
+    "build": "node scripts/write-build-info.mjs && cd ../.. && pnpm run build && cd apps/gateway && node scripts/copy-astro-dist.mjs && next build && node scripts/flatten-standalone.mjs",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
