@@ -10,6 +10,17 @@ import type { NextRequest } from 'next/server';
 // handler); /admin/* and /learn/* pass through completely untouched, so
 // next.config.mjs's rewrites() see exactly the path the browser sent.
 const PASSTHROUGH_PREFIXES = ['/admin', '/learn'];
+// apps/learn's own internal /admin/* route group (docs/consolidation/
+// PLATFORM_AUDIT.md §8) duplicates apps/admin's /dashboard/learn/* —
+// confirmed by direct diff to be the same features, not just similarly
+// named (same logic, same imports restructured, cosmetic text only).
+// Per the decision in docs/consolidation/UNIFIED_ARCHITECTURE.md §4.1,
+// apps/admin/dashboard/learn/* is canonical; this makes the duplicate
+// genuinely unreachable from the public internet through the one entry
+// point this project controls, rather than merely unlinked. apps/learn's
+// own code is untouched — reachable again by removing this block, with
+// no deploy of that app needed, if that ever turns out to be wrong.
+const BLOCKED_PREFIXES = ['/learn/admin'];
 // Next's own default redirect logic exempts a path whose last segment
 // contains a dot (treated as a filename, e.g. /favicon.ico, /robots.txt,
 // /sitemap-index.xml) — matched here for the same reason: those are real
@@ -17,10 +28,17 @@ const PASSTHROUGH_PREFIXES = ['/admin', '/learn'];
 // trailing slash.
 const HAS_FILE_EXTENSION = /\/[^/]+\.[^/]+$/;
 
+function matchesPrefix(pathname: string, prefixes: string[]): boolean {
+  return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
 export default function proxy(request: NextRequest): NextResponse | undefined {
   const { pathname } = request.nextUrl;
 
-  if (PASSTHROUGH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+  if (matchesPrefix(pathname, BLOCKED_PREFIXES)) {
+    return new NextResponse('Not found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  }
+  if (matchesPrefix(pathname, PASSTHROUGH_PREFIXES)) {
     return NextResponse.next();
   }
   if (pathname.endsWith('/') || HAS_FILE_EXTENSION.test(pathname)) {

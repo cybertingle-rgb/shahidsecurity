@@ -189,13 +189,24 @@ turn a low-risk, reversible change into a high-risk one for no added
 benefit this phase needs:
 
 1. **Retiring `apps/learn`'s own `/admin/*`** in favor of `apps/admin`'s
-   `/dashboard/learn/*` (your decision, audit §10.3). Sequencing: port any
-   feature unique to Learn's own admin (roadmap editor, exchange-rates,
-   communities, payment-methods UI — audit §8) into `apps/admin` first,
-   verify parity, *then* have the gateway's `/learn/*` rewrite explicitly
-   exclude `/learn/admin/*` (making it genuinely unreachable from outside,
-   not just unlinked), and only then consider removing the code. Tracked
-   as its own follow-up, not blocking the gateway.
+   `/dashboard/learn/*` (your decision, audit §10.3). **Re-checked
+   2026-11-08, turned out simpler than planned**: `apps/admin`'s
+   `/dashboard/learn/*` already has complete feature parity with
+   `apps/learn/admin/*` — confirmed by diffing comparable files
+   (`roadmap`, `communities`, `payment-methods`), not just comparing route
+   names: same logic, same imports restructured to each app's own lib
+   path, cosmetic text differences only — plus an entire extra section
+   (`training-requests`, Personal Training) that `apps/learn`'s own panel
+   never got. No porting work is needed. Acted on immediately rather than
+   waiting: `apps/gateway/src/proxy.ts` now returns `404` for
+   `/learn/admin` and everything under it, before the rewrite ever runs —
+   confirmed directly (`/learn/admin/students` → `404`, while
+   `/learn/courses` and `/admin/dashboard/learn/students` still attempt
+   their normal proxy, unaffected). `apps/learn`'s own code is completely
+   untouched — this is reversible by deleting one array entry in
+   `proxy.ts`, no redeploy of `apps/learn` required, if a real gap is
+   found later during a closer manual walkthrough (file-level diffing is
+   strong evidence, not a full behavioral test).
 2. **Shared/single sign-on between admin and LMS.** Out of scope for this
    phase because the two user bases barely overlap (admins vs. students) —
    the main person who'd benefit is you, logging into both. A lightweight
