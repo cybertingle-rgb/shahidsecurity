@@ -139,6 +139,30 @@ own install retry dance, unrelated — same thing its last few deploys have
 also done). Both now have `basePath` live. Needs the same kind of
 real-world check as §1.2 — asking you to look again.
 
+## 1.4 Second real bug: basePath-unaware client fetch()/href calls
+
+You checked again: `/admin` loaded but login didn't work. Root cause,
+found by reading the actual login page component rather than guessing:
+Next.js's `basePath` auto-prefixes `<Link>`, `useRouter()`, and
+`redirect()` — it does **not** prefix a raw `fetch('/api/...')` call or a
+plain `<a href="/api/...">`. The login page's
+`fetch('/api/auth/login', ...)` requested `shahidiqbal.com/api/auth/login`
+instead of `shahidiqbal.com/admin/api/auth/login`, which the gateway
+never rewrites (its rules only match `/admin` and `/admin/:path*`), so it
+fell through to the Astro catch-all and 404'd.
+
+Audited both apps for this exact pattern (`fetch('/`, `href="/api`,
+`src="/api`) rather than fixing only the reported symptom — found and
+fixed 8 occurrences total: `apps/admin`'s login, reset-password,
+forgot-password (fetch calls) and the media library page (an `<img>`
+and an `<a>` pointing at `/api/media/[id]`); `apps/learn`'s login,
+register, reset-password, forgot-password, verify-email (fetch calls)
+and `GoogleButton` (the "Continue with Google" link). Added a small
+`BASE_PATH` constant to each app and prefixed every one. Verified with a
+clean typecheck and full production build for both, then redeployed both
+— admin in 1m4s, learn in 1m17s (same npm install retry as its last few
+deploys, unrelated).
+
 ## 2. What this report cannot yet claim
 
 - **The staging deployment's actual response from the real
