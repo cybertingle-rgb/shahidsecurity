@@ -10,10 +10,12 @@ import { BASE_PATH } from '@/lib/basePath';
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setError(null);
     setSubmitting(true);
     try {
       const res = await fetch(`${BASE_PATH}/api/auth/request-password-reset`, {
@@ -23,6 +25,8 @@ export default function ForgotPasswordPage() {
       });
       const data = await res.json();
       setMessage(data.message ?? 'If that email is registered, a password reset link has been sent.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error — could not reach the server.');
     } finally {
       setSubmitting(false);
     }
@@ -37,6 +41,7 @@ export default function ForgotPasswordPage() {
           <p className="text-center text-sm text-text-muted">{message}</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && <p className="text-sm text-danger">{error}</p>}
             <div className="space-y-1">
               <label className="text-sm text-text-muted" htmlFor="email">
                 Email

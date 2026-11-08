@@ -49,6 +49,32 @@
 
   # Add a trailing slash to anything else that isn't a real file and doesn't
   # already have one (matches Astro's trailingSlash: 'always' output).
+  #
+  # Platform consolidation (docs/consolidation/UNIFIED_ARCHITECTURE.md): this
+  # file is still deployed as-is to shahidiqbal.com's public_html, in front
+  # of the gateway's own Node.js/Passenger app (PassengerAppRoot, appended
+  # below by Hostinger's own Node.js deploy step) — Apache's mod_rewrite
+  # runs here BEFORE Passenger ever sees the request. Without the two
+  # exclusions below, this rule 301-redirected every /admin/* and /learn/*
+  # request lacking a trailing slash (including every POST — e.g. the admin
+  # login form's fetch('/admin/api/auth/login', {method:'POST'})) to add
+  # one. Browsers (and fetch()) silently downgrade a POST to a GET when
+  # following a 301/302/303, so the request that actually reached the
+  # gateway's own src/proxy.ts (and from there admin.shahidiqbal.com) was
+  # always a GET to the trailing-slash path, never the real POST — the
+  # login route only handles POST, so it silently 405'd. Confirmed directly
+  # from the gateway's and admin's runtime logs (gateway saw only
+  # "GET /admin/api/auth/login/", admin's own POST handler logging never
+  # fired at all) while the exact same deployed code, run locally against
+  # admin's own origin (bypassing this .htaccess entirely), sent the
+  # correct POST. /admin/* and /learn/* already get their own, correct
+  # trailing-slash handling from src/proxy.ts (PASSTHROUGH_PREFIXES) once
+  # they reach Passenger, so this Apache-level rule must leave them alone
+  # entirely — and must never act on a non-GET request anywhere, since a
+  # method-downgrading redirect is never correct for POST/PUT/PATCH/DELETE.
+  RewriteCond %{REQUEST_METHOD} =GET
+  RewriteCond %{REQUEST_URI} !^/admin
+  RewriteCond %{REQUEST_URI} !^/learn
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_URI} !(.*)/$
   RewriteCond %{REQUEST_URI} !\.(css|js|mjs|png|jpg|jpeg|webp|avif|svg|gif|ico|json|xml|txt|woff2?|map|pdf)$ [NC]

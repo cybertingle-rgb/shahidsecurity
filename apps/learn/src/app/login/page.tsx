@@ -36,6 +36,8 @@ function LoginForm() {
       }
       router.push('/dashboard');
       router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error — could not reach the server.');
     } finally {
       setSubmitting(false);
     }

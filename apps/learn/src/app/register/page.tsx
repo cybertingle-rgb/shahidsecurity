@@ -37,6 +37,8 @@ function RegisterForm() {
         return;
       }
       setMessage(data.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error — could not reach the server.');
     } finally {
       setSubmitting(false);
     }

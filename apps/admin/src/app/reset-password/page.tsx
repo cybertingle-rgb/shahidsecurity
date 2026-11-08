@@ -41,6 +41,8 @@ function ResetPasswordForm() {
       }
       setDone(true);
       setTimeout(() => router.push('/login'), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error — could not reach the server.');
     } finally {
       setSubmitting(false);
     }
