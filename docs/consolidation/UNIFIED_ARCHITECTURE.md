@@ -309,6 +309,49 @@ offline.
 
 ---
 
+## 9.1 Built and verified, 2026-11-08
+
+The gateway app described in §2.1 exists now, at `apps/gateway`, and has
+been built and run locally (not deployed — see §3 and the Strict
+Development Rules). What was actually verified, end-to-end, against the
+real production build of both the Astro site and the gateway, standing up
+the compiled standalone server and sending it real requests:
+
+- `/` and every Astro page (e.g. `/about/`) serve the real, current site
+  content, byte-identical to the existing `dist/` build.
+- **A real conflict, found and fixed**: Astro's `trailingSlash: 'always'`
+  and admin/learn's own (default, no trailing slash) convention can't both
+  be satisfied by Next's single global `trailingSlash` setting. Fixed with
+  `skipTrailingSlashRedirect: true` plus a `src/proxy.ts` (this Next.js
+  version's renamed `middleware.ts` — confirmed from this app's own
+  `node_modules/next/dist/docs`, not assumed) that adds the trailing slash
+  only for Astro-site paths, leaving `/admin/*` and `/learn/*` untouched.
+  Without this fix, one choice of `trailingSlash` 308-redirects every Astro
+  page needlessly; the other 308-redirects `/admin/dashboard` to
+  `/admin/dashboard/` *before* the rewrite ever runs, which the real admin
+  app (no trailing slash) would not resolve correctly.
+- `/admin/*` and `/learn/*` rewrite to the configured destination with the
+  path preserved exactly (`/admin/dashboard/users` arrives at the target
+  as `/admin/dashboard/users`, not altered) — proven by pointing
+  `ADMIN_APP_URL`/`LEARN_APP_URL` at two local mock servers at build time
+  and confirming the exact path arrived. Confirmed separately that these
+  env vars are read when `next build` runs, not at server start — the
+  values must be set in the build environment, not only the runtime one.
+- A 404 for an Astro-site path serves the Astro build's own `404.html`,
+  not a generic Next error page.
+- A path-traversal attempt (`..` segments) against the catch-all handler
+  is rejected (resolved path checked against the astro-dist root before
+  any file read) — confirmed directly, not just reasoned about.
+- `next build` initially flagged `readFile`'s dynamic path as something
+  that would make Turbopack trace (and bundle) this app's entire source
+  tree into the standalone output; silenced correctly with a
+  `turbopackIgnore` comment, since astro-dist/ is already guaranteed
+  present by `flatten-standalone.mjs`'s own explicit copy step, the same
+  convention admin/learn use for `public/`.
+
+Not yet done: wiring this into the root deploy workflow, and deploying it
+anywhere (staging included) — both come after you've reviewed this far.
+
 ## 10. Still open
 
 - **`DATABASE_MIGRATION_PLAN.md` is not written yet** — correctly, since

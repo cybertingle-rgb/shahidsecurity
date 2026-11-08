@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env
+.env.local
+next-env.d.ts
+*.tsbuildinfo
+public/build-info.json
+# Astro's built dist/, copied in by scripts/copy-astro-dist.mjs at build
+# time — never the source of truth, never committed here (the Astro site's
+# own build at the repo root is that source of truth).
+astro-dist/
