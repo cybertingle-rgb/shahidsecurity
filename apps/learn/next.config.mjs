@@ -10,6 +10,20 @@ const nextConfig = {
   // (Hostinger's "Setup Node.js App") without shipping the whole workspace.
   output: 'standalone',
   poweredByHeader: false,
+  // Full platform consolidation (docs/consolidation/UNIFIED_ARCHITECTURE.md):
+  // this app becomes a Next.js Multi-Zones "zone" served at
+  // shahidiqbal.com/learn via a new gateway app's rewrites, instead of at
+  // its own subdomain directly. basePath makes every <Link>/router/
+  // redirect()-generated URL in this app resolve correctly either way —
+  // it has no effect on this app's own routing logic, only on the paths
+  // it's reachable at, so this app keeps working completely unchanged
+  // when built and run on its own (e.g. `pnpm dev`) during this phase.
+  // IMPORTANT: this must not be deployed to the live learn.shahidiqbal.com
+  // subdomain on its own — once deployed, every existing route there
+  // requires the /learn prefix, breaking that subdomain's current direct
+  // URLs (including student logins in progress) until the gateway exists
+  // and takes over routing at the same time.
+  basePath: '/learn',
   // Explicit per Hostinger support (2026-09-27): this app lives two levels
   // below the pnpm workspace root (repo-root/apps/learn), and Next's
   // auto-detected tracing root wasn't lining up with how their deploy
@@ -29,6 +43,14 @@ const nextConfig = {
     '/api/internal/migrate/route': ['./drizzle/**/*'],
   },
   experimental: {
+    // Required for Multi-Zones: Server Actions reject a request whose
+    // Origin doesn't match the app's own host by default. Once requests
+    // arrive via the gateway, the browser's Origin is shahidiqbal.com
+    // (the page the user is actually on), not learn.shahidiqbal.com (what
+    // actually serves the request behind the scenes) — this explicitly
+    // allow-lists that origin. Purely additive: learn.shahidiqbal.com's
+    // own origin keeps working as before.
+    serverActions: { allowedOrigins: ['shahidiqbal.com'] },
     // Turbopack's default 'childProcesses' strategy spawns a pool of OS
     // processes for webpack-loader work (PostCSS included) and talks to
     // them over sockets. On this host that pool has been failing to spawn

@@ -32,9 +32,19 @@ const nextConfig = {
     '/api/internal/migrate/route': ['./drizzle/**/*'],
   },
   poweredByHeader: false,
-  // Served at admin.shahidiqbal.com (its own subdomain, not a path) —
-  // no basePath needed since the app already sits at the subdomain's
-  // root. See docs/DEPLOYMENT.md.
+  // Full platform consolidation (docs/consolidation/UNIFIED_ARCHITECTURE.md):
+  // this app becomes a Next.js Multi-Zones "zone" served at
+  // shahidiqbal.com/admin via a new gateway app's rewrites, instead of at
+  // its own subdomain directly. basePath makes every <Link>/router/
+  // redirect()-generated URL in this app resolve correctly either way —
+  // it has no effect on this app's own routing logic, only on the paths
+  // it's reachable at, so this app keeps working completely unchanged
+  // when built and run on its own (e.g. `pnpm dev`) during this phase.
+  // IMPORTANT: this must not be deployed to the live admin.shahidiqbal.com
+  // subdomain on its own — once deployed, every existing route there
+  // requires the /admin prefix, breaking that subdomain's current direct
+  // URLs until the gateway exists and takes over routing at the same time.
+  basePath: '/admin',
   experimental: {
     // Same Turbopack workaround as apps/learn's next.config.mjs — avoids a
     // process-spawn panic seen under load on this host.
@@ -73,7 +83,16 @@ const nextConfig = {
     // a legitimate close-to-10MB upload isn't rejected by multipart
     // framing overhead alone; the app's own 10MB check is still what
     // actually enforces the real limit either way.
-    serverActions: { bodySizeLimit: '11mb' },
+    //
+    // allowedOrigins: required for Multi-Zones (docs/consolidation/
+    // UNIFIED_ARCHITECTURE.md) — Server Actions reject a request whose
+    // Origin doesn't match the app's own host by default. Once requests
+    // arrive via the gateway, the browser's Origin is shahidiqbal.com
+    // (the page the user is actually on), not admin.shahidiqbal.com (what
+    // actually serves the request behind the scenes) — this explicitly
+    // allow-lists that origin. Purely additive: admin.shahidiqbal.com's
+    // own origin keeps working as before.
+    serverActions: { bodySizeLimit: '11mb', allowedOrigins: ['shahidiqbal.com'] },
   },
   async headers() {
     return [
