@@ -7,6 +7,7 @@ import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
 import { logoutAction } from './logout-action';
 import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar';
+import { BASE_PATH } from '@/lib/basePath';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -62,7 +63,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       <div className="portal-bg-orbs" aria-hidden="true" />
       <header className="portal-header sticky top-0 z-10 flex flex-col items-center gap-2 px-6 py-5">
         <Link href="/">
-          <Image src="/logo.png" alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
+          <Image src={`${BASE_PATH}/logo.png`} alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
         </Link>
         <div className="text-center">
           <p className="text-sm text-text-muted">Learn with Shahid</p>

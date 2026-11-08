@@ -43,7 +43,7 @@ export default function LoginPage() {
       <RainField />
       <SocialRail />
       <Image
-        src="/brand/logo-stacked-dark-bg.png"
+        src={`${BASE_PATH}/brand/logo-stacked-dark-bg.png`}
         alt="Shahid Security"
         width={800}
         height={1255}

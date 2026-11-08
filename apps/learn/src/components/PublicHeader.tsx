@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
+import { BASE_PATH } from '@/lib/basePath';
 
 const ADMIN_ROLE_NAMES = new Set(['admin', 'super_admin']);
 
@@ -20,7 +21,7 @@ export default async function PublicHeader() {
   return (
     <header className="portal-header sticky top-0 z-20 flex items-center justify-between px-6 py-4">
       <Link href="/" className="flex items-center gap-2">
-        <Image src="/logo.png" alt="Shahid Security" width={36} height={36} />
+        <Image src={`${BASE_PATH}/logo.png`} alt="Shahid Security" width={36} height={36} />
         <span className="hidden font-semibold sm:inline">Learn with Shahid</span>
       </Link>
       <nav className="flex items-center gap-4 text-sm">

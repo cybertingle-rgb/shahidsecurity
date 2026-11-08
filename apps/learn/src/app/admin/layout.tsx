@@ -7,6 +7,7 @@ import { getSessionUser } from '@/lib/auth/session';
 import { getUserRoleNames } from '@/lib/rbac';
 import { logoutAction } from '@/app/dashboard/logout-action';
 import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar';
+import { BASE_PATH } from '@/lib/basePath';
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -57,11 +58,11 @@ function AppSwitcher() {
   return (
     <div className="inline-flex items-center gap-1 rounded-full border border-border bg-bg-elevated p-1">
       <a href={SHAHID_ADMIN_URL} className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text">
-        <Image src="/brand/logo-stacked-dark-bg-sm.png" alt="" width={320} height={502} className="h-5 w-auto" />
+        <Image src={`${BASE_PATH}/brand/logo-stacked-dark-bg-sm.png`} alt="" width={320} height={502} className="h-5 w-auto" />
         Shahid Admin
       </a>
       <span className="flex items-center gap-2 rounded-full bg-neon px-3 py-1.5 text-xs font-medium text-bg">
-        <Image src="/learn-logo.png" alt="" width={1254} height={1254} className="h-5 w-auto" />
+        <Image src={`${BASE_PATH}/learn-logo.png`} alt="" width={1254} height={1254} className="h-5 w-auto" />
         Learn Admin
       </span>
     </div>
@@ -96,7 +97,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <AppSwitcher />
         </div>
         <Link href="/">
-          <Image src="/logo.png" alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
+          <Image src={`${BASE_PATH}/logo.png`} alt="Shahid Security" width={100} height={100} className="drop-shadow-[0_0_20px_rgba(0,191,99,0.45)]" priority />
         </Link>
         <div className="text-center">
           <p className="text-sm font-medium tracking-wide text-neon">Learn with Shahid — Admin</p>

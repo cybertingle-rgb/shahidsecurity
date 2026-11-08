@@ -3,11 +3,12 @@
 import { useRef, useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import { LUNA_WELCOME_MESSAGE, LUNA_SUGGESTED_QUESTIONS, type LunaChatMessage } from '@/lib/luna';
+import { BASE_PATH } from '@/lib/basePath';
 
 // Same-origin: this widget always talks to its own app's /api/luna/chat.
 // The Astro marketing site's copy of this widget calls the same endpoint
 // cross-origin instead — see src/components/LunaWidget.astro there.
-const CHAT_ENDPOINT = '/api/luna/chat';
+const CHAT_ENDPOINT = `${BASE_PATH}/api/luna/chat`;
 
 export default function LunaWidget() {
   const [open, setOpen] = useState(false);
@@ -134,7 +135,7 @@ export default function LunaWidget() {
         ) : (
           <>
             <Image
-              src="/luna-panda.png"
+              src={`${BASE_PATH}/luna-panda.png`}
               alt=""
               width={72}
               height={72}

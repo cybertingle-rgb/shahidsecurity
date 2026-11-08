@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { listReviewRequests } from '@/lib/testimonials';
 import { listCustomers } from '@/lib/payments';
 import { getOrCreateBusinessSettings } from '@/lib/business';
@@ -34,7 +35,7 @@ export default async function ReviewRequestsPage() {
 
       {!settings.googleReviewUrl ? (
         <p className="rounded-lg border border-warn/40 bg-warn/5 p-4 text-sm text-text-muted">
-          No Google review link is set yet — add the business's real one on the <a href="/dashboard/business" className="text-neon">Business settings</a> page
+          No Google review link is set yet — add the business's real one on the <Link href="/dashboard/business" className="text-neon">Business settings</Link> page
           before sending requests. Nothing here will ever generate or guess one.
         </p>
       ) : (

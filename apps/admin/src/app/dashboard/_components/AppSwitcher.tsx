@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { LEARN_SECTION_PREFIX } from './nav-config';
+import { BASE_PATH } from '@/lib/basePath';
 
 interface AppSwitcherProps {
   /** Same gap this closes in DashboardShell's own nav — an admin with no 'learn.manage' permission got offered a switch to a whole panel they can't use. */
@@ -17,7 +18,7 @@ export function AppSwitcher({ canAccessLearn }: AppSwitcherProps) {
     return (
       <div className="flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-semibold text-text shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65),inset_0_1px_0_0_rgba(255,255,255,0.25),inset_0_-1px_0_0_rgba(0,0,0,0.25)] backdrop-blur-2xl">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/30 p-1 backdrop-blur-sm">
-          <Image src="/brand/shahid-icon-square.png" alt="" width={192} height={192} className="h-full w-full object-contain" />
+          <Image src={`${BASE_PATH}/brand/shahid-icon-square.png`} alt="" width={192} height={192} className="h-full w-full object-contain" />
         </span>
         Shahid Admin
       </div>
@@ -45,7 +46,7 @@ export function AppSwitcher({ canAccessLearn }: AppSwitcherProps) {
             so a dark backdrop keeps them visible against either the pill's own green active state
             or the panel's dark glass background, instead of needing a stark white card. */}
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/30 p-1 backdrop-blur-sm">
-          <Image src="/brand/shahid-icon-square.png" alt="" width={192} height={192} className="h-full w-full object-contain" />
+          <Image src={`${BASE_PATH}/brand/shahid-icon-square.png`} alt="" width={192} height={192} className="h-full w-full object-contain" />
         </span>
         Shahid Admin
       </a>
@@ -56,7 +57,7 @@ export function AppSwitcher({ canAccessLearn }: AppSwitcherProps) {
         }`}
       >
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/30 p-1 backdrop-blur-sm">
-          <Image src="/brand/learn-icon-square.png" alt="" width={192} height={192} className="h-full w-full object-contain" />
+          <Image src={`${BASE_PATH}/brand/learn-icon-square.png`} alt="" width={192} height={192} className="h-full w-full object-contain" />
         </span>
         Learn Admin
       </a>

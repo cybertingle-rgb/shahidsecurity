@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { AppSwitcher } from './AppSwitcher';
 import { BUSINESS_NAV, LEARN_NAV, LEARN_SECTION_PREFIX, groupNav, visibleNav } from './nav-config';
 import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar';
+import { BASE_PATH } from '@/lib/basePath';
 
 interface DashboardShellProps {
   userName: string;
@@ -41,14 +42,14 @@ export function DashboardShell({ userName, userRole, avatarUrl, isSuperAdmin, pe
         <Link href={inLearn ? '/dashboard/learn' : '/dashboard'} className="flex items-center gap-3">
           {inLearn ? (
             <>
-              <Image src="/brand/learn-icon-square.png" alt="" width={192} height={192} className="h-10 w-10 shrink-0 object-contain" priority />
+              <Image src={`${BASE_PATH}/brand/learn-icon-square.png`} alt="" width={192} height={192} className="h-10 w-10 shrink-0 object-contain" priority />
               <span className="leading-tight">
                 <span className="block text-sm font-semibold text-text">Learn with Shahid</span>
                 <span className="block text-xs text-text-muted">Admin</span>
               </span>
             </>
           ) : (
-            <Image src="/brand/logo-horizontal-dark-bg-nav.png" alt="Shahid Security" width={340} height={162} className="h-10 w-auto" priority />
+            <Image src={`${BASE_PATH}/brand/logo-horizontal-dark-bg-nav.png`} alt="Shahid Security" width={340} height={162} className="h-10 w-auto" priority />
           )}
         </Link>
         <AppSwitcher canAccessLearn={canAccessLearn} />

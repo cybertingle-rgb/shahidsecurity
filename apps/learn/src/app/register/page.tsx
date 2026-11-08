@@ -119,7 +119,7 @@ export default function RegisterPage() {
       <SocialRail />
       <Link href="/" className="relative z-10">
         <Image
-          src="/logo.png"
+          src={`${BASE_PATH}/logo.png`}
           alt="Shahid Security"
           width={150}
           height={150}
