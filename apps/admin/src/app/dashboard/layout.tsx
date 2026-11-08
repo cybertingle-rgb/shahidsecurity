@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
-import { getUserRoleNames } from '@/lib/rbac';
+import { getUserPermissionKeys, getUserRoleNames } from '@/lib/rbac';
 import { logoutAction } from './logout-action';
 import { DashboardShell } from './_components/DashboardShell';
 
@@ -23,12 +23,23 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const roleNames = await getUserRoleNames(user.id);
   const isSuperAdmin = roleNames.has('super_admin');
+  // Re-read from the database on every request, same as every other RBAC
+  // check in this app (src/lib/rbac.ts) — never trusted from a cookie or
+  // client state. Drives which sidebar sections DashboardShell actually
+  // renders (docs/consolidation/UNIFIED_ARCHITECTURE.md §8): this closes
+  // a real gap found while working on that doc — the nav previously
+  // showed every section to every signed-in admin regardless of role,
+  // even though each page's own server actions already enforced the
+  // real permission check correctly.
+  const permissionKeys = isSuperAdmin ? new Set<string>() : await getUserPermissionKeys(user.id);
 
   return (
     <DashboardShell
       userName={isSuperAdmin ? 'Shahid Iqbal' : user.fullName}
       userRole={[...roleNames].join(', ') || 'No role assigned'}
       avatarUrl={isSuperAdmin ? '/avatars/shahid.jpg' : undefined}
+      isSuperAdmin={isSuperAdmin}
+      permissionKeys={[...permissionKeys]}
       logoutAction={logoutAction}
     >
       {children}

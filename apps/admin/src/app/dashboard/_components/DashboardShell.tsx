@@ -5,13 +5,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { AppSwitcher } from './AppSwitcher';
-import { BUSINESS_NAV, LEARN_NAV, LEARN_SECTION_PREFIX } from './nav-config';
+import { BUSINESS_NAV, LEARN_NAV, LEARN_SECTION_PREFIX, groupNav, visibleNav } from './nav-config';
 import PortalSidebar, { type PortalNavSection } from '@/components/PortalSidebar';
 
 interface DashboardShellProps {
   userName: string;
   userRole: string;
   avatarUrl?: string;
+  isSuperAdmin: boolean;
+  /** This admin's permission keys (src/lib/rbac.ts) — a plain array, not a Set, since it crosses the server/client component boundary as a prop. */
+  permissionKeys: string[];
   logoutAction: () => void | Promise<void>;
   children: ReactNode;
 }
@@ -24,10 +27,12 @@ interface DashboardShellProps {
  * actual session/role lookup stays in layout.tsx (a Server Component),
  * which passes the already-resolved userName/userRole down as props.
  */
-export function DashboardShell({ userName, userRole, avatarUrl, logoutAction, children }: DashboardShellProps) {
+export function DashboardShell({ userName, userRole, avatarUrl, isSuperAdmin, permissionKeys, logoutAction, children }: DashboardShellProps) {
   const pathname = usePathname();
   const inLearn = pathname?.startsWith(LEARN_SECTION_PREFIX) ?? false;
-  const sections: PortalNavSection[] = inLearn ? [{ items: LEARN_NAV }] : [{ items: BUSINESS_NAV }];
+  const keys = new Set(permissionKeys);
+  const sections: PortalNavSection[] = groupNav(visibleNav(inLearn ? LEARN_NAV : BUSINESS_NAV, keys, isSuperAdmin));
+  const canAccessLearn = isSuperAdmin || keys.has('learn.manage');
 
   return (
     <div className="min-h-screen bg-bg text-text">
@@ -46,7 +51,7 @@ export function DashboardShell({ userName, userRole, avatarUrl, logoutAction, ch
             <Image src="/brand/logo-horizontal-dark-bg-nav.png" alt="Shahid Security" width={340} height={162} className="h-10 w-auto" priority />
           )}
         </Link>
-        <AppSwitcher />
+        <AppSwitcher canAccessLearn={canAccessLearn} />
       </header>
       <div className="flex flex-col gap-6 p-6 sm:flex-row">
         <PortalSidebar
