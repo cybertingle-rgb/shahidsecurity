@@ -27,17 +27,64 @@ every row states exactly what was run and where, not what should pass.
 | Gateway standalone server, path-traversal attempt against the catch-all file handler | Same | `404`, not a file outside `astro-dist/` |
 | `apps/admin`/`apps/learn`'s own existing test suites (`vitest`) | — | **Not run in this pass.** Recommended before any real cutover — see §3. |
 
+## 1.1 Staging deployment, 2026-11-08
+
+With your explicit go-ahead, deployed `apps/gateway` (branch
+`claude/platform-consolidation-audit`, commit `6a31470`) to a free,
+throwaway Hostinger site — `cyan-jellyfish-885366.hostingersite.com`,
+created via `hosting_websites_create` with no domain specified. **No DNS
+record, subdomain, or configuration on `shahidiqbal.com` itself was
+touched** — this is a fully separate site on the same account, matching
+`DEPLOYMENT_GUIDE.md` §4 step 3's "never the apex domain" instruction.
+
+Build settings mirrored `admin.shahidiqbal.com`'s own proven working
+configuration exactly (`node 22`, `app_type: next`, `root_directory:
+apps/gateway`, `build_script: build`, `pnpm`) rather than guessed —
+retrieved directly from `hosting_get-deployment` against the real admin
+site first. Result: **build completed in 35.3s**, confirmed via the real
+build log:
+
+- `copy-astro-dist.mjs` correctly detected no Astro build at the repo
+  root on this host (Hostinger's single-app build doesn't build other
+  monorepo members) and fell back to its placeholder page, exactly as
+  designed — not an error.
+- `next build` compiled cleanly, registered the Proxy (middleware), and
+  `flatten-standalone.mjs` reported a self-contained `server.js`.
+- Hostinger's own publish step: "Detected Next.js standalone server
+  output... Application restarted."
+
+No `ADMIN_APP_URL`/`LEARN_APP_URL` env vars were set for this build, so
+`next.config.mjs`'s defaults applied — meaning this staging deployment's
+`/admin` and `/learn` rewrites point at the **real**
+`admin.shahidiqbal.com`/`learn.shahidiqbal.com`, not mock servers.
+
+**Not independently confirmed**: this session's own sandboxed network
+egress cannot reach arbitrary internet hosts (confirmed directly — both a
+local `curl` and a separate fetch agent were blocked at the network
+level, `cyan-jellyfish-885366.hostingersite.com` resolving via
+`ENOTFOUND`/`connect_rejected`, not a response from the site itself).
+This is an environment limitation, not evidence of anything wrong with
+the deployment. The deployment is live and the build/publish logs show
+no error; actually confirming `/`, `/admin`, and `/learn` respond
+correctly over the real internet needs a check from somewhere that isn't
+this sandboxed session — i.e., you visiting the URL directly, or telling
+me what you see.
+
 ## 2. What this report cannot yet claim
 
-- **Nothing has been tested against a real `admin.shahidiqbal.com` or
-  `learn.shahidiqbal.com`** — every proxy test above used local mock
-  servers standing in for them, because this environment has no outbound
-  network access to the real domains. The *routing logic* (right path,
-  right destination, right order of operations) is proven; the *real
-  apps' actual response* through the gateway (a real login, a real
-  session surviving navigation, real static assets loading under
-  `/admin/_next/*`) is not — that needs a real staging deployment
-  (`DEPLOYMENT_GUIDE.md` §4 step 3), which has not happened.
+- **The staging deployment's actual response from the real
+  `admin.shahidiqbal.com`/`learn.shahidiqbal.com` has not been confirmed
+  by this session** (§1.1) — not because it wasn't attempted, but because
+  this session's own sandboxed network egress cannot reach arbitrary
+  internet hosts at all (confirmed directly, two different tools, both
+  blocked at the network level before ever reaching the site). The
+  *routing logic* (right path, right destination, right order of
+  operations) was already proven against local mock servers before this
+  deployment; whether it actually works against the real apps — a real
+  login, a real session surviving navigation, real static assets loading
+  under `/admin/_next/*` — needs a check from outside this session: you
+  visiting `https://cyan-jellyfish-885366.hostingersite.com/admin` and
+  `/learn` directly, or telling me what you see there.
 - **No security test suite was re-run** against the gateway-fronted
   setup — `SECURITY_REVIEW.md` §14 already flags this as the same
   recommendation.
