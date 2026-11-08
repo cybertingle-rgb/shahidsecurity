@@ -70,6 +70,53 @@ correctly over the real internet needs a check from somewhere that isn't
 this sandboxed session — i.e., you visiting the URL directly, or telling
 me what you see.
 
+## 1.2 Production cutover, 2026-11-08 — with your explicit go-ahead
+
+You asked to skip further staging checks and deploy directly to
+`shahidiqbal.com`. Before doing that, one real bug was caught and fixed
+first (not skipped): the gateway's build script invoked the repo root's
+own `pnpm run build`, which runs `astro check && astro build` — and
+`astro check` prompted an interactive "install @astrojs/check? Yes/No"
+confirmation on Hostinger's build host that would have hung forever with
+no terminal to answer it. This was caught live, mid-deploy, on the
+**first** production attempt (build `01a1bc59`, stuck at that prompt);
+fixed by calling `astro build` directly instead of through the full
+`pnpm run build` script (this only needs `dist/`, not a type-check pass —
+the Astro site's own separate deploy pipeline, `.github/workflows/deploy.yml`,
+is untouched and still runs the real check), verified locally, pushed,
+redeployed.
+
+**Also discovered while doing this** (correcting `PLATFORM_AUDIT.md` §2.1,
+which described the Astro site as rsync-only): `shahidiqbal.com` was
+already using Hostinger's own native build pipeline too
+(`app_type: "astro"`, `root_directory: null`, `output_directory: "dist"`,
+last built 2026-10-31 from `claude/wizardly-keller-yg0bj7`), not only the
+GitHub Actions rsync — `hosting_get-deployment` wasn't checked for this
+domain during Phase 1, only `hosting_websites_list`. This made the actual
+cutover a same-mechanism config swap (astro app type → nodejs/gateway app
+type) rather than two different systems to reconcile.
+
+**Second build attempt (`01a1bc5b`) completed successfully**: 196 Astro
+pages built, gateway build completed in 23.6s, published, application
+restarted, total deployment 48.1s. `shahidiqbal.com` is now serving
+`apps/gateway`.
+
+**Not independently confirmed, same reason as §1.1**: this session cannot
+reach `shahidiqbal.com` over the real internet to check it (the production
+domain is almost certainly on this session's network allow-list already —
+unlike the throwaway staging domain — but this wasn't re-tested after the
+cutover; confirming `/`, `/admin`, `/learn` all actually work needs your
+own check, or me retrying the fetch tools now that it's a known production
+host).
+
+**Rollback, if needed** — exact prior working configuration, captured
+before this change: `hosting_deploy` with `domain: "shahidiqbal.com"`,
+`type: "static"`, `git: {repository: "cybertingle-rgb/shahidsecurity",
+branch: "claude/wizardly-keller-yg0bj7"}`, `appType: "astro"`,
+`outputDirectory: "dist"`, `buildScript: "build"`. This restores exactly
+what was live before, built from the production branch's own latest
+commit.
+
 ## 2. What this report cannot yet claim
 
 - **The staging deployment's actual response from the real
