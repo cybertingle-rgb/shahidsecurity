@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LEARN_SECTION_PREFIX } from './nav-config';
 import { BASE_PATH } from '@/lib/basePath';
@@ -36,7 +37,7 @@ export function AppSwitcher({ canAccessLearn }: AppSwitcherProps) {
         }`}
       />
 
-      <a
+      <Link
         href="/dashboard"
         className={`relative z-10 flex items-center justify-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors duration-300 ${
           !inLearn ? 'text-bg' : 'text-text-muted hover:text-text'
@@ -49,8 +50,8 @@ export function AppSwitcher({ canAccessLearn }: AppSwitcherProps) {
           <Image src={`${BASE_PATH}/brand/shahid-icon-square.png`} alt="" width={192} height={192} className="h-full w-full object-contain" />
         </span>
         Shahid Admin
-      </a>
-      <a
+      </Link>
+      <Link
         href={LEARN_SECTION_PREFIX}
         className={`relative z-10 flex items-center justify-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors duration-300 ${
           inLearn ? 'text-bg' : 'text-text-muted hover:text-text'
@@ -60,7 +61,7 @@ export function AppSwitcher({ canAccessLearn }: AppSwitcherProps) {
           <Image src={`${BASE_PATH}/brand/learn-icon-square.png`} alt="" width={192} height={192} className="h-full w-full object-contain" />
         </span>
         Learn Admin
-      </a>
+      </Link>
     </div>
   );
 }
