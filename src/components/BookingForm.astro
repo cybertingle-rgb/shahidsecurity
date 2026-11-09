@@ -1,11 +1,11 @@
 ---
-// Submits straight to admin.shahidiqbal.com's own API (apps/admin — the
-// one real backend in this project with a database, payments/invoices,
-// and the consultation fee setting) rather than the legacy
-// public/api/book.php mail script: this form collects and charges a
-// real, admin-configurable fee, which book.php has no way to record.
-// Same cross-origin pattern as LunaWidget.astro's fetch to
-// learn.shahidiqbal.com — a public, CORS-enabled endpoint, no cookies
+// Submits straight to shahidiqbal.com/admin's own API (the merged
+// gateway app's admin side — the one real backend in this project with
+// a database, payments/invoices, and the consultation fee setting)
+// rather than the legacy public/api/book.php mail script: this form
+// collects and charges a real, admin-configurable fee, which book.php
+// has no way to record. Same pattern as LunaWidget.astro's fetch to
+// shahidiqbal.com/learn — a public, CORS-enabled endpoint, no cookies
 // involved. (The client script below hardcodes this same URL as a
 // literal rather than receiving it via define:vars — see the comment
 // on that <script> tag.)
@@ -132,7 +132,7 @@ const COMPANY_SIZES = [
   // this submit handler, never ran in production). ADMIN_API_BASE is a
   // fixed build-time constant, so it doesn't need variable injection —
   // hardcoding it as a literal avoids the bug entirely.
-  const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
+  const ADMIN_API_BASE = 'https://shahidiqbal.com/admin';
 
   const form = document.getElementById('booking-form') as HTMLFormElement | null;
   const dateField = document.getElementById('bk-date') as HTMLInputElement | null;

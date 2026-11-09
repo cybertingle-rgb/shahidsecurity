@@ -58,19 +58,17 @@ export default defineConfig({
         "default-src 'self'",
         "img-src 'self' data:",
         "font-src 'self'",
-        // https://learn.shahidiqbal.com: the Luna chat widget's fetch()
-        // target — this static site has no backend of its own, so Luna's
-        // widget calls the one real server in the project directly from
-        // the visitor's browser (src/components/LunaWidget.astro).
-        // https://admin.shahidiqbal.com: the pricing page's currency
-        // detection/conversion (geo-currency, pricing-plans) and the
-        // consultation booking form (consultation-booking) all fetch()
-        // this directly from the browser too (src/pages/pricing.astro,
-        // src/components/BookingForm.astro) — confirmed missing here by
-        // a real headless-browser test (every one of those requests was
-        // silently blocked by this exact directive, not a cosmetic bug
-        // in the currency dropdown's display logic as first suspected).
-        "connect-src 'self' https://challenges.cloudflare.com https://learn.shahidiqbal.com https://admin.shahidiqbal.com",
+        // The Luna chat widget (src/components/LunaWidget.astro), the
+        // pricing page's currency detection/conversion and consultation
+        // booking form (src/pages/pricing.astro, src/components/
+        // BookingForm.astro) and the /learn/* pages all fetch() the
+        // merged app's own API under /admin or /learn — same origin as
+        // this static site since the platform-consolidation merge
+        // (docs/consolidation/UNIFIED_ARCHITECTURE.md), so 'self' alone
+        // now covers every one of those requests; no cross-origin host
+        // needs listing here the way admin.shahidiqbal.com and
+        // learn.shahidiqbal.com did before that merge.
+        "connect-src 'self' https://challenges.cloudflare.com",
         'frame-src https://challenges.cloudflare.com',
         "base-uri 'self'",
         "form-action 'self'",

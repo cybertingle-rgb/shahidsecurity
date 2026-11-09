@@ -8,12 +8,12 @@ import { Icon } from 'astro-icon/components';
 import { faqSchema } from '@/lib/schema';
 
 // Build-time fetch, same pattern as src/pages/learn/pricing.astro's
-// fetch to learn.shahidiqbal.com's /api/public/pricing — the USD
+// fetch to shahidiqbal.com/learn's /api/public/pricing — the USD
 // figures baked into the static HTML (so they're crawlable and need no
 // JS) always come from the same admin-managed source of truth a
 // visitor's browser later re-fetches for currency conversion, never a
 // hardcoded number duplicated here.
-const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
+const ADMIN_API_BASE = 'https://shahidiqbal.com/admin';
 
 type ConvertedAmount = { currencyCode: string; amount: number; isStale: boolean; usedFallback: boolean };
 type ApiPlan = {
@@ -649,7 +649,7 @@ if (faq) jsonLd.push(faq);
   // there too. ADMIN_API_BASE is a build-time constant anyway, so it
   // doesn't need injecting as a variable; a literal avoids the bug
   // entirely rather than working around Astro's CSP internals.
-  const ADMIN_API_BASE = 'https://admin.shahidiqbal.com';
+  const ADMIN_API_BASE = 'https://shahidiqbal.com/admin';
   const CURRENCY_STORAGE_KEY = 'shahid-security-currency';
   const select = document.getElementById('currency-select') as HTMLSelectElement | null;
   const note = document.getElementById('currency-note');

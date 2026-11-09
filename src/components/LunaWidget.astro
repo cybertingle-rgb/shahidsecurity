@@ -2,7 +2,8 @@
 // Luna — the AI assistant widget, floating bottom-right on every page.
 // This site is static (output: 'static', no server of its own), so the
 // widget calls the one real backend in this project — the already-live
-// Node app at learn.shahidiqbal.com — cross-origin, the same way
+// Node app at shahidiqbal.com/learn (same origin since the
+// platform-consolidation merge), the same way
 // src/pages/learn/pricing.astro already calls that app's public API from
 // the visitor's own browser. No API key ever touches this page; the key
 // lives server-side in that app only (apps/learn/src/lib/luna.ts).
@@ -350,7 +351,7 @@
 </style>
 
 <script>
-  const CHAT_ENDPOINT = 'https://learn.shahidiqbal.com/api/luna/chat';
+  const CHAT_ENDPOINT = 'https://shahidiqbal.com/learn/api/luna/chat';
   const widget = document.querySelector('[data-luna-widget]');
   const toggle = widget?.querySelector('[data-luna-toggle]');
   const closeBtn = widget?.querySelector('[data-luna-close]');

@@ -5,7 +5,7 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import Button from '@/components/Button.astro';
 
-const LEARN_API_BASE = 'https://learn.shahidiqbal.com';
+const LEARN_API_BASE = 'https://shahidiqbal.com/learn';
 
 type PublicPrice = { name: string; description: string | null; type: string; amount: number; currencyCode: string };
 
@@ -80,7 +80,7 @@ function formatAmount(amountMinorUnits: number, currencyCode: string): string {
       ))}
     </div>
     <div class="mt-10 flex flex-wrap gap-4">
-      <Button href="https://learn.shahidiqbal.com/register" variant="primary">Create your account</Button>
+      <Button href="https://shahidiqbal.com/learn/register" variant="primary">Create your account</Button>
       <Button href="/contact/" variant="secondary">Have questions first?</Button>
     </div>
   </Section>
@@ -96,7 +96,7 @@ function formatAmount(amountMinorUnits: number, currencyCode: string): string {
   // currency. Fails silently, leaving the USD price as-is, if it can't reach it.
   (async () => {
     try {
-      const res = await fetch('https://learn.shahidiqbal.com/api/public/pricing');
+      const res = await fetch('https://shahidiqbal.com/learn/api/public/pricing');
       if (!res.ok) return;
       const data = await res.json();
       const products: Array<{ name: string; localizedAmount: number; localizedCurrencyCode: string; currencyCode: string }> = data.products ?? [];
