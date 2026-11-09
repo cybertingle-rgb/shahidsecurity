@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { redirect } from '@/admin-core/_compat/redirect';
 import { getSessionUser } from '@/admin-core/lib/auth/session';
 import { getUserPermissionKeys, getUserRoleNames } from '@/admin-core/lib/rbac';
+import { BASE_PATH } from '@/admin-core/lib/basePath';
 import { logoutAction } from './logout-action';
 import { DashboardShell } from './_components/DashboardShell';
 
@@ -37,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     <DashboardShell
       userName={isSuperAdmin ? 'Shahid Iqbal' : user.fullName}
       userRole={[...roleNames].join(', ') || 'No role assigned'}
-      avatarUrl={isSuperAdmin ? '/avatars/shahid.jpg' : undefined}
+      avatarUrl={isSuperAdmin ? `${BASE_PATH}/avatars/shahid.jpg` : undefined}
       isSuperAdmin={isSuperAdmin}
       permissionKeys={[...permissionKeys]}
       logoutAction={logoutAction}

@@ -110,7 +110,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           sections={NAV_SECTIONS}
           userName={isSuperAdmin ? 'Shahid Iqbal' : user.fullName}
           userRole={isSuperAdmin ? 'Super Admin' : 'Admin'}
-          avatarUrl={isSuperAdmin ? '/avatars/shahid.jpg' : undefined}
+          avatarUrl={isSuperAdmin ? `${BASE_PATH}/avatars/shahid.jpg` : undefined}
           logoutAction={logoutAction}
           storageKey="learn-admin-sidebar-collapsed"
         />
