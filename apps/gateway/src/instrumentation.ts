@@ -39,6 +39,7 @@ export async function register() {
   });
 
   await bootstrapPricing();
+  await bootstrapClaudeAdmin();
 }
 
 /**
@@ -79,5 +80,34 @@ async function bootstrapPricing() {
     }
   } catch (err) {
     console.error('[instrumentation] consultation fee bootstrap failed:', err);
+  }
+}
+
+/**
+ * One-time: give this agent its own Super Admin account instead of
+ * sharing the proprietor's. seedSuperAdmin() never overwrites an
+ * existing account's password, so a fresh random password is only
+ * meaningful — and only logged — the one time it actually creates the
+ * account; on every later boot the email already exists and nothing is
+ * logged. The password only ever exists in memory and in this one
+ * runtime-log line (never committed to the repo); rotate it from the
+ * admin dashboard's own account settings once retrieved. This block is
+ * meant to be deleted in the same follow-up cleanup commit as
+ * bootstrapPricing() once the runtime log confirms it ran.
+ */
+async function bootstrapClaudeAdmin() {
+  try {
+    const { randomBytes } = await import('node:crypto');
+    const { seedSuperAdmin } = await import('@/admin-core/lib/seedSuperAdmin');
+    const email = 'claude-agent@shahidiqbal.com';
+    const password = randomBytes(24).toString('base64url');
+    const result = await seedSuperAdmin(email, password);
+    if (result.created) {
+      console.log(`[instrumentation] Created Claude admin account ${result.email} with password: ${password}`);
+    } else {
+      console.log(`[instrumentation] Claude admin account ${result.email} already exists - leaving as-is`);
+    }
+  } catch (err) {
+    console.error('[instrumentation] Claude admin bootstrap failed:', err);
   }
 }
