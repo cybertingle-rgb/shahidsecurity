@@ -38,21 +38,27 @@ export function DashboardShell({ userName, userRole, avatarUrl, isSuperAdmin, pe
   return (
     <div className="min-h-screen bg-bg text-text">
       <div className="portal-bg-orbs" aria-hidden="true" />
-      <header className="portal-header sticky top-0 z-10 flex flex-col items-center gap-4 px-6 py-5">
-        <Link href={inLearn ? '/dashboard/learn' : '/dashboard'} className="flex items-center gap-3">
-          {inLearn ? (
-            <>
-              <Image src={`${BASE_PATH}/brand/learn-icon-square.png`} alt="" width={192} height={192} className="h-10 w-10 shrink-0 object-contain" priority />
-              <span className="leading-tight">
-                <span className="block text-sm font-semibold text-text">Learn with Shahid</span>
-                <span className="block text-xs text-text-muted">Admin</span>
-              </span>
-            </>
-          ) : (
-            <Image src={`${BASE_PATH}/brand/logo-horizontal-dark-bg-nav.png`} alt="Shahid Security" width={340} height={162} className="h-10 w-auto" priority />
-          )}
-        </Link>
-        <AppSwitcher canAccessLearn={canAccessLearn} />
+      <header className="portal-header sticky top-0 z-10 grid grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-5">
+        <a href="/" className="flex shrink-0 items-center" aria-label="Shahid Security homepage">
+          <Image src={`${BASE_PATH}/brand/shahid-icon-square.png`} alt="Shahid Security" width={192} height={192} className="h-9 w-9 object-contain" priority />
+        </a>
+        <div className="flex flex-col items-center gap-4">
+          <Link href={inLearn ? '/dashboard/learn' : '/dashboard'} className="flex items-center gap-3">
+            {inLearn ? (
+              <>
+                <Image src={`${BASE_PATH}/brand/learn-icon-square.png`} alt="" width={192} height={192} className="h-10 w-10 shrink-0 object-contain" priority />
+                <span className="leading-tight">
+                  <span className="block text-sm font-semibold text-text">Learn with Shahid</span>
+                  <span className="block text-xs text-text-muted">Admin</span>
+                </span>
+              </>
+            ) : (
+              <Image src={`${BASE_PATH}/brand/logo-horizontal-dark-bg-nav.png`} alt="Shahid Security" width={340} height={162} className="h-10 w-auto" priority />
+            )}
+          </Link>
+          <AppSwitcher canAccessLearn={canAccessLearn} />
+        </div>
+        <span aria-hidden="true" />
       </header>
       <div className="flex flex-col gap-6 p-6 sm:flex-row">
         <PortalSidebar
