@@ -75,7 +75,7 @@ const currentPath = Astro.url.pathname;
 
   <div
     id="mobile-menu"
-    class="lg:hidden fixed inset-0 top-20 bg-(--color-bg)/97 backdrop-blur-2xl border-t border-white/5 hidden"
+    class="lg:hidden fixed inset-0 top-20 z-50 bg-(--color-bg) border-t border-white/5 hidden"
     role="dialog"
     aria-modal="true"
     aria-label="Mobile menu"
@@ -111,7 +111,18 @@ const currentPath = Astro.url.pathname;
     /* 55% previously let high-contrast page content (e.g. card prices)
        scrolled directly behind the header visibly bleed through the
        blur as readable ghost text — confirmed via screenshot on the
-       pricing page. Raised so the header reliably reads as solid. */
+       pricing page. Raised to 97%, which is enough for most content but
+       still isn't for the homepage's neon-green terminal text (a second,
+       later report — confirmed by reproducing with Playwright): any
+       backdrop-filter blur on this element samples what's behind it
+       before the semi-transparent background composites over that
+       sample, so even 3% see-through can leave faint high-contrast
+       ghosting. #mobile-menu is a child of this header with its own
+       fully solid background, but that alone wasn't enough to stop it —
+       see the .menu-open rule below, which is the actual fix: while the
+       menu is open there is no reason for this header to blur or show
+       through anything at all, so it goes fully solid, no blur, instead
+       of relying on child-layer opacity to mask a blurred parent. */
     background: color-mix(in oklab, var(--color-bg) 97%, transparent);
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
@@ -119,6 +130,15 @@ const currentPath = Astro.url.pathname;
     box-shadow:
       0 8px 32px -16px rgba(0, 0, 0, 0.5),
       inset 0 -1px 0 0 color-mix(in oklab, white 4%, transparent);
+  }
+
+  /* See the comment above — while the mobile menu is open, the header
+     drops blur/translucency entirely instead of relying on #mobile-menu's
+     own opaque background to mask a still-blurring parent. */
+  #site-header.menu-open {
+    background: var(--color-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   /* "Liquid glass" sliding nav indicator — one shared pill, positioned and
@@ -183,6 +203,7 @@ const currentPath = Astro.url.pathname;
   function openMenu() {
     if (!menu || !toggle) return;
     menu.classList.remove('hidden');
+    header?.classList.add('menu-open');
     toggle.setAttribute('aria-expanded', 'true');
     toggle.setAttribute('aria-label', 'Close menu');
     lastFocused = document.activeElement as HTMLElement;
@@ -194,6 +215,7 @@ const currentPath = Astro.url.pathname;
   function closeMenu() {
     if (!menu || !toggle) return;
     menu.classList.add('hidden');
+    header?.classList.remove('menu-open');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open menu');
     document.body.classList.remove('nav-scroll-locked');
