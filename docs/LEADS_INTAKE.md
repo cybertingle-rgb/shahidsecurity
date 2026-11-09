@@ -1,96 +1,54 @@
-# Leads intake: shahidiqbal.com → apps/admin
+# Leads intake: shahidiqbal.com contact form → database
 
-## Why this exists
+## Current mechanism (post platform-consolidation merge)
 
-`shahidiqbal.com` is a statically-generated Astro site on Hostinger shared
-hosting with no database or server runtime of its own. Its two real forms —
-`public/api/contact.php` (general enquiries) and `public/api/book.php`
-(consultation requests) — have always worked by sending email via PHPMailer
-over Hostinger SMTP. That remains their primary, required job and must keep
-working identically whether or not `apps/admin` exists, is deployed, or is
-reachable.
+`shahidiqbal.com` was originally a statically-generated Astro site on PHP/
+Apache shared hosting, with two real PHP+PHPMailer forms (`contact.php`,
+`book.php`) that had no server-side database access of their own — hence
+the cross-process HTTP relay this doc used to describe below.
 
-This integration adds a second, non-blocking step: after a real submission's
-email has already sent successfully, the PHP script makes a best-effort,
-short-timeout POST to `apps/admin`'s `/api/public/leads-intake` endpoint, so
-the same real submission also becomes a tracked `leads` (and, for bookings,
-`consultations`) row the admin team can see and work in `apps/admin`'s
-dashboard.
+The platform-consolidation merge (`docs/consolidation/
+UNIFIED_ARCHITECTURE.md`) moved `shahidiqbal.com` onto Node.js hosting, in
+the same process as the admin app's database. That changed two things:
 
-## Failure mode
+1. **The PHP scripts stopped working entirely.** A Node.js host has no PHP
+   runtime: `public/api/contact.php` and `public/api/book.php` were served
+   as static files (GET-only, via `src/app/[[...slug]]/route.ts`), so every
+   POST from the contact form got a 405 and the form was silently broken
+   from the merge until this was found and fixed. The static `.php` files
+   have been deleted — they also leaked their own source over a plain GET,
+   which doesn't matter once they're gone.
+2. **The relay is no longer needed.** `apps/gateway/src/app/api/contact.php/
+   route.ts` (same URL the old form posted to, so `src/components/
+   ContactForm.astro` needed no changes) now writes directly into the
+   `leads` table via Drizzle — no HTTP call, no shared secret, no
+   reachability question, because it's the same process and the same
+   database connection the admin dashboard itself uses.
 
-If `apps/admin` is down, unreachable, slow, or simply not configured yet
-(the default — see below), the PHP side:
+The booking form (`src/components/BookingForm.astro`) never used
+`book.php` to begin with on this architecture — it posts straight to
+`/admin/api/public/consultation-booking`, which already writes to
+`leads`/`consultations`/`customers`/`invoices` directly (see
+`src/admin-core/lib/pricing/consultationBooking.ts`).
 
-- Still sends the real email exactly as before.
-- Still returns success to the visitor exactly as before.
-- Logs a non-fatal error (`error_log`) and moves on — the curl call has a
-  2s connect timeout and 3s total timeout, and every exception is caught.
+## Email
 
-Nothing about the visitor-facing contact/booking flow depends on this
-integration. This mirrors the same "optional external service, never a
-dependency for availability" principle this project already applies to
-Google integrations.
+The contact route sends a notification email to `info@shahidiqbal.com` and
+an auto-reply to the visitor via `src/admin-core/lib/email.ts`, best-effort:
+if `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASSWORD` aren't set in this
+app's environment, it logs and moves on rather than failing the
+submission — the `leads` row (the part that actually matters for not
+losing an enquiry) is written first and independently of whether email
+succeeds. Set those four variables in Hostinger's Node.js environment
+variables panel to enable real email delivery; until then, every
+submission is still fully captured in the admin dashboard's **Customers &
+Leads** section.
 
-## Configuring it
+## The old cross-process relay (historical, no longer in use)
 
-Both PHP scripts no-op the intake call entirely unless two constants are
-defined in `shahid-security-config.php` (outside `public_html`, already the
-project's established home for secrets — see that file's existing
-`TURNSTILE_SECRET_KEY`/`SMTP_HOST` pattern):
-
-```php
-define('ADMIN_LEADS_INTAKE_URL', 'https://admin.shahidiqbal.com/api/public/leads-intake');
-define('ADMIN_LEADS_INTAKE_SECRET', '<same value as apps/admin's LEADS_INTAKE_SECRET env var>');
-```
-
-Until `apps/admin` actually has a real deployed URL, leave these undefined
-(or empty strings) — the functions return immediately with no effect.
-
-## What gets sent
-
-**From `contact.php`** (after a successful send):
-
-```json
-{ "type": "lead", "fullName": "...", "email": "...", "phone": "...", "company": "...", "message": "...", "source": "contact_form" }
-```
-
-**From `book.php`** (after a successful send):
-
-```json
-{ "type": "consultation", "fullName": "...", "email": "...", "phone": "...", "country": "...", "requestedAt": "2026-12-01T09:00:00.000Z", "source": "booking_form" }
-```
-
-`country` is the free-text value the visitor typed (the form has never used
-a 2-letter country-code picker) — `apps/admin`'s `consultations.country`
-column is sized accordingly (`varchar(100)`), not forced into an ISO code.
-
-`requestedAt` is converted from the form's PKT date/time fields to UTC
-before sending, since every other timestamp in `apps/admin`'s database is
-UTC.
-
-## On the `apps/admin` side
-
-`/api/public/leads-intake` ([route.ts](../apps/admin/src/app/api/public/leads-intake/route.ts)):
-
-- Rejects with 403 unless `x-leads-intake-secret` matches `LEADS_INTAKE_SECRET`.
-- Rate-limits by IP (30 requests / 15 minutes) using the same DB-backed
-  limiter as login.
-- For a `lead`: inserts directly into `leads`.
-- For a `consultation`: inserts a `leads` row and a linked `consultations`
-  row, both carrying the visitor's email.
-- Every insert is visible immediately in the admin dashboard's
-  **Customers & Leads** section, with full status-change audit logging.
-
-## Still required before this is live in production
-
-1. Deploy `apps/admin` somewhere with a real public URL (see
-   `docs/ADMIN_SETUP.md` once written, and the architecture decision in
-   `docs/ADMIN_ARCHITECTURE.md`).
-2. Set `LEADS_INTAKE_SECRET` in `apps/admin`'s production environment.
-3. Set the matching `ADMIN_LEADS_INTAKE_URL`/`ADMIN_LEADS_INTAKE_SECRET`
-   constants in `shahid-security-config.php` on the Hostinger shared-hosting
-   account.
-
-Until all three are done, the PHP side's no-op behavior (documented above)
-is exactly what happens — real forms keep working, no leads are tracked yet.
+The now-deleted `apps/admin/src/app/api/public/leads-intake` route (still
+present in this codebase as `src/app/admin/api/public/leads-intake/
+route.ts`, unused by anything now) was the original design for a PHP
+script with no DB access to notify a separate Next.js app over HTTP, with
+a shared `LEADS_INTAKE_SECRET`. It's harmless to leave in place but nothing
+calls it anymore; it can be removed in a future cleanup pass.
