@@ -173,7 +173,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             '@type': 'Course',
             name: course.title,
             description: course.shortDescription ?? course.fullDescription ?? undefined,
-            url: `https://learn.shahidiqbal.com/courses/${course.slug}`,
+            url: `https://shahidiqbal.com/learn/courses/${course.slug}`,
             provider: { '@type': 'Organization', name: 'Shahid Security', url: 'https://shahidiqbal.com' },
             // No aggregateRating/review block — only ever added if real, disclosed
             // ratings exist, per this project's no-fabrication rule.
@@ -184,7 +184,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                     price: ((hasDiscount ? course.saleAmount! : course.priceAmount) / 100).toFixed(2),
                     priceCurrency: course.currencyCode,
                     availability: 'https://schema.org/InStock',
-                    url: `https://learn.shahidiqbal.com/courses/${course.slug}`,
+                    url: `https://shahidiqbal.com/learn/courses/${course.slug}`,
                   },
                 }
               : {}),

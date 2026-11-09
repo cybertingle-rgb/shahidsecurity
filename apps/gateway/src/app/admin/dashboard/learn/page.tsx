@@ -23,7 +23,7 @@ export default async function LearnOverviewPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Learn with Shahid — Admin</h1>
-        <p className="text-text-muted">Managed from this one admin panel, reading and writing learn.shahidiqbal.com's own database directly.</p>
+        <p className="text-text-muted">Managed from this one admin panel, reading and writing the Learn (shahidiqbal.com/learn) database directly.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

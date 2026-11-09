@@ -58,10 +58,10 @@ export default async function AiKnowledgePage() {
       </div>
 
       <div className="rounded-lg border border-warn/40 bg-warn/5 p-4 text-sm text-text-muted">
-        <strong className="text-warn">Not yet wired to Luna.</strong> Luna (the chatbot on shahidiqbal.com and
-        learn.shahidiqbal.com) currently runs on a hand-curated static system prompt in apps/learn — approving a
+        <strong className="text-warn">Not yet wired to Luna.</strong> Luna (the chatbot on shahidiqbal.com, including
+        its /learn section) currently runs on a hand-curated static system prompt in src/learn-core — approving a
         source here records the decision correctly, but actually feeding it into Luna's answers needs a follow-up
-        integration (apps/learn fetching approved sources from this app at request or build time), not yet built.
+        integration (learn-core fetching approved sources from this app at request or build time), not yet built.
       </div>
 
       <form action={createKnowledgeSource} className="space-y-4 rounded-lg border border-border bg-bg-elevated/60 p-6">

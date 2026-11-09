@@ -209,7 +209,7 @@ export default async function HomePage() {
               {
                 '@type': 'WebSite',
                 name: 'Learn with Shahid',
-                url: 'https://learn.shahidiqbal.com/',
+                url: 'https://shahidiqbal.com/learn/',
                 publisher: { '@type': 'Organization', name: 'Shahid Security', url: 'https://shahidiqbal.com' },
               },
               {

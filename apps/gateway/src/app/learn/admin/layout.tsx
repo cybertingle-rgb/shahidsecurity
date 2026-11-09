@@ -44,16 +44,18 @@ const NAV_SECTIONS: PortalNavSection[] = [
   },
 ];
 
-// admin.shahidiqbal.com is a separate Next.js app with its own login —
-// this switches the browser to its dashboard, it cannot carry this
-// session over (different subdomain, different session cookie).
-const SHAHID_ADMIN_URL = 'https://admin.shahidiqbal.com/dashboard';
+// /admin and /learn are two route trees of the same merged app, same
+// origin, but still separate login systems with separate session
+// cookies (admin-core vs learn-core) — this is a same-origin link now
+// (it was a cross-subdomain one before the platform-consolidation
+// merge), but still not single sign-on.
+const SHAHID_ADMIN_URL = '/admin/dashboard';
 
 /**
- * Switches between this app's admin and apps/admin's dashboard — two
- * separate Next.js apps on separate subdomains with separate session
- * cookies, so this is a navigation convenience, not single sign-on: the
- * other side still needs its own login if that session has expired.
+ * Switches between this app's admin section and the Shahid Security
+ * admin dashboard — two separate login systems sharing one origin, so
+ * this is a navigation convenience, not single sign-on: the other side
+ * still needs its own login if that session has expired.
  */
 function AppSwitcher() {
   return (

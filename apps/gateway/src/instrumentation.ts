@@ -30,6 +30,22 @@ export async function register() {
     process.env.__NEXT_PRIVATE_ORIGIN = 'http://127.0.0.1:3000';
   }
 
+  // LEARN_APP_URL (src/admin-core/lib/env.ts) was almost certainly set
+  // during the platform-consolidation merge, before the
+  // admin.shahidiqbal.com/learn.shahidiqbal.com subdomains were later
+  // deleted — it's used to build the link in every student
+  // invite/password-reset email (src/admin-core/lib/learn/tokens.ts), so
+  // a stale value there silently breaks those emails, not just a page.
+  // Hostinger's API only returns env var values masked, so there is no
+  // way to read the current value back and confirm it; overriding it
+  // here, permanently, at the one place it's actually consumed, fixes it
+  // regardless of what's stored and needs no access to the real secret.
+  const correctLearnAppUrl = 'https://shahidiqbal.com/learn';
+  if (process.env.LEARN_APP_URL !== correctLearnAppUrl) {
+    console.log(`[instrumentation] Overriding LEARN_APP_URL (was "${process.env.LEARN_APP_URL}") to "${correctLearnAppUrl}"`);
+    process.env.LEARN_APP_URL = correctLearnAppUrl;
+  }
+
   // Last-resort production safety net: an uncaught exception or
   // unhandled rejection otherwise kills the whole Node process silently,
   // with no application-level log line. This stops that and logs the

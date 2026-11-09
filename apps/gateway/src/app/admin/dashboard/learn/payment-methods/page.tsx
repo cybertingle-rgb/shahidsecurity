@@ -18,7 +18,7 @@ export default async function LearnPaymentMethodsPage() {
       <div>
         <h1 className="text-2xl font-semibold">Payment methods</h1>
         <p className="text-sm text-text-muted">
-          Every active method here shows up as an option at checkout on learn.shahidiqbal.com. For a crypto method, students see a QR code generated
+          Every active method here shows up as an option at checkout on shahidiqbal.com/learn. For a crypto method, students see a QR code generated
           automatically from the wallet address — no image upload needed.
         </p>
       </div>
