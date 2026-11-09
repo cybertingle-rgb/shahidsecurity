@@ -3,5 +3,12 @@ Allow: /
 Disallow: /api/
 Disallow: /contact/thanks/
 Disallow: /book/thanks/
+Disallow: /admin/
+Disallow: /learn/dashboard/
+Disallow: /learn/admin/
+Disallow: /learn/api/
+Disallow: /learn/reset-password
+Disallow: /learn/verify-email
 
 Sitemap: https://shahidiqbal.com/sitemap-index.xml
+Sitemap: https://shahidiqbal.com/learn/sitemap.xml

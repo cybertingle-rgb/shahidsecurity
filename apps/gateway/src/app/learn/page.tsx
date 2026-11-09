@@ -1,0 +1,229 @@
+import type { Metadata } from 'next';
+import Link from '@/learn-core/_compat/link';
+import EduBackground from '@/learn-core/components/EduBackground';
+import PublicHeader from '@/learn-core/components/PublicHeader';
+import SocialRail from '@/learn-core/components/SocialRail';
+import CourseCard from '@/learn-core/components/CourseCard';
+import { getSessionUser } from '@/learn-core/lib/auth/session';
+import { listCatalogCourses, listCourseCategories, getCourseAccessStates } from '@/learn-core/lib/public/courses';
+import { listPurchasableProducts } from '@/learn-core/lib/checkout';
+import { ensurePersonalTrainingProduct } from '@/learn-core/lib/personalTraining';
+
+export const metadata: Metadata = {
+  description: 'Learn cybersecurity through structured, instructor-built courses from Shahid Security — practical exercises and expert-guided learning, with free and paid courses.',
+  alternates: { canonical: '/' },
+};
+
+const FAQ_ITEMS = [
+  {
+    question: 'Is Learn with Shahid free?',
+    answer:
+      'Some courses are free and some are paid — each course’s detail page shows its price up front. Creating an account and browsing the catalog is always free.',
+  },
+  {
+    question: 'Who teaches these courses?',
+    answer:
+      'Courses are built and maintained by Shahid Iqbal, a working security consultant (the same person behind Shahid Security) — not a generic, outsourced course catalog.',
+  },
+  {
+    question: 'How do I pay for a course?',
+    answer:
+      'Paid courses are purchased via manual bank transfer today: you submit your payment reference and it’s verified by an admin before access is granted. A free course is enrolled instantly with no payment step.',
+  },
+  {
+    question: 'Do I need any prior experience to start?',
+    answer:
+      'No — each course lists its own level (Beginner through Expert) on its detail page, and the Learning Roadmap lays out a structured path from fundamentals onward for anyone starting from zero.',
+  },
+  {
+    question: 'Do courses expire once I buy them?',
+    answer:
+      'No — enrollment gives ongoing access to that course, including after it’s later archived from the public catalog; archiving only stops new enrollments, it never removes access for students who already have it.',
+  },
+];
+
+function formatAmount(amountMinorUnits: number, currencyCode: string): string {
+  return `${currencyCode} ${(amountMinorUnits / 100).toLocaleString()}`;
+}
+
+export default async function HomePage() {
+  const user = await getSessionUser();
+
+  const [courses, categories, membershipProducts, personalTrainingProduct] = await Promise.all([
+    listCatalogCourses(),
+    listCourseCategories(),
+    listPurchasableProducts(),
+    ensurePersonalTrainingProduct(),
+  ]);
+
+  const accessByCourseId = await getCourseAccessStates(user?.id ?? null, courses);
+  const coursesWithAccess = courses.map((c) => ({ course: c, access: accessByCourseId.get(c.id)! }));
+  const featuredWithAccess = coursesWithAccess.filter((c) => c.course.featured);
+  const membership = membershipProducts.find((p) => p.type === 'membership');
+
+  return (
+    <div className="relative min-h-screen text-text">
+      <EduBackground />
+      <PublicHeader />
+      <SocialRail />
+
+      {/* The fixed left-edge social rail sits in the same horizontal band as
+          this content on desktop widths — lg:pl-28 reserves a gutter so its
+          hover-expanded pills never sit on top of the heading/cards. */}
+      <div className="lg:pl-28">
+      {/* Hero */}
+      <section className="relative z-10 px-6 py-16 text-center">
+        <h1 className="mx-auto max-w-2xl bg-gradient-to-r from-text to-neon-soft bg-clip-text text-3xl font-semibold text-transparent sm:text-4xl">
+          Build Your Skills. Secure Your Future.
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl text-text-muted">Learn cybersecurity through structured courses, practical exercises and expert-guided learning.</p>
+        <div className="mt-6 flex justify-center gap-4">
+          <Link href="/courses" className="rounded-md bg-neon px-5 py-2.5 font-medium text-bg">
+            Browse Courses
+          </Link>
+          <a href="https://shahidiqbal.com/learn/roadmap" className="rounded-md border border-border-strong px-5 py-2.5 font-medium text-text hover:border-neon">
+            Explore Learning Roadmap
+          </a>
+        </div>
+      </section>
+
+      {/* Two pathways: structured courses, or instructor-led Personal Training */}
+      <section className="relative z-10 px-6 py-4">
+        <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
+          <div className="rounded-xl border border-border bg-bg-elevated/40 p-6">
+            <p className="text-xs font-medium text-neon">Structured learning</p>
+            <h3 className="mt-1 text-lg font-semibold">Explore Courses</h3>
+            <p className="mt-2 text-sm text-text-muted">Self-paced, structured cybersecurity courses — free and paid, with lessons, quizzes, and progress tracking.</p>
+            <Link href="/courses" className="mt-4 inline-block rounded-md bg-neon px-4 py-2 text-sm font-medium text-bg">
+              Browse Courses
+            </Link>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-border bg-bg-elevated/40">
+            {personalTrainingProduct.thumbnailUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- admin-entered external URL, not a static/optimizable asset
+              <img src={personalTrainingProduct.thumbnailUrl} alt="Personal Training" className="aspect-video w-full object-cover" />
+            )}
+            <div className="p-6">
+            <p className="text-xs font-medium text-neon">Tailored to you</p>
+            <h3 className="mt-1 text-lg font-semibold">Personal Training</h3>
+            <p className="mt-2 text-sm text-text-muted">
+              Instructor-led training arranged around your own goals and schedule — not prerecorded. Pricing and scheduling are discussed with you
+              first.
+            </p>
+            <Link href="/personal-training" className="mt-4 inline-block rounded-md border border-neon px-4 py-2 text-sm font-medium text-neon">
+              Request Personal Training
+            </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Browse courses */}
+      <section className="relative z-10 px-6 py-12">
+        <h2 className="text-2xl font-semibold">Explore Our Courses</h2>
+        <p className="mt-1 text-text-muted">Real courses, built and maintained by a working security consultant — not a generic catalog.</p>
+
+        {categories.length > 0 && (
+          <div className="mt-6 flex flex-wrap gap-2 border-b border-border pb-4">
+            {categories.map((c) => (
+              <span key={c} className="rounded-full border border-border-strong px-3 py-1 text-xs text-text-muted">
+                {c}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {coursesWithAccess.length === 0 ? (
+          <p className="mt-8 text-text-muted">No courses published yet — check back soon.</p>
+        ) : (
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {coursesWithAccess.map(({ course, access }) => (
+              <CourseCard key={course.id} course={course} access={access} />
+            ))}
+          </div>
+        )}
+
+        <div className="mt-8 text-center">
+          <Link href="/courses" className="text-sm font-medium text-neon hover:underline">
+            View all courses →
+          </Link>
+        </div>
+      </section>
+
+      {/* Featured */}
+      {featuredWithAccess.length > 0 && (
+        <section className="relative z-10 px-6 py-12">
+          <h2 className="text-2xl font-semibold">Featured Courses</h2>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {featuredWithAccess.map(({ course, access }) => (
+              <CourseCard key={course.id} course={course} access={access} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Membership */}
+      {membership && (
+        <section className="relative z-10 px-6 py-12">
+          <div className="mx-auto max-w-lg rounded-lg border border-border bg-bg-elevated p-6 text-center">
+            <h2 className="text-xl font-semibold">{membership.name}</h2>
+            {membership.description && <p className="mt-2 text-sm text-text-muted">{membership.description}</p>}
+            <p className="mt-4 text-lg font-medium text-neon">{formatAmount(membership.price.amount, membership.price.currencyCode)}</p>
+            <Link href={user ? '/dashboard/membership' : '/register'} className="mt-4 inline-block rounded-md bg-neon px-5 py-2.5 font-medium text-bg">
+              {user ? 'View membership' : 'Get started'}
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      <section className="relative z-10 mx-auto max-w-2xl px-6 py-12">
+        <h2 className="text-2xl font-semibold">Frequently Asked Questions</h2>
+        <div className="mt-6 space-y-4">
+          {FAQ_ITEMS.map((item) => (
+            <details key={item.question} className="rounded-lg border border-border p-4">
+              <summary className="cursor-pointer font-medium">{item.question}</summary>
+              <p className="mt-2 text-sm text-text-muted">{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <footer className="relative z-10 border-t border-border px-6 py-8 text-center text-sm text-text-muted">
+        <p>
+          Learn with Shahid is the education arm of{' '}
+          <a href="https://shahidiqbal.com" className="text-neon hover:underline">
+            Shahid Security
+          </a>
+          .
+        </p>
+      </footer>
+      </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'WebSite',
+                name: 'Learn with Shahid',
+                url: 'https://learn.shahidiqbal.com/',
+                publisher: { '@type': 'Organization', name: 'Shahid Security', url: 'https://shahidiqbal.com' },
+              },
+              {
+                '@type': 'FAQPage',
+                mainEntity: FAQ_ITEMS.map((item) => ({
+                  '@type': 'Question',
+                  name: item.question,
+                  acceptedAnswer: { '@type': 'Answer', text: item.answer },
+                })),
+              },
+            ],
+          }),
+        }}
+      />
+    </div>
+  );
+}

@@ -18,5 +18,22 @@
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  // admin-core/tests, learn-core/tests, and each section's own
+  // drizzle.config.ts/vitest.config.ts were excluded from apps/admin's and
+  // apps/learn's own tsconfig.json before the platform-consolidation merge
+  // (docs/consolidation/UNIFIED_ARCHITECTURE.md) — carried over here so
+  // `next build`'s TypeScript step keeps checking exactly what it did
+  // before (the app route tree + lib/db/components code), not vitest
+  // suites that were never part of that check to begin with. Run with
+  // `pnpm test:admin` / `pnpm test:learn` (vitest), which type-checks via
+  // esbuild transpilation, not tsc.
+  "exclude": [
+    "node_modules",
+    "src/admin-core/tests",
+    "src/admin-core/drizzle.config.ts",
+    "src/admin-core/vitest.config.ts",
+    "src/learn-core/tests",
+    "src/learn-core/drizzle.config.ts",
+    "src/learn-core/vitest.config.ts"
+  ]
 }

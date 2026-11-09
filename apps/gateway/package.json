@@ -8,15 +8,46 @@
     "build": "node scripts/write-build-info.mjs && cd ../.. && node scripts/generate-logo-variants.mjs && node scripts/generate-og-images.mjs && pnpm exec astro build && cd apps/gateway && node scripts/copy-astro-dist.mjs && next build && node scripts/flatten-standalone.mjs",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:admin:generate": "drizzle-kit generate --config src/admin-core/drizzle.config.ts",
+    "db:admin:migrate": "tsx src/admin-core/db/migrate.ts",
+    "db:admin:apply-grants": "tsx src/admin-core/db/apply-grants.ts",
+    "db:admin:seed-super-admin": "tsx src/admin-core/db/seed-super-admin.ts",
+    "db:admin:seed-pricing": "tsx src/admin-core/db/seed-pricing-data.ts",
+    "db:learn:generate": "drizzle-kit generate --config src/learn-core/drizzle.config.ts",
+    "db:learn:migrate": "tsx src/learn-core/db/migrate.ts",
+    "db:learn:apply-grants": "tsx src/learn-core/db/apply-grants.ts",
+    "db:learn:seed": "tsx src/learn-core/db/seed.ts",
+    "test:admin": "vitest run --config src/admin-core/vitest.config.ts",
+    "test:learn": "vitest run --config src/learn-core/vitest.config.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.129.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
+    "@octokit/rest": "22.0.1",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/node": "22.20.4",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "drizzle-orm": "0.45.3",
+    "js-yaml": "5.5.0",
+    "mysql2": "3.24.4",
     "next": "16.4.3",
+    "nodemailer": "10.3.1",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "typescript": "5.7.3"
+    "tailwindcss": "4.3.3",
+    "typescript": "5.7.3",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "dotenv": "18.0.4",
+    "drizzle-kit": "0.31.11",
+    "tsx": "4.23.15",
+    "vitest": "5.0.2"
   }
 }
