@@ -72,9 +72,14 @@ async function bootstrapPricing() {
     const { eq } = await import('drizzle-orm');
 
     const current = await getOrCreateConsultationSettings();
-    if (current.feeUsd === '0.00') {
+    // The live DB value was confirmed via runtime log to still be
+    // '150.00' (the untouched schema default) — the $0.00 the owner saw
+    // in production was actually a build-time fallback in pricing.astro
+    // (fixed separately), never a real DB value. '0.00' is kept as a
+    // second trigger in case a prior broken deploy did write it.
+    if (current.feeUsd === '150.00' || current.feeUsd === '0.00') {
       await db.update(consultationSettings).set({ feeUsd: '50.00' }).where(eq(consultationSettings.id, current.id));
-      console.log('[instrumentation] consultationSettings.feeUsd bootstrapped from 0.00 to 50.00');
+      console.log(`[instrumentation] consultationSettings.feeUsd bootstrapped from ${current.feeUsd} to 50.00`);
     } else {
       console.log('[instrumentation] consultationSettings.feeUsd already', current.feeUsd, '- leaving as-is');
     }
