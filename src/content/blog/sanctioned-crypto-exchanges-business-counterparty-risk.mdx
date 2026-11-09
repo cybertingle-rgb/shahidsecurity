@@ -1,0 +1,44 @@
+---
+title: 'Sanctioned Crypto Exchanges in 2026: What They Mean for Your Business if You Touch Crypto Payments'
+description: 'A wave of 2026 sanctions and hacks against crypto exchanges — Grinex, HTX, Zedcex, Zedxion — shows how fast a payment rail can become a liability. Heres what businesses that accept or hold crypto need to check.'
+publishedAt: 2026-11-09
+tags: ['compliance', 'crypto', 'sanctions', 'third-party-risk']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['third-party-vendor-risk-management-smb', 'cyber-insurance-requirements-2026', 'dora-compliance-ict-third-party-risk-guide']
+faqs:
+  - q: 'We only accept crypto payments through a mainstream processor — does any of this apply to us?'
+    a: "Yes, indirectly. Most crypto payment processors route settlement through one or more exchanges behind the scenes, and that routing can change without your knowledge. The practical question to ask your processor is not just 'are you sanctioned' but 'which exchanges and liquidity providers do you settle through, and how do you screen them.' A processor that cannot answer that clearly is itself a red flag."
+  - q: 'How do we actually check if a crypto counterparty is sanctioned?'
+    a: "Check the exchange or wallet address against OFAC's Specially Designated Nationals (SDN) list and equivalent EU/UK sanctions lists before relying on it as a payment rail — several commercial screening tools do this in near-real-time against wallet addresses, not just company names. If you are not already doing wallet-level screening and only checking company names, you are missing the more common evasion pattern: a newly spun-up exchange or shell entity using unsanctioned branding while settling through sanctioned infrastructure behind the scenes."
+  - q: 'Is this only a problem for crypto-native businesses?'
+    a: "No — it increasingly reaches any business that accepts crypto for invoices, holds crypto on its balance sheet, or pays contractors or vendors in crypto. A US court ruling in 2026 established that exchanges can be held liable for sanctions evasion occurring on their platforms, which raises the practical bar for every business relying on one: due diligence on your crypto counterparties is no longer optional once regulators treat the exchange itself as accountable for what flows through it."
+draft: false
+---
+
+In April 2026, Grinex — a Kyrgyzstan-registered exchange already sanctioned by the US, UK, and EU for allegedly facilitating up to $6 billion in sanctions evasion — lost roughly $13.74 million to a hack and suspended all services two days later. The company blamed Western intelligence agencies; other analysts raised a false-flag question; nobody has independently confirmed attribution. What's not in dispute is the pattern underneath it: sanctioned exchanges keep getting breached, shut down, or reconstituted under new names, and the businesses that relied on them as a payment rail are left holding the risk.
+
+Grinex wasn't an isolated case in 2026. The EU sanctioned HTX in July as part of an 18-company list tied to Russia-evasion tactics (HTX denies wrongdoing). In January, the US Treasury's Office of Foreign Assets Control (OFAC) designated the exchanges Zedcex and Zedxion for what it described as pivotal roles in a sanctions-evasion network benefiting the Iranian regime and the IRGC. And reporting has linked Bybit — the exchange behind the record 2025 hack attributed to North Korean actors — to roughly $2 billion in Iranian cash flow passing through its platform after the breach. The broader trend analysts describe: after one major sanctioned exchange (Garantex) was shut down in 2025, evasion activity simply migrated to the next platform, and enforcement has been playing catch-up ever since.
+
+## Why this is a business risk, not just a geopolitics story
+
+If your business accepts crypto payments, holds crypto on its balance sheet, or pays any vendor or contractor in crypto, the exchange or processor you rely on is a counterparty like any other vendor — except the due diligence most businesses apply to a new bank or payment processor rarely gets applied to a crypto rail. That gap matters more now for two concrete reasons:
+
+1. **Exchange liability is being established in court.** A 2026 US court ruling held that crypto exchanges can be held liable for sanctions evasion occurring on their own platforms — not just the individual users doing the evading. That raises the bar for exchanges to actually screen their own flows, but it also means a business relying on an exchange that later turns out to have been facilitating evasion is now dealing with a counterparty under direct regulatory and legal exposure, not a neutral utility.
+2. **Sanctioned platforms don't announce themselves.** Grinex, Zedcex, and Zedxion were not household names before their designations. A newly launched exchange with clean branding, a plausible jurisdiction, and competitive fees can be — knowingly or not — a continuation of a previously sanctioned operation's infrastructure. Screening by company name alone misses this; screening needs to reach the wallet and settlement layer.
+
+## What to actually check
+
+For any business that accepts, holds, or pays out in crypto, this is a practical due-diligence list, not a theoretical one:
+
+- **Screen settlement counterparties, not just your direct processor.** Ask your payment processor explicitly which exchanges and liquidity providers they settle through, and whether that list has changed in the last 12 months.
+- **Screen at the wallet-address level**, against OFAC's SDN list and equivalent EU/UK lists, for any crypto addresses your business transacts with directly — not just company names, which change faster than addresses do.
+- **Treat a sudden platform shutdown or rebrand as a signal**, not just an inconvenience. Grinex's collapse happened within 48 hours of a hack; businesses with funds or pending settlements on a platform that disappears that fast have very little recourse.
+- **Document the screening you do.** If a regulator or bank later asks why your business was exposed to a sanctioned platform, "we didn't know" is a weaker position than "here is our screening process and when we last ran it."
+- **Build this into existing vendor risk review**, the same way you'd review a new bank or processor — see our broader guide to [third-party vendor risk management](/blog/third-party-vendor-risk-management-smb/) for the underlying discipline this fits into.
+
+## The pattern to watch going forward
+
+Blockchain analytics firm Elliptic has said it expects increased sanctions enforcement actions against crypto platforms through the rest of 2026, and the Grinex-to-HTX-to-Zedcex sequence suggests enforcement is accelerating, not slowing. For a business, the practical takeaway isn't to avoid crypto payment rails entirely — it's to treat the exchange or processor you rely on with the same counterparty scrutiny you'd apply to any other financial infrastructure your business depends on, because regulators increasingly do.
+
+If your business accepts or holds crypto and you're not sure your current screening would catch a Grinex- or Zedcex-style counterparty before it becomes your problem, a [compliance and risk assessment](/services/compliance-risk-assessment/) is the right place to start.
