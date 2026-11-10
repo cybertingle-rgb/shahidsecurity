@@ -29,17 +29,10 @@
   RewriteRule ^service/security-monitoring/?$ /services/monitoring-training/ [R=301,L]
   RewriteRule ^service/backup-recovery/?$ /services/incident-response/ [R=301,L]
 
-  # The old build-time static course catalog redirect to
-  # learn.shahidiqbal.com (2026-10 rework note) is gone: that subdomain
-  # was deleted by the platform-consolidation merge, and /learn/courses
-  # is now itself the real, dynamic, login-aware page (served by
-  # Passenger, not this file) — this rule was 301-redirecting every
-  # visit to that page straight into a dead host, confirmed live via a
-  # real device (Safari: "the server can't be found") for anyone who
-  # clicked "Browse Courses" in the student dashboard. No replacement
-  # rule needed: removing it lets the request fall through to Passenger
-  # like every other /learn/* path already does (see the trailing-slash
-  # exclusion below).
+  # The static build-time course catalog moved into the LMS app itself as
+  # a real, dynamic, login-aware page (2026-10 rework) — redirect the old
+  # URL rather than leave two divergent "course catalog" pages indexed.
+  RewriteRule ^learn/courses/?$ https://learn.shahidiqbal.com/courses [R=301,L]
 
   RewriteRule ^portfolio(/.*)?$ /case-studies/ [R=301,L]
   RewriteRule ^blog-standard/?$ /blog/ [R=301,L]
@@ -155,17 +148,26 @@ ErrorDocument 410 /404.html
 </IfModule>
 
 # -----------------------------------------------------------------------------
-# Access control: deny dotfiles. The per-file PHP-execution grants this
-# section used to carry (contact.php, book.php, report-download.php,
-# report-file.php) are gone along with those files themselves — this host
-# has no PHP runtime behind it at all (platform-consolidation merge moved
-# shahidiqbal.com to Node.js), so every one of those scripts has been
-# replaced with a real Next.js route under /api/ (see
-# apps/gateway/src/app/api/*.php/route.ts) instead of an Apache-level
-# execution exception.
+# Access control: deny dotfiles and PHP execution except the contact handler
 # -----------------------------------------------------------------------------
 <FilesMatch "^\.">
   Require all denied
 </FilesMatch>
+
+<FilesMatch "\.php$">
+  Require all denied
+</FilesMatch>
+<Files "contact.php">
+  Require all granted
+</Files>
+<Files "book.php">
+  Require all granted
+</Files>
+<Files "report-download.php">
+  Require all granted
+</Files>
+<Files "report-file.php">
+  Require all granted
+</Files>
 
 Options -Indexes
