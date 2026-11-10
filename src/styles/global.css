@@ -429,6 +429,22 @@
     margin-bottom: 1.1rem;
   }
 
+  .prose-content img {
+    width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    margin: 1.75rem 0 0.5rem;
+  }
+
+  .prose-content img + em {
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
   .divider-scan {
     position: relative;
     height: 1px;
