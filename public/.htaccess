@@ -29,10 +29,28 @@
   RewriteRule ^service/security-monitoring/?$ /services/monitoring-training/ [R=301,L]
   RewriteRule ^service/backup-recovery/?$ /services/incident-response/ [R=301,L]
 
-  # The static build-time course catalog moved into the LMS app itself as
-  # a real, dynamic, login-aware page (2026-10 rework) — redirect the old
-  # URL rather than leave two divergent "course catalog" pages indexed.
-  RewriteRule ^learn/courses/?$ https://learn.shahidiqbal.com/courses [R=301,L]
+  # The old build-time static course catalog redirect to
+  # learn.shahidiqbal.com (2026-10 rework note) is gone: that subdomain
+  # was deleted by the platform-consolidation merge, and /learn/courses
+  # is now itself the real, dynamic, login-aware page (served by
+  # Passenger, not this file) — this rule was 301-redirecting every
+  # visit to that page straight into a dead host. No replacement rule
+  # needed: removing it lets the request fall through to Passenger like
+  # every other /learn/* path already does (see the trailing-slash
+  # exclusion below).
+  #
+  # Reapplied here via a normal git-deploy only — NEVER edit this file's
+  # live copy by directly uploading it (e.g. the TUS file-upload API):
+  # Hostinger's own Node.js deploy pipeline appends Passenger-integration
+  # directives to the end of the live .htaccess after every deploy
+  # (confirmed: the healthy file is ~470 bytes larger than this repo
+  # copy alone). A direct file upload replaces the whole file with only
+  # this repo's content, silently deleting that block, which took the
+  # entire site down in production once already — Apache had nothing
+  # telling it to hand requests to the Node app, fell back to serving
+  # public_html directly, found no index file, and returned 403 for
+  # every single page. Only ever change this file by committing and
+  # pushing; let the real deploy pipeline reconstruct the live copy.
 
   RewriteRule ^portfolio(/.*)?$ /case-studies/ [R=301,L]
   RewriteRule ^blog-standard/?$ /blog/ [R=301,L]
