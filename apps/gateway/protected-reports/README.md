@@ -10,8 +10,7 @@ then add the slug/filename/title to `ALLOWED_REPORTS` in both
 `report-download.php/route.ts` and `report-file.php/route.ts`.
 
 Current reports:
-- `iot-smart-campus-thesis.pdf` — "Threats & Attacks on an IoT-Based Smart
-  Campus System" (slug: `iot-smart-campus`). Not yet present in this
-  directory — the owner needs to supply the file; see git history for the
-  original `public/api/report-download.php`/`report-file.php` this
-  replaces for the source of truth on the original flow.
+- `iot-smart-campus-thesis.pdf` — "Threats and Attacks on IOT Based Smart
+  Campus System" (slug: `iot-smart-campus`), the Qarshi University BS CS
+  final year project by Shahid Iqbal and Kinza Sajjad. Present as of
+  2026-11-11.
