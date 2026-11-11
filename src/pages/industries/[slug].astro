@@ -8,7 +8,7 @@ import CTABand from '@/components/CTABand.astro';
 import Prose from '@/components/Prose.astro';
 import { Icon } from 'astro-icon/components';
 import { getCollection, render } from 'astro:content';
-import { webPageSchema, faqSchema } from '@/lib/schema';
+import { faqSchema } from '@/lib/schema';
 
 export async function getStaticPaths() {
   const industries = await getCollection('industries');
@@ -31,9 +31,7 @@ const relatedArticles = (await getCollection('blog', ({ data }) => !data.draft))
   (post) => post.data.relatedService && industry.data.relevantServices.includes(post.data.relatedService),
 );
 
-const jsonLd: object[] = [
-  webPageSchema({ name: industry.data.seoTitle, description: industry.data.seoDescription, path }),
-];
+const jsonLd: object[] = [];
 const faq = faqSchema(industry.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
 if (faq) jsonLd.push(faq);
 ---

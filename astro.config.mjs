@@ -103,6 +103,7 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/contact/thanks') &&
         !page.includes('/book/thanks') &&
+        !page.includes('/blog/tag/') &&
         (hasCaseStudies || !page.includes('/case-studies')),
       serialize(item) {
         const path = new URL(item.url).pathname;
