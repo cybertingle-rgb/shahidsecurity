@@ -15,7 +15,8 @@
     "check": "astro check",
     "lint": "eslint . --ext .js,.ts,.astro",
     "format": "prettier --write .",
-    "verify-redirects": "node scripts/verify-redirects.mjs"
+    "verify-redirects": "node scripts/verify-redirects.mjs",
+    "seo:check": "node scripts/seo-crawl.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.1",
