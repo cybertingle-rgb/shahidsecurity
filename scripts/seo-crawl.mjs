@@ -135,7 +135,7 @@ for (const p of pages) {
 for (const [title, paths] of titleIndex) {
   if (paths.length > 1) hardFailures.push(`Duplicate <title> "${title}" on: ${paths.join(', ')}`);
 }
-for (const [desc, paths] of descIndex) {
+for (const [, paths] of descIndex) {
   if (paths.length > 1) hardFailures.push(`Duplicate meta description on: ${paths.join(', ')}`);
 }
 for (const { from, to } of brokenLinks) {
