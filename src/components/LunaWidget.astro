@@ -389,25 +389,60 @@
     messagesEl?.appendChild(typing);
     messagesEl?.scrollTo({ top: messagesEl.scrollHeight });
 
+    // A real-world failure here is almost always one of two different
+    // things that this project has repeatedly needed to tell apart in
+    // other endpoints: no network reached the server at all (offline,
+    // DNS/TLS failure, a timeout), or a response came back that isn't the
+    // JSON this route always returns (a proxy/host-level error page
+    // instead of the app, a Hostinger Passenger routing gap like the ones
+    // found elsewhere in this project). The two had been collapsed into
+    // one generic "check your connection" message, which is actively
+    // misleading for the second case and gives support nothing to go on.
+    // Splitting the fetch and the parse into their own try/catch — and
+    // logging the real status/body to the console either way — makes an
+    // actual server-side outage distinguishable from a client network
+    // issue without needing production log access.
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+    let res: Response;
     try {
-      const res = await fetch(CHAT_ENDPOINT, {
+      res = await fetch(CHAT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history }),
+        signal: controller.signal,
       });
-      const data = await res.json();
+    } catch (err) {
+      window.clearTimeout(timeout);
       typing.remove();
-      if (!res.ok) {
-        appendBubble(data.error ?? 'Something went wrong.', 'error');
-        return;
-      }
+      sending = false;
+      console.error('Luna: request never reached the server', err);
+      appendBubble('Could not reach Luna. Check your connection and try again.', 'error');
+      return;
+    }
+    window.clearTimeout(timeout);
+
+    let data: { reply?: string; error?: string };
+    try {
+      data = await res.json();
+    } catch (err) {
+      typing.remove();
+      sending = false;
+      console.error(`Luna: server responded with a non-JSON body (status ${res.status})`, err);
+      appendBubble("Luna's server sent back an unexpected response. Please try again, or email info@shahidiqbal.com if this keeps happening.", 'error');
+      return;
+    }
+
+    typing.remove();
+    sending = false;
+    if (!res.ok) {
+      console.error(`Luna: server returned an error (status ${res.status})`, data);
+      appendBubble(data.error ?? 'Something went wrong.', 'error');
+      return;
+    }
+    if (data.reply) {
       appendBubble(data.reply, 'assistant');
       history.push({ role: 'assistant', content: data.reply });
-    } catch {
-      typing.remove();
-      appendBubble('Could not reach Luna. Check your connection and try again.', 'error');
-    } finally {
-      sending = false;
     }
   }
 
