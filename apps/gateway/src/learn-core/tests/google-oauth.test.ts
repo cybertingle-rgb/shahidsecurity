@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { eq, and } from 'drizzle-orm';
 import { testDb, schema, truncateAll, closeTestDb } from './testDb';
-import { resolveOrCreateGoogleUser } from '@/learn-core/lib/auth/google';
+import { resolveOrCreateGoogleUser, buildGoogleAuthUrl } from '@/learn-core/lib/auth/google';
+import { BASE_PATH } from '@/learn-core/lib/basePath';
+import { env } from '@/learn-core/lib/env';
 
 async function makeStudentRole() {
   const id = crypto.randomUUID();
@@ -23,6 +25,22 @@ async function makeUser(opts: { email: string; emailVerifiedAt?: Date | null; st
 }
 
 afterAll(closeTestDb);
+
+describe('buildGoogleAuthUrl', () => {
+  // Regression test for a real bug: redirectUri() in auth/google.ts omitted
+  // this app's BASE_PATH ('/learn'), so the redirect_uri sent to Google
+  // never matched the callback route's actual path
+  // (src/app/learn/api/auth/google/callback) — breaking "Continue with
+  // Google" either as a 404 behind the gateway's routing or a Google-side
+  // redirect_uri_mismatch, depending on what was registered in Google's
+  // console. Pin the full expected URL so this can't silently regress.
+  it('builds a redirect_uri under this app\'s BASE_PATH, not the site root', () => {
+    const url = new URL(buildGoogleAuthUrl('test-state'));
+    const redirectUri = url.searchParams.get('redirect_uri');
+    expect(redirectUri).toBe(`${env.NEXT_PUBLIC_APP_URL}${BASE_PATH}/api/auth/google/callback`);
+    expect(redirectUri).toContain('/learn/api/auth/google/callback');
+  });
+});
 
 describe('resolveOrCreateGoogleUser', () => {
   beforeEach(truncateAll);

@@ -3,6 +3,7 @@ import { db } from '@/learn-core/db';
 import { users, roles, userRoles, oauthAccounts } from '@/learn-core/db/schema';
 import { hashPassword } from './password';
 import { env } from '@/learn-core/lib/env';
+import { BASE_PATH } from '@/learn-core/lib/basePath';
 
 const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
@@ -14,8 +15,15 @@ export function isGoogleOAuthConfigured(): boolean {
   return Boolean(env.LEARN_GOOGLE_CLIENT_ID && env.LEARN_GOOGLE_CLIENT_SECRET);
 }
 
+// The callback route actually lives at src/app/learn/api/auth/google/callback
+// — i.e. under this app's BASE_PATH — not at the site root. Missing that
+// prefix here sent Google a redirect_uri that either 404s behind the
+// gateway's Multi-Zones routing (see basePath.ts's comment for the same
+// bug class elsewhere) or never matches what's registered in Google's own
+// OAuth client console, breaking "Continue with Google" before it can even
+// reach resolveOrCreateGoogleUser below.
 function redirectUri(): string {
-  return `${env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`;
+  return `${env.NEXT_PUBLIC_APP_URL}${BASE_PATH}/api/auth/google/callback`;
 }
 
 export function buildGoogleAuthUrl(state: string): string {

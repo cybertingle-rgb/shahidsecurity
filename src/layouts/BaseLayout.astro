@@ -8,6 +8,7 @@ import CursorParticles from '@/components/CursorParticles.astro';
 import CinematicMotion from '@/components/CinematicMotion.astro';
 import FilmGrain from '@/components/FilmGrain.astro';
 import LunaWidget from '@/components/LunaWidget.astro';
+import NewsPopup from '@/components/NewsPopup.astro';
 import SocialRail from '@/components/SocialRail.astro';
 import LanguageNotice from '@/components/LanguageNotice.astro';
 import { site } from '@/lib/site';
@@ -144,5 +145,6 @@ const allJsonLd = [
     <Footer />
     {!hideSocialRail && <SocialRail />}
     <LunaWidget />
+    <NewsPopup />
   </body>
 </html>

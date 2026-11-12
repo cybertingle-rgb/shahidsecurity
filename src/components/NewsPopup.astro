@@ -1,0 +1,265 @@
+---
+// Ambient "latest news" popup, shown once per visitor (localStorage-gated)
+// a couple of seconds after page load, then auto-dismissed after 3 seconds.
+// Visual language: the same chasing-comet conic-gradient ring technique
+// AuthCard.tsx uses on the Learn login/register cards (see apps/gateway/src/
+// app/globals.css's .auth-card-glow), ported to this site's own tokens,
+// plus a soft, heavily blurred color bleed behind the card — the "ambient
+// mode" look of a video player glowing into the room behind it, not a
+// modal scrim. The page itself stays fully visible and interactive.
+---
+
+<div class="news-popup" data-news-popup hidden>
+  <div class="news-popup-ambience" aria-hidden="true"></div>
+  <div class="news-popup-card">
+    <button type="button" class="news-popup-close" data-news-popup-close aria-label="Close">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path
+          d="M1 1l14 14M15 1L1 15"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+    </button>
+    <p class="news-popup-eyebrow">// LATEST</p>
+    <h3 class="news-popup-title">Read the latest news about cybersecurity</h3>
+    <p class="news-popup-desc">Fresh, verified breakdowns of real breaches, CVEs, and AI security trends — not hype.</p>
+    <a href="/blog/" class="news-popup-link" data-news-popup-link>Browse the blog →</a>
+  </div>
+</div>
+
+<style>
+  @property --news-popup-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  .news-popup {
+    position: fixed;
+    left: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 55;
+    width: min(21rem, calc(100vw - 3rem));
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
+    transition:
+      opacity 360ms ease,
+      transform 360ms ease;
+    pointer-events: none;
+  }
+
+  .news-popup.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .news-popup[hidden] {
+    display: none;
+  }
+
+  /* The YouTube-"ambient mode" bleed: a large, heavily blurred duo-tone
+     glow sitting behind the card and spilling well past its edges,
+     rather than a hard-edged shadow. Pulses gently rather than sitting
+     static, so it reads as ambient light, not a flat background shape. */
+  .news-popup-ambience {
+    position: absolute;
+    inset: -3.5rem;
+    border-radius: 2rem;
+    background:
+      radial-gradient(circle at 24% 20%, color-mix(in oklab, var(--color-neon-soft) 85%, transparent) 0%, transparent 55%),
+      radial-gradient(circle at 80% 85%, color-mix(in oklab, var(--color-success) 80%, transparent) 0%, transparent 55%);
+    filter: blur(34px) saturate(160%);
+    opacity: 0.85;
+    z-index: -1;
+    animation: news-popup-ambience-pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes news-popup-ambience-pulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+  }
+
+  .news-popup-card {
+    position: relative;
+    border-radius: 1.1rem;
+    padding: 1.1rem 2.1rem 1.1rem 1.1rem;
+    background-color: color-mix(in oklab, var(--color-bg) 96%, transparent);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow:
+      0 20px 48px -16px rgba(0, 0, 0, 0.75),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* Two bright comet-heads — violet and amber, this site's own default
+     accent pair — chasing each other clockwise 180° apart, same masked-
+     ring technique as the Learn auth cards' border glow. */
+  .news-popup-card::before,
+  .news-popup-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: news-popup-spin 4s linear infinite;
+    background: conic-gradient(
+      from var(--news-popup-angle),
+      var(--color-success-soft) 0deg,
+      var(--color-success-soft) 8deg,
+      transparent 24deg,
+      transparent 176deg,
+      var(--color-neon-soft) 184deg,
+      var(--color-neon-soft) 192deg,
+      transparent 208deg,
+      transparent 360deg
+    );
+  }
+
+  .news-popup-card::after {
+    filter: blur(7px);
+    opacity: 0.85;
+  }
+
+  @keyframes news-popup-spin {
+    to {
+      --news-popup-angle: 360deg;
+    }
+  }
+
+  .news-popup-close {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    background: color-mix(in oklab, var(--color-surface) 70%, transparent);
+    transition:
+      color 160ms ease,
+      background 160ms ease;
+  }
+
+  .news-popup-close:hover,
+  .news-popup-close:focus-visible {
+    color: var(--color-text);
+    background: var(--color-neon-dim);
+  }
+
+  .news-popup-eyebrow {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--color-neon-soft);
+  }
+
+  .news-popup-title {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+
+  .news-popup-desc {
+    margin: 0 0 0.75rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .news-popup-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-success-soft);
+    transition: color 160ms ease;
+  }
+
+  .news-popup-link:hover,
+  .news-popup-link:focus-visible {
+    color: var(--color-success);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .news-popup,
+    .news-popup-ambience,
+    .news-popup-card::before,
+    .news-popup-card::after {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'shahid-news-popup-seen-v1';
+  const SHOW_DELAY_MS = 1800;
+  const AUTO_CLOSE_AFTER_MS = 3000;
+  const EXIT_TRANSITION_MS = 360;
+
+  const popup = document.querySelector<HTMLElement>('[data-news-popup]');
+  const closeBtn = document.querySelector<HTMLElement>('[data-news-popup-close]');
+  const link = document.querySelector<HTMLElement>('[data-news-popup-link]');
+
+  function hasBeenSeen(): boolean {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function markSeen(): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, '1');
+    } catch {
+      /* private-browsing/storage-blocked — fine to just not persist */
+    }
+  }
+
+  if (popup && !hasBeenSeen()) {
+    let closeTimer: number | undefined;
+
+    const dismiss = () => {
+      popup.classList.remove('is-visible');
+      window.clearTimeout(closeTimer);
+      window.setTimeout(() => {
+        popup.hidden = true;
+      }, EXIT_TRANSITION_MS);
+      markSeen();
+    };
+
+    window.setTimeout(() => {
+      popup.hidden = false;
+      requestAnimationFrame(() => popup.classList.add('is-visible'));
+      closeTimer = window.setTimeout(dismiss, AUTO_CLOSE_AFTER_MS);
+    }, SHOW_DELAY_MS);
+
+    closeBtn?.addEventListener('click', dismiss);
+    link?.addEventListener('click', markSeen);
+  }
+</script>
