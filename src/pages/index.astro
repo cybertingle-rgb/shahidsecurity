@@ -8,6 +8,7 @@ import ProcessSteps from '@/components/ProcessSteps.astro';
 import CTABand from '@/components/CTABand.astro';
 import TrustBar from '@/components/TrustBar.astro';
 import TerminalWindow from '@/components/TerminalWindow.astro';
+import TerminalTips from '@/components/TerminalTips.astro';
 import ScanDivider from '@/components/ScanDivider.astro';
 import Testimonials from '@/components/Testimonials.astro';
 import StudentLaptopArt from '@/components/StudentLaptopArt.astro';
@@ -125,7 +126,12 @@ const trustItems = [
           />
         </div>
       </div>
-      <TerminalWindow />
+      <div class="flex flex-col gap-6">
+        <TerminalWindow />
+        <div class="hidden lg:block">
+          <TerminalTips />
+        </div>
+      </div>
     </div>
   </Section>
 

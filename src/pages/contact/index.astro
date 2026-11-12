@@ -4,8 +4,16 @@ import Section from '@/components/Section.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import ContactForm from '@/components/ContactForm.astro';
+import TerminalTips from '@/components/TerminalTips.astro';
 import { Icon } from 'astro-icon/components';
 import { site, mailtoLink } from '@/lib/site';
+
+const supportTips = [
+  { cmd: 'mail -s "New inquiry" info@shahidiqbal.com', note: 'Every message gets a human reply, not a bot' },
+  { cmd: 'cat /etc/support/sla.conf', note: 'Standard reply window: within 24 hours, business days' },
+  { cmd: 'echo "[URGENT]" >> subject.txt', note: 'Active breach or ransomware? Mark it urgent' },
+  { cmd: 'gpg --encrypt message.txt', note: 'Sensitive details stay confidential — NDA on request' },
+];
 
 const cards = [
   {
@@ -41,12 +49,17 @@ const cards = [
         { name: 'Contact', path: '/contact/' },
       ]}
     />
-    <SectionHeading
-      as="h1"
-      eyebrow="// contact"
-      title="Talk to a security expert"
-      intro="Tell us what you're worried about. We reply within 24 hours on working days — for emergencies (active hack, ransomware), mark it urgent in your message."
-    />
+    <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+      <SectionHeading
+        as="h1"
+        eyebrow="// contact"
+        title="Talk to a security expert"
+        intro="Tell us what you're worried about. We reply within 24 hours on working days — for emergencies (active hack, ransomware), mark it urgent in your message."
+      />
+      <div class="hidden lg:block">
+        <TerminalTips label="support --status" tips={supportTips} />
+      </div>
+    </div>
   </Section>
 
   <Section class="pt-0">

@@ -5,6 +5,7 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import Breadcrumbs from '@/components/Breadcrumbs.astro';
 import CTABand from '@/components/CTABand.astro';
 import CaseStudyCard from '@/components/CaseStudyCard.astro';
+import TerminalTips from '@/components/TerminalTips.astro';
 import { Icon } from 'astro-icon/components';
 import { getCollection } from 'astro:content';
 import { site } from '@/lib/site';
@@ -70,6 +71,13 @@ const values = [
   { title: 'Honest scope', text: 'We tell you what you need, not what costs the most.' },
 ];
 
+const aboutTips = [
+  { cmd: 'whoami', note: `${site.founder} — Founder, Shahid Security` },
+  { cmd: 'cat background.txt', note: `Cybersecurity & SOC analyst since ${site.founderExperienceSince}` },
+  { cmd: 'cat final-year-project.txt', note: 'Attack study on an IoT-based smart campus system' },
+  { cmd: 'cat philosophy.txt', note: `"${site.taglineSecondary}"` },
+];
+
 const jsonLd = [personSchema()];
 
 const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
@@ -102,11 +110,16 @@ const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
           class="h-32 w-auto sm:h-40"
         />
       </picture>
-      <div>
-        <SectionHeading as="h1" eyebrow="// about" title="About Shahid Security" />
-        <p class="mt-6 border-l-2 border-(--color-neon) pl-4 font-display text-xl italic text-(--color-text)">
-          "{site.taglineSecondary}"
-        </p>
+      <div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <SectionHeading as="h1" eyebrow="// about" title="About Shahid Security" />
+          <p class="mt-6 border-l-2 border-(--color-neon) pl-4 font-display text-xl italic text-(--color-text)">
+            "{site.taglineSecondary}"
+          </p>
+        </div>
+        <div class="hidden shrink-0 lg:block">
+          <TerminalTips label="whoami" tips={aboutTips} />
+        </div>
       </div>
     </div>
   </Section>

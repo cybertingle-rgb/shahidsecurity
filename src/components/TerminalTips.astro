@@ -1,0 +1,194 @@
+---
+// A small terminal card that cycles through short cmd/note pairs — built
+// to fill the vertical gap a narrow side column otherwise leaves next to
+// taller flowing text (first used below the homepage hero's
+// TerminalWindow, where the left column's heading + copy + buttons run
+// taller than a single static terminal card). Reused with different,
+// page-appropriate content wherever that same narrow-column-beside-long-
+// text layout shows up (About, Contact) — same visual chrome throughout
+// (traffic-light dots, phosphor-green text) so every instance reads as
+// part of one consistent system, not a one-off decoration.
+interface TipItem {
+  cmd: string;
+  note: string;
+}
+
+interface Props {
+  /** Shown after the fixed "shahid@security:~$ " prompt in the header bar. */
+  label?: string;
+  tips?: TipItem[];
+}
+
+const DEFAULT_TIPS: TipItem[] = [
+  { cmd: 'chmod 600 ~/.ssh/id_rsa', note: 'Private keys should never be group- or world-readable' },
+  { cmd: 'ss -tulpn', note: 'List every listening port before someone else finds one open' },
+  { cmd: 'grep -r "AKIA" . --include=*.env', note: 'Hunt your own repo for an accidentally committed AWS key' },
+  { cmd: 'sudo apt list --upgradable', note: 'Unpatched packages are still the #1 way attackers get in' },
+  { cmd: 'last -i | head', note: 'Review recent logins for anything you did not expect' },
+  { cmd: 'history -c && history -r', note: 'Clear shell history after handling anything sensitive' },
+];
+
+const { label = 'tips --rotate', tips = DEFAULT_TIPS } = Astro.props;
+---
+
+<div class="terminal-tips glass-card overflow-hidden p-0 font-mono text-xs sm:text-sm" aria-hidden="true">
+  <div class="flex items-center gap-2 border-b border-(--color-border) bg-(--color-bg-elevated) px-4 py-3">
+    <span class="tips-dot tips-dot-red size-2.5 rounded-full"></span>
+    <span class="tips-dot tips-dot-yellow size-2.5 rounded-full"></span>
+    <span class="tips-dot tips-dot-green size-2.5 rounded-full"></span>
+    <span class="ml-3 text-white">shahid@security:~$ {label}</span>
+  </div>
+  <div class="tips-body relative min-h-28 p-4 sm:p-5">
+    <pre class="tips-line tips-static">{`shahid@security:~$ ${tips[0].cmd}\n`}<span class="tips-comment">{`# ${tips[0].note}`}</span></pre>
+    <pre class="tips-line tips-typed" data-tips-line></pre>
+    <script type="application/json" data-tips-json set:html={JSON.stringify(tips)} />
+  </div>
+</div>
+
+<style>
+  .tips-dot-red {
+    background: #ff5f57;
+  }
+  .tips-dot-yellow {
+    background: #febc2e;
+  }
+  .tips-dot-green {
+    background: #28c840;
+  }
+
+  .tips-line {
+    margin: 0;
+    white-space: pre-wrap;
+    color: #33ff66;
+    text-shadow: 0 0 6px rgba(51, 255, 102, 0.45);
+    min-height: 2.6em;
+  }
+
+  .tips-typed {
+    display: none;
+  }
+  .terminal-tips.is-animated .tips-static {
+    display: none;
+  }
+  .terminal-tips.is-animated .tips-typed {
+    display: block;
+  }
+
+  .tips-line .tips-cursor {
+    display: inline-block;
+    width: 0.55em;
+    background: #33ff66;
+    box-shadow: 0 0 6px rgba(51, 255, 102, 0.6);
+    margin-left: 1px;
+  }
+
+  .tips-line .tips-comment {
+    color: #8aa396;
+    text-shadow: none;
+  }
+</style>
+
+<script>
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function escapeHtml(str: string) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function initTips(el: Element) {
+    const lineEl = el.querySelector<HTMLElement>('[data-tips-line]');
+    const jsonEl = el.querySelector<HTMLScriptElement>('[data-tips-json]');
+    if (!lineEl || !jsonEl || prefersReducedMotion) return;
+
+    let tips: { cmd: string; note: string }[];
+    try {
+      tips = JSON.parse(jsonEl.textContent ?? '[]');
+    } catch {
+      return;
+    }
+    if (!Array.isArray(tips) || tips.length === 0) return;
+
+    el.classList.add('is-animated');
+    const prompt = 'shahid@security:~$ ';
+
+    let tipIndex = 0;
+    let charIndex = 0;
+    let phase: 'typing-cmd' | 'typing-note' | 'pause' | 'erasing' = 'typing-cmd';
+
+    function render(cmdPart: string, notePart: string, showCursor: boolean) {
+      const cursor = showCursor ? '<span class="tips-cursor cursor-blink">&nbsp;</span>' : '';
+      const note = notePart ? `\n<span class="tips-comment">${escapeHtml(notePart)}${cursor && phase === 'typing-note' ? cursor : ''}</span>` : '';
+      lineEl!.innerHTML = `${escapeHtml(cmdPart)}${cursor && phase === 'typing-cmd' ? cursor : ''}${note}`;
+    }
+
+    function tick() {
+      const tip = tips[tipIndex];
+      const fullCmd = prompt + tip.cmd;
+      const fullNote = '# ' + tip.note;
+
+      if (phase === 'typing-cmd') {
+        charIndex++;
+        render(fullCmd.slice(0, charIndex), '', true);
+        if (charIndex >= fullCmd.length) {
+          phase = 'typing-note';
+          charIndex = 0;
+          setTimeout(tick, 320);
+        } else {
+          setTimeout(tick, 22);
+        }
+        return;
+      }
+
+      if (phase === 'typing-note') {
+        charIndex++;
+        render(fullCmd, fullNote.slice(0, charIndex), true);
+        if (charIndex >= fullNote.length) {
+          phase = 'pause';
+          setTimeout(tick, 2600);
+        } else {
+          setTimeout(tick, 16);
+        }
+        return;
+      }
+
+      if (phase === 'pause') {
+        phase = 'erasing';
+        charIndex = fullNote.length;
+        setTimeout(tick, 16);
+        return;
+      }
+
+      // erasing the note only (keep the command line, like clearing a
+      // comment to type a fresh one) — cheaper and reads more naturally
+      // than wiping the whole block and retyping the prompt each time.
+      charIndex--;
+      render(fullCmd, fullNote.slice(0, Math.max(0, charIndex)), false);
+      if (charIndex <= 0) {
+        tipIndex = (tipIndex + 1) % tips.length;
+        charIndex = 0;
+        phase = 'typing-cmd';
+        setTimeout(tick, 280);
+      } else {
+        setTimeout(tick, 10);
+      }
+    }
+
+    tick();
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          initTips(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.3 },
+  );
+
+  document.querySelectorAll('.terminal-tips').forEach((el) => observer.observe(el));
+</script>

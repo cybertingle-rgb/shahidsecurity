@@ -1,33 +1,54 @@
 ---
 // Ambient "latest news" popup, shown once per visitor (localStorage-gated)
-// a couple of seconds after page load, then auto-dismissed after 3 seconds.
-// Visual language: the same chasing-comet conic-gradient ring technique
-// AuthCard.tsx uses on the Learn login/register cards (see apps/gateway/src/
-// app/globals.css's .auth-card-glow), ported to this site's own tokens,
-// plus a soft, heavily blurred color bleed behind the card — the "ambient
-// mode" look of a video player glowing into the room behind it, not a
-// modal scrim. The page itself stays fully visible and interactive.
+// a couple of seconds after page load, then auto-dismissed on its own
+// countdown. Visual language: the same chasing-comet conic-gradient ring
+// technique AuthCard.tsx uses on the Learn login/register cards (see
+// apps/gateway/src/app/globals.css's .auth-card-glow), ported to this
+// site's own tokens, plus a soft, heavily blurred color bleed behind the
+// card — the "ambient mode" look of a video player glowing into the room
+// behind it, not a modal scrim. The page itself stays fully visible and
+// interactive.
+//
+// Content is a real, randomly-picked post, not static copy — picked
+// client-side (see the script below) from every published post baked in
+// at build time, so a static site can still feel different each time it
+// shows without needing a server.
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).map((post) => ({
+  slug: post.id,
+  title: post.data.title,
+  description: post.data.description,
+}));
 ---
 
 <div class="news-popup" data-news-popup hidden>
   <div class="news-popup-ambience" aria-hidden="true"></div>
   <div class="news-popup-card">
-    <button type="button" class="news-popup-close" data-news-popup-close aria-label="Close">
-      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-        <path
-          d="M1 1l14 14M15 1L1 15"
-          stroke="currentColor"
-          stroke-width="1.6"
-          stroke-linecap="round"
-        ></path>
+    <div class="news-popup-close-wrap">
+      <svg class="news-popup-countdown" viewBox="0 0 28 28" aria-hidden="true">
+        <circle class="news-popup-countdown-track" cx="14" cy="14" r="12" />
+        <circle class="news-popup-countdown-ring" data-news-popup-ring cx="14" cy="14" r="12" />
       </svg>
-    </button>
-    <p class="news-popup-eyebrow">// LATEST</p>
-    <h3 class="news-popup-title">Read the latest news about cybersecurity</h3>
-    <p class="news-popup-desc">Fresh, verified breakdowns of real breaches, CVEs, and AI security trends — not hype.</p>
-    <a href="/blog/" class="news-popup-link" data-news-popup-link>Browse the blog →</a>
+      <button type="button" class="news-popup-close" data-news-popup-close aria-label="Close">
+        <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+          <path
+            d="M1 1l14 14M15 1L1 15"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          ></path>
+        </svg>
+      </button>
+    </div>
+    <p class="news-popup-eyebrow">// FROM THE BLOG</p>
+    <h3 class="news-popup-title" data-news-popup-title>Read the latest news about cybersecurity</h3>
+    <p class="news-popup-desc" data-news-popup-desc>Fresh, verified breakdowns of real breaches, CVEs, and AI security trends — not hype.</p>
+    <a href="/blog/" class="news-popup-link" data-news-popup-link>Read this post →</a>
   </div>
 </div>
+
+<script type="application/json" id="news-popup-posts" set:html={JSON.stringify(posts)} />
 
 <style>
   @property --news-popup-angle {
@@ -36,14 +57,18 @@
     inherits: false;
   }
 
+  /* Centered in the viewport, not tucked in a corner — a brief, focused
+     interruption rather than a passive corner toast. Still no backdrop
+     scrim behind it (see the file-level comment on "ambient mode"): the
+     page stays visible and clickable around it. */
   .news-popup {
     position: fixed;
-    left: 1.5rem;
-    bottom: 1.5rem;
-    z-index: 55;
-    width: min(21rem, calc(100vw - 3rem));
+    top: 50%;
+    left: 50%;
+    z-index: 70;
+    width: min(23rem, calc(100vw - 3rem));
     opacity: 0;
-    transform: translateY(0.75rem) scale(0.97);
+    transform: translate(-50%, -50%) scale(0.96);
     transition:
       opacity 360ms ease,
       transform 360ms ease;
@@ -52,7 +77,7 @@
 
   .news-popup.is-visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
     pointer-events: auto;
   }
 
@@ -142,14 +167,49 @@
     }
   }
 
+  .news-popup-close-wrap {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  /* A visible, draining countdown ring around the close button — set up
+     once here and driven entirely by the script below via the ring's
+     stroke-dashoffset, so the remaining time is always honestly shown
+     rather than just implied. */
+  .news-popup-countdown {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+
+  .news-popup-countdown-track {
+    fill: none;
+    stroke: var(--color-border-strong);
+    stroke-width: 2;
+    opacity: 0.5;
+  }
+
+  .news-popup-countdown-ring {
+    fill: none;
+    stroke: var(--color-success-soft);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 75.4;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 100ms linear;
+  }
+
   .news-popup-close {
     position: absolute;
-    top: 0.7rem;
-    right: 0.7rem;
+    inset: 0.2rem;
     display: grid;
     place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
     border-radius: 999px;
     color: var(--color-text-muted);
     background: color-mix(in oklab, var(--color-surface) 70%, transparent);
@@ -178,6 +238,10 @@
     font-size: 1rem;
     line-height: 1.3;
     color: var(--color-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .news-popup-desc {
@@ -185,6 +249,10 @@
     font-size: 0.82rem;
     line-height: 1.5;
     color: var(--color-text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .news-popup-link {
@@ -208,7 +276,8 @@
     .news-popup,
     .news-popup-ambience,
     .news-popup-card::before,
-    .news-popup-card::after {
+    .news-popup-card::after,
+    .news-popup-countdown-ring {
       animation: none;
       transition: none;
     }
@@ -218,12 +287,18 @@
 <script>
   const STORAGE_KEY = 'shahid-news-popup-seen-v1';
   const SHOW_DELAY_MS = 1800;
-  const AUTO_CLOSE_AFTER_MS = 3000;
+  const AUTO_CLOSE_AFTER_MS = 4500;
   const EXIT_TRANSITION_MS = 360;
+  const RING_CIRCUMFERENCE = 75.4; // 2 * PI * r(12), matches the SVG circle above
 
   const popup = document.querySelector<HTMLElement>('[data-news-popup]');
   const closeBtn = document.querySelector<HTMLElement>('[data-news-popup-close]');
-  const link = document.querySelector<HTMLElement>('[data-news-popup-link]');
+  const link = document.querySelector<HTMLAnchorElement>('[data-news-popup-link]');
+  const titleEl = document.querySelector<HTMLElement>('[data-news-popup-title]');
+  const descEl = document.querySelector<HTMLElement>('[data-news-popup-desc]');
+  const ring = document.querySelector<SVGCircleElement>('[data-news-popup-ring]');
+
+  type FeaturedPost = { slug: string; title: string; description: string };
 
   function hasBeenSeen(): boolean {
     try {
@@ -241,12 +316,34 @@
     }
   }
 
+  function pickRandomPost(): FeaturedPost | null {
+    const raw = document.getElementById('news-popup-posts')?.textContent;
+    if (!raw) return null;
+    try {
+      const posts = JSON.parse(raw) as FeaturedPost[];
+      if (!Array.isArray(posts) || posts.length === 0) return null;
+      return posts[Math.floor(Math.random() * posts.length)];
+    } catch {
+      return null;
+    }
+  }
+
   if (popup && !hasBeenSeen()) {
     let closeTimer: number | undefined;
+    let ringTimer: number | undefined;
+
+    const featured = pickRandomPost();
+    if (featured && link && titleEl && descEl) {
+      titleEl.textContent = featured.title;
+      descEl.textContent = featured.description;
+      link.href = `/blog/${featured.slug}/`;
+      link.textContent = 'Read this post →';
+    }
 
     const dismiss = () => {
       popup.classList.remove('is-visible');
       window.clearTimeout(closeTimer);
+      window.clearInterval(ringTimer);
       window.setTimeout(() => {
         popup.hidden = true;
       }, EXIT_TRANSITION_MS);
@@ -256,6 +353,20 @@
     window.setTimeout(() => {
       popup.hidden = false;
       requestAnimationFrame(() => popup.classList.add('is-visible'));
+
+      // Drain the ring in step with the real auto-close timer (updated on
+      // an interval, not a CSS animation alone) so it's always an honest
+      // readout of time left, not a decorative loop that could drift out
+      // of sync with when the popup actually closes.
+      if (ring) {
+        const start = Date.now();
+        ringTimer = window.setInterval(() => {
+          const elapsed = Date.now() - start;
+          const remaining = Math.max(0, 1 - elapsed / AUTO_CLOSE_AFTER_MS);
+          ring.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - remaining));
+        }, 100);
+      }
+
       closeTimer = window.setTimeout(dismiss, AUTO_CLOSE_AFTER_MS);
     }, SHOW_DELAY_MS);
 
