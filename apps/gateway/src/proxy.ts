@@ -40,6 +40,22 @@ export default function proxy(request: NextRequest): NextResponse | undefined {
     return new NextResponse('Not found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
   if (matchesPrefix(pathname, EXEMPT_PREFIXES)) {
+    // These route trees use Next's own no-trailing-slash convention, but
+    // every other page on this site (the Astro-served marketing pages)
+    // uses a trailing slash — so a visitor who types or clicks
+    // "/admin/" out of habit is a near-certainty, not an edge case.
+    // skipTrailingSlashRedirect disables Next's own normalization for
+    // the whole app, so without this, that trailing-slash request
+    // matches no route here and falls straight through to the Astro
+    // catch-all's 404 page instead of ever reaching /admin or /learn —
+    // confirmed in production (shahidiqbal.com/admin/ served the
+    // Astro site's branded 404, not this app). 308 preserves the
+    // request method, so a POST to e.g. /admin/api/auth/login/ still
+    // arrives as a POST, not downgraded to GET like a 301/302 would.
+    if (pathname.length > 1 && pathname.endsWith('/')) {
+      const canonical = pathname.slice(0, -1);
+      return NextResponse.redirect(new URL(`${canonical}${request.nextUrl.search}`, request.url), 308);
+    }
     return NextResponse.next();
   }
   if (pathname.endsWith('/') || HAS_FILE_EXTENSION.test(pathname)) {
