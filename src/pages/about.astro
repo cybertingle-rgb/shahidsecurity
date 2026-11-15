@@ -108,6 +108,8 @@ const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
           width="320"
           height="502"
           class="h-32 w-auto sm:h-40"
+          loading="eager"
+          fetchpriority="high"
         />
       </picture>
       <div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
@@ -157,6 +159,7 @@ const yearsExperience = new Date().getFullYear() - site.founderExperienceSince;
           width="480"
           height="598"
           class="size-28 rounded-full border border-(--color-neon)/40 object-cover"
+          loading="lazy"
         />
       </picture>
       <div>

@@ -81,7 +81,7 @@ const jsonLd = [faqSchema(faqItems.map((item) => ({ question: item.q, answer: it
 
 <BaseLayout
   title="Learn with Shahid — Cybersecurity Learning Platform"
-  description="A student dashboard, a structured cybersecurity roadmap, and a learner community — built by the same practitioner behind Shahid Security. See how it works and get started."
+  description="A student dashboard, structured cybersecurity roadmap and learner community — built by the same practitioner behind Shahid Security."
   path="/learn/"
   jsonLd={jsonLd}
   ogImage="/og/about.png"
@@ -103,6 +103,8 @@ const jsonLd = [faqSchema(faqItems.map((item) => ({ question: item.q, answer: it
           width="1254"
           height="1254"
           class="h-32 w-auto sm:h-40"
+          loading="eager"
+          fetchpriority="high"
         />
       </picture>
       <div>
