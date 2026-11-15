@@ -1,0 +1,122 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
+import { faqSchema, serviceSchema } from '@/lib/schema';
+
+const path = '/locations/uae/penetration-testing/';
+
+const faqs = [
+  {
+    q: 'What does VAPT mean, and is it what you offer in the UAE?',
+    a: "VAPT — Vulnerability Assessment and Penetration Testing — is the term most UAE vendors and buyers use for the combined service: an automated scan plus manual, hands-on testing. Yes, that's the core of what we deliver here, usually scoped and reported together.",
+  },
+  {
+    q: 'How long does a penetration test take?',
+    a: 'Typically 5-10 working days for a standard web application, depending on scope — the same timeline as our other markets. API and network engagements are scoped individually.',
+  },
+  {
+    q: 'Can you test against our production environment?',
+    a: 'We agree test windows in advance and avoid destructive techniques; testing a staging environment is preferred where one exists. Production testing is possible with explicit written authorisation and agreed boundaries.',
+  },
+  {
+    q: 'Do you test AI/LLM-powered applications?',
+    a: "We can assess conventional web and API attack surfaces around an AI-powered application (authentication, access control, data exposure). Dedicated AI/LLM-specific testing (prompt injection, model behaviour) is a newer, more specialised discipline — ask directly during scoping so we can tell you honestly whether it's a fit.",
+  },
+];
+
+const jsonLd: object[] = [
+  serviceSchema({
+    name: 'Penetration Testing in the UAE',
+    description: 'Manual web application, API and network penetration testing (VAPT) for private-sector businesses in Dubai and Abu Dhabi.',
+    path,
+    areaServed: ['United Arab Emirates', 'Dubai', 'Abu Dhabi'],
+  }),
+];
+const faq = faqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title="Penetration Testing Company in the UAE (Dubai & Abu Dhabi)"
+  description="Manual web application, API and network penetration testing (VAPT) for private-sector businesses in Dubai and Abu Dhabi — fixed scope, published starting prices."
+  path={path}
+  jsonLd={jsonLd}
+  pageType="CollectionPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Locations', path: '/locations/' }, { name: 'UAE', path: '/locations/uae/' }, { name: 'Penetration Testing', path }]} />
+    <SectionHeading
+      as="h1"
+      eyebrow="// uae · penetration testing"
+      title="Penetration Testing for UAE Businesses"
+      intro="Manual web application, API and network penetration testing (VAPT) for private-sector companies in Dubai and Abu Dhabi — scanner-assisted, not scanner-only."
+    />
+    <p class="mt-6 max-w-2xl text-sm text-(--color-text-muted)">
+      <strong class="text-(--color-text)">How we deliver:</strong> remote-first, with written authorisation and an NDA signed before any access. See the <a href="/locations/uae/" class="text-(--color-neon-soft) hover:underline">UAE overview</a> for what we don't claim (no DESC Cyber Force accreditation, no UAE office).
+    </p>
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">What's tested</h2>
+          <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+            {['Web application testing (OWASP Top 10)', 'API testing', 'Network / external infrastructure testing', 'Authentication and session review', 'Business-logic testing', 'Optional mobile app testing'].map((item) => (
+              <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+                <Icon name="lucide:check" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">What you get back</h2>
+          <ul class="mt-4 space-y-3">
+            {['Executive summary for management', 'Technical findings with severity (CVSS), proof and fix steps', 'Free re-test after remediation', 'Letter of attestation'].map((item) => (
+              <li class="flex items-start gap-2 text-sm text-(--color-text-muted)">
+                <Icon name="lucide:check" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Starting prices</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Published, not hidden behind a sales call: a Web Application Penetration Test starts from USD 2,000, a Network Vulnerability Assessment from USD 1,000, a Website Security Assessment from USD 750. Final price depends on scope — see the full breakdown on <a href="/pricing/" class="text-(--color-neon-soft) hover:underline">pricing</a>.
+          </p>
+        </div>
+
+        {faqs.length > 0 && (
+          <div>
+            <h2 class="font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={faqs} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Related</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/locations/uae/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">UAE overview <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/penetration-testing/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Penetration Testing (service detail) <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/vulnerability-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Vulnerability Assessment <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand title="Ready to scope a penetration test?" text="Book a consultation — fixed scope, fixed price, NDA signed before any access." />
+  </Section>
+</BaseLayout>

@@ -1,0 +1,146 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
+import { faqSchema, serviceSchema } from '@/lib/schema';
+
+const path = '/locations/pakistan/';
+
+const faqs = [
+  {
+    q: 'Does Shahid Security have an office in Lahore or Karachi?',
+    a: 'Shahid Security is registered in Islamabad and operates remote-first across Pakistan — there is no separate physical office in Lahore or Karachi today. Engagements are delivered remotely by default, with on-site work arranged separately where a client genuinely needs it.',
+  },
+  {
+    q: 'Is Shahid Security PTA or nCERT approved?',
+    a: "No. Shahid Security does not currently hold PTA or nCERT registration. Several established Pakistani firms do, and if your organisation's procurement process specifically requires that registration, say so during the consultation so we can tell you plainly whether we're the right fit.",
+  },
+  {
+    q: 'Can you help with State Bank of Pakistan (SBP) security requirements?',
+    a: "We can run the underlying vulnerability assessments and penetration tests that SBP-regulated institutions typically need as evidence, and advise on general PECA-relevant practice. We are not a substitute for your compliance or legal counsel's sign-off on a specific SBP circular.",
+  },
+  {
+    q: 'What does "VAPT" mean, and is that what you offer?',
+    a: "VAPT (Vulnerability Assessment and Penetration Testing) is the term most Pakistani buyers use for the combination of an automated vulnerability scan and manual penetration testing. Yes — that's the core of what our Vulnerability Assessment and Penetration Testing services deliver, usually scoped together for a single report.",
+  },
+];
+
+const jsonLd: object[] = [
+  serviceSchema({
+    name: 'Cybersecurity Services in Pakistan',
+    description: 'Penetration testing, vulnerability assessment (VAPT) and cybersecurity consulting for businesses in Pakistan, delivered remote-first from Islamabad.',
+    path,
+    areaServed: ['Pakistan', 'Lahore', 'Islamabad', 'Karachi'],
+  }),
+];
+const faq = faqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title="Cybersecurity & Penetration Testing Services in Pakistan"
+  description="Penetration testing, VAPT and cybersecurity consulting for businesses in Lahore, Islamabad and Karachi — delivered remote-first by a Pakistan-registered practice."
+  path={path}
+  jsonLd={jsonLd}
+  pageType="CollectionPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Locations', path: '/locations/' }, { name: 'Pakistan', path }]} />
+    <SectionHeading
+      as="h1"
+      eyebrow="// pakistan"
+      title="Cybersecurity Services in Pakistan"
+      intro="Penetration testing, vulnerability assessment (VAPT) and security consulting for businesses in Lahore, Islamabad and Karachi — from a Pakistan-registered practice that also serves clients internationally."
+    />
+    <p class="mt-6 max-w-2xl text-sm text-(--color-text-muted)">
+      <strong class="text-(--color-text)">How we deliver:</strong> remote-first for every engagement, with on-site work arranged separately where a client's environment genuinely requires it. Shahid Security is registered in Islamabad; we do not currently hold PTA or nCERT registration — flagged here plainly so you can judge fit before booking a consultation, not after.
+    </p>
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">The regulatory landscape</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Pakistan's cybersecurity compliance picture is driven by a few specific bodies, not a single national framework:
+          </p>
+          <ul class="mt-4 space-y-3">
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:scale" class="mt-0.5 size-4 flex-shrink-0 text-(--color-text-muted)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)"><strong class="text-(--color-text)">State Bank of Pakistan (SBP)</strong> — banks and regulated financial institutions are expected to run regular vulnerability assessments and penetration tests as part of their IT security framework obligations, and SBP itself periodically issues pentest-related tenders directly.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:scale" class="mt-0.5 size-4 flex-shrink-0 text-(--color-text-muted)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)"><strong class="text-(--color-text)">Pakistan Telecommunication Authority (PTA)</strong> — maintains its own registration process for certain categories of security service providers, separate from any international accreditation.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:scale" class="mt-0.5 size-4 flex-shrink-0 text-(--color-text-muted)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)"><strong class="text-(--color-text)">PECA (Prevention of Electronic Crimes Act, 2016)</strong> — Pakistan's primary cybercrime legislation; relevant background for any business handling an incident or drafting an acceptable-use policy, not something a vendor can certify you "compliant" with.</span>
+            </li>
+          </ul>
+          <p class="mt-4 text-sm text-(--color-text-muted)">
+            We don't claim registrations we don't hold, and we're not your compliance or legal counsel — this is the landscape we help you work within, verified against evidence from an actual test, not a checklist alone.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">By city</h2>
+          <div class="mt-4 grid gap-5 sm:grid-cols-3">
+            <div class="glass-card p-5">
+              <h3 class="font-display text-base font-semibold text-(--color-text)">Islamabad</h3>
+              <p class="mt-2 text-sm text-(--color-text-muted)">Where Shahid Security is registered. Government-adjacent and corporate clients in the capital are served directly, remote-first by default.</p>
+            </div>
+            <div class="glass-card p-5">
+              <h3 class="font-display text-base font-semibold text-(--color-text)">Lahore</h3>
+              <p class="mt-2 text-sm text-(--color-text-muted)">Pakistan's largest concentration of software houses and e-commerce businesses — many with GCC, UK or US clients who ask for independent pentest evidence before they'll sign a contract.</p>
+            </div>
+            <div class="glass-card p-5">
+              <h3 class="font-display text-base font-semibold text-(--color-text)">Karachi</h3>
+              <p class="mt-2 text-sm text-(--color-text-muted)">Pakistan's financial and trading hub — SBP-regulated institutions and larger enterprises with more complex network and compliance needs.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Where Shahid Security fits</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Two groups get the most value from working with a Pakistan-based practice directly: <strong class="text-(--color-text)">software houses and SaaS businesses</strong> whose international clients require independent penetration test evidence before signing or renewing a contract, and <strong class="text-(--color-text)">growing businesses</strong> that want a fixed-scope, transparently priced security assessment rather than an open-ended retainer. Published starting prices — a Website Security Assessment from USD 750, a Web Application Penetration Test from USD 2,000 — are on the <a href="/pricing/" class="text-(--color-neon-soft) hover:underline">pricing page</a>, so you know the range before booking a call.
+          </p>
+        </div>
+
+        {faqs.length > 0 && (
+          <div>
+            <h2 class="font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={faqs} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Relevant services</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/services/penetration-testing/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Penetration Testing <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/vulnerability-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Vulnerability Assessment (VAPT) <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/compliance-risk-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Compliance & Risk Assessment <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+        <h2 class="mt-6 font-display text-base font-semibold text-(--color-text)">Other markets</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/locations/uae/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">UAE <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/qatar/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Qatar <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/gcc/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Oman, Bahrain & Kuwait <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand title="Need a penetration test report your client or regulator will accept?" text="Book a consultation — we'll scope it against what you actually need to show, not a generic package." />
+  </Section>
+</BaseLayout>

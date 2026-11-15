@@ -1,0 +1,140 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
+import { faqSchema, serviceSchema } from '@/lib/schema';
+
+const path = '/locations/uae/';
+
+const faqs = [
+  {
+    q: 'Do you serve government or semi-government entities in Dubai?',
+    a: "No, not currently. Since mid-2024, providers delivering penetration testing or incident response for Dubai government and semi-government entities need Dubai Electronic Security Center (DESC) Cyber Force accreditation, which Shahid Security does not hold. We focus on private-sector businesses — SMEs, scale-ups and software companies — where that accreditation isn't a requirement.",
+  },
+  {
+    q: 'Is Shahid Security based in Dubai or Abu Dhabi?',
+    a: "No — Shahid Security is registered in Islamabad, Pakistan, and serves UAE clients remotely. On-site work can be arranged separately for engagements that genuinely need it, but there is no UAE office today.",
+  },
+  {
+    q: 'What does a penetration test actually cost in the UAE?',
+    a: 'Shahid Security publishes starting prices rather than requiring a sales call just to get a number: a Website Security Assessment starts from USD 750, a Web Application Penetration Test from USD 2,000. See the pricing page for the full list — your final price depends on scope.',
+  },
+  {
+    q: 'Do you need a TDRA licence to test in the UAE?',
+    a: "This is a genuinely disputed point — some guides describe a TDRA 'Cybersecurity Assessment Provider' licence as required for any penetration testing in the UAE, while free-zone guidance suggests otherwise depending on structure. We have not independently resolved this, and we recommend any UAE client raise it directly so expectations are clear before work begins.",
+  },
+];
+
+const jsonLd: object[] = [
+  serviceSchema({
+    name: 'Cybersecurity Services in the UAE',
+    description: 'Private-sector cybersecurity consulting, penetration testing and vulnerability assessment for SMEs and scale-ups in Dubai and Abu Dhabi, delivered remotely.',
+    path,
+    areaServed: ['United Arab Emirates', 'Dubai', 'Abu Dhabi'],
+  }),
+];
+const faq = faqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title="Cybersecurity Company for Dubai & Abu Dhabi SMEs"
+  description="Private-sector penetration testing, VAPT and cybersecurity consulting for SMEs and scale-ups in Dubai and Abu Dhabi — transparent pricing, delivered remotely."
+  path={path}
+  jsonLd={jsonLd}
+  pageType="CollectionPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Locations', path: '/locations/' }, { name: 'UAE', path }]} />
+    <SectionHeading
+      as="h1"
+      eyebrow="// united arab emirates"
+      title="Cybersecurity Services for Dubai & Abu Dhabi"
+      intro="Penetration testing, vulnerability assessment and security consulting for private-sector SMEs and scale-ups — not government or semi-government procurement."
+    />
+    <p class="mt-6 max-w-2xl text-sm text-(--color-text-muted)">
+      <strong class="text-(--color-text)">How we deliver:</strong> remote-first, with on-site work arranged separately where genuinely needed. We're upfront about what we don't do here: no DESC Cyber Force accreditation, so no government or semi-government engagements in Dubai — and no claim otherwise.
+    </p>
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Who this is for</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Private-sector SMEs and scale-ups in Dubai and Abu Dhabi that want a fixed-scope, transparently priced security assessment — not an open-ended retainer or a sales call just to find out the price range. Published starting prices (a Website Security Assessment from USD 750, a Web Application Penetration Test from USD 2,000, a Network Vulnerability Assessment from USD 1,000, a Cloud Security Assessment from USD 1,500 — see <a href="/pricing/" class="text-(--color-neon-soft) hover:underline">pricing</a>) are intentionally public, which most UAE-focused competitors don't do.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Dubai vs. Abu Dhabi</h2>
+          <div class="mt-4 grid gap-5 sm:grid-cols-2">
+            <div class="glass-card p-5">
+              <h3 class="font-display text-base font-semibold text-(--color-text)">Dubai</h3>
+              <p class="mt-2 text-sm text-(--color-text-muted)">The larger private-sector market — e-commerce, fintech, professional services and software companies. The DESC Cyber Force accreditation requirement (since July 2024) applies specifically to government and semi-government work, not private-sector engagements.</p>
+            </div>
+            <div class="glass-card p-5">
+              <h3 class="font-display text-base font-semibold text-(--color-text)">Abu Dhabi</h3>
+              <p class="mt-2 text-sm text-(--color-text-muted)">A smaller, more enterprise- and government-weighted market. Private-sector SMEs are served the same way as Dubai; large government and critical-infrastructure procurement is realistically outside scope for an unaccredited provider.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">What we don't claim</h2>
+          <ul class="mt-4 space-y-3">
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:alert-triangle" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)">No DESC Cyber Force accreditation — so no government or semi-government Dubai engagements.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:alert-triangle" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)">No UAE office — remote-first delivery, on-site by separate arrangement.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:alert-triangle" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)">No 24/7 managed SOC — monthly plans are business-hours; see <a href="/pricing/" class="text-(--color-neon-soft) hover:underline">pricing</a> for what's actually included.</span>
+            </li>
+          </ul>
+        </div>
+
+        {faqs.length > 0 && (
+          <div>
+            <h2 class="font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={faqs} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Penetration testing in the UAE</h2>
+        <p class="mt-3 text-sm text-(--color-text-muted)">A dedicated breakdown of web app, network and API pentest services for UAE businesses.</p>
+        <a href="/locations/uae/penetration-testing/" class="mt-4 inline-flex items-center gap-2 text-sm text-(--color-neon-soft) hover:underline">
+          View penetration testing in the UAE <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" />
+        </a>
+        <h2 class="mt-6 font-display text-base font-semibold text-(--color-text)">Relevant services</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/services/vulnerability-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Vulnerability Assessment <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/network-cloud-security/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Network & Cloud Security <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+        <h2 class="mt-6 font-display text-base font-semibold text-(--color-text)">Other markets</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/locations/pakistan/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Pakistan <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/qatar/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Qatar <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/gcc/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Oman, Bahrain & Kuwait <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand title="Want a fixed-scope, fixed-price security assessment?" text="Book a consultation — we'll tell you honestly whether we're the right fit before anything is scoped." />
+  </Section>
+</BaseLayout>

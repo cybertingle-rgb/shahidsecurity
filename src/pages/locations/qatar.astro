@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
+import { faqSchema, serviceSchema } from '@/lib/schema';
+
+const path = '/locations/qatar/';
+
+const faqs = [
+  {
+    q: 'Do you have an office in Doha?',
+    a: "No — and we say so directly rather than implying otherwise. Shahid Security is registered in Islamabad and serves Qatar clients remotely. Several providers that rank for 'penetration testing Doha' searches don't have a Qatar office either; we'd rather you know that upfront.",
+  },
+  {
+    q: "What is Qatar's data protection law, and does it affect us?",
+    a: "Qatar's Law No. 13 of 2016 on the Protection of Personal Data Privacy is the relevant framework for any business handling personal data of Qatar residents. We're not your legal counsel, but a penetration test or vulnerability assessment can help evidence that technical controls around that data are reasonable.",
+  },
+  {
+    q: 'Can you work with our existing IT or security team in Qatar?',
+    a: "Yes — most engagements involve coordinating with an internal IT contact for scoping, access and remediation verification. We don't require you to have a dedicated security team, but we work well with one if you do.",
+  },
+];
+
+const jsonLd: object[] = [
+  serviceSchema({
+    name: 'Cybersecurity & Penetration Testing Services in Qatar',
+    description: 'Penetration testing, vulnerability assessment and cybersecurity consulting for businesses in Doha and across Qatar, delivered remotely.',
+    path,
+    areaServed: ['Qatar', 'Doha'],
+  }),
+];
+const faq = faqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title="Cybersecurity & Penetration Testing Company in Qatar"
+  description="Penetration testing, vulnerability assessment and cybersecurity consulting for businesses in Doha and across Qatar — transparent pricing, delivered remotely."
+  path={path}
+  jsonLd={jsonLd}
+  pageType="CollectionPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Locations', path: '/locations/' }, { name: 'Qatar', path }]} />
+    <SectionHeading
+      as="h1"
+      eyebrow="// qatar"
+      title="Cybersecurity Services in Qatar"
+      intro="Penetration testing, vulnerability assessment and security consulting for businesses in Doha — honest about being a remote-first provider, not a hidden detail."
+    />
+    <p class="mt-6 max-w-2xl text-sm text-(--color-text-muted)">
+      <strong class="text-(--color-text)">How we deliver:</strong> remote-first, with on-site work arranged separately where genuinely needed. No Doha office, no claim of one.
+    </p>
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Penetration testing & VAPT in Qatar</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Manual web application, API and network penetration testing — what Qatar buyers often call VAPT (Vulnerability Assessment and Penetration Testing). Every engagement includes an executive summary, CVSS-rated findings with evidence and fix guidance, and a free re-test after remediation. Published starting prices (Web Application Penetration Test from USD 2,000, Network Vulnerability Assessment from USD 1,000 — see <a href="/pricing/" class="text-(--color-neon-soft) hover:underline">pricing</a>) mean you know the range before a call, not after.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">What to know before you buy</h2>
+          <ul class="mt-4 space-y-3">
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:alert-triangle" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)">Several providers marketing to Qatar don't have a local office — ask directly rather than assuming from the website.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:alert-triangle" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)">If your organisation needs a provider licensed under Qatar's national cybersecurity accreditation programme, confirm that requirement with us before scoping — we do not currently hold it.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="lucide:check" class="mt-0.5 size-4 flex-shrink-0 text-(--color-neon)" aria-hidden="true" />
+              <span class="text-sm text-(--color-text-muted)">A fixed-scope, fixed-price engagement is agreed and an NDA signed before any access is granted.</span>
+            </li>
+          </ul>
+        </div>
+
+        {faqs.length > 0 && (
+          <div>
+            <h2 class="font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={faqs} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Relevant services</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/services/penetration-testing/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Penetration Testing <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/vulnerability-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Vulnerability Assessment <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+        <h2 class="mt-6 font-display text-base font-semibold text-(--color-text)">Other markets</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/locations/uae/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">UAE <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/pakistan/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Pakistan <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/gcc/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Oman, Bahrain & Kuwait <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand title="Need a penetration test scoped for Qatar?" text="Book a consultation — we'll be upfront about fit before anything is scoped." />
+  </Section>
+</BaseLayout>

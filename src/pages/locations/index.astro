@@ -1,0 +1,52 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
+
+const path = '/locations/';
+
+const regions = [
+  { name: 'Pakistan', href: '/locations/pakistan/', blurb: 'Lahore, Islamabad and Karachi — Shahid Security’s home market.' },
+  { name: 'United Arab Emirates', href: '/locations/uae/', blurb: 'Dubai and Abu Dhabi — private-sector SMEs and scale-ups.' },
+  { name: 'Qatar', href: '/locations/qatar/', blurb: 'Doha and across Qatar.' },
+  { name: 'Oman, Bahrain & Kuwait', href: '/locations/gcc/', blurb: 'Including Bahrain’s recurring CBB testing requirement.' },
+];
+---
+
+<BaseLayout
+  title="Cybersecurity Services by Location"
+  description="Penetration testing, vulnerability assessment and cybersecurity consulting for businesses in Pakistan, the UAE, Qatar, Oman, Bahrain and Kuwait."
+  path={path}
+  pageType="CollectionPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Locations', path }]} />
+    <SectionHeading
+      as="h1"
+      eyebrow="// locations"
+      title="Cybersecurity Services by Location"
+      intro="Shahid Security is a remote-first practice registered in Islamabad, serving businesses directly in these markets. Each page below covers what's genuinely different about that market — regulatory context, realistic scope, and what we don't claim — not the same page with a city name swapped."
+    />
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-6 sm:grid-cols-2">
+      {regions.map((r) => (
+        <a href={r.href} class="glass-card corner-brackets block p-6 hover:border-(--color-neon-soft)/40">
+          <h2 class="font-display text-lg font-semibold text-(--color-text)">{r.name}</h2>
+          <p class="mt-2 text-sm text-(--color-text-muted)">{r.blurb}</p>
+          <span class="mt-4 inline-flex items-center gap-2 text-sm text-(--color-neon-soft)">
+            View {r.name} <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" />
+          </span>
+        </a>
+      ))}
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand title="Not sure which page applies to you?" text="Book a consultation and tell us where you're based — we'll be direct about fit." />
+  </Section>
+</BaseLayout>

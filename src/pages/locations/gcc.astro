@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/Section.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import Breadcrumbs from '@/components/Breadcrumbs.astro';
+import FAQ from '@/components/FAQ.astro';
+import CTABand from '@/components/CTABand.astro';
+import { Icon } from 'astro-icon/components';
+import { faqSchema, serviceSchema } from '@/lib/schema';
+
+const path = '/locations/gcc/';
+
+const faqs = [
+  {
+    q: 'How often do Bahrain-licensed financial institutions need a penetration test?',
+    a: "The Central Bank of Bahrain's Rulebook (Volume 4, cyber module) has been reported to require licensees to commission independent penetration tests twice a year — around June and December — and retain records for five years. Confirm the current requirement in the live CBB Rulebook or with your compliance team before relying on this for a filing; we're citing a third-party (KPMG) summary, not the primary source directly.",
+  },
+  {
+    q: "What's the cybersecurity market like in Oman?",
+    a: 'Oman has an active, moderately competitive market, including telecom-backed and CREST-listed providers offering managed and project-based penetration testing. Shahid Security takes project-based engagements here — fixed-scope VAPT and assessments — rather than managed/retainer services.',
+  },
+  {
+    q: 'Do you have specific experience with Kuwait?',
+    a: "Kuwait is a market we serve on request rather than one we've researched in the same depth as Oman and Bahrain. If you're in Kuwait, say so during the consultation and we'll be direct about what we do and don't know about local requirements.",
+  },
+];
+
+const jsonLd: object[] = [
+  serviceSchema({
+    name: 'Cybersecurity Services in Oman, Bahrain & Kuwait',
+    description: 'Penetration testing and vulnerability assessment for businesses in Oman, Bahrain and Kuwait, delivered remotely.',
+    path,
+    areaServed: ['Oman', 'Bahrain', 'Kuwait'],
+  }),
+];
+const faq = faqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));
+if (faq) jsonLd.push(faq);
+---
+
+<BaseLayout
+  title="Cybersecurity Services in Oman, Bahrain & Kuwait"
+  description="Penetration testing and vulnerability assessment for businesses in Oman, Bahrain and Kuwait — including Bahrain's twice-yearly CBB testing requirement for licensees."
+  path={path}
+  jsonLd={jsonLd}
+  pageType="CollectionPage"
+>
+  <Section class="pt-12">
+    <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Locations', path: '/locations/' }, { name: 'Oman, Bahrain & Kuwait', path }]} />
+    <SectionHeading
+      as="h1"
+      eyebrow="// oman · bahrain · kuwait"
+      title="Cybersecurity Services in Oman, Bahrain & Kuwait"
+      intro="Penetration testing and vulnerability assessment for businesses across the smaller GCC markets — grouped on one page because each market is too small on its own for a dedicated page today."
+    />
+    <p class="mt-6 max-w-2xl text-sm text-(--color-text-muted)">
+      <strong class="text-(--color-text)">How we deliver:</strong> remote-first across all three markets, with on-site work arranged separately where genuinely needed.
+    </p>
+  </Section>
+
+  <Section class="pt-0">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-10">
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Bahrain — recurring, calendar-driven testing</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Financial institutions licensed by the Central Bank of Bahrain (CBB) have been reported to be required, under the CBB Rulebook's cyber risk management module, to commission independent penetration tests <strong class="text-(--color-text)">twice a year</strong> and keep records for five years. If that applies to your institution, it means testing isn't a one-off project — it's a recurring need on a predictable schedule, and planning your provider relationship around that (rather than scrambling each cycle) is usually the more efficient approach.
+          </p>
+          <p class="mt-3 text-xs text-(--color-text-muted)">
+            Source: a third-party (KPMG) summary of the CBB Rulebook. Verify the current rule directly with the CBB Rulebook or your compliance team — we have not independently confirmed it from CBB's own text.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Oman — active, project-based market</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            Oman has a real, moderately competitive cybersecurity services market, including telecom-backed and internationally-accredited providers who sell penetration testing as part of a broader managed offering. Shahid Security's fit here is project-based: a fixed-scope vulnerability assessment or penetration test (VAPT) for a business that wants an independent assessment without committing to a managed retainer.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-xl font-semibold text-(--color-text)">Kuwait — served on request</h2>
+          <p class="mt-3 text-sm leading-relaxed text-(--color-text-muted)">
+            We haven't researched Kuwait's regulatory and competitive landscape in the same depth as Bahrain and Oman. We can still take on engagements here — the service itself (penetration testing, vulnerability assessment) doesn't change — but we'll say directly if a specific local requirement is outside what we've verified.
+          </p>
+        </div>
+
+        {faqs.length > 0 && (
+          <div>
+            <h2 class="font-display text-xl font-semibold text-(--color-text)">FAQ</h2>
+            <div class="mt-4">
+              <FAQ items={faqs} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="glass-card corner-brackets h-fit p-6">
+        <h2 class="font-display text-base font-semibold text-(--color-text)">Relevant services</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/services/penetration-testing/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Penetration Testing <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/vulnerability-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Vulnerability Assessment <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/services/compliance-risk-assessment/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Compliance & Risk Assessment <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+        <h2 class="mt-6 font-display text-base font-semibold text-(--color-text)">Other markets</h2>
+        <ul class="mt-4 space-y-3">
+          <li><a href="/locations/uae/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">UAE <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/qatar/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Qatar <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+          <li><a href="/locations/pakistan/" class="flex items-center justify-between gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text)">Pakistan <Icon name="lucide:arrow-right" class="size-3.5 flex-shrink-0" aria-hidden="true" /></a></li>
+        </ul>
+      </aside>
+    </div>
+  </Section>
+
+  <Section>
+    <CTABand title="Planning a recurring or one-off penetration test?" text="Book a consultation — we'll scope it around your actual testing cycle, not a generic package." />
+  </Section>
+</BaseLayout>
