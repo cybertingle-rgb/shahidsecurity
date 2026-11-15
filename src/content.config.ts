@@ -71,6 +71,11 @@ const caseStudies = defineCollection({
     industry: z.string(),
     services: z.array(z.string()),
     challenge: z.string(),
+    // Separate from `challenge`: the on-page narrative reads naturally at
+    // full length, but a meta description needs to fit a ~160-char search
+    // snippet. Falls back to `challenge` (truncated by the page template)
+    // for any case study that hasn't set one yet.
+    seoDescription: z.string().optional(),
     approach: z.array(z.string()),
     results: z.array(z.string()),
     quote: z

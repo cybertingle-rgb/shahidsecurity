@@ -21,10 +21,11 @@ const path = `/case-studies/${cs.id}/`;
 
 const services = await getCollection('services');
 const serviceByTitle = new Map(services.map((s) => [s.data.title.toLowerCase(), s.id]));
+const metaDescription = cs.data.seoDescription ?? cs.data.challenge;
 const jsonLd = [
   articleSchema({
     title: cs.data.title,
-    description: cs.data.challenge,
+    description: metaDescription,
     path,
     publishedAt: cs.data.publishedAt,
   }),
@@ -33,7 +34,7 @@ const jsonLd = [
 
 <BaseLayout
   title={cs.data.title}
-  description={cs.data.challenge}
+  description={metaDescription}
   path={path}
   jsonLd={jsonLd}
   ogImage={`/og/case-study-${cs.id}.png`}
