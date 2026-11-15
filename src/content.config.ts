@@ -32,6 +32,8 @@ const services = defineCollection({
     seoDescription: z.string(),
     /** Extra Service-schema areaServed entries beyond 'Worldwide' (e.g. specific countries this service has dedicated regional framework expertise for). */
     areaServed: z.array(z.string()).default([]),
+    /** Other service collection slugs to cross-link under "Related services" — curated by hand, not auto-derived, so the pairing is always a genuine fit. */
+    relatedServices: z.array(z.string()).default([]),
   }),
 });
 
