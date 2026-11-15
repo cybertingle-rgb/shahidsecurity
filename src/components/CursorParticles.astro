@@ -25,8 +25,14 @@
   const canvas = document.querySelector<HTMLCanvasElement>('.cursor-particles');
   const ctx = canvas?.getContext('2d');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // A mouse-pointer trail has no equivalent on a touch screen (no hover,
+  // no persistent pointer position) — skip setup entirely there rather
+  // than paying for a canvas + RAF loop that can never do anything.
+  // Confirmed via Lighthouse (docs/seo-growth/SEO_TEST_REPORT.md) as a
+  // real TBT cost on mobile, not just a theoretical one.
+  const isTouchPrimary = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  if (canvas && ctx && !prefersReducedMotion) {
+  if (canvas && ctx && !prefersReducedMotion && !isTouchPrimary) {
     const PARTICLE_COUNT = 42;
     const MATRIX_GREEN = '57, 255, 90'; // classic Matrix-movie digital green
 
@@ -45,6 +51,15 @@
     }));
 
     let nextIndex = 0;
+    // The tick loop used to run unconditionally from page load forever,
+    // via requestAnimationFrame recursion, regardless of whether any
+    // particle was ever active — a real, measured TBT cost (the
+    // dominant long-task source in every Lighthouse trace, see
+    // SEO_TEST_REPORT.md) paid on every page view even before a visitor
+    // ever moves their mouse. Lazy-start on first spawn, lazy-stop once
+    // every particle has died, instead of an always-on loop.
+    let rafId: number | null = null;
+    let activeCount = 0;
 
     function resize() {
       if (!canvas) return;
@@ -68,7 +83,9 @@
       p.life = p.maxLife;
       p.size = 18 + Math.random() * 16;
       p.char = Math.random() < 0.5 ? '0' : '1';
+      if (!p.active) activeCount += 1;
       p.active = true;
+      if (rafId === null) rafId = requestAnimationFrame(tick);
     }
 
     function onPointerMove(e: PointerEvent) {
@@ -91,6 +108,7 @@
         p.life -= 1;
         if (p.life <= 0) {
           p.active = false;
+          activeCount -= 1;
           continue;
         }
         const alpha = p.life / p.maxLife;
@@ -101,12 +119,15 @@
         ctx.fillText(p.char, p.x, p.y);
       }
 
-      requestAnimationFrame(tick);
+      if (activeCount > 0) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+      }
     }
 
     resize();
     window.addEventListener('resize', resize);
     window.addEventListener('pointermove', onPointerMove);
-    requestAnimationFrame(tick);
   }
 </script>
