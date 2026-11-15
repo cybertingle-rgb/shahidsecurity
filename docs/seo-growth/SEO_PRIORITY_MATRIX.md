@@ -1,0 +1,29 @@
+# SEO Priority Matrix
+
+**Date:** 2026-11-15. Every finding from `SEO_TECHNICAL_AUDIT.md`, prioritized by SEO impact vs. implementation effort, so Phase 6 can work this list top to bottom. P0 = blocks measurement or active harm; P1 = real, broad business impact; P2 = real but narrower or lower-severity impact; P3 = informational/negative findings or out-of-project-scope items.
+
+| ID | Priority | Finding | Impact | Effort | Owner/Phase |
+|---|---|---|---|---|---|
+| F1 | **P0** | No Google Search Console / GA4 / Bing Webmaster access this session | Cannot measure the real-world effect of *any* of this project's work — every priority below is evidence-based, not outcome-verified, until this closes | None (owner action) | Owner grants access; Phase 10 |
+| F2 | **P0** | No live network access to shahidiqbal.com from this session | Every "crawl" is of the local build, not confirmed against production | None (owner action, or a future session with access) | Owner runs a live crawl tool and compares to `SEO_URL_INVENTORY.csv`; or future session |
+| F3 | **P1** | 99 pages have a meta description over 160 chars (full list in `SEO_TECHNICAL_AUDIT.md` §1) | Truncated snippets in search results depress CTR across the majority of the blog, the homepage, every industry page, and `/pricing/` — i.e., most of the site's actual content investment | Medium — ~99 individual rewrites, each requires editorial judgment, not a mechanical trim | Phase 6/7, content strategist + Astro dev |
+| F4 | **P1** | No analytics installed anywhere on the site | Zero first-party visibility into real traffic/conversions independent of GSC; compounds F1 | Low (adding the tag) once a GA4 property + owner approval exist | Phase 10, pending owner approval to add a new third-party script |
+| F5 | **P2** | 1,032 of 1,052 `<img>` tags (98%) missing an explicit `loading` attribute, 0 using `loading="eager"` on hero images | Real but second-order Core Web Vitals (LCP) opportunity; browser defaults already provide reasonable lazy-loading behavior without the explicit attribute, so this is an optimization, not a breakage | Medium — touches multiple shared components (cards, hero sections) site-wide | Phase 6, Astro/web performance engineer |
+| F6 | **P2** | `/learn/login/`, `/learn/register/`, `/learn/forgot-password/` indexable by default; sibling auth pages correctly noindexed | Minor thin-content/crawl-budget inconsistency; no unique search value on any of the three | Low — add `robots: { index: false, follow: false }` to each route's metadata, matching the existing pattern on `reset-password`/`verify-email` | Phase 6, Next.js dev |
+| F7 | **P2** | Only 1 published case study | Thin social-proof signal; limits what GCC/location-page content (Phase 8) can credibly cite as evidence | N/A from content generation — requires a real client's written permission | Business-development dependency, not a content task |
+| F8 | **P2** | `apps/gateway`'s own public `/learn/*` pages (courses, personal-training) not yet technically audited | Unknown whether their own metadata/structured-data/internal-linking is sound — this pass could only inspect the public/private route boundary, not page quality | Medium (a dedicated audit pass) | New Phase 6/7 sub-task |
+| F9 | **P3** | 22 pages have a meta description under 70 chars (20 are noindexed tag pages, low severity; `/terms/` and `/learn/pricing/` are the two worth fixing) | Minimal — mostly non-indexable pages; the 2 real pages are a quick win | Low | Phase 6, quick pass |
+| F10 | **P3** | `/pricing/` and `/learn/pricing/` build-time fetch to the admin API fails gracefully when unreachable (confirmed by design, not a bug) | Low — only a risk if the live admin app is down at the exact moment a scheduled rebuild runs | N/A — already has retry+fallback handling | Informational, no action needed unless it's observed happening in production |
+| F11 | **P3** | 22 `.htaccess` legacy redirect rules unverified against the live server | Cannot confirm old WordPress-era URLs still correctly redirect | None from this session (needs live access, same as F2) | Owner runs `node scripts/verify-redirects.mjs https://shahidiqbal.com` |
+| F12 | **P3** (negative finding, no action) | Zero `hreflang` tags, English-only site | This is the honest starting point for Phase 8's Arabic SEO work, not a defect — building a dedicated Arabic experience is a strategic decision gated on real evidence from Phase 2/8, not a default fix | N/A | Phase 8 decision point |
+| F13 | **P3** (confirmed strength, no action) | 0 duplicate titles/descriptions, 0 missing canonicals, 0 heading-structure issues, 0 missing alt text, 0 broken links, 0 fabricated schema (Review/Rating/LocalBusiness), correct noindex/robots.txt defense-in-depth on all administrative routes except F6 | Strong technical foundation — most of this project's remaining opportunity is content/market strategy and measurement, not technical remediation | N/A | None — maintain via periodic re-runs of `scripts/seo-crawl.mjs` |
+
+## Suggested Phase 6 sequencing
+
+1. F3 (meta description lengths) — highest business impact, start immediately, can run in parallel with Phase 2/3 research since it doesn't depend on keyword findings.
+2. F6 (auth-page robots consistency) — trivial fix, do alongside F3.
+3. F9 (the 2 real too-short descriptions) — trivial, bundle with F3's editing pass.
+4. F5 (image loading attributes) — schedule as a dedicated pass once F3 is underway; touches shared components so needs its own careful review.
+5. F4 (analytics) — blocked on explicit owner approval to add a new third-party script (per the master brief's own rule); raise this as a standing, named approval request, not a silent default.
+6. F8 (gateway `/learn/*` audit) — schedule as its own short Phase 6/7 sub-task.
+7. F1/F2/F7/F11 — all owner-dependent; keep listed and visible, revisit each time the owner can act on one.
