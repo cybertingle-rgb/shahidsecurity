@@ -11,7 +11,10 @@ export default function SeoIndexPage() {
         documented follow-up, not yet implemented — see docs/SEO_CONTROL_CENTER.md). Treat this as the system of record
         to build that integration against, not as something already live.
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
+        <Link href="/dashboard/seo/health" className="rounded-lg border border-border bg-bg-elevated/60 p-4 text-neon">
+          Health / audit findings →
+        </Link>
         <Link href="/dashboard/seo/pages" className="rounded-lg border border-border bg-bg-elevated/60 p-4 text-neon">
           Per-page overrides →
         </Link>
