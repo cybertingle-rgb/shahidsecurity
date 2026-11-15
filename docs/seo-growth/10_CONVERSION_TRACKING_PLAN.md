@@ -4,10 +4,13 @@
 
 ## 1. Existing conversion paths (confirmed from the codebase, not assumed)
 
-- **`/book/`** — `BookingForm.astro` → `public/api/book.php` → confirmation email + redirect to `/book/thanks/` (noindexed, correctly excluded from the sitemap). Requires an email field (added in a prior session's phone-removal work) — phone is now optional.
-- **`/contact/`** — `ContactForm.astro` → `public/api/contact.php` → redirect to `/contact/thanks/` (same pattern).
+**Corrected 2026-11-15 (Phase 10):** the `public/api/book.php` / `public/api/contact.php` description below was accurate for the old PHP/Apache hosting setup but is now stale — the platform-consolidation merge replaced both with Node.js/database-backed handlers in the gateway app. See Section 6 for the full, re-verified architecture and why it actually improves this plan (both forms now write to a real database, not just an email side-effect).
+
+- **`/book/`** — `BookingForm.astro` → direct `fetch()` to the gateway's `POST /admin/api/public/consultation-booking` → creates a lead + consultation + invoice + pending payment in the gateway database → confirmation email (best-effort) + client-side redirect to `/book/thanks/` (noindexed, correctly excluded from the sitemap). Requires an email field (added in a prior session's phone-removal work) — phone is now optional. **Not** `public/api/book.php`, which doesn't exist in this codebase.
+- **`/contact/`** — `ContactForm.astro` → `fetch('/api/contact.php', { method: 'POST' })`, served by a Next.js route handler at that exact path (`apps/gateway/src/app/api/contact.php/route.ts`, not a real PHP script) → inserts into the `leads` table (database insert, not email, determines success; email is sent best-effort) → redirect to `/contact/thanks/` (same pattern).
 - **Email CTA** — `info@shahidiqbal.com` is the only direct-contact channel referenced site-wide (confirmed via the phone/WhatsApp-removal audit from a prior session — no phone number exists anywhere on the site).
 - **Luna widget** — an AI assistant chat widget present site-wide; not a form-based conversion path, but a potential pre-conversion engagement signal worth tracking separately if GA4 access is granted.
+- **`/learn` course enrollment and personal-training request** — two additional conversion paths outside the main marketing site, newly mapped in Section 6: free/paid course checkout (writes to `enrollments`/`orders`) and personal-training requests (writes to `trainingRequests`).
 
 ## 2. What needs to be measured (and currently isn't, without GA4/GSC access)
 
@@ -49,3 +52,19 @@ Known limitations this period: [stated plainly]
 ```
 
 No cell in that structure is ever filled with an estimate presented as a real figure.
+
+## 6. Conversion event definitions and codebase mapping (added 2026-11-15, Phase 10)
+
+Re-read this entire plan against the current codebase for Phase 10 (Core Web Vitals + analytics/conversion audit). Sections 1–5 above were re-verified and remain accurate except for the `book.php`/`contact.php` correction folded into Section 1. This section defines the five conversion events this project should track once GA4/analytics is approved and installed, each tied to a real, concrete action in the codebase today — not a generic placeholder.
+
+| Event name | Fires on | Concrete source in this codebase |
+|---|---|---|
+| `generate_lead` | Any successful contact-form or consultation-booking submission | Umbrella event for the two rows below — both ultimately create a row in the gateway's `leads` table |
+| `consultation_request` | `BookingForm.astro` submission on `/book/` or `/pricing/` | `fetch()` to `https://shahidiqbal.com/admin/api/public/consultation-booking` (`apps/gateway/src/app/admin/api/public/consultation-booking/route.ts`), via `bookPaidConsultation()` — creates lead + consultation + invoice + pending payment; client redirects to `/book/thanks/` on success |
+| `contact_form_submit` | `ContactForm.astro` submission on `/contact/` | `fetch('/api/contact.php', { method: 'POST' })`, handled by `apps/gateway/src/app/api/contact.php/route.ts` — inserts into `leads`; client redirects to `/contact/thanks/` on success. The form's `service` field is already captured server-side, giving a ready-made segmentation parameter (which of the 10 listed services the lead is interested in) for this event once GA4 exists |
+| `course_enquiry` | Enrollment/checkout start on a `/learn` course | Free courses: `enrollFree()` server action (`apps/gateway/src/app/learn/dashboard/checkout/[productId]/free-enroll-action.ts`) → `enrollInFreeCourse()`, redirects to `/dashboard/courses?enrolled=1`. Paid courses: `submitPayment()` server action (`.../checkout/[productId]/actions.ts`) → `submitManualPayment()` (`apps/gateway/src/learn-core/lib/checkout.ts`), redirects to `/dashboard/orders?submitted=1`. Both write to `enrollments`/`orders` (`apps/gateway/src/admin-core/db/schema/learn/enrollment.ts`) |
+| `training_enquiry` | Personal-training request submission at `/learn/dashboard/personal-training` | `submitPersonalTrainingRequest()` server action (`apps/gateway/src/app/learn/dashboard/personal-training/actions.ts`) → `submitTrainingRequest()` (`apps/gateway/src/learn-core/lib/personalTraining.ts`) → inserts into `trainingRequests` (no price/order row yet — pricing happens later via `acceptTrainingRequestOffer()` once a quote is given) |
+
+**Why this matters beyond the event names themselves:** `consultation_request` and `contact_form_submit` conversions are not purely a client-side GA4 concern. Both already write a durable, structured database row today (`leads`, plus `consultations`/`invoices`/`payments` for bookings) — independent of whether GA4 is ever installed. This means real lead *counts* (though not traffic-source attribution) could in principle be pulled from the gateway's own database as a cross-check against GA4's thank-you-page pageview counts once GA4 ships, which is a more reliable conversion count than a pageview-based goal alone. This doesn't reduce the need for GA4 (no attribution, no landing-page/traffic-source breakdown without it) — it's additional, independently-verifiable ground truth once both exist side by side.
+
+No implementation changed as a result of this section — this is documentation and mapping only, consistent with Section 3's rules and the project's standing P1/owner-approval requirement (`SEO_PRIORITY_MATRIX.md` finding F4) before any analytics script is installed.
