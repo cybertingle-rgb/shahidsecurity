@@ -1,0 +1,22 @@
+# Environment Variables Reference
+
+Full depth: manual §11. Verified by grepping real `process.env.*`/`import.meta.env.*` usage in the codebase — this list is what the code actually reads, not a generic template. **No value below is a real secret, and no real secret appears anywhere in this repository.** Real values live only in the production host's own environment-variable store (masked on read, not retrievable even through the hosting API).
+
+| Category | Variable names | Required? | Where to get a real value |
+|---|---|---|---|
+| Database | `DATABASE_URL`, `ADMIN_DATABASE_URL`, `LEARN_DATABASE_URL`, `DATABASE_ADMIN_URL`, `DATABASE_APP_HOST` | Required in production. `TEST_DATABASE_URL` + 3 `TEST_*` variants are required only to run the vitest suites — must point at a disposable database, never production | Your MySQL host's connection string for each database (see `DATABASE_RESTORATION_GUIDE.md`); `DATABASE_ADMIN_URL` must be a full-privilege user (DDL), the others should be the narrow runtime user created by `apply-grants` |
+| Auth / sessions | `ADMIN_SESSION_SECRET`, `LEARN_SESSION_SECRET`, `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD`, `TOKEN_ENCRYPTION_KEY` | Required | Generate a new long random string for each secret — never reuse one between environments. Seed email/password are for the one-time Super Admin bootstrap only |
+| Google | `ADMIN_GOOGLE_CLIENT_ID`/`_SECRET`/`_REDIRECT_URI`, `LEARN_GOOGLE_CLIENT_ID`/`_SECRET`, `GOOGLE_ANALYTICS_PROPERTY_ID` | Required only where that specific Google feature (staff OAuth integrations vs. student sign-in) is actually used | Google Cloud Console — two separate OAuth applications exist (admin vs. learn); the redirect URI must exactly match what's registered there (protocol, trailing slash, host — a mismatch has caused a real bug, commit `af1aa12`) |
+| Email / SMTP | `SMTP_HOST`/`_PORT`/`_USER`/`_PASSWORD`/`_FROM_EMAIL`/`_FROM_NAME`, `EMAIL_FROM`, `EMAIL_PROVIDER_API_KEY` | Required for gateway-sent mail. The Astro contact form uses a **separate** PHP config outside the repo, not these variables | Your SMTP provider's credentials for the gateway app; the PHP contact-form config is deployed separately on the host, outside `public_html` |
+| Payments | `PAYMENT_PROVIDER`, `PAYMENT_API_KEY`, `PAYMENT_SECRET` | **Not confirmed active** — found by name in the codebase, no live call site was traced. Confirm whether a payment gateway is actually operational before treating these as required; the Learn checkout flow appears to use a manual-payment-pending pattern instead | If genuinely needed: your payment provider's dashboard |
+| Anti-spam | `TURNSTILE_SECRET_KEY`, `PUBLIC_TURNSTILE_SITE_KEY` | Required wherever Turnstile-protected forms exist. An empty site key makes both the client widget and server check intentionally skip — a documented fallback, not a bug, but it means no bot protection until set | Cloudflare Turnstile dashboard |
+| Internal maintenance routes | `SEED_SECRET`, `MIGRATE_SECRET`, `FX_REFRESH_SECRET`, `PUBLISH_SCHEDULED_SECRET`, `LEADS_INTAKE_SECRET`, `AI_QUESTIONS_INTAKE_SECRET` | Each gates exactly one `/api/internal/*` route | Generate a long random string per secret, production-only, never reused across routes |
+| Platform / build | `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `ANTHROPIC_API_KEY`, `GITHUB_TOKEN`/`_REPO_OWNER`/`_REPO_NAME`/`_REPO_BRANCH` | Required as noted | `ANTHROPIC_API_KEY` from the Anthropic Console (Luna chat still works on its local FAQ fast-path with none set — only non-FAQ questions fail gracefully without it); `GITHUB_TOKEN` has **write access to this repository's source** via the admin "publish" feature — treat it with deploy-credential-level care, not as an ordinary API key |
+
+## A known issue, not fixed as part of this backup
+
+`apps/gateway/.env.example` still documents `ADMIN_APP_URL`/`LEARN_APP_URL`, pointing at a retired subdomain architecture. These are confirmed unreferenced anywhere in current code. Flagged here for whoever next cleans up that file — it is stale, not a variable you need to set.
+
+## General rule when restoring an environment
+
+Set real values directly in the new environment's own variable store (Hostinger's environment-variable settings, or equivalent). Never put a real value in a `.env` file that gets committed, never paste one into a chat, a commit message, or this document while restoring. See `SECURITY_AND_ENCRYPTION_GUIDE.md` for the same rule applied to the database content backup.

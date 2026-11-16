@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1790516864990,
+      "tag": "0000_busy_chamber",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1790626780976,
+      "tag": "0001_nosy_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790627661232,
+      "tag": "0002_nice_drax",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1790629966104,
+      "tag": "0003_peaceful_monster_badoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1790971050118,
+      "tag": "0004_black_lady_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1793225365290,
+      "tag": "0005_worthless_wild_child",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1793231062457,
+      "tag": "0006_silly_paper_doll",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1791280581073,
+      "tag": "0000_remarkable_hobgoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1791285755905,
+      "tag": "0001_confused_madelyne_pryor",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1791287232561,
+      "tag": "0002_spooky_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1791301581285,
+      "tag": "0003_striped_hawkeye",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1791306999390,
+      "tag": "0004_blushing_silver_centurion",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1791307801046,
+      "tag": "0005_certain_albert_cleary",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1791313299440,
+      "tag": "0006_spotty_shockwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1791379066081,
+      "tag": "0007_young_captain_britain",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1793350673141,
+      "tag": "0008_sudden_galactus",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1793351263003,
+      "tag": "0009_good_wither",
+      "breakpoints": true
+    }
+  ]
+}

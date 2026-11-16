@@ -1,0 +1,1 @@
+ALTER TABLE `google_sync_logs` MODIFY COLUMN `created_at` datetime(3) NOT NULL;
