@@ -69,15 +69,6 @@ import { site } from '@/lib/site';
     gap: 0.5rem;
   }
 
-  /* A registered custom property lets the browser animate the conic
-     gradient's own rotation angle directly, same technique the auth-page
-     cards use for their chasing-comet border glow. */
-  @property --social-ring-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
   .social-ring {
     position: relative;
     display: inline-flex;
@@ -90,7 +81,19 @@ import { site } from '@/lib/site';
      colored from its own brand hue (set per data-accent below), so the
      moving line visually belongs to the icon it surrounds. The padding +
      content-box/exclude mask keeps the gradient confined to a thin ring
-     at the edge rather than a solid wedge filling the circle. */
+     at the edge rather than a solid wedge filling the circle.
+
+     The motion is a plain `transform: rotate()` on the whole pseudo-
+     element, not an animated custom property feeding the conic-gradient
+     (how this used to work). Animating the gradient's own angle forces
+     the browser to regenerate the gradient bitmap and re-apply the mask
+     every single frame — real, continuous main-thread paint/raster work,
+     paid forever on every page this rail appears on (confirmed via a CDP
+     trace: Paint/RasterTask/UpdateLayer counts stayed high on a
+     completely idle page, which a mask-composite animation explains and
+     a transform animation would not). Rotating the pre-rendered
+     gradient+mask as one rigid layer is the same visual sweep, but the
+     browser can composite it on the GPU without repainting anything. */
   .social-ring::before,
   .social-ring::after {
     content: '';
@@ -105,6 +108,7 @@ import { site } from '@/lib/site';
     mask-composite: exclude;
     pointer-events: none;
     animation: social-ring-spin 4s linear infinite;
+    will-change: transform;
     transition:
       inset 220ms ease,
       padding 220ms ease,
@@ -120,7 +124,7 @@ import { site } from '@/lib/site';
   /* Facebook — brand blue neon. */
   .social-ring[data-accent='facebook']::before {
     background: conic-gradient(
-      from var(--social-ring-angle),
+      from 0deg,
       #4da3ff 0deg,
       #4da3ff 30deg,
       transparent 70deg,
@@ -133,7 +137,7 @@ import { site } from '@/lib/site';
   }
   .social-ring[data-accent='facebook']::after {
     background: conic-gradient(
-      from var(--social-ring-angle),
+      from 0deg,
       transparent 0deg,
       rgba(24, 119, 242, 0.55) 4deg,
       #4da3ff 30deg,
@@ -150,7 +154,7 @@ import { site } from '@/lib/site';
      comet heads, rather than a single flat brand color. */
   .social-ring[data-accent='instagram']::before {
     background: conic-gradient(
-      from var(--social-ring-angle),
+      from 0deg,
       #fcaf45 0deg,
       #fcaf45 30deg,
       transparent 70deg,
@@ -163,7 +167,7 @@ import { site } from '@/lib/site';
   }
   .social-ring[data-accent='instagram']::after {
     background: conic-gradient(
-      from var(--social-ring-angle),
+      from 0deg,
       transparent 0deg,
       rgba(228, 64, 95, 0.55) 4deg,
       #fcaf45 30deg,
@@ -179,7 +183,7 @@ import { site } from '@/lib/site';
   /* X — bright neon white, matching its dark-background brand mark. */
   .social-ring[data-accent='x']::before {
     background: conic-gradient(
-      from var(--social-ring-angle),
+      from 0deg,
       #ffffff 0deg,
       #ffffff 30deg,
       transparent 70deg,
@@ -192,7 +196,7 @@ import { site } from '@/lib/site';
   }
   .social-ring[data-accent='x']::after {
     background: conic-gradient(
-      from var(--social-ring-angle),
+      from 0deg,
       transparent 0deg,
       rgba(182, 216, 255, 0.55) 4deg,
       #ffffff 30deg,
@@ -206,8 +210,11 @@ import { site } from '@/lib/site';
   }
 
   @keyframes social-ring-spin {
+    from {
+      transform: rotate(0deg);
+    }
     to {
-      --social-ring-angle: 360deg;
+      transform: rotate(360deg);
     }
   }
 
