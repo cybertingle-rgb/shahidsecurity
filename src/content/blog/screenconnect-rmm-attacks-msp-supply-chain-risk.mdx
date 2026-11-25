@@ -1,0 +1,59 @@
+---
+title: "The ScreenConnect MSP Attacks: Why Your IT Provider's Remote-Access Tool Is Your Risk Too"
+description: "Attackers hijacked ScreenConnect at managed service providers in November 2026, compromising 288+ endpoints across 48 organizations in minutes — a stark lesson in third-party IT risk."
+publishedAt: 2026-11-25
+tags: ['third-party-risk', 'incident-response', 'msp-security']
+author: Shahid Iqbal
+relatedService: incident-response
+relatedPosts: ['third-party-vendor-risk-management-smb', 'living-off-the-cloud-attacks', 'business-continuity-disaster-recovery-planning-guide', 'insider-threat-detection-prevention-guide']
+faqs:
+  - q: "What actually happened in the ScreenConnect MSP attacks?"
+    a: "Starting November 11, 2026, attackers used compromised ScreenConnect panels to push rogue remote-access clients onto endpoints managed by multiple MSPs. Security firm Huntress tracked at least 288 compromised endpoints across 48 organizations, with roughly a third of them compromised within the first ten minutes of the campaign — a worm-like spread where one compromised MSP leads directly to infected customer endpoints."
+  - q: "How did the attackers get in, if ScreenConnect itself wasn't the bug?"
+    a: "Reporting points to a dodgy third-party ScreenConnect extension and, separately, an authentication flaw in specific RMM-plus extension versions as the likely initial access routes — not a flaw in ScreenConnect's core product. ConnectWise responded by disabling several third-party extensions across roughly 400 environments as a precaution, though not all of those were confirmed compromised."
+  - q: "My business doesn't use ScreenConnect directly — why does this matter to us?"
+    a: "Because your IT provider, help desk vendor, or MSP almost certainly uses some remote monitoring and management (RMM) tool like it to support you — and this attack shows exactly how a compromise at that vendor becomes a compromise of every client it touches, automatically, without your own systems having any flaw at all. If you've never asked your provider which RMM tool they use and how its access is secured, that conversation is overdue."
+draft: false
+---
+
+Starting **November 11, 2026**, attackers hijacked **ScreenConnect**, a widely used remote-access and remote monitoring tool, to push malicious rogue clients onto endpoints managed by multiple managed service providers (MSPs). Security firm **Huntress** tracked **at least 288 compromised endpoints across 48 organizations**, with roughly a third of those endpoints compromised within the campaign's first ten minutes — a genuinely worm-like spread pattern where breaching one MSP's management panel cascades directly into every client environment that MSP touches.
+
+## Why this attack is structurally different from "a company got breached"
+
+Most breach stories involve one organization's own systems failing. This one is different: **the victims weren't chosen individually — they inherited the compromise automatically, through a tool they never configured and a vendor relationship they trusted by default.** Attackers used cloud-hosted ScreenConnect panels and the platform's own legitimate "Run Command" feature to install a malware toolkit researchers have dubbed **SCKit**, including a component called **RelayTrap** that replaces the real ScreenConnect client process on an infected endpoint and silently intercepts incoming technician support sessions — meaning even a legitimate-looking remote support session could be compromised from the inside.
+
+- **Initial access reporting points to a flaw in third-party RMM-plus extension versions, and separately to a malicious third-party ScreenConnect extension** — not a core flaw in ScreenConnect itself, an important distinction for anyone deciding what to patch.
+- **ConnectWise disabled several third-party extensions across roughly 400 environments as a precaution** — a reminder that the blast radius of "we're being cautious" after an incident like this is itself large.
+- **This is "living off trusted tools," not malware dropped from nowhere** — the same pattern our [living-off-the-cloud attacks guide](/blog/living-off-the-cloud-attacks/) describes: abusing software your team already trusts and has already permitted through its defenses, rather than smuggling in something new that endpoint security would flag.
+
+## The real lesson: your vendor's access is your attack surface
+
+If your business works with an MSP, an IT help desk, or any outsourced technical support provider, that provider almost certainly has standing remote access into your systems through a tool exactly like ScreenConnect — and this incident demonstrates, concretely, that a compromise at the vendor level becomes a compromise at every client simultaneously, with no additional step required. This is precisely the risk our [third-party vendor risk management guide for SMBs](/blog/third-party-vendor-risk-management-smb/) is built around: the question isn't just "is our own network secure," it's "what access do we grant to vendors, and what happens the day one of them is breached."
+
+## What to do now
+
+- **Ask your MSP or IT provider directly which RMM tool they use**, whether it's ScreenConnect or another platform, and what monitoring exists for unusual activity inside that tool specifically.
+- **Confirm whether your provider uses any third-party extensions on top of their core RMM platform** — this incident's likely entry points were specifically in that extension layer, not the core product.
+- **Review your incident response plan for a scenario where the compromise originates at a vendor, not internally** — the detection and containment steps differ meaningfully from a standard internal breach.
+- **Request evidence of unusual remote-access activity in your own environment** from your provider if you haven't already, given the specific indicators (rogue client IDs, unexpected Run Command usage) now publicly documented by Huntress.
+- **Don't assume "we don't use ScreenConnect" means "we're unaffected"** — confirm what your actual provider uses, rather than relying on the specific product name in the headlines.
+
+## MSP/RMM vendor-risk checklist
+
+- [ ] Identify which RMM or remote-access tool every IT vendor and MSP you work with actually uses
+- [ ] Ask each vendor directly whether they were affected by, or have audited against, the November 2026 ScreenConnect campaign
+- [ ] Confirm whether any third-party extensions are layered on top of your vendor's core RMM platform, and who is responsible for securing them
+- [ ] Review your incident response plan for a vendor-originated compromise scenario specifically
+- [ ] Establish a standing requirement that vendors with remote access to your systems disclose security incidents on their side within a defined timeframe
+
+## Key takeaways
+
+The ScreenConnect MSP attacks compromised hundreds of endpoints across dozens of organizations without a single one of those organizations' own systems having a flaw — the vulnerability was in a vendor relationship, not in anything the victims controlled directly. If your business has never mapped out exactly what remote access your IT provider holds and how it's secured, this incident is the concrete reason to do it now rather than after it happens to you.
+
+Shahid Security's [Incident Response](/services/incident-response/) service includes vendor-originated compromise scenarios in its planning, not just internally-triggered incidents.
+
+**Want help mapping the real access your vendors hold into your systems?** [Book a consultation](/book/).
+
+---
+
+Sources: [Huntress — Rogue ScreenConnect Installations Across Unrelated Hosts Suggest Worm-Like Activity](https://huntress.com/blog/rogue-screenconnect-installations), [BleepingComputer — Active ScreenConnect attacks breach MSPs, impact dozens of organizations](https://bleepingcomputer.com/news/security/active-screenconnect-attacks-breach-msps-impact-dozens-of-organizations), [BleepingComputer — New worm-like SCKit malware targets MSPs in ScreenConnect attacks](https://bleepingcomputer.com/news/security/new-worm-like-sckit-malware-targets-msps-in-screenconnect-attacks), [eSecurity Planet — Huntress Warns of ScreenConnect Attacks: What MSPs Need to Check](https://www.esecurityplanet.com/threats/news-huntress-screenconnect-attacks-msp-environments/), [Channel Insider — Huntress Identifies Active Malware Campaign Abusing ScreenConnect](https://www.channelinsider.com/security/huntress-screenconnect-malware-rmm-plus/).
