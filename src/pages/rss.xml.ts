@@ -7,7 +7,7 @@ export const GET: APIRoute = async (context) => {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
 
   return rss({
-    title: `${site.name} Blog`,
+    title: `${site.name} News`,
     description: 'Practical, plain-English writing on cybersecurity for business owners.',
     site: context.site ?? site.url,
     items: posts

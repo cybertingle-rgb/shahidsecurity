@@ -11,7 +11,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 ---
 
 <BaseLayout
-  title="Blog"
+  title="News"
   description="Practical, plain-English writing on cybersecurity for business owners worldwide."
   path="/blog/"
   ogImage="/og/blog.png"
@@ -21,10 +21,10 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
     <Breadcrumbs
       items={[
         { name: 'Home', path: '/' },
-        { name: 'Blog', path: '/blog/' },
+        { name: 'News', path: '/blog/' },
       ]}
     />
-    <SectionHeading as="h1" eyebrow="// blog" title="Notes on staying secure" />
+    <SectionHeading as="h1" eyebrow="// news" title="Notes on staying secure" />
   </Section>
 
   <Section class="pt-0">

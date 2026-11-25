@@ -74,3 +74,27 @@ jobs:
           script: |
             find ${{ secrets.DEPLOY_PATH }} -type d -exec chmod 755 {} \;
             find ${{ secrets.DEPLOY_PATH }} -type f -exec chmod 644 {} \;
+
+      - name: Notify search engines via IndexNow
+        # IndexNow (api.indexnow.org) is a real, free, no-credential protocol
+        # that Bing, Yandex, Seznam and Naver all consume to recrawl changed
+        # URLs within minutes instead of waiting for their next scheduled
+        # crawl. Google does not consume IndexNow — there is no equivalent
+        # unauthenticated "crawl this now" mechanism for Google; fast
+        # reindexing there requires Search Console access (URL Inspection /
+        # Request Indexing), which only the account owner can grant.
+        # Best-effort only (continue-on-error): a transient failure here
+        # must never fail an otherwise-successful deploy.
+        continue-on-error: true
+        run: |
+          KEY="a9cbe1680f2a3614f2977eb5ecc12df8"
+          URLS=$(grep -ohE '<loc>[^<]+</loc>' dist/sitemap-*.xml dist/sitemap.xml 2>/dev/null | sed -E 's#</?loc>##g' | sort -u | head -10000)
+          if [ -z "$URLS" ]; then
+            echo "No sitemap URLs found — skipping IndexNow submission."
+            exit 0
+          fi
+          URL_LIST=$(printf '%s\n' "$URLS" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+          curl -sS -X POST 'https://api.indexnow.org/indexnow' \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            -d "{\"host\":\"shahidiqbal.com\",\"key\":\"$KEY\",\"keyLocation\":\"https://shahidiqbal.com/$KEY.txt\",\"urlList\":$URL_LIST}" \
+            -o /dev/null -w "IndexNow response: %{http_code}\n"

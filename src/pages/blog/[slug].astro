@@ -29,6 +29,7 @@ const jsonLd: object[] = [
     publishedAt: post.data.publishedAt,
     updatedAt: post.data.updatedAt,
     author: post.data.author,
+    image: `/og/blog-${post.id}.png`,
   }),
 ];
 const faq = faqSchema(post.data.faqs.map((f) => ({ question: f.q, answer: f.a })));
@@ -60,7 +61,7 @@ const relatedPosts =
     <Breadcrumbs
       items={[
         { name: 'Home', path: '/' },
-        { name: 'Blog', path: '/blog/' },
+        { name: 'News', path: '/blog/' },
         { name: post.data.title, path },
       ]}
     />

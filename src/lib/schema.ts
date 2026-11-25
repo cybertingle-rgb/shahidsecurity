@@ -83,6 +83,8 @@ export function blogPostingSchema(opts: {
   publishedAt: Date;
   updatedAt?: Date;
   author: string;
+  /** Path to the post's OG/share image — recommended by Google for article rich results eligibility. */
+  image?: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -90,12 +92,14 @@ export function blogPostingSchema(opts: {
     headline: opts.title,
     description: opts.description,
     url: absoluteUrl(opts.path),
+    ...(opts.image && { image: absoluteUrl(opts.image) }),
     datePublished: opts.publishedAt.toISOString(),
     dateModified: (opts.updatedAt ?? opts.publishedAt).toISOString(),
     author: opts.author.includes(site.founder.split(' ').pop()!)
       ? { '@id': `${site.url}/about/#person` }
       : { '@type': 'Person', name: opts.author },
     publisher: { '@id': `${site.url}/#organization` },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': absoluteUrl(opts.path) },
   };
 }
 
