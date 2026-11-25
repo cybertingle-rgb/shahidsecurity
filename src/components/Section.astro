@@ -10,7 +10,7 @@ const { class: className, id, bordered = false } = Astro.props;
 
 <section
   id={id}
-  class:list={['py-14 sm:py-20', bordered && 'border-t border-(--color-border)', className]}
+  class:list={['py-10 sm:py-14', bordered && 'border-t border-(--color-border)', className]}
 >
   <div class="container-page">
     <slot />
