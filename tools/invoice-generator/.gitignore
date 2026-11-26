@@ -1,0 +1,4 @@
+# Generated invoices and render artifacts contain real client billing data —
+# never commit these. Only the template/tooling itself is tracked.
+*.pdf
+.last-render.html

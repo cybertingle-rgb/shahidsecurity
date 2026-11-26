@@ -1,0 +1,18 @@
+{
+  "invoiceNo": "SS-2026-XXX",
+  "dateOfIssue": "26 November 2026",
+  "paymentMethod": "Bank Transfer",
+  "discountReference": "",
+  "currency": "PKR",
+  "billedTo": {
+    "name": "Example Client Pvt Ltd",
+    "lines": ["Attn: Jane Doe", "0300-0000000"]
+  },
+  "project": "Complete Website Development — exampleclient.com",
+  "items": [
+    { "title": "Domain Name", "subtitle": "exampleclient.com", "amount": 4799 },
+    { "title": "Web Hosting", "subtitle": "Hosting for exampleclient.com", "amount": 13790 },
+    { "title": "SSL Certificate", "subtitle": "Secure HTTPS encryption", "amount": 3200 },
+    { "title": "Development Charges", "subtitle": "Setup, WordPress, SMTP, Logo, Google Business and Brand Setups included", "amount": 15000 }
+  ]
+}
