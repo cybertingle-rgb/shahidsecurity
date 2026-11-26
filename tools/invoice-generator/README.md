@@ -21,6 +21,7 @@ Reproduces the exact branded invoice layout used for client billing (dark navy p
   "paymentMethod": "Bank Transfer",        // or "JazzCash", "Easypaisa", etc.
   "discountReference": "",                  // leave "" or omit if not applicable
   "currency": "PKR",                        // or "USD", "AED", etc.
+  "status": "Paid",                         // optional — "Paid" (green) or "Unpaid"/"Pending" (gold); omit to hide the status column entirely
   "billedTo": {
     "name": "Client Company Name",
     "lines": ["Attn: Contact Person", "Phone number", "Another line if needed"]

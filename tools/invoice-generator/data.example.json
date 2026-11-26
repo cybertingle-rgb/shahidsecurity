@@ -4,6 +4,7 @@
   "paymentMethod": "Bank Transfer",
   "discountReference": "",
   "currency": "PKR",
+  "status": "Paid",
   "billedTo": {
     "name": "Example Client Pvt Ltd",
     "lines": ["Attn: Jane Doe", "0300-0000000"]

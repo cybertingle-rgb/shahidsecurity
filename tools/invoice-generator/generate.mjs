@@ -124,6 +124,23 @@ const html = `<!doctype html>
     background: linear-gradient(90deg, var(--purple-light), var(--gold));
     border-radius: 2px;
   }
+  .status-pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .status-pill.paid {
+    color: #0b3b22;
+    background: var(--green);
+  }
+  .status-pill.unpaid, .status-pill.pending {
+    color: #3a2706;
+    background: var(--gold);
+  }
   .meta-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -306,11 +323,12 @@ const html = `<!doctype html>
 
     <div class="accent-bar"></div>
 
-    <div class="meta-row">
+    <div class="meta-row" style="grid-template-columns: repeat(${data.status ? 5 : 4}, 1fr);">
       <div><p class="label">Invoice No.</p><p class="value">${data.invoiceNo}</p></div>
       <div><p class="label">Date of Issue</p><p class="value">${data.dateOfIssue}</p></div>
       <div><p class="label">Payment Method</p><p class="value">${data.paymentMethod}</p></div>
       <div><p class="label">Discount Reference</p><p class="value">${data.discountReference || '&mdash;'}</p></div>
+      ${data.status ? `<div><p class="label">Status</p><p class="value"><span class="status-pill ${data.status.toLowerCase()}">${data.status}</span></p></div>` : ''}
     </div>
 
     <div class="two-col">
