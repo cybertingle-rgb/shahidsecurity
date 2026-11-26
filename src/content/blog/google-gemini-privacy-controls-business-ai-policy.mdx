@@ -1,0 +1,58 @@
+---
+title: "Google Just Split Gemini's Privacy Settings in Two — Here's What Your Business Needs to Check"
+description: "Google separated Gemini's chat-retention and AI-training settings on November 16, 2026, and extended history-off retention to two months. If your team uses Gemini, your defaults may have just changed."
+publishedAt: 2026-11-26
+tags: ['data-privacy', 'ai-governance', 'compliance']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['ai-acceptable-use-policy-business-guide', 'shadow-ai-security-risks', 'ai-security-risks-for-business', 'eu-ai-act-2026-business-compliance-guide']
+faqs:
+  - q: "What exactly changed in Gemini's privacy settings?"
+    a: "Google announced on November 16, 2026 that it is splitting its single \"Keep Activity\" toggle into two independent controls: one for how long Gemini retains your chat history, and a separate one for whether your chat content (text and attachments) can be used to train Google's generative AI models. Previously these were bundled into one setting."
+  - q: "Does this mean chats are now kept longer even with history turned off?"
+    a: "Yes, and this is the detail most likely to catch businesses off guard. Multiple reports describe retention for temporary chats and history-off conversations extending from 72 hours to roughly two months. If your team has been treating \"history off\" as meaning \"effectively not retained,\" that assumption changed on November 16, regardless of whether anyone on your team noticed."
+  - q: "Do we need to do anything, or does this just apply automatically?"
+    a: "The rollout is automatic and global over the coming weeks, and existing settings carry forward by default: if Keep Activity was off, both new settings default to off; if it was on, both default to on. Work and school (Google Workspace) accounts may see different options depending on the organization's administrator configuration — which is exactly the setting a business should actively check rather than assume carried over correctly."
+draft: false
+---
+
+Google announced on **November 16, 2026** that it is splitting Gemini's single privacy toggle into two separate controls — one governing **how long chat history is kept**, and a second, independent one governing **whether chat content can be used to train Google's AI models**. Buried in the same change: conversations with history turned off, previously retained for just 72 hours, now persist for roughly **two months**. If anyone at your business uses Gemini — officially sanctioned or not — this is a genuine policy change to your data's actual lifecycle, not a cosmetic settings update.
+
+## Why "we turned history off" doesn't mean what it used to
+
+The old assumption many businesses operated on — "if an employee doesn't want a chat retained, they turn history off, and it's handled" — was always a simplification, and this change makes that gap more consequential:
+
+- **Retention for history-off chats jumped from 72 hours to roughly two months** — a nearly 20x increase in how long that content actually exists on Google's servers, even when a user believed they'd opted for minimal retention.
+- **Training consent and retention are now genuinely separate decisions** — a business can no longer assume that disabling one setting handled both concerns at once, which means an employee (or an IT policy) set up under the old single-toggle model may now be in a different privacy posture than intended, without anyone having changed anything.
+- **Workspace (business/school) accounts may see different defaults depending on admin configuration** — meaning the outcome for your organization specifically depends on settings your IT administrator controls, not just what an individual employee sees in their own account.
+
+## The real risk isn't Google's policy — it's not knowing your own
+
+This is the same structural problem our [Shadow AI risks guide](/blog/shadow-ai-security-risks/) and [AI acceptable-use policy guide](/blog/ai-acceptable-use-policy-business-guide/) both cover from different angles: most businesses don't have a clear, current answer to "what AI tools does our team actually use, under what settings, with what data." A platform-level privacy change like this one doesn't create risk on its own — it exposes whichever businesses never had a real answer to that question in the first place.
+
+## What to do now
+
+- **If your business uses Google Workspace, have your administrator confirm the Gemini defaults that rolled out for your organization** specifically — don't assume individual employee settings or old policy documentation still reflect reality.
+- **Update your AI acceptable-use policy to reflect the new two-month history-off retention figure explicitly**, if your policy previously cited the old 72-hour window as a reason Gemini was considered low-risk for sensitive discussions.
+- **Treat any client-confidential, legally privileged, or regulated data discussed through Gemini as retained for up to two months even with history off**, and set internal guidance accordingly — don't rely on the old assumption.
+- **Confirm whether your training-data opt-out setting is actually configured the way your policy assumes**, now that it's a genuinely separate control from retention — the two no longer move together automatically.
+
+## Gemini privacy policy update checklist
+
+- [ ] Confirm your organization's actual Gemini retention and training-data settings post-November 16, 2026, rather than assuming prior configuration carried over as expected
+- [ ] Update internal AI acceptable-use policy documentation to reflect the new two-month history-off retention window
+- [ ] Brief staff who use Gemini that "history off" no longer means near-immediate deletion
+- [ ] Verify Workspace admin-level defaults for Gemini match your organization's actual data-handling requirements
+- [ ] Review whether any regulated or client-confidential data has been discussed through Gemini under the old retention assumption, and whether that needs addressing
+
+## Key takeaways
+
+Google's Gemini privacy split looks like a routine settings update, but it quietly rewrote a number — 72 hours to roughly two months — that a lot of businesses' informal AI policies were built on without anyone writing it down. If your organization's AI governance exists mostly as an assumption rather than a reviewed policy, this is a concrete, dated reason to make it a real document instead.
+
+Shahid Security's [Compliance & Risk Assessment](/services/compliance-risk-assessment/) service reviews AI tool usage against actual current vendor policies, not outdated assumptions about what a setting used to mean.
+
+**Want your AI usage policy checked against what these platforms actually do today, not what they did a year ago?** [Book a consultation](/book/).
+
+---
+
+Sources: [Google — Gemini Apps: Updated controls](https://blog.google/innovation-and-ai/products/gemini-app/updated-controls/), [Android Central — You can now keep your Gemini history without feeding Google's training pipeline](https://androidcentral.com/apps-software/ai/you-can-now-keep-your-gemini-history-without-feeding-googles-training-pipeline), [Android Authority — Gemini's new chat history settings](https://www.androidauthority.com/gemini-new-chat-history-settings-3736303/), [Let's Data Science — Google extends Gemini chat retention to two months with history off](https://letsdatascience.com/news/google-extends-gemini-chat-retention-to-two-months-with-hist-294b128a), [Google Gemini Apps Privacy Hub](https://support.google.com/gemini/answer/13594961).

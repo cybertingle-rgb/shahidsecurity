@@ -1,0 +1,58 @@
+---
+title: "ChatGPT Now Lets Businesses Claim a Profile — Claim Yours Before Someone Else Shapes How AI Describes You"
+description: "OpenAI's new Business Hub beta lets companies claim and verify a profile inside ChatGPT. Here's what the verification actually requires, and why claiming it matters even if you don't plan to use it."
+publishedAt: 2026-11-26
+tags: ['brand-protection', 'ai-governance', 'seo']
+author: Shahid Iqbal
+relatedService: compliance-risk-assessment
+relatedPosts: ['cyber-threat-intelligence-smb-guide', 'identity-access-management-least-privilege-guide', 'gcc-cybersecurity-compliance-sama-nesa']
+faqs:
+  - q: "What exactly is \"Businesses in ChatGPT\"?"
+    a: "OpenAI launched it as a beta on November 10, 2026 — a system letting eligible businesses claim and manage a verified profile inside ChatGPT through a new \"Business Hub,\" and optionally set up a custom AI agent to represent the business in conversations. It's functionally similar in spirit to a Google Business Profile, but for how ChatGPT itself represents and can interact on behalf of a business."
+  - q: "How does OpenAI verify that the person claiming a profile actually represents the business?"
+    a: "Depending on the business, OpenAI verifies a claim through a business phone number, email address, website domain (including a DNS TXT record option), or a connected Shopify account. One widely reported additional step involves identity verification through Persona, which can request a government-issued ID and proof that the claimant is authorized to represent the business — a meaningfully more rigorous process than most free business-directory signups."
+  - q: "Does claiming a profile change how my business appears in ChatGPT results?"
+    a: "According to OpenAI's own statement, no — \"claiming a profile or disputing ownership doesn't change its visibility in ChatGPT.\" Claiming establishes control and management rights over the profile and enables features like a custom business agent; it is explicitly not described as a ranking or visibility boost in itself."
+draft: false
+---
+
+OpenAI launched **Businesses in ChatGPT** as a beta on **November 10, 2026** — a system letting eligible companies **claim and verify a profile** inside ChatGPT through a new **Business Hub**, with the option to deploy a custom AI agent representing the business in conversations. Profile management is free during the beta. The verification process is more rigorous than a typical free directory listing, involving business phone/email/domain checks and, for some claims, government-ID identity verification through a third party called Persona.
+
+## Why "claim it even if you're not sure you'll use it" is the right instinct
+
+This launch sits in the same category as every major platform that has ever introduced a claimable business presence: **Google Business Profile, Bing Places, LinkedIn Company Pages** — in every one of those cases, the businesses that waited to decide whether they "needed" a profile were the ones who later discovered an unclaimed, outdated, or inaccurate representation of them already existing on the platform by default, because the underlying data existed whether or not anyone claimed it.
+
+- **Eligibility and visibility are independent of claiming** — OpenAI's own wording confirms a business can already be represented in ChatGPT's answers without having claimed anything, which means the real question isn't "should we exist in ChatGPT" (you may already, by default) but "who controls what's said when we do."
+- **The verification bar is genuinely non-trivial** — a business phone number, email, domain, or Shopify account, with a potential government-ID identity check layered on top. That's a meaningful amount of friction, which cuts both ways: it protects against casual impersonation, but it also means claiming your real profile takes actual effort that's easy to deprioritize until it matters.
+- **A custom business agent is a new, direct customer-interaction surface** — once a competitor or bad actor can't claim your name, the next relevant question becomes what your own claimed agent is authorized to say and do on your behalf, which is a governance question, not just a marketing one.
+
+## The brand-impersonation angle this story doesn't usually get framed around
+
+Most coverage of this launch treats it as a marketing or SEO opportunity. There's a security angle too: a verification process this detailed (government ID, domain control, phone/email ownership) exists specifically because **unclaimed business identity on a platform with hundreds of millions of users is a real impersonation risk**, not a hypothetical one — the same logic behind why claiming your Google Business Profile matters even for businesses that never actively market through Google. Our [cyber threat intelligence guide](/blog/cyber-threat-intelligence-smb-guide/) covers monitoring for this category of brand/identity risk more broadly; this is a concrete, dated reason to add one more platform to that watchlist.
+
+## What to do now
+
+- **Check whether your business already has an unclaimed presence in ChatGPT** before deciding whether claiming matters to you — the answer to "do we need this" depends on what's already there, which you can't know without looking.
+- **If eligible, go through the claim and verification process even if you don't plan to actively use a business agent yet** — the verification itself is the valuable part; the agent features are optional on top of it.
+- **Treat the identity-verification step (government ID, domain proof) as seriously as you would for any other security-sensitive business registration** — this is exactly the kind of process a bad actor would also want to exploit or socially engineer around, not just a form to rush through.
+- **If you do deploy a custom business agent, define explicitly what it's authorized to say and commit to** before launch — a customer-facing AI agent representing your business is a governance decision, not just a configuration setting.
+
+## Business identity-claiming checklist (ChatGPT and beyond)
+
+- [ ] Check your business's current unclaimed presence in ChatGPT, if any, before deciding whether to claim it
+- [ ] Complete OpenAI's Business Hub verification process if your business is eligible
+- [ ] Confirm the identity-verification request (if required) through OpenAI's actual process, not a third-party link claiming to represent it — phishing attempts mimicking legitimate business-verification flows are a well-established pattern
+- [ ] If deploying a custom business agent, document explicitly what it is and isn't authorized to say or commit to
+- [ ] Extend this same "claim your presence" review to other platforms where your business could be unknowingly represented by default
+
+## Key takeaways
+
+ChatGPT's new Business Hub is a legitimate opportunity, but the more urgent reason to act on it isn't marketing upside — it's that your business may already have an unclaimed presence shaping how an AI system describes you to customers, and the only way to find out, and take control if so, is to go check. The verification bar is high enough to matter; claiming your profile is the easy part once you've decided it's worth doing.
+
+Shahid Security's [Compliance & Risk Assessment](/services/compliance-risk-assessment/) service includes a review of where and how your business is represented across major platforms, not just your own website and social accounts.
+
+**Want to know what ChatGPT already says about your business, and whether it's accurate?** [Book a consultation](/book/).
+
+---
+
+Sources: [OpenAI — Introducing Businesses in ChatGPT](https://openai.com/index/introducing-businesses-chatgpt/), [VentureBeat — OpenAI lets you claim your business in ChatGPT and set up a custom agentic AI customer sales rep](https://venturebeat.com/technology/openai-lets-you-claim-your-business-in-chatgpt-and-set-up-a-custom-agentic-ai-customer-sales-rep), [Digit — OpenAI introduces Business Hub in ChatGPT, lets companies connect with customers through AI agents](https://www.digit.in/news/general/openai-introduces-business-hub-in-chatgpt-lets-companies-connect-with-customers-through-ai-agents.html), [AI Weekly — OpenAI Puts Verified Business Profiles and Agents in ChatGPT](https://aiweekly.co/alerts/openai-puts-verified-business-profiles-and-agents-in-chatgpt).
