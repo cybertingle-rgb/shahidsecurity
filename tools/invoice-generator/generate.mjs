@@ -23,7 +23,9 @@ if (!dataPath) {
 const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 const outPath = process.argv[3] ?? path.join(dir, `Invoice_${data.invoiceNo ?? 'output'}.pdf`);
 
-const logoPath = path.join(repoRoot, 'public/brand/logo-stacked-dark-bg.png');
+// The main horizontal logo (not the stacked variant) — this is the default
+// going forward per the business owner's own instruction.
+const logoPath = path.join(repoRoot, 'public/brand/logo-horizontal-dark-bg.png');
 const logoB64 = fs.readFileSync(logoPath).toString('base64');
 
 const fmt = (n) => Number(n).toLocaleString('en-US');
@@ -102,7 +104,7 @@ const html = `<!doctype html>
     justify-content: space-between;
     align-items: flex-start;
   }
-  .logo { height: 58px; }
+  .logo { height: 52px; width: auto; }
   .title-block { text-align: right; }
   .title-block h1 {
     margin: 0;
@@ -277,7 +279,7 @@ const html = `<!doctype html>
     padding: 18px 22px;
   }
   .footer-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .footer-logo { height: 34px; }
+  .footer-logo { height: 30px; width: auto; }
   .footer-tagline { color: var(--green); font-weight: 700; font-size: 13px; }
   .footer-connect { font-size: 9.5px; color: var(--gold); letter-spacing: 1px; font-weight: 700; margin-top: 2px; }
   .contact-grid {
